@@ -15,7 +15,7 @@ diese in Rechnung stellen zu können.
 -   [ ] **Constraint:** Prüfe vor dem Anlegen, ob bereits ein Patient mit dem
         selben Namen und Geburtsdatum aufgenommen wurde
 -   [ ] Aktualisiere eine Patientenkarteikarte
--   [ ] Setze einen Patienten auf inaktiv mit einem optionalen Grund
+-   [ ] Setze einen Patient auf inaktiv mit einem optionalen Grund
 
 ### Patientenkarteikarte
 
@@ -33,7 +33,7 @@ diese in Rechnung stellen zu können.
 
 ### Diagnose
 
--   [ ] Liste alle Diagnosen für einen Patienten auf
+-   [ ] Liste alle Diagnosen für einen Patient auf
 
 ### Erbringe Leistung
 
@@ -47,7 +47,7 @@ diese in Rechnung stellen zu können.
 
 ### Leistungen
 
--   [ ] Liste alle Leistungen für einen Patienten auf
+-   [ ] Liste alle Leistungen für einen Patient auf
 -   [ ] Filtere abgerechnete Leistungen aus
 
 ### Aktualisiere Gebührenverzeichnis
