@@ -1,0 +1,27 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+LAYOUT_LANDSCAPE()
+
+title "Container Diagram für Naturheilpraxis System"
+
+Person(heilpraktiker, "Heilpraktiker", "Möchte Patienten erfassen, um für sie Diagnosen zu erstellen, Leistungen zu erbringen und abzurechnen.")
+Person(patient, "Patient", "Möchte Rechnung für Leistungen erhalten, um sie bei der Krankenkasse oder dem Finanzamt vorzulegen.")
+
+System_Boundary(naturheilpraxis, "Naturheilpraxis System") {
+  Container_Ext(electron, "Electron", "Electron, Node.js", "Container für die Web-Anwendung und Proxy für native Funktionen.")
+  Container(rendererProcess, "Renderer Process", "TypeScript, React", "Rendert die Benutzeroberfläche und gibt Nutzereingaben als Nachrichten an den Main Process weiter.")
+  Container(mainProcess, "Main Process", "TypeScript", "Verarbeitet die Nachrichten des Renderer Process' und gibt Antwortnachrichten zurück.")
+  ContainerDb(eventStore, "Event Store", "Filesystem, JSOND", "Zeichnet alle Änderungen als Liste von Ereignissen auf.")
+
+  Rel(electron, rendererProcess, "Stelle Benutzeroberfläche bereit", "HTML, CSS, JavaScript")
+  Rel(electron, mainProcess, "Verwalte den Lebenszyklus der Applikation", "Node.js, JavaScript")
+  Rel_Up(rendererProcess, mainProcess, "Sende und empfange Nachrichten", "IPC channels")
+  Rel(mainProcess, eventStore, "Sichere fachliche Ereignisse", "File, JSON")
+}
+
+Rel(heilpraktiker, electron, "Nimm Patient auf, erstelle Diagnose, erbringe Leistungen und erstelle Rechnung")
+Rel(patient, electron, "Erhalte Diagnose und Leistungen sowie Rechnung")
+
+SHOW_FLOATING_LEGEND()
+@enduml

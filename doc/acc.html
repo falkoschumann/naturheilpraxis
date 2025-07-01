@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8" />
+    <title>Naturheilpraxis | Architecture Communication Canvas</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+      }
+
+      html {
+        font-family: sans-serif;
+      }
+
+      @media screen and (max-width: 1279px) {
+        html {
+          font-size: 14px;
+        }
+      }
+
+      body {
+        padding: 1rem;
+      }
+
+      main {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        grid-template-rows: repeat(4, auto);
+        gap: 0.5rem;
+      }
+
+      section {
+        padding: 0.75rem;
+        border: solid darkgray 1px;
+        border-radius: 8px;
+        box-shadow: 2px 2px 4px lightgray;
+      }
+
+      h1 {
+        margin: 1rem 0 1rem 0;
+      }
+
+      h2,
+      p,
+      ul {
+        margin: 0 0 1rem 0;
+      }
+
+      h2:last-child,
+      p:last-child,
+      ul:last-child {
+        margin-bottom: 0;
+      }
+
+      ul {
+        list-style-type: disc;
+        padding-left: 1.5rem;
+      }
+
+      img {
+        width: 100%;
+        height: auto;
+      }
+
+      .requirements {
+        background-color: lightgreen;
+      }
+
+      .solution {
+        background-color: lightblue;
+      }
+
+      .risks {
+        background-color: lightpink;
+      }
+
+      .legend {
+        margin: 12px 0;
+      }
+
+      .legend .square {
+        width: 1rem;
+        height: 1rem;
+        border: solid darkgray 1px;
+        border-radius: 4px;
+      }
+
+      .h-box {
+        display: flex;
+        align-items: center;
+      }
+
+      .space-x-50 > * + * {
+        margin-left: 0.5rem;
+      }
+
+      .space-x-100 > * + * {
+        margin-left: 1rem;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Architecture Communication Canvas für Naturheilpraxis</h1>
+    </header>
+
+    <main>
+      <section class="requirements" style="grid-column: 1/1; grid-row: 1/1">
+        <h2>Value Proposition</h2>
+        <p>
+          Als Heilpraktiker möchte ich die Leistungen für Patienten erfassen, um ihnen diese in Rechnung stellen zu
+          können.
+        </p>
+      </section>
+
+      <section class="requirements" style="grid-column: 1/1; grid-row: 2/2">
+        <h2>Key Stakeholder</h2>
+        <ul>
+          <li>Heilpraktiker</li>
+          <li>Patient</li>
+        </ul>
+      </section>
+
+      <section class="requirements" style="grid-column: 2/2; grid-row: 1/1">
+        <h2>Core Functions</h2>
+        <ul>
+          <li>Nimm Patient auf</li>
+          <li>Erstelle Diagnose</li>
+          <li>Erbringe Leistung</li>
+          <li>Aktualisiere Gebührenverzeichnis</li>
+          <li>Erstelle Rechnung</li>
+          <li>Rechne Leistungen ab</li>
+          <li>Storniere Rechnung</li>
+          <li>Gib Leistungen frei</li>
+          <li>Patientenkarteikarte</li>
+          <li>Diagnose</li>
+          <li>Leistungen</li>
+          <li>Gebührenverzeichnis</li>
+          <li>Rechnung</li>
+        </ul>
+      </section>
+
+      <section class="requirements" style="grid-column: 2/2; grid-row: 2/2">
+        <h2>Quality Requirements</h2>
+        <ul>
+          <li>Orientiert an der Arbeitsweise des Heilpraktikers</li>
+          <li>Mandantenfähigkeit: Mehre Praxen, gemeinsame Patienten</li>
+          <li>Lauffähig unter macOS und Windows</li>
+        </ul>
+      </section>
+
+      <section class="requirements" style="grid-column: 1/3; grid-row: 3/3">
+        <h2>Business Context</h2>
+        <img src="business-context.png" alt="Business context" />
+      </section>
+
+      <section class="solution" style="grid-column: 3/3; grid-row: 1/3">
+        <h2>Core Decisions - Good or Bad</h2>
+        <ul>
+          <li>Nutze Web-Technologien als Grundlage</li>
+          <li>Sichere fachliche Ereignisse als Cloud Events in Event Store</li>
+          <li>Sichere Konfiguration außerhalb des Event Stores</li>
+          <li>Implementiere Hexagonale Architektur</li>
+          <li>Nutze fertige Komponenten, um den Aufwand zu reduzieren</li>
+          <li>Verwende ein ausgereiftes Komponenten-Framework</li>
+          <li>Reduziere die Abhängigkeit von Frameworks und Bibliotheken von Dritten auf ein Minimum</li>
+        </ul>
+      </section>
+
+      <section class="solution" style="grid-column: 3/5; grid-row: 3/3">
+        <h2>Components / Modules</h2>
+        <img src="components.png" alt="Components / modules" />
+      </section>
+
+      <section class="solution" style="grid-column: 4/4; grid-row: 1/3">
+        <h2>Technologies</h2>
+        <ul>
+          <li>Electron</li>
+          <li>React</li>
+          <li>Bootstrap</li>
+          <li>TypeScript</li>
+          <li>Node.js LTS</li>
+          <li>Vite</li>
+          <li>Vitest, ESLint, Prettier</li>
+          <li>Sheriff</li>
+          <li>Build with make</li>
+        </ul>
+      </section>
+
+      <section class="risks" style="grid-column: 1/5; grid-row: 4/4">
+        <h2>Risks and Missing Information</h2>
+        <ul>
+          <li>Wenig Erfahrung mit Electron</li>
+          <li>Kann Electron die nativen Anforderungen erfüllen, z.&nbsp;B. Drucken</li>
+        </ul>
+      </section>
+    </main>
+
+    <footer>
+      <div class="legend h-box space-x-100">
+        <div class="h-box space-x-50">
+          <div class="requirements square"></div>
+          <div>Requirements: What should the system do?</div>
+        </div>
+        <div class="h-box space-x-50">
+          <div class="solution square"></div>
+          <div>Solution: How is it done? How does it work?</div>
+        </div>
+        <div class="h-box space-x-50">
+          <div class="risks square"></div>
+          <div>What are known problems and risks?</div>
+        </div>
+      </div>
+      <div style="color: gray; font-size: 0.8em">
+        Software Architecture Canvas, © 2023 by Gernot Starke, Patrick Roos and arc42 Contributors is licensed under
+        Attribution-ShareAlike 4.0 International.
+        <a href="https://canvas.arc42.org">https://canvas.arc42.org</a>
+      </div>
+    </footer>
+  </body>
+</html>

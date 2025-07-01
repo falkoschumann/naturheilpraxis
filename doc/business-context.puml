@@ -1,0 +1,21 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+
+LAYOUT_LEFT_RIGHT()
+
+title "System Context Diagram für Naturheilpraxis System"
+
+Person(heilpraktiker, "Heilpraktiker", "Möchte Patienten erfassen, um für sie Diagnosen zu erstellen, Leistungen zu erbringen und abzurechnen.")
+Person(patient, "Patient", "Möchte Rechnung für Leistungen erhalten, um sie bei der Krankenkasse oder dem Finanzamt vorzulegen.")
+
+System(naturheilpraxis, "Naturheilpraxis", "Verwaltet Patienten, Diagnosen, Leistungen und Rechnungen.")
+
+SystemDb(eventStore, "Event Store", "Zeichnet alle Änderungen als Liste von Ereignissen auf.")
+
+Rel(heilpraktiker, naturheilpraxis, "Nimm Patient auf, erstelle Diagnose, erbringe Leistungen und erstelle Rechnung")
+Rel(patient, naturheilpraxis, "Erhalte Diagnose und Leistungen sowie Rechnung")
+Rel(naturheilpraxis, eventStore, "Sichere fachliche Ereignisse")
+
+SHOW_FLOATING_LEGEND()
+Lay_Left(LEGEND(), eventStore)
+@enduml
