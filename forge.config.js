@@ -4,6 +4,7 @@ const { FuseV1Options, FuseVersion } = require("@electron/fuses");
 module.exports = {
   packagerConfig: {
     asar: true,
+    icon: "app-icon/app-icon",
     osxNotarize: {
       tool: "notarytool",
       appleId: process.env.APPLE_ID,
@@ -16,15 +17,27 @@ module.exports = {
   makers: [
     {
       name: "@electron-forge/maker-squirrel",
-      config: {},
+      config: {
+        setupIcon: "app-icon/app-icon.ico",
+      },
     },
     {
       name: "@electron-forge/maker-zip",
       platforms: ["darwin"],
     },
     {
+      name: "@electron-forge/maker-dmg",
+      config: {
+        icon: "app-icon/app-icon.icns",
+      },
+    },
+    {
       name: "@electron-forge/maker-deb",
-      config: {},
+      config: {
+        options: {
+          icon: "app-icon/app-icon.png",
+        },
+      },
     },
     {
       name: "@electron-forge/maker-rpm",

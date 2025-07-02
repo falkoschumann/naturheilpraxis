@@ -15,6 +15,7 @@ distclean: clean
 
 dist: build
 	mkdir -p dist
+	cp out/make/*.dmg dist/
 	cp out/make/zip/darwin/arm64/*.zip dist/
 
 start:
@@ -34,9 +35,16 @@ build: prepare
 	npm run make
 
 prepare: version
+	@if [ -n "$(CI)" ] ; then \
+  		echo "CI detected, run npm ci"; \
+  		npm ci; \
+  	else \
+  		npm install; \
+  	fi
 
 version:
-	@echo "Java $(shell java --version | head -n 1)"
+	@echo "Node.js $(shell node --version)"
+	@echo "NPM $(shell npm --version)"
 
 $(DIAGRAM_FILES): %.png: %.puml
 	plantuml $^
