@@ -1,0 +1,31 @@
+{
+  "name": "naturheilpraxis",
+  "version": "0.1.0",
+  "description": "Mit der App können Heilpraktiker Leistungen für Patienten erfassen, um ihnen diese in Rechnung stellen zu können.",
+  "type": "commonjs",
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "main": "main.js",
+  "directories": {
+    "doc": "doc"
+  },
+  "scripts": {
+    "start": "electron .",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "devDependencies": {
+    "electron": "37.1.0",
+    "prettier": "3.6.2"
+  },
+  "author": "Falko Schumann",
+  "license": "MIT",
+  "homepage": "https://github.com/falkoschumann/naturheilpraxis",
+  "bugs": {
+    "url": "https://github.com/falkoschumann/naturheilpraxis/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/falkoschumann/naturheilpraxis.git"
+  }
+}
