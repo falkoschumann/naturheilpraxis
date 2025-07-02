@@ -1,7 +1,18 @@
 PLANTUML_FILES = $(wildcard doc/*.puml)
 DIAGRAM_FILES = $(subst .puml,.png,$(PLANTUML_FILES))
 
-all: check
+all: dist check
+
+clean:
+	rm -rf out
+
+distclean: clean
+	rm -rf dist
+	rm -rf node_modules
+
+dist: build
+	mkdir -p dist
+	cp out/make/zip/darwin/arm64/*.zip dist/
 
 start:
 	npm start
@@ -17,7 +28,7 @@ format:
 dev: start
 
 build: prepare
-	./gradlew build -x test -x check
+	npm run make
 
 prepare: version
 
