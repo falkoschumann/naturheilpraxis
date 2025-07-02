@@ -1,3 +1,6 @@
+include .env.local
+export $(shell sed 's/=.*//' .env.local)
+
 PLANTUML_FILES = $(wildcard doc/*.puml)
 DIAGRAM_FILES = $(subst .puml,.png,$(PLANTUML_FILES))
 
@@ -39,7 +42,7 @@ $(DIAGRAM_FILES): %.png: %.puml
 	plantuml $^
 
 .PHONY: \
-	all start \
+	all clean distclean dist start \
 	doc \
 	check format \
 	dev \
