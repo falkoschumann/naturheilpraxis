@@ -21,4 +21,5 @@ Create a file `.env.local` with:
 APPLE_ID=<your-apple-id>
 APPLE_PASSWORD=<app-specific-password>
 APPLE_TEAM_ID=<your-team-id>
+SIGN=true
 ```
