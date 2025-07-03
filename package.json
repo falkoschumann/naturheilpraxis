@@ -14,7 +14,7 @@
   "scripts": {
     "start": "electron-forge start",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon --ext html,css,js --exec electron .",
+    "dev": "electronmon .",
     "package": "electron-forge package",
     "make": "electron-forge make"
   },
@@ -32,7 +32,7 @@
     "@electron-forge/plugin-fuses": "7.8.1",
     "@electron/fuses": "1.8.0",
     "electron": "37.1.0",
-    "nodemon": "3.1.10",
+    "electronmon": "2.0.3",
     "prettier": "3.6.2"
   },
   "author": "Falko Schumann",
