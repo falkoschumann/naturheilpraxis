@@ -1,17 +1,24 @@
 const { FusesPlugin } = require("@electron-forge/plugin-fuses");
 const { FuseV1Options, FuseVersion } = require("@electron/fuses");
 
+const osxPackager =
+  process.env.SIGN === "true"
+    ? {
+        osxNotarize: {
+          tool: "notarytool",
+          appleId: process.env.APPLE_ID,
+          appleIdPassword: process.env.APPLE_PASSWORD,
+          teamId: process.env.APPLE_TEAM_ID,
+        },
+        osxSign: {},
+      }
+    : {};
+
 module.exports = {
   packagerConfig: {
+    ...osxPackager,
     asar: true,
     icon: "app-icon/app-icon",
-    osxNotarize: {
-      tool: "notarytool",
-      appleId: process.env.APPLE_ID,
-      appleIdPassword: process.env.APPLE_PASSWORD,
-      teamId: process.env.APPLE_TEAM_ID,
-    },
-    osxSign: {},
   },
   rebuildConfig: {},
   makers: [

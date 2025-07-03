@@ -7,16 +7,13 @@ DIAGRAM_FILES = $(subst .puml,.png,$(PLANTUML_FILES))
 all: dist check
 
 clean:
-	rm -rf out
+	rm -rf out/Naturheilpraxis-*
 
 distclean: clean
-	rm -rf dist
+	rm -rf out
 	rm -rf node_modules
 
 dist: build
-	mkdir -p dist
-	cp out/make/zip/*/*/*.zip dist/
-#	cp out/make/*.dmg dist/
 
 start:
 	npm start
@@ -29,10 +26,14 @@ check:
 format:
 	npx prettier --write .
 
-dev: start
+dev:
+	npm run dev
 
 build: prepare
-	npm run make
+	npm run make -- --platform darwin --arch arm64 --targets @electron-forge/maker-zip
+	npm run make -- --platform darwin --arch x64 --targets @electron-forge/maker-zip
+	npm run make -- --platform win32 --arch x64 --targets @electron-forge/maker-zip
+	npm run make -- --platform win32 --arch arm64 --targets @electron-forge/maker-zip
 
 prepare: version
 	@if [ -n "$(CI)" ] ; then \
