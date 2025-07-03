@@ -15,8 +15,8 @@ distclean: clean
 
 dist: build
 	mkdir -p dist
-	cp out/make/*.dmg dist/
-	cp out/make/zip/darwin/arm64/*.zip dist/
+	cp out/make/zip/*/*/*.zip dist/
+#	cp out/make/*.dmg dist/
 
 start:
 	npm start

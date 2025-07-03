@@ -19,11 +19,12 @@ module.exports = {
       name: "@electron-forge/maker-squirrel",
       config: {
         setupIcon: "app-icon/app-icon.ico",
+        platforms: ["win32"],
       },
     },
     {
       name: "@electron-forge/maker-zip",
-      platforms: ["darwin"],
+      platforms: ["darwin", "win32", "linux"],
     },
     {
       name: "@electron-forge/maker-dmg",
@@ -36,12 +37,15 @@ module.exports = {
       config: {
         options: {
           icon: "app-icon/app-icon.png",
+          platforms: ["linux"],
         },
       },
     },
     {
       name: "@electron-forge/maker-rpm",
-      config: {},
+      config: {
+        platforms: ["linux"],
+      },
     },
   ],
   plugins: [
