@@ -26,7 +26,7 @@
  * ```
  */
 
-import "./index.css";
+import "./style.css";
 
 declare global {
   interface Window {

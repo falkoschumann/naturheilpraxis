@@ -7,6 +7,7 @@ DIAGRAM_FILES = $(subst .puml,.png,$(PLANTUML_FILES))
 all: dist check
 
 clean:
+	rm -rf .vite
 	rm -rf out/Naturheilpraxis-*
 
 distclean: clean
@@ -26,8 +27,7 @@ check:
 format:
 	npx prettier --write .
 
-dev:
-	npm run dev
+dev: start
 
 build: prepare
 	npm run make
