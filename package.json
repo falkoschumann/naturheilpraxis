@@ -1,22 +1,20 @@
 {
   "name": "naturheilpraxis",
+  "productName": "Naturheilpraxis",
   "version": "0.1.0",
   "description": "Mit der App können Heilpraktiker Leistungen für Patienten erfassen, um ihnen diese in Rechnung stellen zu können.",
-  "productName": "Naturheilpraxis",
-  "type": "commonjs",
   "engines": {
     "node": ">=22.0.0"
   },
-  "main": "main.js",
-  "directories": {
-    "doc": "doc"
-  },
+  "main": ".vite/build/main.js",
   "scripts": {
     "start": "electron-forge start",
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "electronmon .",
     "package": "electron-forge package",
-    "make": "electron-forge make"
+    "make": "electron-forge make",
+    "publish": "electron-forge publish",
+    "lint": "eslint --ext .ts,.tsx ."
   },
   "dependencies": {
     "electron-squirrel-startup": "1.0.1"
@@ -30,12 +28,29 @@
     "@electron-forge/maker-zip": "7.8.1",
     "@electron-forge/plugin-auto-unpack-natives": "7.8.1",
     "@electron-forge/plugin-fuses": "7.8.1",
+    "@electron-forge/plugin-vite": "7.8.1",
     "@electron/fuses": "1.8.0",
+    "@types/electron-squirrel-startup": "1.0.2",
+    "@typescript-eslint/eslint-plugin": "5.62.0",
+    "@typescript-eslint/parser": "5.62.0",
     "electron": "37.1.0",
     "electronmon": "2.0.3",
-    "prettier": "3.6.2"
+    "eslint": "8.57.1",
+    "eslint-plugin-import": "2.32.0",
+    "prettier": "3.6.2",
+    "ts-node": "10.9.2",
+    "typescript": "4.5.4",
+    "vite": "5.4.19"
   },
-  "author": "Falko Schumann",
+  "keywords": [
+    "naturheilpraxis",
+    "heilpraktiker",
+    "rechnung"
+  ],
+  "author": {
+    "name": "Falko Schumann",
+    "email": "falko.schumann@muspellheim.de"
+  },
   "license": "MIT",
   "homepage": "https://github.com/falkoschumann/naturheilpraxis",
   "bugs": {

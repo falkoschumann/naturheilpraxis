@@ -30,10 +30,11 @@ dev:
 	npm run dev
 
 build: prepare
-	npm run make -- --platform darwin --arch arm64 --targets @electron-forge/maker-zip
-	npm run make -- --platform darwin --arch x64 --targets @electron-forge/maker-zip
-	npm run make -- --platform win32 --arch x64 --targets @electron-forge/maker-zip
-	npm run make -- --platform win32 --arch arm64 --targets @electron-forge/maker-zip
+	npm run make
+#	npm run make -- --platform darwin --arch arm64 --targets @electron-forge/maker-zip
+#	npm run make -- --platform darwin --arch x64 --targets @electron-forge/maker-zip
+#	npm run make -- --platform win32 --arch x64 --targets @electron-forge/maker-zip
+#	npm run make -- --platform win32 --arch arm64 --targets @electron-forge/maker-zip
 
 prepare: version
 	@if [ -n "$(CI)" ] ; then \
