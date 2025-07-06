@@ -15,6 +15,7 @@ distclean: clean
 	rm -rf node_modules
 
 dist: build
+	npm run make
 
 start:
 	npm start
@@ -35,7 +36,7 @@ dev:
 
 # TODO Build only one platform and configure platform, arch and target via environment variable
 build: prepare
-	npm run make
+	npm run build
 #	npm run make -- --platform darwin --arch arm64 --targets @electron-forge/maker-zip
 #	npm run make -- --platform darwin --arch x64 --targets @electron-forge/maker-zip
 #	npm run make -- --platform win32 --arch x64 --targets @electron-forge/maker-zip

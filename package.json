@@ -11,13 +11,10 @@
     "start": "electron-vite preview --outDir=dist",
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "electron-vite dev --outDir=dist --watch",
-    "build": "npm run typecheck && electron-vite build --outDir=dist",
-    "package": "npm run build &&  electron-forge package",
-    "make": "npm run build &&  electron-forge make",
-    "publish": "npm run build &&  electron-forge publish",
-    "typecheck": "npm run typecheck:node && npm run typecheck:web",
-    "typecheck:node": "tsc --noEmit -p tsconfig.node.json --composite false",
-    "typecheck:web": "tsc --noEmit -p tsconfig.web.json --composite false"
+    "build": "tsc -b && electron-vite build --outDir=dist",
+    "package": "electron-forge package",
+    "make": "electron-forge make",
+    "publish": "electron-forge publish"
   },
   "dependencies": {
     "electron-squirrel-startup": "1.0.1"
