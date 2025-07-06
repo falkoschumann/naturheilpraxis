@@ -30,12 +30,12 @@
 
 import "./style.css";
 
-const information = document.getElementById("info") as HTMLDivElement;
-information.innerText = `This app is using Chrome (v${window.versions.chrome()}), Node.js (v${window.versions.node()}), and Electron (v${window.versions.electron()})`;
+import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
+import App from "./ui/app";
 
-const func = async () => {
-  const response = await window.versions.ping();
-  console.log(response); // prints out 'pong'
-};
-
-func();
+createRoot(document.getElementById("root")!).render(
+  <StrictMode>
+    <App />
+  </StrictMode>,
+);

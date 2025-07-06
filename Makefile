@@ -27,7 +27,7 @@ check: test
 	npx prettier --check .
 	npx sheriff verify src/main/index.ts
 	npx sheriff verify src/preload/index.ts
-	npx sheriff verify src/renderer/index.ts
+	npx sheriff verify src/renderer/index.tsx
 
 format:
 	npx eslint --fix .

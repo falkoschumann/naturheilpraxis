@@ -3,6 +3,11 @@
 import path from "node:path";
 
 import { app, BrowserWindow, ipcMain } from "electron";
+import {
+  installExtension,
+  REACT_DEVELOPER_TOOLS,
+  REDUX_DEVTOOLS,
+} from "electron-devtools-installer";
 import started from "electron-squirrel-startup";
 
 import icon from "../../resources/icon.png?asset";
@@ -26,6 +31,7 @@ const createWindow = () => {
   // Load the remote URL for development or the local html file for production.
   if (!app.isPackaged && process.env["ELECTRON_RENDERER_URL"]) {
     mainWindow.loadURL(process.env["ELECTRON_RENDERER_URL"]);
+    setTimeout(() => mainWindow.reload(), 1000);
   } else {
     mainWindow.loadFile(path.join(__dirname, "../renderer/index.html"));
   }
@@ -38,6 +44,14 @@ const createWindow = () => {
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.on("ready", () => {
+  if (!app.isPackaged) {
+    installExtension([REDUX_DEVTOOLS, REACT_DEVELOPER_TOOLS])
+      .then(([redux, react]) =>
+        console.log(`Added Extensions:  ${redux.name}, ${react.name}`),
+      )
+      .catch((err) => console.log("An error occurred: ", err));
+  }
+
   ipcMain.handle("ping", () => "pong");
   createWindow();
 });
