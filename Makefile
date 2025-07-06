@@ -22,7 +22,7 @@ start:
 
 doc: $(DIAGRAM_FILES)
 
-check:
+check: test
 	npx eslint .
 	npx prettier --check .
 	npx sheriff verify src/main/index.ts
@@ -35,6 +35,24 @@ format:
 
 dev:
 	npm run dev
+
+test: prepare
+	npx vitest run
+
+watch: prepare
+	npm test
+
+coverage: prepare
+	npx vitest run --coverage
+
+unit-tests: prepare
+	npx vitest run unit
+
+integration-tests: prepare
+	npx vitest run integration
+
+e2e-tests: prepare
+	npx vitest run e2e
 
 # TODO Build only one platform and configure platform, arch and target via environment variable
 build: prepare

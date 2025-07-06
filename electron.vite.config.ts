@@ -1,5 +1,7 @@
 // Copyright (c) 2025 Falko Schumann. All rights reserved. MIT license.
 
+/// <reference types="vitest" />
+
 import { resolve } from "path";
 import { defineConfig, externalizeDepsPlugin } from "electron-vite";
 
