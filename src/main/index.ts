@@ -1,6 +1,9 @@
-import { app, BrowserWindow, ipcMain } from "electron";
 import path from "node:path";
+
+import { app, BrowserWindow, ipcMain } from "electron";
 import started from "electron-squirrel-startup";
+
+import icon from "../../resources/icon.png?asset";
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (started) {
@@ -9,21 +12,20 @@ if (started) {
 
 const createWindow = () => {
   const mainWindow = new BrowserWindow({
-    width: 800,
-    height: 600,
-    icon: path.join(__dirname, "app-icon", "app-icon/app-icon.png"),
+    width: 900,
+    height: 670,
+    ...(process.platform === "linux" ? { icon } : {}),
     webPreferences: {
-      preload: path.join(__dirname, "preload.js"),
+      preload: path.join(__dirname, "../preload/index.js"),
     },
   });
 
-  // and load the index.html of the app.
-  if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
-    mainWindow.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL);
+  // HMR for renderer base on electron-vite cli.
+  // Load the remote URL for development or the local html file for production.
+  if (!app.isPackaged && process.env["ELECTRON_RENDERER_URL"]) {
+    mainWindow.loadURL(process.env["ELECTRON_RENDERER_URL"]);
   } else {
-    mainWindow.loadFile(
-      path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`),
-    );
+    mainWindow.loadFile(path.join(__dirname, "../renderer/index.html"));
   }
 
   // Open the DevTools.

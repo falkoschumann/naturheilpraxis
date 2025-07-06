@@ -7,7 +7,7 @@ DIAGRAM_FILES = $(subst .puml,.png,$(PLANTUML_FILES))
 all: dist check
 
 clean:
-	rm -rf .vite
+	rm -rf dist
 	rm -rf out/Naturheilpraxis-*
 
 distclean: clean
@@ -22,13 +22,18 @@ start:
 doc: $(DIAGRAM_FILES)
 
 check:
+	npx eslint .
 	npx prettier --check .
 
+
 format:
+	npx eslint --fix .
 	npx prettier --write .
 
-dev: start
+dev:
+	npm run dev
 
+# TODO Build only one platform and configure platform, arch and target via environment variable
 build: prepare
 	npm run make
 #	npm run make -- --platform darwin --arch arm64 --targets @electron-forge/maker-zip

@@ -28,18 +28,7 @@
 
 import "./style.css";
 
-declare global {
-  interface Window {
-    versions: {
-      node: () => string;
-      chrome: () => string;
-      electron: () => string;
-      ping: () => Promise<string>;
-    };
-  }
-}
-
-const information = document.getElementById("info");
+const information = document.getElementById("info") as HTMLDivElement;
 information.innerText = `This app is using Chrome (v${window.versions.chrome()}), Node.js (v${window.versions.node()}), and Electron (v${window.versions.electron()})`;
 
 const func = async () => {

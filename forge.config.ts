@@ -6,7 +6,6 @@ import { MakerDMG } from "@electron-forge/maker-dmg";
 import { MakerRpm } from "@electron-forge/maker-rpm";
 import { MakerSquirrel } from "@electron-forge/maker-squirrel";
 import { MakerZIP } from "@electron-forge/maker-zip";
-import { VitePlugin } from "@electron-forge/plugin-vite";
 
 const osxPackager =
   process.env.SIGN === "true"
@@ -25,37 +24,18 @@ const config: ForgeConfig = {
   packagerConfig: {
     ...osxPackager,
     asar: true,
-    icon: "app-icon/app-icon",
+    icon: "build/icon",
     ignore: [
-      ".idea",
-      ".vscode",
-      "doc",
-      "resources",
-      "src",
-      ".editorconfig",
-      ".env.local",
-      ".eslintrc.json",
-      ".gitattributes",
-      ".gitignore",
-      ".prettierrc",
-      "CONTRIBUTING.md",
-      "forge.config.ts",
-      "forge.env.d.ts",
-      "LICENSE.txt",
-      "Makefile",
-      "README.md",
-      "tsconfig.json",
-      "vite.main.config.ts",
-      "vite.preload.config.ts",
-      "vite.renderer.config.ts",
+      /^\/src/,
+      /(.eslintrc.json)|(.gitignore)|(electron.vite.config.ts)|(forge.config.cjs)|(tsconfig.*)/,
     ],
   },
   rebuildConfig: {},
   makers: [
-    new MakerSquirrel({ setupIcon: "app-icon/app-icon.ico" }),
+    new MakerSquirrel({ setupIcon: "build/icon.ico" }),
     new MakerZIP({}),
-    new MakerDMG({ icon: "app-icon/app-icon.icns" }),
-    new MakerDeb({ options: { icon: "app-icon/app-icon.png" } }),
+    new MakerDMG({ icon: "build/icon.icns" }),
+    new MakerDeb({ options: { icon: "build/icon.png" } }),
     new MakerRpm({}),
   ],
   plugins: [
@@ -63,29 +43,6 @@ const config: ForgeConfig = {
       name: "@electron-forge/plugin-auto-unpack-natives",
       config: {},
     },
-    new VitePlugin({
-      // `build` can specify multiple entry builds, which can be Main process, Preload scripts, Worker process, etc.
-      // If you are familiar with Vite configuration, it will look really familiar.
-      build: [
-        {
-          // `entry` is just an alias for `build.lib.entry` in the corresponding file of `config`.
-          entry: "src/main/main.ts",
-          config: "vite.main.config.ts",
-          target: "main",
-        },
-        {
-          entry: "src/preload/preload.ts",
-          config: "vite.preload.config.ts",
-          target: "preload",
-        },
-      ],
-      renderer: [
-        {
-          name: "main_window",
-          config: "vite.renderer.config.ts",
-        },
-      ],
-    }),
     // Fuses are used to enable/disable various Electron functionality
     // at package time, before code signing the application
     new FusesPlugin({
