@@ -28,10 +28,11 @@
  * ```
  */
 
-import "./style.css";
-
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
+import "bootstrap";
+
+import "./style.scss";
 import App from "./ui/app";
 
 createRoot(document.getElementById("root")!).render(

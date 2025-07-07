@@ -2,6 +2,8 @@
 
 import { useEffect } from "react";
 
+import Patientenkarteikarte from "./patientenkarteikarte";
+
 export default function App() {
   useEffect(() => {
     (async function () {
@@ -12,13 +14,11 @@ export default function App() {
 
   return (
     <>
-      <h1>Hello from Electron renderer!</h1>
-      <p>👋</p>
+      <Patientenkarteikarte />
       <p>
         This app is using Chrome (v{window.versions.chrome()}), Node.js (v{window.versions.node()}), and Electron (v
         {window.versions.electron()})
       </p>
-      ;
     </>
   );
 }

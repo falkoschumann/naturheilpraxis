@@ -17,7 +17,7 @@ distclean: clean
 dist: build
 	npm run make
 
-start:
+start: prepare
 	npm start
 
 doc: $(DIAGRAM_FILES)
@@ -33,7 +33,7 @@ format:
 	npx eslint --fix .
 	npx prettier --write .
 
-dev:
+dev: prepare
 	npm run dev
 
 test: prepare

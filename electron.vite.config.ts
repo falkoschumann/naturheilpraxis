@@ -15,6 +15,18 @@ export default defineConfig({
     plugins: [externalizeDepsPlugin()],
   },
   renderer: {
+    css: {
+      preprocessorOptions: {
+        scss: {
+          silenceDeprecations: [
+            "import",
+            "mixed-decls",
+            "color-functions",
+            "global-builtin",
+          ],
+        },
+      },
+    },
     resolve: {
       alias: {
         "@renderer": resolve("src/renderer/src"),
