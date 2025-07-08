@@ -1,11 +1,45 @@
 // Copyright (c) 2025 Falko Schumann. All rights reserved. MIT license.
 
+// @ts-expect-error TS7016
+import Tags from "bootstrap5-tags";
+
+import { useEffect } from "react";
+
 export default function Patientenkarteikarte() {
+  useEffect(() => Tags.init(), []);
+
   return (
     <main className="container my-4">
       <h2 className="mb-3">Mustermann, Max (42), geboren am 07.10.1984</h2>
       <form>
         <div>
+          <div className="row g-3">
+            <div className="col">
+              <div className="mb-3">
+                <label htmlFor="tags-input" className="visually-hidden">
+                  Eigenschaften
+                </label>
+                <select
+                  className="form-select"
+                  id="tags-input"
+                  name="tags[]"
+                  multiple
+                  value={["Aktiv", "Weihnachtskarte"]}
+                  data-allow-clear
+                >
+                  <option disabled hidden value="">
+                    Choose a tag...
+                  </option>
+                  <option value="Aktiv">Aktiv</option>
+                  <option value="Unbekannt verzogen">Unbekannt verzogen</option>
+                  <option value="Exitus">Exitus</option>
+                  <option value="Geburtstagskarte">Geburtstagskarte</option>
+                  <option value="Weihnachtskarte">Weihnachtskarte</option>
+                  <option value="Kind">Kind</option>
+                </select>
+              </div>
+            </div>
+          </div>
           <div className="row g-3">
             <div className="col">
               <div className="form-floating mb-3">
@@ -206,7 +240,6 @@ export default function Patientenkarteikarte() {
             </div>
           </div>
         </div>
-        {/* TODO add anderes/properties/handling */}
         <button type="submit" className="btn btn-primary">
           Sichern
         </button>
