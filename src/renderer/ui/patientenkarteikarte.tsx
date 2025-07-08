@@ -16,19 +16,19 @@ export default function Patientenkarteikarte() {
           <div className="row g-3">
             <div className="col">
               <div className="mb-3">
-                <label htmlFor="tags-input" className="visually-hidden">
+                <label htmlFor="schluesselworte" className="visually-hidden">
                   Eigenschaften
                 </label>
                 <select
                   className="form-select"
-                  id="tags-input"
-                  name="tags[]"
+                  id="schluesselworte"
+                  name="schluesselworte"
                   multiple
-                  value={["Aktiv", "Weihnachtskarte"]}
+                  defaultValue={["Aktiv", "Weihnachtskarte"]}
                   data-allow-clear
                 >
                   <option disabled hidden value="">
-                    Choose a tag...
+                    Wählen Sie Eigenschaften aus
                   </option>
                   <option value="Aktiv">Aktiv</option>
                   <option value="Unbekannt verzogen">Unbekannt verzogen</option>
@@ -55,15 +55,17 @@ export default function Patientenkarteikarte() {
                   id="annahmejahr"
                   name="annahmejahr"
                   placeholder="Annahmejahr"
+                  defaultValue={new Date().getFullYear()}
                 />
                 <label htmlFor="annahmejahr">Annahmejahr</label>
               </div>
             </div>
             <div className="col">
               <div className="form-floating mb-3">
-                <select className="form-select" id="praxis" name="praxis">
-                  <option value="a">Praxis A</option>
-                  <option value="b">Praxis B</option>
+                <select className="form-select" id="praxis" name="praxis" defaultValue="Praxis A">
+                  <option value="Praxis A">Praxis A</option>
+                  <option value="Praxis B">Praxis B</option>
+                  <option value="Alle">Alle</option>
                 </select>
                 <label htmlFor="praxis">Praxis</label>
               </div>
@@ -73,6 +75,7 @@ export default function Patientenkarteikarte() {
             <div className="col-2">
               <div className="form-floating mb-3">
                 <select className="form-select" id="anrede" name="anrede">
+                  <option value=""></option>
                   <option value="herr">Herr</option>
                   <option value="frau">Frau</option>
                   <option value="fraeulein">Fräulein</option>
@@ -175,14 +178,8 @@ export default function Patientenkarteikarte() {
             </div>
             <div className="col-3">
               <div className="form-floating mb-3">
-                <input
-                  type="tel"
-                  className="form-control"
-                  id="mobiltelefon"
-                  name="mobiltelefon"
-                  placeholder="Mobiltelefon"
-                />
-                <label htmlFor="mobiltelefon">Mobiltelefon</label>
+                <input type="tel" className="form-control" id="mobil" name="mobil" placeholder="Mobil" />
+                <label htmlFor="mobil">Mobil</label>
               </div>
             </div>
             <div className="col-6">
@@ -196,6 +193,7 @@ export default function Patientenkarteikarte() {
             <div className="col-3">
               <div className="form-floating mb-3">
                 <select className="form-select" id="familienstand" name="familienstand">
+                  <option value=""></option>
                   <option value="ledig">Ledig</option>
                   <option value="verheiratet">Verheiratet</option>
                   <option value="getrennt">Getrennt</option>
@@ -240,9 +238,14 @@ export default function Patientenkarteikarte() {
             </div>
           </div>
         </div>
-        <button type="submit" className="btn btn-primary">
-          Sichern
-        </button>
+        <div className="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
+          <button type="submit" className="btn btn-primary me-2" disabled>
+            Nimm Patient auf
+          </button>
+          <button type="reset" className="btn btn-secondary">
+            Abbrechen
+          </button>
+        </div>
       </form>
     </main>
   );
