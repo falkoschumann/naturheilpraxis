@@ -31,7 +31,7 @@ export interface PatientAufgenommenData {
 export interface PatientAufgenommen
   extends CloudEventV1<PatientAufgenommenData> {
   id: string;
-  type: "de.muspellheim.naturheilpraxis.patient_aufgenommen";
+  type: "de.muspellheim.naturheilpraxis.patient-aufgenommen.v1";
   source: "/naturheilpraxis/patient";
   specversion: "1.0";
   data: PatientAufgenommenData;

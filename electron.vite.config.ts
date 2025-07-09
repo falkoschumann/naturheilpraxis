@@ -33,5 +33,11 @@ export default defineConfig({
       },
     },
     plugins: [react()],
+    test: {
+      coverage: {
+        provider: "v8",
+        include: ["src/**/*", "test/**/*"],
+      },
+    },
   },
 });

@@ -7,6 +7,7 @@ DIAGRAM_FILES = $(subst .puml,.png,$(PLANTUML_FILES))
 all: dist check
 
 clean:
+	rm -rf coverage
 	rm -rf dist
 	rm -rf out/Naturheilpraxis-*
 
