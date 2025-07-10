@@ -4,7 +4,7 @@ export interface NimmPatientAufCommand {
   readonly nachname: string;
   readonly vorname: string;
   readonly geburtsdatum: string;
-  readonly annahmejahr: string;
+  readonly annahmejahr: number;
   readonly praxis: string;
   readonly anrede?: string;
   readonly strasse?: string;
