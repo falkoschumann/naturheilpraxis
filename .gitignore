@@ -1,6 +1,8 @@
 # see also https://gitignore.io
 
+data/
 dist/
+testdata/
 tmp/
 vendor/
 .env.local
