@@ -3,14 +3,15 @@
 import * as fsPromise from "node:fs/promises";
 import * as path from "node:path";
 
+import { CloudEvent } from "cloudevents";
+import { CloudEventV1 } from "cloudevents/dist/event/interfaces";
 import { beforeEach, describe, expect, it } from "vitest";
 
+import { arrayFromAsync } from "../../src/main/common/polyfills";
 import {
   MemoryEventStore,
   NdjsonEventStore,
 } from "../../src/main/integration/event-store";
-import { CloudEvent } from "cloudevents";
-import { CloudEventV1 } from "cloudevents/dist/event/interfaces";
 
 const TEST_FILE = path.resolve(
   __dirname,
@@ -108,14 +109,4 @@ function createTestCloudEvent<T = undefined>(
   },
 ): CloudEvent<T> {
   return new CloudEvent(event);
-}
-
-async function arrayFromAsync<T>(
-  items: AsyncIterableIterator<T>,
-): Promise<T[]> {
-  const result: T[] = [];
-  for await (const element of items) {
-    result.push(element);
-  }
-  return result;
 }

@@ -6,9 +6,9 @@ import * as path from "node:path";
 import { CloudEvent } from "cloudevents";
 
 export interface EventStore {
-  record(event: CloudEvent): Promise<void>;
+  record(event: CloudEvent<unknown>): Promise<void>;
 
-  replay(): AsyncGenerator<CloudEvent>;
+  replay(): AsyncGenerator<CloudEvent<unknown>>;
 }
 
 export class MemoryEventStore implements EventStore {
