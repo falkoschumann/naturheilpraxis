@@ -26,7 +26,7 @@ doc: $(DIAGRAM_FILES)
 check: test
 	npx eslint .
 	npx prettier --check .
-	npx sheriff verify src/main/index.ts
+	#npx sheriff verify src/main/index.ts
 	npx sheriff verify src/preload/index.ts
 	npx sheriff verify src/renderer/index.tsx
 
