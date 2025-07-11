@@ -9,7 +9,7 @@ diese in Rechnung stellen zu können.
 
 ### Nimm Patient auf
 
-- [ ] Erfasse Informationen wie Name, Geburtsdatum, Praxis, Annahmejahr,
+- [x] Erfasse Informationen wie Name, Geburtsdatum, Praxis, Annahmejahr,
       Anschrift, Kontaktmöglichkeit
 - [ ] Nutze aktuelle Praxis als Standardpraxis für den Patienten
 - [ ] **Constraint:** Prüfe vor dem Anlegen, ob bereits ein Patient mit dem

@@ -4,11 +4,9 @@
 // https://www.electronjs.org/docs/latest/tutorial/process-model#preload-scripts
 
 import { contextBridge, ipcRenderer } from "electron";
+import type { NimmPatientAufCommand } from "../main/domain/naturheilpraxis";
 
-contextBridge.exposeInMainWorld("versions", {
-  node: () => process.versions.node,
-  chrome: () => process.versions.chrome,
-  electron: () => process.versions.electron,
-  ping: () => ipcRenderer.invoke("ping"),
-  // we can also expose variables, not just functions
+contextBridge.exposeInMainWorld("naturheilpraxis", {
+  nimmPatientAuf: (command: NimmPatientAufCommand) =>
+    ipcRenderer.invoke("nimmPatientAuf", command),
 });

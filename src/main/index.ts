@@ -10,6 +10,9 @@ import {
 } from "electron-devtools-installer";
 import started from "electron-squirrel-startup";
 
+import { NaturheilpraxisService } from "./application/naturheilpraxis-service";
+import type { NimmPatientAufCommand } from "./domain/naturheilpraxis";
+import { NdjsonEventStore } from "./integration/event-store";
 import icon from "../../resources/icon.png?asset";
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
@@ -52,7 +55,14 @@ app.on("ready", () => {
       .catch((err) => console.log("An error occurred: ", err));
   }
 
-  ipcMain.handle("ping", () => "pong");
+  const eventStore = new NdjsonEventStore("./data/events.ndjson");
+  const naturheilPraxisService = new NaturheilpraxisService(eventStore);
+
+  ipcMain.handle(
+    "nimmPatientAuf",
+    async (_event, command: NimmPatientAufCommand) =>
+      naturheilPraxisService.nimmPatientAuf(command),
+  );
   createWindow();
 });
 

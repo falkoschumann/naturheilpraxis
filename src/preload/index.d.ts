@@ -1,12 +1,14 @@
 // Copyright (c) 2025 Falko Schumann. All rights reserved. MIT license.
 
+import type { NimmPatientAufCommand } from "../main/domain/naturheilpraxis";
+import type { CommandStatus } from "../main/common/messages";
+
 declare global {
   interface Window {
-    versions: {
-      node: () => string;
-      chrome: () => string;
-      electron: () => string;
-      ping: () => Promise<string>;
+    naturheilpraxis: {
+      nimmPatientAuf: (
+        command: NimmPatientAufCommand,
+      ) => Promise<CommandStatus>;
     };
   }
 }
