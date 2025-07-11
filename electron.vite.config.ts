@@ -15,6 +15,19 @@ export default defineConfig({
     plugins: [externalizeDepsPlugin()],
   },
   renderer: {
+    build: {
+      rollupOptions: {
+        output: {
+          manualChunks: (id: string) => {
+            if (id.includes("node_modules")) {
+              return "vendor";
+            }
+
+            return null;
+          },
+        },
+      },
+    },
     css: {
       preprocessorOptions: {
         scss: {
