@@ -1,11 +1,17 @@
 // Copyright (c) 2025 Falko Schumann. All rights reserved. MIT license.
 
-import { type CommandStatus, Failure, Success } from "../common/messages";
-import type { NimmPatientAufCommand } from "../domain/naturheilpraxis";
+import { type CommandStatus, Success } from "../common/messages";
+import type {
+  NimmPatientAufCommand,
+  Patient,
+  PatientenkarteiQuery,
+  PatientenkarteiQueryResult,
+} from "../domain/naturheilpraxis";
 import type { EventStore } from "../integration/event-store";
 import {
-  type PatientAufgenommenData,
-  PatientAufgenommenEvent,
+  PATIENT_SOURCE,
+  type PatientAufgenommenDataV1,
+  PatientAufgenommenV1Event,
 } from "../integration/events";
 
 export class NaturheilpraxisService {
@@ -16,15 +22,28 @@ export class NaturheilpraxisService {
   }
 
   async nimmPatientAuf(command: NimmPatientAufCommand): Promise<CommandStatus> {
-    try {
-      const nummer = await this.#nextPatientennummer();
-      const data: PatientAufgenommenData = { nummer, ...command };
-      const event = new PatientAufgenommenEvent(crypto.randomUUID(), data);
-      await this.#eventStore.record(event);
-      return new Success();
-    } catch (error) {
-      return new Failure("Fehler beim Aufnehmen des Patienten. " + error);
+    const nummer = await this.#nextPatientennummer();
+    const data: PatientAufgenommenDataV1 = { nummer, ...command };
+    const event = new PatientAufgenommenV1Event(crypto.randomUUID(), data);
+    await this.#eventStore.record(event);
+    return new Success();
+  }
+
+  async patientenkartei(
+    _query: PatientenkarteiQuery,
+  ): Promise<PatientenkarteiQueryResult> {
+    const patienten: Patient[] = [];
+    for await (const event of this.#eventStore.replay()) {
+      if (event.source !== PATIENT_SOURCE) {
+        continue;
+      }
+
+      if (event.type === PatientAufgenommenV1Event.TYPE) {
+        const data = event.data as PatientAufgenommenDataV1;
+        patienten.push(data);
+      }
     }
+    return { patienten };
   }
 
   async #nextPatientennummer() {

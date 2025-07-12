@@ -4,7 +4,7 @@ import * as fsPromise from "node:fs/promises";
 import * as path from "node:path";
 
 import { CloudEvent } from "cloudevents";
-import { CloudEventV1 } from "cloudevents/dist/event/interfaces";
+import type { CloudEventV1 } from "cloudevents/dist/event/interfaces";
 import { beforeEach, describe, expect, it } from "vitest";
 
 import { arrayFromAsync } from "../../src/main/common/polyfills";

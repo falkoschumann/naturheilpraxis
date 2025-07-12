@@ -2,7 +2,9 @@
 
 import { CloudEvent } from "cloudevents";
 
-export interface PatientAufgenommenData {
+export const PATIENT_SOURCE = "/naturheilpraxis/patient";
+
+export interface PatientAufgenommenDataV1 {
   readonly nummer: number;
   readonly nachname: string;
   readonly vorname: string;
@@ -28,12 +30,15 @@ export interface PatientAufgenommenData {
   readonly schluesselworte?: string[];
 }
 
-export class PatientAufgenommenEvent extends CloudEvent<PatientAufgenommenData> {
-  constructor(id: string, data: PatientAufgenommenData) {
+export class PatientAufgenommenV1Event extends CloudEvent<PatientAufgenommenDataV1> {
+  static readonly TYPE =
+    "de.muspellheim.naturheilpraxis.patient-aufgenommen.v1";
+
+  constructor(id: string, data: PatientAufgenommenDataV1) {
     super({
       id,
-      type: "de.muspellheim.naturheilpraxis.patient-aufgenommen.v1",
-      source: "/naturheilpraxis/patient",
+      type: PatientAufgenommenV1Event.TYPE,
+      source: PATIENT_SOURCE,
       specversion: "1.0",
       data,
     });

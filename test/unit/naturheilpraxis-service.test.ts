@@ -17,7 +17,7 @@ describe("Naturheilpraxis Service", () => {
         nachname: "Mustermann",
         vorname: "Max",
         geburtsdatum: "1980-01-01",
-        annahmejahr: "2025",
+        annahmejahr: 2025,
         praxis: "Naturheilpraxis",
       });
 
@@ -35,7 +35,7 @@ describe("Naturheilpraxis Service", () => {
             nachname: "Mustermann",
             vorname: "Max",
             geburtsdatum: "1980-01-01",
-            annahmejahr: "2025",
+            annahmejahr: 2025,
             praxis: "Naturheilpraxis",
           },
         },
@@ -49,7 +49,7 @@ describe("Naturheilpraxis Service", () => {
         nachname: "Mustermann",
         vorname: "Max",
         geburtsdatum: "1980-01-01",
-        annahmejahr: "2025",
+        annahmejahr: 2025,
         praxis: "Naturheilpraxis",
       });
 
@@ -57,7 +57,7 @@ describe("Naturheilpraxis Service", () => {
         nachname: "Mustermann",
         vorname: "Erika",
         geburtsdatum: "1985-05-05",
-        annahmejahr: "2025",
+        annahmejahr: 2025,
         praxis: "Naturheilpraxis",
       });
 
@@ -75,11 +75,55 @@ describe("Naturheilpraxis Service", () => {
             nachname: "Mustermann",
             vorname: "Erika",
             geburtsdatum: "1985-05-05",
-            annahmejahr: "2025",
+            annahmejahr: 2025,
             praxis: "Naturheilpraxis",
           },
         },
       ]);
+    });
+  });
+
+  describe("Patientenkartei", () => {
+    it("Listet alle Patienten auf", async () => {
+      const eventStore = new MemoryEventStore();
+      const service = new NaturheilpraxisService(eventStore);
+      await service.nimmPatientAuf({
+        nachname: "Mustermann",
+        vorname: "Max",
+        geburtsdatum: "1980-01-01",
+        annahmejahr: 2025,
+        praxis: "Naturheilpraxis",
+      });
+      await service.nimmPatientAuf({
+        nachname: "Mustermann",
+        vorname: "Erika",
+        geburtsdatum: "1985-05-05",
+        annahmejahr: 2025,
+        praxis: "Naturheilpraxis",
+      });
+
+      const result = await service.patientenkartei({});
+
+      expect(result).toEqual({
+        patienten: [
+          {
+            nummer: 1,
+            nachname: "Mustermann",
+            vorname: "Max",
+            geburtsdatum: "1980-01-01",
+            annahmejahr: 2025,
+            praxis: "Naturheilpraxis",
+          },
+          {
+            nummer: 2,
+            nachname: "Mustermann",
+            vorname: "Erika",
+            geburtsdatum: "1985-05-05",
+            annahmejahr: 2025,
+            praxis: "Naturheilpraxis",
+          },
+        ],
+      });
     });
   });
 });
