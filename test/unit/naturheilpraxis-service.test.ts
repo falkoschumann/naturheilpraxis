@@ -13,13 +13,7 @@ describe("Naturheilpraxis Service", () => {
       const eventStore = new MemoryEventStore();
       const service = new NaturheilpraxisService(eventStore);
 
-      const status = await service.nimmPatientAuf({
-        nachname: "Mustermann",
-        vorname: "Max",
-        geburtsdatum: "1980-01-01",
-        annahmejahr: 2025,
-        praxis: "Naturheilpraxis",
-      });
+      const status = await service.nimmPatientAuf(createTestPatient());
 
       expect(status).toEqual(new Success());
       const events = await arrayFromAsync(eventStore.replay());
@@ -30,14 +24,7 @@ describe("Naturheilpraxis Service", () => {
           source: "/naturheilpraxis/patient",
           specversion: "1.0",
           time: expect.any(String),
-          data: {
-            nummer: 1,
-            nachname: "Mustermann",
-            vorname: "Max",
-            geburtsdatum: "1980-01-01",
-            annahmejahr: 2025,
-            praxis: "Naturheilpraxis",
-          },
+          data: { ...createTestPatient(), nummer: 1 },
         },
       ]);
     });
@@ -45,21 +32,14 @@ describe("Naturheilpraxis Service", () => {
     it("Zählt Patientennummer hoch", async () => {
       const eventStore = new MemoryEventStore();
       const service = new NaturheilpraxisService(eventStore);
-      await service.nimmPatientAuf({
-        nachname: "Mustermann",
-        vorname: "Max",
-        geburtsdatum: "1980-01-01",
-        annahmejahr: 2025,
-        praxis: "Naturheilpraxis",
-      });
+      await service.nimmPatientAuf(createTestPatient());
 
-      const status = await service.nimmPatientAuf({
-        nachname: "Mustermann",
-        vorname: "Erika",
-        geburtsdatum: "1985-05-05",
-        annahmejahr: 2025,
-        praxis: "Naturheilpraxis",
-      });
+      const status = await service.nimmPatientAuf(
+        createTestPatient({
+          vorname: "Erika",
+          geburtsdatum: "1985-05-05",
+        }),
+      );
 
       expect(status).toEqual(new Success());
       const events = await arrayFromAsync(eventStore.replay());
@@ -71,12 +51,10 @@ describe("Naturheilpraxis Service", () => {
           specversion: "1.0",
           time: expect.any(String),
           data: {
+            ...createTestPatient(),
             nummer: 2,
-            nachname: "Mustermann",
             vorname: "Erika",
             geburtsdatum: "1985-05-05",
-            annahmejahr: 2025,
-            praxis: "Naturheilpraxis",
           },
         },
       ]);
@@ -87,43 +65,40 @@ describe("Naturheilpraxis Service", () => {
     it("Listet alle Patienten auf", async () => {
       const eventStore = new MemoryEventStore();
       const service = new NaturheilpraxisService(eventStore);
-      await service.nimmPatientAuf({
-        nachname: "Mustermann",
-        vorname: "Max",
-        geburtsdatum: "1980-01-01",
-        annahmejahr: 2025,
-        praxis: "Naturheilpraxis",
-      });
-      await service.nimmPatientAuf({
-        nachname: "Mustermann",
-        vorname: "Erika",
-        geburtsdatum: "1985-05-05",
-        annahmejahr: 2025,
-        praxis: "Naturheilpraxis",
-      });
+      await service.nimmPatientAuf(createTestPatient());
+      await service.nimmPatientAuf(
+        createTestPatient({
+          vorname: "Erika",
+          geburtsdatum: "1985-05-05",
+        }),
+      );
 
       const result = await service.patientenkartei({});
 
       expect(result).toEqual({
         patienten: [
           {
+            ...createTestPatient(),
             nummer: 1,
-            nachname: "Mustermann",
-            vorname: "Max",
-            geburtsdatum: "1980-01-01",
-            annahmejahr: 2025,
-            praxis: "Naturheilpraxis",
           },
           {
+            ...createTestPatient(),
             nummer: 2,
-            nachname: "Mustermann",
             vorname: "Erika",
             geburtsdatum: "1985-05-05",
-            annahmejahr: 2025,
-            praxis: "Naturheilpraxis",
           },
         ],
       });
     });
   });
 });
+
+function createTestPatient({
+  nachname = "Mustermann",
+  vorname = "Max",
+  geburtsdatum = "1980-01-01",
+  annahmejahr = 2025,
+  praxis = "Naturheilpraxis",
+} = {}) {
+  return { nachname, vorname, geburtsdatum, annahmejahr, praxis };
+}
