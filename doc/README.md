@@ -17,7 +17,7 @@ diese in Rechnung stellen zu können.
 - [ ] Aktualisiere eine Patientenkarteikarte
 - [ ] Setze einen Patient auf inaktiv mit einem optionalen Grund
 
-### Patientenkarteikarte
+### Patientenkartei
 
 - [ ] Liste alle Patienten auf
 - [ ] Suche Patient
