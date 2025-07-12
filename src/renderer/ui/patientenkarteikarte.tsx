@@ -483,7 +483,7 @@ export default function Patientenkarteikarte() {
           </div>
         </div>
         <div className="form-text mb-3">* Erforderliche Angaben</div>
-        <div className="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
+        <div className="btn-toolbar" role="toolbar" aria-label="Aktionen für Patient">
           <button type="submit" className="btn btn-primary me-2" disabled={!canSubmit}>
             Nimm Patient auf
           </button>
