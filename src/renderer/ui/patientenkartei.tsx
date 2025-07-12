@@ -13,7 +13,7 @@ export default function Patientenkartei() {
       setPatienten(result.patienten);
     }
 
-    queryPatientenkartei();
+    void queryPatientenkartei();
   });
 
   return (
