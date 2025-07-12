@@ -19,7 +19,7 @@ diese in Rechnung stellen zu können.
 
 ### Patientenkartei
 
-- [ ] Liste alle Patienten auf
+- [x] Liste alle Patienten auf
 - [ ] Suche Patient
 - [ ] Filtere inaktive Patienten aus
 - [ ] Exportiere (gefilterte) Liste von Patienten in CSV-Datei

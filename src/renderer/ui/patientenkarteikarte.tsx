@@ -227,12 +227,12 @@ export default function Patientenkarteikarte() {
             <div className="form-floating">
               <select className="form-select" id="anrede" name="anrede" value={anrede} onChange={handleAnredeChange}>
                 <option value=""></option>
-                <option value="herr">Herr</option>
-                <option value="frau">Frau</option>
-                <option value="fraeulein">Fräulein</option>
-                <option value="mr">Mr</option>
-                <option value="mrs">Mrs</option>
-                <option value="ms">Ms</option>
+                <option value="Herr">Herr</option>
+                <option value="Frau">Frau</option>
+                <option value="Fraeulein">Fräulein</option>
+                <option value="Mr">Mr</option>
+                <option value="Mrs">Mrs</option>
+                <option value="Ms">Ms</option>
               </select>
               <label htmlFor="anrede">Anrede</label>
             </div>

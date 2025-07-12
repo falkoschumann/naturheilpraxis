@@ -9,6 +9,9 @@ declare global {
       nimmPatientAuf: (
         command: NimmPatientAufCommand,
       ) => Promise<CommandStatus>;
+      patientenkartei: (
+        query: PatientenkarteiQuery,
+      ) => Promise<PatientenkarteiResult>;
     };
   }
 }

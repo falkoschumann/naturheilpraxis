@@ -11,7 +11,10 @@ import {
 import started from "electron-squirrel-startup";
 
 import { NaturheilpraxisService } from "./application/naturheilpraxis-service";
-import type { NimmPatientAufCommand } from "./domain/naturheilpraxis";
+import type {
+  NimmPatientAufCommand,
+  PatientenkarteiQuery,
+} from "./domain/naturheilpraxis";
 import { NdjsonEventStore } from "./integration/event-store";
 import icon from "../../resources/icon.png?asset";
 
@@ -56,12 +59,17 @@ app.on("ready", () => {
   }
 
   const eventStore = new NdjsonEventStore("./data/events.ndjson");
-  const naturheilPraxisService = new NaturheilpraxisService(eventStore);
+  const naturheilpraxisService = new NaturheilpraxisService(eventStore);
 
   ipcMain.handle(
     "nimmPatientAuf",
     async (_event, command: NimmPatientAufCommand) =>
-      naturheilPraxisService.nimmPatientAuf(command),
+      naturheilpraxisService.nimmPatientAuf(command),
+  );
+  ipcMain.handle(
+    "patientenkartei",
+    async (_event, query: PatientenkarteiQuery) =>
+      naturheilpraxisService.patientenkartei(query),
   );
   createWindow();
 });
