@@ -12,10 +12,10 @@ diese in Rechnung stellen zu können.
 - [x] Erfasse Informationen wie Name, Geburtsdatum, Praxis, Annahmejahr,
       Anschrift, Kontaktmöglichkeit
 - [ ] Nutze aktuelle Praxis als Standardpraxis für den Patienten
-- [ ] **Constraint:** Prüfe vor dem Anlegen, ob bereits ein Patient mit dem
-      selben Namen und Geburtsdatum aufgenommen wurde
+- [ ] **Constraint:** Prüfe vor dem Anlegen, ob bereits ein Patient mit
+      demselben Namen und Geburtsdatum aufgenommen wurde
 - [ ] Aktualisiere eine Patientenkarteikarte
-- [ ] Setze einen Patient auf inaktiv mit einem optionalen Grund
+- [ ] Setze einen Patienten auf inaktiv mit einem optionalen Grund
 
 ### Patientenkartei
 
@@ -34,7 +34,7 @@ diese in Rechnung stellen zu können.
 
 ### Diagnose
 
-- [ ] Liste alle Diagnosen für einen Patient auf
+- [ ] Liste alle Diagnosen für einen Patienten auf
 
 ### Erbringe Leistung
 
@@ -47,7 +47,7 @@ diese in Rechnung stellen zu können.
 
 ### Leistungen
 
-- [ ] Liste alle Leistungen für einen Patient auf
+- [ ] Liste alle Leistungen für einen Patienten auf
 - [ ] Filtere abgerechnete Leistungen aus
 
 ### Aktualisiere Gebührenverzeichnis
@@ -72,7 +72,7 @@ diese in Rechnung stellen zu können.
       damit diese nicht geändert werden, wenn die ursprüngliche Gebühr oder
       Diagnose geändert wird
 - [ ] **Constraint:** Wenn Rechnungen nacheinander angelegt werden, verwende das
-      letztes Rechnungsdatum für die nächste Rechnung als Default
+      letzte Rechnungsdatum für die nächste Rechnung als Default
 - [ ] Drucke Rechnung
 - [ ] Drucke Rechnung mit oder ohne Leistungsbezeichnung
 
