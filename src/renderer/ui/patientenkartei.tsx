@@ -53,9 +53,7 @@ export default function Patientenkartei() {
               <td>{patient.nachname}</td>
               <td>{patient.vorname}</td>
               <td>{new Date(patient.geburtsdatum).toLocaleDateString(undefined, { dateStyle: "medium" })}</td>
-              <td>
-                {patient.strasse} {patient.hausnummer}
-              </td>
+              <td>{patient.strasse}</td>
               <td>{patient.postleitzahl}</td>
               <td>{patient.wohnort}</td>
               <td>

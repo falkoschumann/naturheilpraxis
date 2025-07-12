@@ -8,7 +8,6 @@ export interface NimmPatientAufCommand {
   readonly praxis: string;
   readonly anrede?: string;
   readonly strasse?: string;
-  readonly hausnummer?: string;
   readonly wohnort?: string;
   readonly postleitzahl?: string;
   readonly staat?: string;
@@ -40,7 +39,6 @@ export interface Patient {
   readonly praxis: string;
   readonly anrede?: string;
   readonly strasse?: string;
-  readonly hausnummer?: string;
   readonly wohnort?: string;
   readonly postleitzahl?: string;
   readonly staat?: string;

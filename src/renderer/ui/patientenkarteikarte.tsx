@@ -14,7 +14,6 @@ export default function Patientenkarteikarte() {
   const [vorname, setVorname] = React.useState<string>("");
   const [nachname, setNachname] = React.useState<string>("");
   const [strasse, setStrasse] = React.useState<string>("");
-  const [hausnummer, setHausnummer] = React.useState<string>("");
   const [wohnort, setWohnort] = React.useState<string>("");
   const [postleitzahl, setPostleitzahl] = React.useState<string>("");
   const [staat, setStaat] = React.useState<string>("");
@@ -65,10 +64,6 @@ export default function Patientenkarteikarte() {
 
   function handleStrasseChange(e: React.ChangeEvent<HTMLInputElement>) {
     setStrasse(e.target.value);
-  }
-
-  function handleHausnummerChange(e: React.ChangeEvent<HTMLInputElement>) {
-    setHausnummer(e.target.value);
   }
 
   function handleWohnortChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -135,7 +130,6 @@ export default function Patientenkarteikarte() {
       praxis,
       anrede,
       strasse,
-      hausnummer,
       wohnort,
       postleitzahl,
       staat,
@@ -284,20 +278,6 @@ export default function Patientenkarteikarte() {
               <input
                 type="text"
                 className="form-control"
-                id="hausnummer"
-                name="hausnummer"
-                placeholder="Hausnummer"
-                value={hausnummer}
-                onChange={handleHausnummerChange}
-              />
-              <label htmlFor="hausnummer">Hausnummer</label>
-            </div>
-          </div>
-          <div className="col-2">
-            <div className="form-floating">
-              <input
-                type="text"
-                className="form-control"
                 id="postleitzahl"
                 name="postleitzahl"
                 placeholder="Postleitzahl"
@@ -321,7 +301,7 @@ export default function Patientenkarteikarte() {
               <label htmlFor="wohnort">Wohnort</label>
             </div>
           </div>
-          <div className="col-3">
+          <div className="col-2">
             <div className="form-floating">
               <input
                 type="text"
@@ -349,7 +329,7 @@ export default function Patientenkarteikarte() {
               <label htmlFor="staatsangehoerigkeit">Staatsangehörigkeit</label>
             </div>
           </div>
-          <div className="col-2">
+          <div className="col-3">
             <div className="form-floating">
               <input
                 type="text"
@@ -363,7 +343,7 @@ export default function Patientenkarteikarte() {
               <label htmlFor="titel">Titel</label>
             </div>
           </div>
-          <div className="col-4">
+          <div className="col-5">
             <div className="form-floating">
               <input
                 type="text"

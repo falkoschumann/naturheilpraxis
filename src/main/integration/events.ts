@@ -13,7 +13,6 @@ export interface PatientAufgenommenDataV1 {
   readonly praxis: string;
   readonly anrede?: string;
   readonly strasse?: string;
-  readonly hausnummer?: string;
   readonly wohnort?: string;
   readonly postleitzahl?: string;
   readonly staat?: string;
