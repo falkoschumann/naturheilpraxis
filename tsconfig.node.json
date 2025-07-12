@@ -34,5 +34,10 @@
     // Completeness
     "skipLibCheck": true
   },
-  "include": ["electron.vite.config.*", "src/main/**/*", "src/preload/**/*"]
+  "include": [
+    "electron.vite.config.*",
+    "src/main/**/*",
+    "src/preload/**/*",
+    "test/**/*"
+  ]
 }
