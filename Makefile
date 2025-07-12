@@ -1,4 +1,4 @@
-include .env.local
+-include .env.local
 export $(shell sed 's/=.*//' .env.local)
 
 PLANTUML_FILES = $(wildcard doc/*.puml)
