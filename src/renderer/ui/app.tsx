@@ -4,6 +4,7 @@ import { NavLink, Route, Routes } from "react-router";
 
 import Patientenkarteikarte from "./patientenkarteikarte";
 import Patientenkartei from "./patientenkartei";
+import logo from "./logo.svg";
 
 export default function App() {
   return (
@@ -23,7 +24,7 @@ function AppHeader() {
       <nav className="navbar navbar-expand-lg">
         <div className="container">
           <a href="/" className="navbar-brand">
-            <img src="/icon.svg" className="me-2" width="32" height="32" alt="Logo" aria-hidden="true" />
+            <img src={logo} className="me-2" width="32" height="32" alt="Logo" aria-hidden="true" />
             <span>Naturheilpraxis</span>
           </a>
           <button
