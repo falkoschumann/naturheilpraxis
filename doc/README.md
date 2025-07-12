@@ -22,6 +22,7 @@ diese in Rechnung stellen zu können.
 - [ ] Liste alle Patienten auf
 - [ ] Suche Patient
 - [ ] Filtere inaktive Patienten aus
+- [ ] Exportiere (gefilterte) Liste von Patienten in CSV-Datei
 
 ### Erstelle Diagnose
 
