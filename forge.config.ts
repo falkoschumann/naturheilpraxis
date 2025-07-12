@@ -1,5 +1,7 @@
 // Copyright (c) 2025 Falko Schumann. All rights reserved. MIT license.
 
+import * as os from "node:os";
+
 import { FuseV1Options, FuseVersion } from "@electron/fuses";
 import { MakerDeb } from "@electron-forge/maker-deb";
 import { MakerDMG } from "@electron-forge/maker-dmg";
@@ -22,8 +24,12 @@ const osxPackager =
       }
     : {};
 
+const linuxPackager =
+  os.type() === "Linux" ? { executableName: "naturheilpraxis" } : {};
+
 const config: ForgeConfig = {
   packagerConfig: {
+    ...linuxPackager,
     ...osxPackager,
     asar: true,
     icon: "build/icon",
