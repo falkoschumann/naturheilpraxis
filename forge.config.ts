@@ -12,7 +12,7 @@ import { FusesPlugin } from "@electron-forge/plugin-fuses";
 import type { ForgeConfig } from "@electron-forge/shared-types";
 
 const osxPackager =
-  process.env.SIGN === "true"
+  os.type() === "Darwin" && process.env.SIGN === "true"
     ? {
         osxNotarize: {
           tool: "notarytool",
