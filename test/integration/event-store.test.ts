@@ -3,8 +3,7 @@
 import fsPromise from "node:fs/promises";
 import path from "node:path";
 
-import { CloudEvent } from "cloudevents";
-import type { CloudEventV1 } from "cloudevents/dist/event/interfaces";
+import { CloudEvent, type CloudEventV1 } from "cloudevents";
 import { beforeEach, describe, expect, it } from "vitest";
 
 import { arrayFromAsync } from "../../src/main/common/polyfills";
@@ -99,14 +98,13 @@ describe("Event store", () => {
   });
 });
 
-function createTestCloudEvent<T = undefined>(
-  event: Partial<CloudEventV1<T>> = {
-    id: "test-id",
-    type: "test-type",
-    source: "test-source",
-    specversion: "1.0",
-    time: new Date().toISOString(),
-  },
-): CloudEvent<T> {
-  return new CloudEvent(event);
+function createTestCloudEvent<T>({
+  id = "test-id",
+  type = "test-type",
+  source = "test-source",
+  specversion = "1.0",
+  time = new Date().toISOString(),
+  data = undefined,
+}: Partial<CloudEventV1<T>> = {}): CloudEvent<T> {
+  return new CloudEvent<T>({ id, type, source, specversion, time, data });
 }
