@@ -19,7 +19,6 @@
     // Emit
     "noEmit": true,
     // Interop Constraints
-    "allowSyntheticDefaultImports": true,
     "erasableSyntaxOnly": true,
     "forceConsistentCasingInFileNames": true,
     "verbatimModuleSyntax": true,

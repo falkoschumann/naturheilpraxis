@@ -1,7 +1,7 @@
 // Copyright (c) 2025 Falko Schumann. All rights reserved. MIT license.
 
-import * as fsPromise from "node:fs/promises";
-import * as path from "node:path";
+import fsPromise from "node:fs/promises";
+import path from "node:path";
 
 import { CloudEvent } from "cloudevents";
 import type { CloudEventV1 } from "cloudevents/dist/event/interfaces";
