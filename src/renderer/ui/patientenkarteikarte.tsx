@@ -122,7 +122,7 @@ export default function Patientenkarteikarte() {
     event.preventDefault();
 
     setStatus("submitting");
-    const command = {
+    await window.naturheilpraxis.nimmPatientAuf({
       nachname,
       vorname,
       geburtsdatum,
@@ -144,8 +144,7 @@ export default function Patientenkarteikarte() {
       kindVon,
       memo,
       schluesselworte,
-    };
-    await window.naturheilpraxis.nimmPatientAuf(command);
+    });
     setStatus("submitted");
   }
 
@@ -154,313 +153,91 @@ export default function Patientenkarteikarte() {
       <h2 className="mb-3">Neuer Patient</h2>
       <form onSubmit={handleSubmit}>
         <div className="row g-3">
-          <div className="col-12">
-            <div>
-              <label htmlFor="schluesselworte" className="visually-hidden">
-                Eigenschaften
-              </label>
-              <select
-                className="form-select"
-                id="schluesselworte"
-                name="schluesselworte"
-                multiple
-                data-allow-clear
-                value={schluesselworte}
-                onChange={handleSchluesselworteChange}
-              >
-                <option disabled hidden value="">
-                  Wählen Sie Eigenschaften aus
-                </option>
-                <option value="Aktiv">Aktiv</option>
-                <option value="Unbekannt verzogen">Unbekannt verzogen</option>
-                <option value="Exitus">Exitus</option>
-                <option value="Geburtstagskarte">Geburtstagskarte</option>
-                <option value="Weihnachtskarte">Weihnachtskarte</option>
-                <option value="Kind">Kind</option>
-              </select>
-            </div>
-          </div>
-          <div className="col-4">
-            <div className="form-floating">
-              <input
-                type="date"
-                className="form-control"
-                id="geburtsdatum"
-                name="geburtsdatum"
-                value={geburtsdatum}
-                onChange={handleGeburtsdatumChange}
-              />
-              <label htmlFor="geburtsdatum">Geburtsdatum*</label>
-            </div>
-          </div>
-          <div className="col-4">
-            <div className="form-floating">
-              <input
-                type="number"
-                className="form-control"
-                id="annahmejahr"
-                name="annahmejahr"
-                placeholder="Annahmejahr"
-                value={annahmejahr}
-                onChange={handleAnnahmejahrChange}
-              />
-              <label htmlFor="annahmejahr">Annahmejahr*</label>
-            </div>
-          </div>
-          <div className="col-4">
-            <div className="form-floating">
-              <select className="form-select" id="praxis" name="praxis" value={praxis} onChange={handlePraxisChange}>
-                <option value="Praxis A">Praxis A</option>
-                <option value="Praxis B">Praxis B</option>
-                <option value="Alle">Alle</option>
-              </select>
-              <label htmlFor="praxis">Praxis*</label>
-            </div>
-          </div>
-          <div className="col-2">
-            <div className="form-floating">
-              <select className="form-select" id="anrede" name="anrede" value={anrede} onChange={handleAnredeChange}>
-                <option value=""></option>
-                <option value="Herr">Herr</option>
-                <option value="Frau">Frau</option>
-                <option value="Fraeulein">Fräulein</option>
-                <option value="Mr">Mr</option>
-                <option value="Mrs">Mrs</option>
-                <option value="Ms">Ms</option>
-              </select>
-              <label htmlFor="anrede">Anrede</label>
-            </div>
-          </div>
-          <div className="col-5">
-            <div className="form-floating">
-              <input
-                type="text"
-                className="form-control"
-                id="vorname"
-                name="vorname"
-                placeholder="Vorname"
-                value={vorname}
-                onChange={handleVornameChange}
-              />
-              <label htmlFor="vorname">Vorname*</label>
-            </div>
-          </div>
-          <div className="col-5">
-            <div className="form-floating">
-              <input
-                type="text"
-                className="form-control"
-                id="nachname"
-                name="nachname"
-                placeholder="Nachname"
-                value={nachname}
-                onChange={handleNachnameChange}
-              />
-              <label htmlFor="nachname">Nachname*</label>
-            </div>
-          </div>
-          <div className="col-4">
-            <div className="form-floating">
-              <input
-                type="text"
-                className="form-control"
-                id="strasse"
-                name="strasse"
-                placeholder="Strasse"
-                value={strasse}
-                onChange={handleStrasseChange}
-              />
-              <label htmlFor="strasse">Straße</label>
-            </div>
-          </div>
-          <div className="col-2">
-            <div className="form-floating">
-              <input
-                type="text"
-                className="form-control"
-                id="postleitzahl"
-                name="postleitzahl"
-                placeholder="Postleitzahl"
-                value={postleitzahl}
-                onChange={handlePostleitzahlChange}
-              />
-              <label htmlFor="postleitzahl">Postleitzahl</label>
-            </div>
-          </div>
-          <div className="col-4">
-            <div className="form-floating">
-              <input
-                type="text"
-                className="form-control"
-                id="wohnort"
-                name="wohnort"
-                placeholder="Wwohnort"
-                value={wohnort}
-                onChange={handleWohnortChange}
-              />
-              <label htmlFor="wohnort">Wohnort</label>
-            </div>
-          </div>
-          <div className="col-2">
-            <div className="form-floating">
-              <input
-                type="text"
-                className="form-control"
-                id="staat"
-                name="staat"
-                placeholder="Staat"
-                value={staat}
-                onChange={handleStaatChange}
-              />
-              <label htmlFor="staat">Staat</label>
-            </div>
-          </div>
-          <div className="col-3">
-            <div className="form-floating">
-              <input
-                type="text"
-                className="form-control"
-                id="staatsangehoerigkeit"
-                name="staatsangehoerigkeit"
-                placeholder="Staatsangehörigkeit"
-                value={staatsangehoerigkeit}
-                onChange={handleStaatsangehoerigkeitChange}
-              />
-              <label htmlFor="staatsangehoerigkeit">Staatsangehörigkeit</label>
-            </div>
-          </div>
-          <div className="col-3">
-            <div className="form-floating">
-              <input
-                type="text"
-                className="form-control"
-                id="titel"
-                name="titel"
-                placeholder="Titel"
-                value={titel}
-                onChange={handleTitelChange}
-              />
-              <label htmlFor="titel">Titel</label>
-            </div>
-          </div>
-          <div className="col-5">
-            <div className="form-floating">
-              <input
-                type="text"
-                className="form-control"
-                id="beruf"
-                name="beruf"
-                placeholder="Beruf"
-                value={beruf}
-                onChange={handleBerufChange}
-              />
-              <label htmlFor="beruf">Beruf</label>
-            </div>
-          </div>
-          <div className="col-3">
-            <div className="form-floating">
-              <input
-                type="tel"
-                className="form-control"
-                id="telefon"
-                name="telefon"
-                placeholder="Telefon"
-                value={telefon}
-                onChange={handleTelefonChange}
-              />
-              <label htmlFor="telefon">Telefon</label>
-            </div>
-          </div>
-          <div className="col-3">
-            <div className="form-floating">
-              <input
-                type="tel"
-                className="form-control"
-                id="mobil"
-                name="mobil"
-                placeholder="Mobil"
-                value={mobil}
-                onChange={handleMobilChange}
-              />
-              <label htmlFor="mobil">Mobil</label>
-            </div>
-          </div>
-          <div className="col-6">
-            <div className="form-floating">
-              <input
-                type="email"
-                className="form-control"
-                id="eMail"
-                name="eMail"
-                placeholder="E-Mail"
-                value={eMail}
-                onChange={handleEMailChange}
-              />
-              <label htmlFor="eMail">E-Mail</label>
-            </div>
-          </div>
-          <div className="col-4">
-            <div className="form-floating">
-              <select
-                className="form-select"
-                id="familienstand"
-                name="familienstand"
-                value={familienstand}
-                onChange={handleFamilienstandChange}
-              >
-                <option value=""></option>
-                <option value="ledig">Ledig</option>
-                <option value="verheiratet">Verheiratet</option>
-                <option value="getrennt">Getrennt</option>
-                <option value="geschieden">Geschieden</option>
-                <option value="verwitwet">Verwitwet</option>
-              </select>
-              <label htmlFor="familienstand">Familienstand</label>
-            </div>
-          </div>
+          <MultiSelect
+            name="schluesselworte"
+            label="Schlüsselworte"
+            cols={12}
+            options={["Aktiv", "Unbekannt verzogen", "Exitus", "Geburtstagskarte", "Weihnachtskarte", "Kind"]}
+            value={schluesselworte}
+            onChange={handleSchluesselworteChange}
+          />
+          <Input
+            name="geburtsdatum"
+            label="Geburtsdatum"
+            type="date"
+            isRequired
+            cols={4}
+            value={geburtsdatum}
+            onChange={handleGeburtsdatumChange}
+          />
+          <Input
+            name="annahmejahr"
+            label="Annahmejahr"
+            type="number"
+            isRequired
+            cols={4}
+            value={annahmejahr}
+            onChange={handleAnnahmejahrChange}
+          />
+          <Select
+            name="praxis"
+            label="Praxis"
+            cols={4}
+            options={["Praxis A", "Praxis B", "Alle"]}
+            value={praxis}
+            onChange={handlePraxisChange}
+          />
+          <Select
+            name="anrede"
+            label="Anrede"
+            cols={2}
+            options={["Herr", "Frau", "Fräulein", "Mr", "Mrs", "Ms"]}
+            value={anrede}
+            onChange={handleAnredeChange}
+          />
+          <Input name="titel" label="Titel" cols={2} value={titel} onChange={handleTitelChange} />
+          <Input name="vorname" label="Vorname" isRequired cols={4} value={vorname} onChange={handleVornameChange} />
+          <Input
+            name="nachname"
+            label="Nachname"
+            isRequired
+            cols={4}
+            value={nachname}
+            onChange={handleNachnameChange}
+          />
+          <Input name="strasse" label="Straße" cols={4} value={strasse} onChange={handleStrasseChange} />
+          <Input
+            name="postleitzahl"
+            label="Postleitzahl"
+            cols={2}
+            value={postleitzahl}
+            onChange={handlePostleitzahlChange}
+          />
+          <Input name="wohnort" label="Wohnort" cols={4} value={wohnort} onChange={handleWohnortChange} />
+          <Input name="staat" label="Staat" cols={2} value={staat} onChange={handleStaatChange} />
+          <Input name="telefon" label="Telefon" cols={3} value={telefon} onChange={handleTelefonChange} />
+          <Input name="mobil" label="Mobil" cols={3} value={mobil} onChange={handleMobilChange} />
+          <Input name="eMail" label="E-Mail" cols={6} value={eMail} onChange={handleEMailChange} />
+          <Select
+            name="familienstand"
+            label="Familienstand"
+            cols={4}
+            options={["", "ledig", "verheiratet", "getrennt", "geschieden", "verwitwet"]}
+            value={familienstand}
+            onChange={handleFamilienstandChange}
+          />
           {/* TODO link spouse and parent */}
-          <div className="col-4">
-            <div className="form-floating">
-              <input
-                type="text"
-                className="form-control"
-                id="partnerVon"
-                name="partnerVon"
-                placeholder="Partner von"
-                value={partnerVon}
-                onChange={handlePartnerVonChange}
-              />
-              <label htmlFor="partnerVon">Partner von</label>
-            </div>
-          </div>
-          <div className="col-4">
-            <div className="form-floating">
-              <input
-                type="text"
-                className="form-control"
-                id="kindVon"
-                name="kindVon"
-                placeholder="Kind von"
-                value={kindVon}
-                onChange={handleKindVonChange}
-              />
-              <label htmlFor="kindVon">Kind von</label>
-            </div>
-          </div>
-          <div className="col-12">
-            <div className="form-floating">
-              <textarea
-                className="form-control"
-                id="memo"
-                name="memo"
-                style={{ height: "100px" }}
-                placeholder="Memo"
-                value={memo}
-                onChange={handleMemoChange}
-              ></textarea>
-              <label htmlFor="memo">Memo</label>
-            </div>
-          </div>
+          <Input name="partnerVon" label="Partner von" cols={5} value={partnerVon} onChange={handlePartnerVonChange} />
+          <Input name="kindVon" label="Kind von" cols={5} value={kindVon} onChange={handleKindVonChange} />
+          <Input
+            name="staatsangehoeringkeit"
+            label="Staatsangehörigkeit"
+            cols={6}
+            value={staatsangehoerigkeit}
+            onChange={handleStaatsangehoerigkeitChange}
+          />
+          <Input name="beruf" label="Beruf" cols={6} value={beruf} onChange={handleBerufChange} />
+          <TextArea name="memo" label="Memo" cols={12} value={memo} onChange={handleMemoChange} />
         </div>
         <div className="form-text mb-3">* Erforderliche Angaben</div>
         <div className="btn-toolbar" role="toolbar" aria-label="Aktionen für Patient">
@@ -475,5 +252,159 @@ export default function Patientenkarteikarte() {
         </div>
       </form>
     </main>
+  );
+}
+
+function Input({
+  name,
+  label,
+  type,
+  isRequired,
+  cols,
+  value,
+  onChange,
+}: {
+  name: string;
+  label: string;
+  type?: string;
+  isRequired?: boolean;
+  cols: number;
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+}) {
+  return (
+    <div className={`col-${cols}`}>
+      <div className="form-floating">
+        <input
+          type={type || "text"}
+          className="form-control"
+          id={name}
+          name={name}
+          placeholder={label}
+          value={value}
+          onChange={onChange}
+        />
+        <label htmlFor={name}>
+          {label}
+          {isRequired && "*"}
+        </label>
+      </div>
+    </div>
+  );
+}
+
+function TextArea({
+  name,
+  label,
+  isRequired,
+  cols,
+  value,
+  onChange,
+}: {
+  name: string;
+  label: string;
+  isRequired?: boolean;
+  cols: number;
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
+}) {
+  return (
+    <div className={`col-${cols}`}>
+      <div className="form-floating">
+        <textarea
+          className="form-control"
+          id={name}
+          name={name}
+          style={{ height: "100px" }}
+          placeholder={label}
+          value={value}
+          onChange={onChange}
+        ></textarea>
+        <label htmlFor={name}>
+          {label}
+          {isRequired && "*"}
+        </label>
+      </div>
+    </div>
+  );
+}
+
+function Select({
+  name,
+  label,
+  isRequired,
+  cols,
+  options,
+  value,
+  onChange,
+}: {
+  name: string;
+  label: string;
+  isRequired?: boolean;
+  cols: number;
+  options: string[];
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
+}) {
+  return (
+    <div className={`col-${cols}`}>
+      <div className="form-floating">
+        <select className="form-select" id={name} name={name} value={value} onChange={onChange}>
+          {options.map((option) => (
+            <option key={option} value={option}>
+              {option}
+            </option>
+          ))}
+        </select>
+        <label htmlFor={name}>
+          {label}
+          {isRequired && "*"}
+        </label>
+      </div>
+    </div>
+  );
+}
+
+function MultiSelect({
+  name,
+  label,
+  cols,
+  options,
+  value,
+  onChange,
+}: {
+  name: string;
+  label: string;
+  cols: number;
+  options: string[];
+  value: string[];
+  onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
+}) {
+  return (
+    <div className={`col-${cols}`}>
+      <div>
+        <label htmlFor={name} className="visually-hidden">
+          {label}
+        </label>
+        <select
+          className="form-select"
+          id={name}
+          name={name}
+          multiple
+          data-allow-clear
+          value={value}
+          onChange={onChange}
+        >
+          <option disabled hidden value="">
+            Wählen Sie Optionen aus
+          </option>
+          {options.map((option) => (
+            <option key={option} value={option}>
+              {option}
+            </option>
+          ))}
+        </select>
+      </div>
+    </div>
   );
 }
