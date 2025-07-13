@@ -23,7 +23,7 @@ function AppHeader() {
   return (
     <header>
       <nav className="navbar navbar-expand-lg">
-        <div className="container">
+        <div className="container-fluid">
           <a href="/" className="navbar-brand">
             <img src={logo} className="me-2" width="32" height="32" alt="Logo" aria-hidden="true" />
             <span>Naturheilpraxis</span>

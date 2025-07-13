@@ -19,7 +19,7 @@ export default function Patientenkartei() {
   }, []);
 
   return (
-    <main className="container my-4">
+    <main className="container-fluid my-4">
       <div className="d-flex">
         <h2 className="mb-3">Patienten</h2>
         <div className="ms-auto">
