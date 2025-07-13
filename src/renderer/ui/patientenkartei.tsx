@@ -7,7 +7,7 @@ import type { Patient } from "../../main/domain/naturheilpraxis";
 import { PATIENTENKARTEIKARTE_PAGE } from "./pages";
 
 export default function Patientenkartei() {
-  const [patienten, setPatienten] = useState([]);
+  const [patienten, setPatienten] = useState<Patient[]>();
 
   useEffect(() => {
     async function queryPatientenkartei() {
@@ -31,47 +31,83 @@ export default function Patientenkartei() {
           </form>
         </div>
       </div>
-      <table className="table table-hover">
-        <thead>
-          <tr>
-            <th scope="col">#</th>
-            <th scope="col">Anrede</th>
-            <th scope="col">Nachname</th>
-            <th scope="col">Vorname</th>
-            <th scope="col">Geburtsdatum</th>
-            <th scope="col">Straße</th>
-            <th scope="col">PLZ</th>
-            <th scope="col">Wohnort</th>
-            <th scope="col">Telefon</th>
-            <th scope="col">Mobil</th>
-            <th scope="col">E-Mail</th>
-          </tr>
-        </thead>
-        <tbody>
-          {patienten.map((patient: Patient) => (
-            <tr id={String(patient.nummer)} key={patient.nummer}>
-              <th scope="row">{patient.nummer}</th>
-              <td>{patient.anrede}</td>
-              <td>{patient.nachname}</td>
-              <td>{patient.vorname}</td>
-              <td>{new Date(patient.geburtsdatum).toLocaleDateString(undefined, { dateStyle: "medium" })}</td>
-              <td>{patient.strasse}</td>
-              <td>{patient.postleitzahl}</td>
-              <td>{patient.wohnort}</td>
-              <td>
-                <a href={`tel:${patient.telefon}`}>{patient.telefon}</a>
-              </td>
-              <td>
-                <a href={`tel:${patient.mobil}`}>{patient.mobil}</a>
-              </td>
-              <td>
-                <a href={`mailto:${patient.eMail}`}>{patient.eMail}</a>
-              </td>
+      <div style={{ height: "calc(100vh - 13.5rem)", overflowY: "auto" }}>
+        <table className="table table-hover">
+          <thead>
+            <tr>
+              <th scope="col" className="sticky-top">
+                #
+              </th>
+              <th scope="col" className="sticky-top">
+                Anrede
+              </th>
+              <th scope="col" className="sticky-top">
+                Nachname
+              </th>
+              <th scope="col" className="sticky-top">
+                Vorname
+              </th>
+              <th scope="col" className="sticky-top">
+                Geburtsdatum
+              </th>
+              <th scope="col" className="sticky-top">
+                Straße
+              </th>
+              <th scope="col" className="sticky-top">
+                PLZ
+              </th>
+              <th scope="col" className="sticky-top">
+                Wohnort
+              </th>
+              <th scope="col" className="sticky-top">
+                Telefon
+              </th>
+              <th scope="col" className="sticky-top">
+                Mobil
+              </th>
+              <th scope="col" className="sticky-top">
+                E-Mail
+              </th>
             </tr>
-          ))}
-        </tbody>
-      </table>
-      <div className="btn-toolbar" role="toolbar" aria-label="Aktionen für Patienten">
+          </thead>
+          <tbody>
+            {!patienten && (
+              <tr>
+                <td colSpan={11}>
+                  <div className="d-flex justify-content-center align-items-center">
+                    <div className="spinner-border text-primary" role="status">
+                      <span className="visually-hidden">Loading...</span>
+                    </div>
+                    <div className="ms-2">Lade Patienten ...</div>
+                  </div>
+                </td>
+              </tr>
+            )}
+            {patienten?.map((patient: Patient) => (
+              <tr id={String(patient.nummer)} key={patient.nummer}>
+                <th scope="row">{patient.nummer}</th>
+                <td>{patient.anrede}</td>
+                <td>{patient.nachname}</td>
+                <td>{patient.vorname}</td>
+                <td>{new Date(patient.geburtsdatum).toLocaleDateString(undefined, { dateStyle: "medium" })}</td>
+                <td>{patient.strasse}</td>
+                <td>{patient.postleitzahl}</td>
+                <td>{patient.wohnort}</td>
+                <td>
+                  <a href={`tel:${patient.telefon}`}>{patient.telefon}</a>
+                </td>
+                <td>
+                  <a href={`tel:${patient.mobil}`}>{patient.mobil}</a>
+                </td>
+                <td>
+                  <a href={`mailto:${patient.eMail}`}>{patient.eMail}</a>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <div className="btn-toolbar mt-3" role="toolbar" aria-label="Aktionen für Patienten">
         <NavLink to={PATIENTENKARTEIKARTE_PAGE} type="button" className="btn btn-primary">
           Nimm Patient auf
         </NavLink>
