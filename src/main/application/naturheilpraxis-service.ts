@@ -14,6 +14,9 @@ import {
   PatientAufgenommenV1Event,
 } from "../integration/events";
 
+// TODO handle technical errors, e.g. when the event store is not available
+//   That is not a failure as command status
+
 export class NaturheilpraxisService {
   #eventStore: EventStore;
 
@@ -58,6 +61,6 @@ export class NaturheilpraxisService {
         patienten.push(patient);
       }
     }
-    return patienten;
+    return patienten.sort((a, b) => a.nummer - b.nummer);
   }
 }
