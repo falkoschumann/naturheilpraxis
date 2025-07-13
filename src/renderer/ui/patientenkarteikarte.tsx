@@ -213,15 +213,15 @@ export default function Patientenkarteikarte() {
             value={postleitzahl}
             onChange={handlePostleitzahlChange}
           />
-          <Input name="wohnort" label="Wohnort" cols={4} value={wohnort} onChange={handleWohnortChange} />
-          <Input name="staat" label="Staat" cols={2} value={staat} onChange={handleStaatChange} />
+          <Input name="wohnort" label="Wohnort" cols={3} value={wohnort} onChange={handleWohnortChange} />
+          <Input name="staat" label="Staat" cols={3} value={staat} onChange={handleStaatChange} />
           <Input name="telefon" label="Telefon" cols={3} value={telefon} onChange={handleTelefonChange} />
           <Input name="mobil" label="Mobil" cols={3} value={mobil} onChange={handleMobilChange} />
           <Input name="eMail" label="E-Mail" cols={6} value={eMail} onChange={handleEMailChange} />
           <Select
             name="familienstand"
             label="Familienstand"
-            cols={4}
+            cols={2}
             options={["", "ledig", "verheiratet", "getrennt", "geschieden", "verwitwet"]}
             value={familienstand}
             onChange={handleFamilienstandChange}
