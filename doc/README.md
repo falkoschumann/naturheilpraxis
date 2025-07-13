@@ -7,9 +7,11 @@ diese in Rechnung stellen zu können.
 
 ![Domain](domain.png)
 
+Stories for the MVP are marked with ❗.
+
 ### Nimm Patient auf
 
-- [x] Erfasse Informationen wie Name, Geburtsdatum, Praxis, Annahmejahr,
+- [x] ❗Erfasse Informationen wie Name, Geburtsdatum, Praxis, Annahmejahr,
       Anschrift, Kontaktmöglichkeit
 - [ ] Nutze aktuelle Praxis als Standardpraxis für den Patienten
 - [ ] **Constraint:** Prüfe vor dem Anlegen, ob bereits ein Patient mit
@@ -19,7 +21,7 @@ diese in Rechnung stellen zu können.
 
 ### Patientenkartei
 
-- [x] Liste alle Patienten auf
+- [x] ❗Liste alle Patienten auf
 - [ ] Suche Patient
 - [ ] Filtere inaktive Patienten aus
 - [ ] Exportiere (gefilterte) Liste von Patienten in CSV-Datei
@@ -38,7 +40,7 @@ diese in Rechnung stellen zu können.
 
 ### Erbringe Leistung
 
-- [ ] Erfasse Leistungen mit Datum, einer Gebühr und optionalen Kommentar
+- [ ] ❗Erfasse Leistungen mit Datum, einer Gebühr und optionalen Kommentar
 - [ ] Aktualisiere Leistung
 - [ ] **Constraint:** Nur nicht abgerechnete Leistungen können aktualisiert
       werden
@@ -47,7 +49,7 @@ diese in Rechnung stellen zu können.
 
 ### Leistungen
 
-- [ ] Liste alle Leistungen für einen Patienten auf
+- [ ] ❗Liste alle Leistungen für einen Patienten auf
 - [ ] Filtere abgerechnete Leistungen aus
 
 ### Aktualisiere Gebührenverzeichnis
@@ -58,27 +60,27 @@ diese in Rechnung stellen zu können.
 
 ### Gebührenverzeichnis
 
-- [ ] Liste alle Gebühren auf
+- [ ] ❗Liste alle Gebühren auf
 - [ ] Suche eine Gebühr
 
 ### Erstelle Rechnung
 
-- [ ] Wähle Leistungen für Rechnung
+- [ ] ❗Wähle Leistungen für Rechnung
 - [ ] Wähle optional eine Diagnose
 - [ ] Bestimme Rechnungsnummer aus Patientennummer und Rechnungsdatum
 - [ ] Nutze Zahlungsziel und Kontoverbindung als Default für den Rechnungstext
-- [ ] Erstelle Rechnung
+- [ ] ❗Erstelle Rechnung
 - [ ] **Constraint:** Kopiere Daten der Leistungen und Diagnose in die Rechnung,
       damit diese nicht geändert werden, wenn die ursprüngliche Gebühr oder
       Diagnose geändert wird
 - [ ] **Constraint:** Wenn Rechnungen nacheinander angelegt werden, verwende das
       letzte Rechnungsdatum für die nächste Rechnung als Default
-- [ ] Drucke Rechnung
+- [ ] ❗Drucke Rechnung
 - [ ] Drucke Rechnung mit oder ohne Leistungsbezeichnung
 
 ### Rechnung
 
-- [ ] Liste alle Rechnungen auf
+- [ ] ❗Liste alle Rechnungen auf
 - [ ] Liste alle Rechnungen eines Patienten auf
 - [ ] Liste alle Rechnungen einer Praxis auf
 
