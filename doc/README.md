@@ -24,6 +24,7 @@ Stories for the MVP are marked with ❗.
 - [x] ❗Liste alle Patienten auf
 - [ ] Suche Patient
 - [ ] Filtere inaktive Patienten aus
+- [ ] Konfiguriere sichtbare Spalten
 - [ ] Exportiere (gefilterte) Liste von Patienten in CSV-Datei
 
 ### Erstelle Diagnose
