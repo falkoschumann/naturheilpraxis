@@ -1,8 +1,6 @@
 // Copyright (c) 2025 Falko Schumann. All rights reserved. MIT license.
 
 import { describe, expect, it } from "vitest";
-
-import { Success } from "../../src/main/common/messages";
 import { arrayFromAsync } from "../../src/main/common/polyfills";
 import { NaturheilpraxisService } from "../../src/main/application/naturheilpraxis-service";
 import { MemoryEventStore } from "../../src/main/integration/event-store";
@@ -11,6 +9,7 @@ import {
   PATIENT_AUFGENOMMEN_V1_EVENT_TYPE,
   PATIENT_SOURCE,
 } from "../../src/main/integration/events";
+import { NimmPatientAufSuccess } from "../../src/main/domain/naturheilpraxis";
 
 describe("Naturheilpraxis Service", () => {
   describe("Nimm Patient auf", () => {
@@ -20,7 +19,7 @@ describe("Naturheilpraxis Service", () => {
 
       const status = await service.nimmPatientAuf(createTestPatient());
 
-      expect(status).toEqual(new Success());
+      expect(status).toEqual(new NimmPatientAufSuccess(1));
       const events = await arrayFromAsync(eventStore.replay());
       expect(events).toEqual([
         {
@@ -46,7 +45,7 @@ describe("Naturheilpraxis Service", () => {
         }),
       );
 
-      expect(status).toEqual(new Success());
+      expect(status).toEqual(new NimmPatientAufSuccess(2));
       const events = await arrayFromAsync(eventStore.replay());
       expect(events.slice(-1)).toEqual([
         {

@@ -16,9 +16,6 @@
     "module": "ESNext",
     "moduleResolution": "bundler",
     "noUncheckedSideEffectImports": true,
-    "paths": {
-      "@renderer/*": ["src/renderer/*"]
-    },
     // Emit
     "noEmit": true,
     // Interop Constraints

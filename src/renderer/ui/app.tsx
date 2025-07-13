@@ -5,14 +5,15 @@ import { NavLink, Route, Routes } from "react-router";
 import Patientenkarteikarte from "./patientenkarteikarte";
 import Patientenkartei from "./patientenkartei";
 import logo from "./logo.svg";
+import { LEISTUNGEN_PAGE, PATIENTENKARTEI_PAGE, PATIENTENKARTEIKARTE_PAGE, RECHUNGEN_PAGE } from "./pages";
 
 export default function App() {
   return (
     <>
       <AppHeader />
       <Routes>
-        <Route path="/patienten" element={<Patientenkartei />} />
-        <Route path="/patient" element={<Patientenkarteikarte />} />
+        <Route path={PATIENTENKARTEI_PAGE} element={<Patientenkartei />} />
+        <Route path={PATIENTENKARTEIKARTE_PAGE} element={<Patientenkarteikarte />} />
       </Routes>
     </>
   );
@@ -41,17 +42,17 @@ function AppHeader() {
           <div className="collapse navbar-collapse" id="navbarSupportedContent">
             <ul className="navbar-nav me-auto mb-2 mb-lg-0">
               <li className="nav-item">
-                <NavLink to="/patienten" className="nav-link">
+                <NavLink to={PATIENTENKARTEI_PAGE} className="nav-link">
                   Patienten
                 </NavLink>
               </li>
               <li className="nav-item">
-                <NavLink to="/leistungen" className="nav-link">
+                <NavLink to={LEISTUNGEN_PAGE} className="nav-link">
                   Leistungen
                 </NavLink>
               </li>
               <li className="nav-item">
-                <NavLink to="/rechnungen" className="nav-link">
+                <NavLink to={RECHUNGEN_PAGE} className="nav-link">
                   Rechnungen
                 </NavLink>
               </li>

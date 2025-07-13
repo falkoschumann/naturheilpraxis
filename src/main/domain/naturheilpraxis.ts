@@ -1,5 +1,7 @@
 // Copyright (c) 2025 Falko Schumann. All rights reserved. MIT license.
 
+import { Failure, Success } from "../common/messages";
+
 export interface NimmPatientAufCommand {
   readonly nachname: string;
   readonly vorname: string;
@@ -22,6 +24,17 @@ export interface NimmPatientAufCommand {
   readonly kindVon?: string;
   readonly memo?: string;
   readonly schluesselworte?: string[];
+}
+
+export type NimmPatientAufCommandStatus = NimmPatientAufSuccess | Failure;
+
+export class NimmPatientAufSuccess extends Success {
+  readonly nummer: number;
+
+  constructor(nummer: number) {
+    super();
+    this.nummer = nummer;
+  }
 }
 
 export type PatientenkarteiQuery = object;

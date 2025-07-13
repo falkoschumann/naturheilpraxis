@@ -1,11 +1,12 @@
 // Copyright (c) 2025 Falko Schumann. All rights reserved. MIT license.
 
-import { type CommandStatus, Success } from "../common/messages";
-import type {
-  NimmPatientAufCommand,
-  Patient,
-  PatientenkarteiQuery,
-  PatientenkarteiQueryResult,
+import {
+  type NimmPatientAufCommand,
+  type NimmPatientAufCommandStatus,
+  NimmPatientAufSuccess,
+  type Patient,
+  type PatientenkarteiQuery,
+  type PatientenkarteiQueryResult,
 } from "../domain/naturheilpraxis";
 import type { EventStore } from "../integration/event-store";
 import {
@@ -20,11 +21,13 @@ export class NaturheilpraxisService {
     this.#eventStore = eventStore;
   }
 
-  async nimmPatientAuf(command: NimmPatientAufCommand): Promise<CommandStatus> {
+  async nimmPatientAuf(
+    command: NimmPatientAufCommand,
+  ): Promise<NimmPatientAufCommandStatus> {
     const nummer = await this.#nextPatientennummer();
     const event = new PatientAufgenommenV1Event({ ...command, nummer });
     await this.#eventStore.record(event);
-    return new Success();
+    return new NimmPatientAufSuccess(nummer);
   }
 
   async patientenkartei(

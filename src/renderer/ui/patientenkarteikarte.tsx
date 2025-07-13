@@ -3,6 +3,9 @@
 // @ts-expect-error TS7016
 import Tags from "bootstrap5-tags";
 import React, { useEffect } from "react";
+import { useNavigate } from "react-router";
+
+import { PATIENTENKARTEI_PAGE } from "./pages";
 
 export default function Patientenkarteikarte() {
   const [status, setStatus] = React.useState<string>("new");
@@ -27,6 +30,7 @@ export default function Patientenkarteikarte() {
   const [partnerVon, setPartnerVon] = React.useState<string>("");
   const [kindVon, setKindVon] = React.useState<string>("");
   const [memo, setMemo] = React.useState<string>("");
+  const navigate = useNavigate();
 
   const canSubmit =
     status == "new" && geburtsdatum.trim() && annahmejahr.trim() && praxis.trim() && vorname.trim() && nachname.trim();
@@ -122,7 +126,7 @@ export default function Patientenkarteikarte() {
     event.preventDefault();
 
     setStatus("submitting");
-    await window.naturheilpraxis.nimmPatientAuf({
+    const result = await window.naturheilpraxis.nimmPatientAuf({
       nachname,
       vorname,
       geburtsdatum,
@@ -146,6 +150,14 @@ export default function Patientenkarteikarte() {
       schluesselworte,
     });
     setStatus("submitted");
+    if (result.success) {
+      navigate(`${PATIENTENKARTEI_PAGE}/#${result.nummer}`, { replace: true });
+    }
+  }
+
+  function handleAbbrechen(event: React.MouseEvent<HTMLButtonElement>) {
+    event.preventDefault();
+    navigate(PATIENTENKARTEI_PAGE, { replace: true });
   }
 
   return (
@@ -240,15 +252,18 @@ export default function Patientenkarteikarte() {
           <TextArea name="memo" label="Memo" cols={12} value={memo} onChange={handleMemoChange} />
         </div>
         <div className="form-text mb-3">* Erforderliche Angaben</div>
-        <div className="btn-toolbar" role="toolbar" aria-label="Aktionen für Patient">
-          <button type="submit" className="btn btn-primary me-2" disabled={!canSubmit}>
-            Nimm Patient auf
-          </button>
+        <div className="btn-toolbar justify-content-end" role="toolbar" aria-label="Aktionen für Patient">
           {status === "submitting" && (
             <div className="spinner-border text-primary" role="status">
               <span className="visually-hidden">Loading...</span>
             </div>
           )}
+          <button type="submit" className="btn btn-primary me-2" disabled={!canSubmit}>
+            Nimm Patient auf
+          </button>
+          <button className="btn btn-secondary me-2" onClick={handleAbbrechen}>
+            Abbrechen
+          </button>
         </div>
       </form>
     </main>

@@ -2,7 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { NavLink } from "react-router";
+
 import type { Patient } from "../../main/domain/naturheilpraxis";
+import { PATIENTENKARTEIKARTE_PAGE } from "./pages";
 
 export default function Patientenkartei() {
   const [patienten, setPatienten] = useState([]);
@@ -14,7 +16,7 @@ export default function Patientenkartei() {
     }
 
     void queryPatientenkartei();
-  });
+  }, []);
 
   return (
     <main className="container my-4">
@@ -47,7 +49,7 @@ export default function Patientenkartei() {
         </thead>
         <tbody>
           {patienten.map((patient: Patient) => (
-            <tr key={patient.nummer}>
+            <tr id={String(patient.nummer)} key={patient.nummer}>
               <th scope="row">{patient.nummer}</th>
               <td>{patient.anrede}</td>
               <td>{patient.nachname}</td>
@@ -70,7 +72,7 @@ export default function Patientenkartei() {
         </tbody>
       </table>
       <div className="btn-toolbar" role="toolbar" aria-label="Aktionen für Patienten">
-        <NavLink to="/patient" type="button" className="btn btn-primary">
+        <NavLink to={PATIENTENKARTEIKARTE_PAGE} type="button" className="btn btn-primary">
           Nimm Patient auf
         </NavLink>
       </div>

@@ -1,14 +1,16 @@
 // Copyright (c) 2025 Falko Schumann. All rights reserved. MIT license.
 
-import type { NimmPatientAufCommand } from "../main/domain/naturheilpraxis";
-import type { CommandStatus } from "../main/common/messages";
+import type {
+  NimmPatientAufCommand,
+  NimmPatientAufCommand,
+} from "../main/domain/naturheilpraxis";
 
 declare global {
   interface Window {
     naturheilpraxis: {
       nimmPatientAuf: (
         command: NimmPatientAufCommand,
-      ) => Promise<CommandStatus>;
+      ) => Promise<NimmPatientAufCommandStatus>;
       patientenkartei: (
         query: PatientenkarteiQuery,
       ) => Promise<PatientenkarteiResult>;
