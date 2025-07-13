@@ -1,6 +1,6 @@
 // Copyright (c) 2025 Falko Schumann. All rights reserved. MIT license.
 
-import path from "node:path";
+import * as path from "node:path";
 
 import { app, BrowserWindow, ipcMain } from "electron";
 import {

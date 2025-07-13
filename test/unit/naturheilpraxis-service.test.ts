@@ -2,10 +2,15 @@
 
 import { describe, expect, it } from "vitest";
 
+import { Success } from "../../src/main/common/messages";
 import { arrayFromAsync } from "../../src/main/common/polyfills";
 import { NaturheilpraxisService } from "../../src/main/application/naturheilpraxis-service";
 import { MemoryEventStore } from "../../src/main/integration/event-store";
-import { Success } from "../../src/main/common/messages";
+import {
+  CLOUD_EVENT_SPEC_VERSION,
+  PATIENT_AUFGENOMMEN_V1_EVENT_TYPE,
+  PATIENT_SOURCE,
+} from "../../src/main/integration/events";
 
 describe("Naturheilpraxis Service", () => {
   describe("Nimm Patient auf", () => {
@@ -20,9 +25,9 @@ describe("Naturheilpraxis Service", () => {
       expect(events).toEqual([
         {
           id: expect.any(String),
-          type: "de.muspellheim.naturheilpraxis.patient-aufgenommen.v1",
-          source: "/naturheilpraxis/patient",
-          specversion: "1.0",
+          type: PATIENT_AUFGENOMMEN_V1_EVENT_TYPE,
+          source: PATIENT_SOURCE,
+          specversion: CLOUD_EVENT_SPEC_VERSION,
           time: expect.any(String),
           data: { ...createTestPatient(), nummer: 1 },
         },
@@ -46,9 +51,9 @@ describe("Naturheilpraxis Service", () => {
       expect(events.slice(-1)).toEqual([
         {
           id: expect.any(String),
-          type: "de.muspellheim.naturheilpraxis.patient-aufgenommen.v1",
-          source: "/naturheilpraxis/patient",
-          specversion: "1.0",
+          type: PATIENT_AUFGENOMMEN_V1_EVENT_TYPE,
+          source: PATIENT_SOURCE,
+          specversion: CLOUD_EVENT_SPEC_VERSION,
           time: expect.any(String),
           data: {
             ...createTestPatient(),

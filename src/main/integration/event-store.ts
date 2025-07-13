@@ -12,13 +12,13 @@ export interface EventStore {
 }
 
 export class MemoryEventStore implements EventStore {
-  readonly #events: CloudEvent[] = [];
+  readonly #events: CloudEvent<unknown>[] = [];
 
-  async record(event: CloudEvent): Promise<void> {
+  async record(event: CloudEvent<unknown>): Promise<void> {
     this.#events.push(event);
   }
 
-  async *replay(): AsyncGenerator<CloudEvent> {
+  async *replay(): AsyncGenerator<CloudEvent<unknown>> {
     for (const event of this.#events) {
       yield event;
     }
@@ -32,7 +32,7 @@ export class NdjsonEventStore implements EventStore {
     this.#fileName = fileName;
   }
 
-  async record(event: CloudEvent): Promise<void> {
+  async record(event: CloudEvent<unknown>): Promise<void> {
     const dirName = path.dirname(this.#fileName);
     await fsPromise.mkdir(dirName, { recursive: true });
 
@@ -42,7 +42,7 @@ export class NdjsonEventStore implements EventStore {
     await file.close();
   }
 
-  async *replay(): AsyncGenerator<CloudEvent> {
+  async *replay(): AsyncGenerator<CloudEvent<unknown>> {
     try {
       const file = await fsPromise.open(this.#fileName, "r");
       for await (const line of file.readLines({ encoding: "utf8" })) {
@@ -52,7 +52,7 @@ export class NdjsonEventStore implements EventStore {
       await file.close();
     } catch (error) {
       if ((error as NodeJS.ErrnoException).code === "ENOENT") {
-        // No such file or directory
+        // No such file or directory, no events recorded yet
         return;
       }
 

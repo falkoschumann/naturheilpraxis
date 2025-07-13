@@ -10,7 +10,6 @@ import type {
 import type { EventStore } from "../integration/event-store";
 import {
   PATIENT_SOURCE,
-  type PatientAufgenommenDataV1,
   PatientAufgenommenV1Event,
 } from "../integration/events";
 
@@ -23,8 +22,7 @@ export class NaturheilpraxisService {
 
   async nimmPatientAuf(command: NimmPatientAufCommand): Promise<CommandStatus> {
     const nummer = await this.#nextPatientennummer();
-    const data: PatientAufgenommenDataV1 = { nummer, ...command };
-    const event = new PatientAufgenommenV1Event(crypto.randomUUID(), data);
+    const event = new PatientAufgenommenV1Event({ ...command, nummer });
     await this.#eventStore.record(event);
     return new Success();
   }
@@ -32,32 +30,31 @@ export class NaturheilpraxisService {
   async patientenkartei(
     _query: PatientenkarteiQuery,
   ): Promise<PatientenkarteiQueryResult> {
-    const patienten: Patient[] = [];
-    for await (const event of this.#eventStore.replay()) {
-      if (event.source !== PATIENT_SOURCE) {
-        continue;
-      }
-
-      if (event.type === PatientAufgenommenV1Event.TYPE) {
-        const data = event.data as PatientAufgenommenDataV1;
-        patienten.push(data);
-      }
-    }
+    const patienten = await this.#projectPatienten();
     return { patienten };
   }
 
   async #nextPatientennummer() {
-    let nummer = 1;
-    for await (const event of this.#eventStore.replay()) {
-      if (
-        event.type === "de.muspellheim.naturheilpraxis.patient-aufgenommen.v1"
-      ) {
-        const data = event.data as { nummer: number };
-        if (data.nummer >= nummer) {
-          nummer = data.nummer + 1;
-        }
+    const patienten = await this.#projectPatienten();
+    const maxNummer = patienten
+      .map((p) => p.nummer)
+      .reduce((max, nummer) => (nummer > max ? nummer : max), 0);
+    return maxNummer + 1;
+  }
+
+  async #projectPatienten(): Promise<Patient[]> {
+    const patienten: Patient[] = [];
+    const events = this.#eventStore.replay();
+    for await (const event of events) {
+      if (event.source !== PATIENT_SOURCE) {
+        continue;
+      }
+
+      if (PatientAufgenommenV1Event.isType(event)) {
+        const patient = event.data!;
+        patienten.push(patient);
       }
     }
-    return nummer;
+    return patienten;
   }
 }
