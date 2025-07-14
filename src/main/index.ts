@@ -16,6 +16,7 @@ import type {
 } from "./domain/naturheilpraxis";
 import { NdjsonEventStore } from "./integration/event-store";
 import icon from "../../resources/icon.png?asset";
+import { ConfigurationGateway } from "./integration/configuration-gateway";
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (started) {
@@ -35,10 +36,10 @@ const createWindow = () => {
   // HMR for renderer base on electron-vite cli.
   // Load the remote URL for development or the local html file for production.
   if (!app.isPackaged && process.env["ELECTRON_RENDERER_URL"]) {
-    mainWindow.loadURL(process.env["ELECTRON_RENDERER_URL"]);
+    void mainWindow.loadURL(process.env["ELECTRON_RENDERER_URL"]);
     setTimeout(() => mainWindow.reload(), 1000);
   } else {
-    mainWindow.loadFile(path.join(__dirname, "../renderer/index.html"));
+    void mainWindow.loadFile(path.join(__dirname, "../renderer/index.html"));
   }
 
   if (!app.isPackaged) {
@@ -49,11 +50,17 @@ const createWindow = () => {
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.whenReady().then(() => {
-  // TODO Make the file path configurable
+app.whenReady().then(async () => {
+  const configurationGateway = new ConfigurationGateway(
+    "./data/configuration.json",
+  );
+  const configuration = await configurationGateway.load();
   const eventStore = new NdjsonEventStore("./data/events.ndjson");
   const naturheilpraxisService = new NaturheilpraxisService(eventStore);
 
+  ipcMain.on("getConfiguration", (event) => {
+    event.returnValue = configuration;
+  });
   ipcMain.handle(
     "nimmPatientAuf",
     async (_event, command: NimmPatientAufCommand) =>

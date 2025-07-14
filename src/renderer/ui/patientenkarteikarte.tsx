@@ -8,8 +8,9 @@ import { useNavigate } from "react-router";
 import { PATIENTENKARTEI_PAGE } from "./pages";
 
 export default function Patientenkarteikarte() {
+  const configuration = window.app.getConfiguration();
   const [status, setStatus] = React.useState<string>("new");
-  const [schluesselworte, setSchluesselworte] = React.useState<string[]>(["Aktiv", "Weihnachtskarte"]);
+  const [schluesselworte, setSchluesselworte] = React.useState<string[]>(configuration.defaultSchluesselworte);
   const [geburtsdatum, setGeburtsdatum] = React.useState<string>("");
   const [annahmejahr, setAnnahmejahr] = React.useState<string>(String(new Date().getFullYear()));
   const [praxis, setPraxis] = React.useState<string>("Praxis A");
@@ -169,7 +170,7 @@ export default function Patientenkarteikarte() {
             name="schluesselworte"
             label="Schlüsselworte"
             cols={12}
-            options={["Aktiv", "Unbekannt verzogen", "Exitus", "Geburtstagskarte", "Weihnachtskarte", "Kind"]}
+            options={configuration.schluesselworte}
             value={schluesselworte}
             onChange={handleSchluesselworteChange}
           />
@@ -195,7 +196,7 @@ export default function Patientenkarteikarte() {
             name="praxis"
             label="Praxis"
             cols={4}
-            options={["Praxis A", "Praxis B", "Alle"]}
+            options={configuration.praxis}
             value={praxis}
             onChange={handlePraxisChange}
           />
@@ -203,7 +204,7 @@ export default function Patientenkarteikarte() {
             name="anrede"
             label="Anrede"
             cols={2}
-            options={["Herr", "Frau", "Fräulein", "Mr", "Mrs", "Ms"]}
+            options={configuration.anrede}
             value={anrede}
             onChange={handleAnredeChange}
           />
@@ -234,7 +235,7 @@ export default function Patientenkarteikarte() {
             name="familienstand"
             label="Familienstand"
             cols={2}
-            options={["", "ledig", "verheiratet", "getrennt", "geschieden", "verwitwet"]}
+            options={configuration.familienstand}
             value={familienstand}
             onChange={handleFamilienstandChange}
           />
