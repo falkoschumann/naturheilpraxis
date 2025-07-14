@@ -1,12 +1,6 @@
 {
-  "praxis": [
-    "Naturheilpraxis"
-  ],
-  "anrede": [
-    "Frau",
-    "Fräulein",
-    "Herr"
-  ],
+  "praxis": ["Naturheilpraxis"],
+  "anrede": ["Frau", "Fräulein", "Herr"],
   "familienstand": [
     "geschieden",
     "getrennt",
@@ -22,8 +16,5 @@
     "Unbekannt verzogen",
     "Weihnachtskarte"
   ],
-  "defaultSchluesselworte": [
-    "Aktiv",
-    "Weihnachtskarte"
-  ]
+  "defaultSchluesselworte": ["Aktiv", "Weihnachtskarte"]
 }
