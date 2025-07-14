@@ -1,6 +1,6 @@
 # see also https://gitignore.io
 
-data/
+/data/
 dist/
 testdata/
 tmp/
