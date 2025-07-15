@@ -5,7 +5,13 @@ import { NavLink, Route, Routes } from "react-router";
 import Patientenkarteikarte from "./patientenkarteikarte";
 import Patientenkartei from "./patientenkartei";
 import logo from "./logo.svg";
-import { LEISTUNGEN_PAGE, PATIENTENKARTEI_PAGE, PATIENTENKARTEIKARTE_PAGE, RECHUNGEN_PAGE } from "./pages";
+import {
+  LEISTUNGEN_PAGE,
+  PATIENT_AUFNEHMEN_PAGE,
+  PATIENTENKARTEI_PAGE,
+  PATIENTENKARTEIKARTE_PAGE,
+  RECHUNGEN_PAGE,
+} from "./pages";
 
 export default function App() {
   return (
@@ -14,6 +20,7 @@ export default function App() {
       <Routes>
         <Route path={PATIENTENKARTEI_PAGE} element={<Patientenkartei />} />
         <Route path={PATIENTENKARTEIKARTE_PAGE} element={<Patientenkarteikarte />} />
+        <Route path={PATIENT_AUFNEHMEN_PAGE} element={<Patientenkarteikarte />} />
       </Routes>
     </>
   );

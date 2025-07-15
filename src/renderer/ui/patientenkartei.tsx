@@ -1,13 +1,14 @@
 // Copyright (c) 2025 Falko Schumann. All rights reserved. MIT license.
 
 import { useEffect, useState } from "react";
-import { NavLink } from "react-router";
+import { NavLink, useNavigate } from "react-router";
 
 import type { Patient } from "../../main/domain/naturheilpraxis";
-import { PATIENTENKARTEIKARTE_PAGE } from "./pages";
+import { PATIENT_AUFNEHMEN_PAGE, PATIENTENKARTEI_PAGE } from "./pages";
 
 export default function Patientenkartei() {
   const [patienten, setPatienten] = useState<Patient[]>();
+  const navigate = useNavigate();
 
   useEffect(() => {
     async function queryPatientenkartei() {
@@ -17,6 +18,14 @@ export default function Patientenkartei() {
 
     void queryPatientenkartei();
   }, []);
+
+  function handlePatientClick(nummer: number) {
+    navigate(`${PATIENTENKARTEI_PAGE}/${nummer}`);
+  }
+
+  function handleStopPropagation(event: React.MouseEvent<HTMLElement>) {
+    event.stopPropagation();
+  }
 
   return (
     <main className="container-fluid my-4">
@@ -84,7 +93,7 @@ export default function Patientenkartei() {
               </tr>
             )}
             {patienten?.map((patient: Patient) => (
-              <tr id={String(patient.nummer)} key={patient.nummer}>
+              <tr id={String(patient.nummer)} key={patient.nummer} onClick={() => handlePatientClick(patient.nummer)}>
                 <th scope="row">{patient.nummer}</th>
                 <td>{patient.anrede}</td>
                 <td>{patient.nachname}</td>
@@ -94,13 +103,19 @@ export default function Patientenkartei() {
                 <td>{patient.postleitzahl}</td>
                 <td>{patient.wohnort}</td>
                 <td>
-                  <a href={`tel:${patient.telefon}`}>{patient.telefon}</a>
+                  <a href={`tel:${patient.telefon}`} onClick={handleStopPropagation}>
+                    {patient.telefon}
+                  </a>
                 </td>
                 <td>
-                  <a href={`tel:${patient.mobil}`}>{patient.mobil}</a>
+                  <a href={`tel:${patient.mobil}`} onClick={handleStopPropagation}>
+                    {patient.mobil}
+                  </a>
                 </td>
                 <td>
-                  <a href={`mailto:${patient.eMail}`}>{patient.eMail}</a>
+                  <a href={`mailto:${patient.eMail}`} onClick={handleStopPropagation}>
+                    {patient.eMail}
+                  </a>
                 </td>
               </tr>
             ))}
@@ -108,7 +123,7 @@ export default function Patientenkartei() {
         </table>
       </div>
       <div className="btn-toolbar mt-3" role="toolbar" aria-label="Aktionen für Patienten">
-        <NavLink to={PATIENTENKARTEIKARTE_PAGE} type="button" className="btn btn-primary">
+        <NavLink to={PATIENT_AUFNEHMEN_PAGE} type="button" className="btn btn-primary">
           Nimm Patient auf
         </NavLink>
       </div>
