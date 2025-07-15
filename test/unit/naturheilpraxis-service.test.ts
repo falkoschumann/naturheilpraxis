@@ -63,6 +63,28 @@ describe("Naturheilpraxis Service", () => {
         },
       ]);
     });
+
+    it("Schreibt keine leeren Strings", async () => {
+      const eventStore = new MemoryEventStore();
+      const service = new NaturheilpraxisService(eventStore);
+
+      const status = await service.nimmPatientAuf(
+        createTestPatient({ anrede: "" }),
+      );
+
+      expect(status).toEqual(new NimmPatientAufSuccess(1));
+      const events = await arrayFromAsync(eventStore.replay());
+      expect(events).toEqual([
+        {
+          id: expect.any(String),
+          type: PATIENT_AUFGENOMMEN_V1_EVENT_TYPE,
+          source: PATIENT_SOURCE,
+          specversion: CLOUD_EVENT_SPEC_VERSION,
+          time: expect.any(String),
+          data: { ...createTestPatient(), nummer: 1 },
+        },
+      ]);
+    });
   });
 
   describe("Patientenkartei", () => {
@@ -98,11 +120,19 @@ describe("Naturheilpraxis Service", () => {
 });
 
 function createTestPatient({
-  nachname = "Mustermann",
+  anrede,
   vorname = "Max",
+  nachname = "Mustermann",
   geburtsdatum = "1980-01-01",
   annahmejahr = 2025,
   praxis = "Naturheilpraxis",
+}: {
+  anrede?: string;
+  nachname?: string;
+  vorname?: string;
+  geburtsdatum?: string;
+  annahmejahr?: number;
+  praxis?: string;
 } = {}) {
-  return { nachname, vorname, geburtsdatum, annahmejahr, praxis };
+  return { anrede, vorname, nachname, geburtsdatum, annahmejahr, praxis };
 }

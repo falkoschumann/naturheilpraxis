@@ -28,7 +28,30 @@ export class NaturheilpraxisService {
     command: NimmPatientAufCommand,
   ): Promise<NimmPatientAufCommandStatus> {
     const nummer = await this.#nextPatientennummer();
-    const event = new PatientAufgenommenV1Event({ ...command, nummer });
+    const event = new PatientAufgenommenV1Event({
+      nummer,
+      nachname: command.nachname,
+      vorname: command.vorname,
+      geburtsdatum: command.geburtsdatum,
+      annahmejahr: command.annahmejahr,
+      praxis: command.praxis,
+      anrede: command.anrede || undefined,
+      strasse: command.strasse || undefined,
+      wohnort: command.wohnort || undefined,
+      postleitzahl: command.postleitzahl || undefined,
+      staat: command.staat || undefined,
+      staatsangehoerigkeit: command.staatsangehoerigkeit || undefined,
+      titel: command.titel || undefined,
+      beruf: command.beruf || undefined,
+      telefon: command.telefon || undefined,
+      mobil: command.mobil || undefined,
+      eMail: command.eMail || undefined,
+      familienstand: command.familienstand || undefined,
+      partnerVon: command.partnerVon || undefined,
+      kindVon: command.kindVon || undefined,
+      memo: command.memo || undefined,
+      schluesselworte: command.schluesselworte || undefined,
+    });
     await this.#eventStore.record(event);
     return new NimmPatientAufSuccess(nummer);
   }
