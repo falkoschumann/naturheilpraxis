@@ -3,27 +3,16 @@
     "Naturheilpraxis"
   ],
   "anrede": [
-    "Frau",
-    "Fräulein",
-    "Herr"
+    "Frau"
   ],
   "familienstand": [
-    "geschieden",
-    "getrennt",
-    "ledig",
-    "verheiratet",
     "verwitwet"
   ],
   "schluesselworte": [
     "Aktiv",
-    "Exitus",
-    "Geburtstagskarte",
-    "Kind",
-    "Unbekannt verzogen",
     "Weihnachtskarte"
   ],
   "defaultSchluesselworte": [
-    "Aktiv",
-    "Weihnachtskarte"
+    "Aktiv"
   ]
 }
