@@ -84,6 +84,6 @@ export class NaturheilpraxisService {
         patienten.push(patient);
       }
     }
-    return patienten.sort((a, b) => a.nummer - b.nummer);
+    return patienten.sort((a, b) => b.nummer - a.nummer);
   }
 }

@@ -105,13 +105,13 @@ describe("Naturheilpraxis Service", () => {
         patienten: [
           {
             ...createTestPatient(),
-            nummer: 1,
-          },
-          {
-            ...createTestPatient(),
             nummer: 2,
             vorname: "Erika",
             geburtsdatum: "1985-05-05",
+          },
+          {
+            ...createTestPatient(),
+            nummer: 1,
           },
         ],
       });
