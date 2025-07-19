@@ -35,7 +35,6 @@ export default function Patientenkarteikarte() {
   const { nummer } = useParams();
   const navigate = useNavigate();
 
-  // TODO Make a state and enable/disable the form fields based on the status
   const isReadOnly = nummer != null;
 
   const canSubmit =
@@ -311,7 +310,6 @@ export default function Patientenkarteikarte() {
             value={familienstand}
             onChange={handleFamilienstandChange}
           />
-          {/* TODO link spouse and parent */}
           <Input
             name="partnerVon"
             label="Partner von"
