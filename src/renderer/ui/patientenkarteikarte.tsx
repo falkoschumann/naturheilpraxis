@@ -12,6 +12,8 @@ type Status = "new" | "view" | "edit" | "submitting" | "submitted";
 
 export default function Patientenkarteikarte() {
   const { nummer } = useParams();
+  // @ts-expect-error TS7006
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [patient, setPatient] = useState<Patient | null>(null);
   const [status, setStatus] = useState<Status>(patient ? "view" : "new");
 

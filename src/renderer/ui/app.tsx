@@ -2,8 +2,6 @@
 
 import { NavLink, Route, Routes } from "react-router";
 
-import Patientenkarteikarte from "./patientenkarteikarte";
-import Patientenkartei from "./patientenkartei";
 import logo from "./logo.svg";
 import {
   LEISTUNGEN_PAGE,
@@ -11,13 +9,18 @@ import {
   PATIENTENKARTEI_PAGE,
   PATIENTENKARTEIKARTE_PAGE,
   RECHUNGEN_PAGE,
+  START_PAGE,
 } from "./pages";
+import Patientenkartei from "./patientenkartei";
+import Patientenkarteikarte from "./patientenkarteikarte";
+import Startseite from "./startseite";
 
 export default function App() {
   return (
     <>
-      <AppHeader />
+      <Header />
       <Routes>
+        <Route path={START_PAGE} element={<Startseite />} />
         <Route path={PATIENTENKARTEI_PAGE} element={<Patientenkartei />} />
         <Route path={PATIENTENKARTEIKARTE_PAGE} element={<Patientenkarteikarte />} />
         <Route path={PATIENT_AUFNEHMEN_PAGE} element={<Patientenkarteikarte />} />
@@ -26,12 +29,12 @@ export default function App() {
   );
 }
 
-function AppHeader() {
+function Header() {
   return (
     <header>
       <nav className="navbar navbar-expand-lg">
         <div className="container-fluid">
-          <a href="/" className="navbar-brand">
+          <a href={START_PAGE} className="navbar-brand">
             <img src={logo} className="me-2" width="32" height="32" alt="Logo" aria-hidden="true" />
             <span>Naturheilpraxis</span>
           </a>
