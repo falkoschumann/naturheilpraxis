@@ -37,7 +37,9 @@ export class NimmPatientAufSuccess extends Success {
   }
 }
 
-export type PatientenkarteiQuery = object;
+export interface PatientenkarteiQuery {
+  readonly nummer?: number;
+}
 
 export interface PatientenkarteiQueryResult {
   readonly patienten: Patient[];

@@ -8,25 +8,37 @@ import { useNavigate, useParams } from "react-router";
 import { PATIENTENKARTEI_PAGE } from "./pages";
 import type { NimmPatientAufCommand, Patient } from "../../main/domain/naturheilpraxis";
 
-type Status = "new" | "view" | "edit" | "submitting" | "submitted";
+type Status = "init" | "new" | "view" | "edit" | "working";
 
 export default function Patientenkarteikarte() {
   const { nummer } = useParams();
-  // @ts-expect-error TS7006
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [patient, setPatient] = useState<Patient | null>(null);
-  const [status, setStatus] = useState<Status>(patient ? "view" : "new");
+  const [patient, setPatient] = useState<Patient>();
+  const [status, setStatus] = useState<Status>("init");
 
   const navigate = useNavigate();
 
-  useEffect(() => Tags.init(), []);
+  useEffect(() => {
+    async function findPatient() {
+      if (nummer != null) {
+        const result = await window.naturheilpraxis.patientenkartei({ nummer: Number(nummer) });
+        setPatient(result.patienten[0]);
+        setStatus("view");
+      } else {
+        setPatient(undefined);
+        setStatus("new");
+      }
+    }
+
+    void findPatient();
+  }, [nummer]);
 
   async function handleSubmit(command: NimmPatientAufCommand) {
-    setStatus("submitting");
+    setStatus("working");
     const result = await window.naturheilpraxis.nimmPatientAuf(command);
-    setStatus("submitted");
+    setStatus("view");
     if (result.success) {
-      navigate(`${PATIENTENKARTEI_PAGE}/#${result.nummer}`, { replace: true });
+      // TODO naviagte to Patentienkartei?
+      //  navigate(`${PATIENTENKARTEI_PAGE}/#${result.nummer}`, { replace: true });
     }
   }
 
@@ -41,43 +53,48 @@ export default function Patientenkarteikarte() {
           ? `${patient.nachname}, ${patient.vorname} (Nr. ${nummer}), geboren am ${patient.geburtsdatum}`
           : "Neuer Patient"}
       </h2>
-      <Form status={status} onSubmit={handleSubmit} onCancel={handleCancel} />
+      {status !== "init" && <Form status={status} patient={patient} onSubmit={handleSubmit} onCancel={handleCancel} />}
     </main>
   );
 }
 
 function Form({
   status,
+  patient,
   onSubmit,
   onCancel,
 }: {
   status: Status;
+  patient?: Patient;
   onSubmit: (command: NimmPatientAufCommand) => void;
   onCancel: () => void;
 }) {
+  console.log(patient);
   const configuration = window.app.getConfiguration();
 
-  const [schluesselworte, setSchluesselworte] = useState<string[]>(configuration.defaultSchluesselworte);
-  const [geburtsdatum, setGeburtsdatum] = useState<string>("");
-  const [annahmejahr, setAnnahmejahr] = useState<string>(String(new Date().getFullYear()));
-  const [praxis, setPraxis] = useState<string>("Praxis A");
-  const [anrede, setAnrede] = useState<string>("");
-  const [vorname, setVorname] = useState<string>("");
-  const [nachname, setNachname] = useState<string>("");
-  const [strasse, setStrasse] = useState<string>("");
-  const [wohnort, setWohnort] = useState<string>("");
-  const [postleitzahl, setPostleitzahl] = useState<string>("");
-  const [staat, setStaat] = useState<string>("");
-  const [staatsangehoerigkeit, setStaatsangehoerigkeit] = useState<string>("");
-  const [titel, setTitel] = useState<string>("");
-  const [beruf, setBeruf] = useState<string>("");
-  const [telefon, setTelefon] = useState<string>("");
-  const [mobil, setMobil] = useState<string>("");
-  const [eMail, setEMail] = useState<string>("");
-  const [familienstand, setFamilienstand] = useState<string>("");
-  const [partnerVon, setPartnerVon] = useState<string>("");
-  const [kindVon, setKindVon] = useState<string>("");
-  const [memo, setMemo] = useState<string>("");
+  const [schluesselworte, setSchluesselworte] = useState<string[]>(
+    patient?.schluesselworte ?? configuration.defaultSchluesselworte,
+  );
+  const [geburtsdatum, setGeburtsdatum] = useState<string>(patient?.geburtsdatum ?? "");
+  const [annahmejahr, setAnnahmejahr] = useState<string>(String(patient?.annahmejahr ?? new Date().getFullYear()));
+  const [praxis, setPraxis] = useState<string>(patient?.praxis ?? "Praxis");
+  const [anrede, setAnrede] = useState<string>(patient?.anrede ?? "");
+  const [vorname, setVorname] = useState<string>(patient?.vorname ?? "");
+  const [nachname, setNachname] = useState<string>(patient?.nachname ?? "");
+  const [strasse, setStrasse] = useState<string>(patient?.strasse ?? "");
+  const [wohnort, setWohnort] = useState<string>(patient?.wohnort ?? "");
+  const [postleitzahl, setPostleitzahl] = useState<string>(patient?.postleitzahl ?? "");
+  const [staat, setStaat] = useState<string>(patient?.staat ?? "");
+  const [staatsangehoerigkeit, setStaatsangehoerigkeit] = useState<string>(patient?.staatsangehoerigkeit ?? "");
+  const [titel, setTitel] = useState<string>(patient?.titel ?? "");
+  const [beruf, setBeruf] = useState<string>(patient?.beruf ?? "");
+  const [telefon, setTelefon] = useState<string>(patient?.telefon ?? "");
+  const [mobil, setMobil] = useState<string>(patient?.mobil ?? "");
+  const [eMail, setEMail] = useState<string>(patient?.eMail ?? "");
+  const [familienstand, setFamilienstand] = useState<string>(patient?.familienstand ?? "");
+  const [partnerVon, setPartnerVon] = useState<string>(patient?.partnerVon ?? "");
+  const [kindVon, setKindVon] = useState<string>(patient?.kindVon ?? "");
+  const [memo, setMemo] = useState<string>(patient?.memo ?? "");
 
   const canSubmit = useMemo(
     () => geburtsdatum.trim() && annahmejahr.trim() && praxis.trim() && vorname.trim() && nachname.trim(),
@@ -85,6 +102,8 @@ function Form({
   );
 
   const isReadOnly = useMemo(() => status !== "new" && status !== "edit", [status]);
+
+  useEffect(() => Tags.init(), []);
 
   function handleSchluesselworteChange(e: ChangeEvent<HTMLSelectElement>) {
     const options = Array.from(e.target.selectedOptions, (option) => option.value);
@@ -355,7 +374,7 @@ function Form({
       <div className="form-text mb-3">* Erforderliche Angaben</div>
       <div className="btn-toolbar justify-content-end" role="toolbar" aria-label="Aktionen für Patient">
         {status !== "new" && <button className="btn btn-primary me-auto">Erfasse Leistungen</button>}
-        {status === "submitting" && (
+        {status === "working" && (
           <div className="spinner-border text-primary" role="status">
             <span className="visually-hidden">Loading...</span>
           </div>
@@ -532,7 +551,9 @@ function MultiSelect({
     return (
       <div className={`col-${cols}`}>
         {value.map((option) => (
-          <span className="badge text-bg-primary me-2">{option}</span>
+          <span key={option} className="badge text-bg-primary me-2">
+            {option}
+          </span>
         ))}
       </div>
     );

@@ -116,6 +116,31 @@ describe("Naturheilpraxis Service", () => {
         ],
       });
     });
+
+    it("Suche Patient nach Nummer", async () => {
+      const eventStore = new MemoryEventStore();
+      const service = new NaturheilpraxisService(eventStore);
+      await service.nimmPatientAuf(createTestPatient());
+      await service.nimmPatientAuf(
+        createTestPatient({
+          vorname: "Erika",
+          geburtsdatum: "1985-05-05",
+        }),
+      );
+
+      const result = await service.patientenkartei({ nummer: 2 });
+
+      expect(result).toEqual({
+        patienten: [
+          {
+            ...createTestPatient(),
+            nummer: 2,
+            vorname: "Erika",
+            geburtsdatum: "1985-05-05",
+          },
+        ],
+      });
+    });
   });
 });
 

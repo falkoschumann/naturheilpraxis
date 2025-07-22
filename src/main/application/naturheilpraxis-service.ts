@@ -57,9 +57,12 @@ export class NaturheilpraxisService {
   }
 
   async patientenkartei(
-    _query: PatientenkarteiQuery,
+    query: PatientenkarteiQuery,
   ): Promise<PatientenkarteiQueryResult> {
-    const patienten = await this.#projectPatienten();
+    let patienten = await this.#projectPatienten();
+    if (query.nummer != null) {
+      patienten = patienten.filter((p) => p.nummer === query.nummer);
+    }
     return { patienten };
   }
 
