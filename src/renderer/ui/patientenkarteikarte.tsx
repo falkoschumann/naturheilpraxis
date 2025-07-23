@@ -8,13 +8,11 @@ import { useNavigate, useParams } from "react-router";
 import { PATIENTENKARTEI_PAGE } from "./pages";
 import type { NimmPatientAufCommand, Patient } from "../../main/domain/naturheilpraxis";
 
-type Status = "init" | "new" | "view" | "edit" | "working";
+type Status = "new" | "view" | "edit" | "working";
 
 export default function Patientenkarteikarte() {
   const { nummer } = useParams();
-  const [patient, setPatient] = useState<Patient>();
-  const [status, setStatus] = useState<Status>("init");
-
+  const [patient, setPatient] = useState<Patient | null>();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -22,10 +20,8 @@ export default function Patientenkarteikarte() {
       if (nummer != null) {
         const result = await window.naturheilpraxis.patientenkartei({ nummer: Number(nummer) });
         setPatient(result.patienten[0]);
-        setStatus("view");
       } else {
-        setPatient(undefined);
-        setStatus("new");
+        setPatient(null);
       }
     }
 
@@ -33,9 +29,7 @@ export default function Patientenkarteikarte() {
   }, [nummer]);
 
   async function handleSubmit(command: NimmPatientAufCommand) {
-    setStatus("working");
     const result = await window.naturheilpraxis.nimmPatientAuf(command);
-    setStatus("view");
     if (result.success) {
       // TODO naviagte to Patentienkartei?
       //  navigate(`${PATIENTENKARTEI_PAGE}/#${result.nummer}`, { replace: true });
@@ -50,27 +44,26 @@ export default function Patientenkarteikarte() {
     <main className="container my-4">
       <h2 className="mb-3">
         {patient
-          ? `${patient.nachname}, ${patient.vorname} (Nr. ${nummer}), geboren am ${patient.geburtsdatum}`
+          ? `${patient.nachname}, ${patient.vorname} (Nr. ${nummer}), geboren am ${new Date(patient.geburtsdatum).toLocaleDateString(undefined, { dateStyle: "medium" })}`
           : "Neuer Patient"}
       </h2>
-      {status !== "init" && <Form status={status} patient={patient} onSubmit={handleSubmit} onCancel={handleCancel} />}
+      {patient !== undefined && <Form patient={patient} onSubmit={handleSubmit} onCancel={handleCancel} />}
     </main>
   );
 }
 
 function Form({
-  status,
   patient,
   onSubmit,
   onCancel,
 }: {
-  status: Status;
-  patient?: Patient;
-  onSubmit: (command: NimmPatientAufCommand) => void;
+  patient: Patient | null;
+  onSubmit: (command: NimmPatientAufCommand) => Promise<void>;
   onCancel: () => void;
 }) {
   const configuration = window.app.getConfiguration();
 
+  const [status, setStatus] = useState<Status>(patient ? "view" : "new");
   const [schluesselworte, setSchluesselworte] = useState<string[]>(
     patient?.schluesselworte ?? configuration.defaultSchluesselworte,
   );
@@ -96,13 +89,29 @@ function Form({
   const [memo, setMemo] = useState<string>(patient?.memo ?? "");
 
   const canSubmit = useMemo(
-    () => geburtsdatum.trim() && annahmejahr.trim() && praxis.trim() && vorname.trim() && nachname.trim(),
-    [geburtsdatum, annahmejahr, praxis, vorname, nachname],
+    () =>
+      geburtsdatum.trim() &&
+      annahmejahr.trim() &&
+      praxis.trim() &&
+      vorname.trim() &&
+      nachname.trim() &&
+      status !== "working",
+    [geburtsdatum, annahmejahr, praxis, vorname, nachname, status],
   );
 
   const isReadOnly = useMemo(() => status !== "new" && status !== "edit", [status]);
+  const submitText = useMemo(() => {
+    switch (status) {
+      case "new":
+        return "Aufnehmen";
+      case "view":
+        return "Bearbeiten";
+      default:
+        return "Speichern";
+    }
+  }, [status]);
 
-  useEffect(() => Tags.init(), []);
+  useEffect(() => Tags.init(), [status]);
 
   function handleSchluesselworteChange(e: ChangeEvent<HTMLSelectElement>) {
     const options = Array.from(e.target.selectedOptions, (option) => option.value);
@@ -191,8 +200,23 @@ function Form({
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (canSubmit) {
-      onSubmit({
+
+    switch (status) {
+      case "view":
+        setStatus("edit");
+        break;
+      case "new":
+        setStatus("working");
+        void save();
+        break;
+      case "edit":
+        setStatus("working");
+        void save();
+        break;
+    }
+
+    async function save() {
+      await onSubmit({
         nachname,
         vorname,
         geburtsdatum,
@@ -215,6 +239,7 @@ function Form({
         memo,
         schluesselworte,
       });
+      setStatus("view");
     }
   }
 
@@ -408,17 +433,21 @@ function Form({
         </div>
       </div>
       <div className="form-text mb-3">* Erforderliche Angaben</div>
-      <div className="btn-toolbar justify-content-end" role="toolbar" aria-label="Aktionen für Patient">
+      <div
+        className="btn-toolbar justify-content-end align-items-center"
+        role="toolbar"
+        aria-label="Aktionen für Patient"
+      >
         {status !== "new" && <button className="btn btn-primary me-auto">Erfasse Leistungen</button>}
         {status === "working" && (
           <div className="spinner-border text-primary" role="status">
             <span className="visually-hidden">Loading...</span>
           </div>
         )}
-        <button type="submit" className="btn btn-primary me-2" disabled={!canSubmit}>
-          {status === "new" ? "Nimm Patient auf" : "Speichern"}
+        <button type="submit" className="btn btn-primary ms-2" disabled={!canSubmit}>
+          {submitText}
         </button>
-        <button className="btn btn-secondary me-2" onClick={handleCancel}>
+        <button className="btn btn-secondary ms-2" onClick={handleCancel}>
           Abbrechen
         </button>
       </div>
