@@ -5,7 +5,7 @@ import { describe, expect, it } from "vitest";
 import {
   ConfigurationGateway,
   DEFAULT_CONFIGURATION,
-} from "../../src/main/integration/configuration-gateway";
+} from "../../src/main/infrastructure/configuration-gateway";
 import path from "node:path";
 
 const TEST_FILE = path.resolve(

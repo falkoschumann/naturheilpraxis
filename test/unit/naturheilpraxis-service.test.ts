@@ -3,12 +3,12 @@
 import { describe, expect, it } from "vitest";
 import { arrayFromAsync } from "../../src/main/common/polyfills";
 import { NaturheilpraxisService } from "../../src/main/application/naturheilpraxis-service";
-import { MemoryEventStore } from "../../src/main/integration/event-store";
+import { MemoryEventStore } from "../../src/main/infrastructure/event-store";
 import {
   CLOUD_EVENT_SPEC_VERSION,
   PATIENT_AUFGENOMMEN_V1_EVENT_TYPE,
   PATIENT_SOURCE,
-} from "../../src/main/integration/events";
+} from "../../src/main/infrastructure/events";
 import { NimmPatientAufSuccess } from "../../src/main/domain/naturheilpraxis";
 
 describe("Naturheilpraxis Service", () => {
