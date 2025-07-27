@@ -14,9 +14,9 @@ import type {
   NimmPatientAufCommand,
   PatientenkarteiQuery,
 } from "./domain/naturheilpraxis";
-import { NdjsonEventStore } from "./integration/event-store";
+import { NdjsonEventStore } from "./infrastructure/event-store";
 import icon from "../../resources/icon.png?asset";
-import { ConfigurationGateway } from "./integration/configuration-gateway";
+import { ConfigurationGateway } from "./infrastructure/configuration-gateway";
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (started) {
