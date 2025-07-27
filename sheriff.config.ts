@@ -3,6 +3,11 @@
 import { SheriffConfig } from "@softarc/sheriff-core";
 
 export const config: SheriffConfig = {
+  entryPoints: {
+    main: "src/main/index.ts",
+    preload: "src/preload/index.ts",
+    renderer: "src/renderer/index.tsx",
+  },
   barrelFileName: "mod.ts",
   enableBarrelLess: true,
   excludeRoot: true,

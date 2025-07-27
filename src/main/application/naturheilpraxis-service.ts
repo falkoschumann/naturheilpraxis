@@ -8,11 +8,11 @@ import {
   type PatientenkarteiQuery,
   type PatientenkarteiQueryResult,
 } from "../domain/naturheilpraxis";
-import type { EventStore } from "../integration/event-store";
+import type { EventStore } from "../infrastructure/event-store";
 import {
   PATIENT_SOURCE,
   PatientAufgenommenV1Event,
-} from "../integration/events";
+} from "../infrastructure/events";
 
 // TODO handle technical errors, e.g. when the event store is not available
 //   That is not a failure as command status
