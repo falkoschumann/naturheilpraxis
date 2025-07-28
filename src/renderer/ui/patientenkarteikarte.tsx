@@ -9,7 +9,6 @@ import { PATIENT_AUFNEHMEN_PAGE, PATIENTENKARTEIKARTE_PAGE } from "./pages";
 import type { NimmPatientAufCommand, Patient } from "../../main/domain/naturheilpraxis";
 import type { Status } from "./patientenkarteikarte-model";
 
-
 export default function Patientenkarteikarte() {
   const { nummer } = useParams();
   const [patient, setPatient] = useState<Patient>();
