@@ -7,3 +7,19 @@ export interface Configuration {
   schluesselworte: string[];
   defaultSchluesselworte: string[];
 }
+
+export function createTestConfiguration({
+  praxis = ["Praxis 1", "Praxis 2"],
+  anrede = ["Herr", "Frau"],
+  familienstand = ["ledig", "verheiratet", "geschieden", "verwitwet"],
+  schluesselworte = ["Aktiv", "Weihnachtskarte", "Geburtstagskarte"],
+  defaultSchluesselworte = ["Aktiv", "Weihnachtskarte"],
+}: Partial<Configuration> = {}): Configuration {
+  return {
+    praxis,
+    anrede,
+    familienstand,
+    schluesselworte,
+    defaultSchluesselworte,
+  };
+}

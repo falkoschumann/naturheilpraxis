@@ -69,3 +69,53 @@ export interface Patient {
   readonly memo?: string;
   readonly schluesselworte?: string[];
 }
+
+export function createTestPatient({
+  nummer = Math.floor(Math.random() * 1000),
+  nachname = "Mustermann",
+  vorname = "Max",
+  geburtsdatum = "1980-01-01",
+  annahmejahr = 2025,
+  praxis = "Praxis 1",
+  anrede = "Herr",
+  strasse = "Musterstraße 1",
+  wohnort = "Musterstadt",
+  postleitzahl = "12345",
+  staat = "Deutschland",
+  staatsangehoerigkeit = "Deutsch",
+  titel = "Dr.",
+  beruf = "Arzt",
+  telefon = "0123456789",
+  mobil = "0987654321",
+  eMail = "max.mustermann@example.com",
+  familienstand,
+  partnerVon,
+  kindVon,
+  memo,
+  schluesselworte = ["Aktiv", "Weihnachtskarte"],
+}: Partial<Patient> = {}): Patient {
+  return {
+    nummer,
+    anrede,
+    vorname,
+    nachname,
+    geburtsdatum,
+    annahmejahr,
+    praxis,
+    strasse,
+    wohnort,
+    postleitzahl,
+    staat,
+    staatsangehoerigkeit,
+    titel,
+    beruf,
+    telefon,
+    mobil,
+    eMail,
+    familienstand,
+    partnerVon,
+    kindVon,
+    memo,
+    schluesselworte,
+  };
+}
