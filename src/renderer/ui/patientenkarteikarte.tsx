@@ -3,51 +3,46 @@
 // @ts-expect-error TS7016
 import Tags from "bootstrap5-tags";
 import { type ChangeEvent, type FormEvent, type MouseEvent, useEffect, useMemo, useState } from "react";
-import { useNavigate, useParams } from "react-router";
+import { NavLink, useNavigate, useParams } from "react-router";
 
-import { PATIENTENKARTEI_PAGE } from "./pages";
+import { PATIENT_AUFNEHMEN_PAGE, PATIENTENKARTEIKARTE_PAGE } from "./pages";
 import type { NimmPatientAufCommand, Patient } from "../../main/domain/naturheilpraxis";
+import type { Status } from "./patientenkarteikarte-model";
 
-type Status = "new" | "view" | "edit" | "working";
 
 export default function Patientenkarteikarte() {
   const { nummer } = useParams();
-  const [patient, setPatient] = useState<Patient | null>();
+  const [patient, setPatient] = useState<Patient>();
   const navigate = useNavigate();
 
   useEffect(() => {
-    async function findPatient() {
-      if (nummer != null) {
-        const result = await window.naturheilpraxis.patientenkartei({ nummer: Number(nummer) });
-        setPatient(result.patienten[0]);
-      } else {
-        setPatient(null);
-      }
+    if (nummer != null) {
+      void findPatient(Number(nummer));
+    } else {
+      setPatient(undefined);
     }
-
-    void findPatient();
   }, [nummer]);
+
+  async function findPatient(nummer: number) {
+    const result = await window.naturheilpraxis.patientenkartei({ nummer });
+    setPatient(result.patienten[0]);
+  }
 
   async function handleSubmit(command: NimmPatientAufCommand) {
     const result = await window.naturheilpraxis.nimmPatientAuf(command);
     if (result.success) {
-      // TODO naviagte to Patentienkartei?
-      //  navigate(`${PATIENTENKARTEI_PAGE}/#${result.nummer}`, { replace: true });
+      navigate(`${PATIENTENKARTEIKARTE_PAGE}/${result.nummer}`, { replace: true });
     }
-  }
-
-  function handleCancel() {
-    navigate(PATIENTENKARTEI_PAGE, { replace: true });
   }
 
   return (
     <main className="container my-4">
       <h2 className="mb-3">
         {patient
-          ? `${patient.nachname}, ${patient.vorname} (Nr. ${nummer}), geboren am ${new Date(patient.geburtsdatum).toLocaleDateString(undefined, { dateStyle: "medium" })}`
+          ? `${patient.nachname}, ${patient.vorname} (Nr. ${patient.nummer}), geboren am ${new Date(patient.geburtsdatum).toLocaleDateString(undefined, { dateStyle: "medium" })}`
           : "Neuer Patient"}
       </h2>
-      {patient !== undefined && <Form patient={patient} onSubmit={handleSubmit} onCancel={handleCancel} />}
+      <Form patient={patient} onSubmit={handleSubmit} />
     </main>
   );
 }
@@ -55,12 +50,11 @@ export default function Patientenkarteikarte() {
 function Form({
   patient,
   onSubmit,
-  onCancel,
 }: {
-  patient: Patient | null;
+  patient?: Patient;
   onSubmit: (command: NimmPatientAufCommand) => Promise<void>;
-  onCancel: () => void;
 }) {
+  // TODO update state when patient is updated
   const configuration = window.app.getConfiguration();
 
   const [status, setStatus] = useState<Status>(patient ? "view" : "new");
@@ -98,6 +92,7 @@ function Form({
       status !== "working",
     [geburtsdatum, annahmejahr, praxis, vorname, nachname, status],
   );
+  const canCancel = useMemo(() => status === "edit", [status]);
 
   const isReadOnly = useMemo(() => status !== "new" && status !== "edit", [status]);
   const submitText = useMemo(() => {
@@ -245,7 +240,7 @@ function Form({
 
   function handleCancel(event: MouseEvent<HTMLButtonElement>) {
     event.preventDefault();
-    onCancel();
+    setStatus("view");
   }
 
   return (
@@ -438,7 +433,13 @@ function Form({
         role="toolbar"
         aria-label="Aktionen für Patient"
       >
-        {status !== "new" && <button className="btn btn-primary me-auto">Erfasse Leistungen</button>}
+        {status !== "new" && (
+          <NavLink to={PATIENT_AUFNEHMEN_PAGE} className="btn btn-primary">
+            Nimm Patient auf
+          </NavLink>
+        )}
+        {status !== "new" && <button className="btn btn-primary ms-2">Erfasse Leistungen</button>}
+        <div className="me-auto"></div>
         {status === "working" && (
           <div className="spinner-border text-primary" role="status">
             <span className="visually-hidden">Loading...</span>
@@ -447,7 +448,7 @@ function Form({
         <button type="submit" className="btn btn-primary ms-2" disabled={!canSubmit}>
           {submitText}
         </button>
-        <button className="btn btn-secondary ms-2" onClick={handleCancel}>
+        <button className="btn btn-secondary ms-2" disabled={!canCancel} onClick={handleCancel}>
           Abbrechen
         </button>
       </div>
