@@ -1,6 +1,6 @@
 // Copyright (c) 2025 Falko Schumann. All rights reserved. MIT license.
 
-import type { Patient } from "../../main/domain/naturheilpraxis";
+import { createPatient, type Patient } from "../../main/domain/naturheilpraxis";
 import type { Configuration } from "../../main/domain/configuration";
 
 export type Status = "new" | "view" | "edit" | "working";
@@ -8,7 +8,7 @@ export type Status = "new" | "view" | "edit" | "working";
 export type SubmitText = "Aufnehmen" | "Bearbeiten" | "Speichern";
 
 export interface State {
-  patient: Partial<Patient>;
+  patient: Patient;
   status: Status;
   canSubmit: boolean;
   canCancel: boolean;
@@ -24,40 +24,35 @@ export interface State {
 }
 
 export function init({
-  patient,
   configuration,
 }: {
-  patient?: Patient;
   configuration: Configuration;
 }): State {
   return {
-    patient: {
-      ...patient,
-      annahmejahr: patient?.annahmejahr ?? new Date().getFullYear(),
-      praxis: patient?.praxis ?? configuration.praxis[0],
-      schluesselworte:
-        patient?.schluesselworte ?? configuration.defaultSchluesselworte,
-    },
-    status: patient ? "view" : "new",
-    canSubmit: patient != null,
+    patient: createPatient({
+      annahmejahr: new Date().getFullYear(),
+      praxis: configuration.praxis[0],
+      anrede: configuration.anrede[0],
+      familienstand: configuration.familienstand[0],
+      schluesselworte: configuration.defaultSchluesselworte,
+    }),
+    status: "new",
+    canSubmit: false,
     canCancel: false,
-    isReadOnly: patient != null,
-    submitButtonText: patient ? "Bearbeiten" : "Aufnehmen",
+    isReadOnly: false,
+    submitButtonText: "Aufnehmen",
     configuration,
   };
 }
-
-type FluxStandardAction<T extends string = string, P = undefined> = {
-  type: T;
-  payload: P;
-};
 
 export type Action =
   | ReturnType<typeof patientAktualisiert>
   | ReturnType<typeof submitting>
   | ReturnType<typeof submitted>
-  | ReturnType<typeof editing>
-  | ReturnType<typeof cancelled>;
+  | ReturnType<typeof view>
+  | ReturnType<typeof edit>
+  | ReturnType<typeof cancelled>
+  | ReturnType<typeof reset>;
 
 export function reducer(state: State, action: Action): State {
   switch (action.type) {
@@ -93,7 +88,17 @@ export function reducer(state: State, action: Action): State {
         isReadOnly: true,
         submitButtonText: "Bearbeiten",
       };
-    case EDITING_ACTION:
+    case VIEW_ACTION:
+      return {
+        ...state,
+        patient: action.payload.patient,
+        status: "view",
+        canSubmit: true,
+        canCancel: false,
+        isReadOnly: true,
+        submitButtonText: "Bearbeiten",
+      };
+    case EDIT_ACTION:
       return {
         ...state,
         status: "edit",
@@ -110,11 +115,17 @@ export function reducer(state: State, action: Action): State {
         isReadOnly: true,
         submitButtonText: "Bearbeiten",
       };
+    case RESET_ACTION:
+      return init({ configuration: state.configuration });
     default:
-      console.warn("Unhandled action type:", action);
-      return state;
+      throw new Error(`Unhandled action type: ${JSON.stringify(action)}`);
   }
 }
+
+type FluxStandardAction<T extends string = string, P = undefined> = {
+  type: T;
+  payload: P;
+};
 
 const PATIENT_AKTUALISIERT_ACTION = "patientAktualisiert";
 
@@ -144,14 +155,30 @@ export function submitted(): FluxStandardAction<typeof SUBMITTED_ACTION> {
   return { type: SUBMITTED_ACTION, payload: undefined };
 }
 
-const EDITING_ACTION = "editing";
+const VIEW_ACTION = "view";
 
-export function editing(): FluxStandardAction<typeof EDITING_ACTION> {
-  return { type: EDITING_ACTION, payload: undefined };
+type ViewPayload = { patient: Patient };
+
+export function view(
+  payload: ViewPayload,
+): FluxStandardAction<typeof VIEW_ACTION, ViewPayload> {
+  return { type: VIEW_ACTION, payload };
+}
+
+const EDIT_ACTION = "edit";
+
+export function edit(): FluxStandardAction<typeof EDIT_ACTION> {
+  return { type: EDIT_ACTION, payload: undefined };
 }
 
 const CANCELLED_ACTION = "cancelled";
 
 export function cancelled(): FluxStandardAction<typeof CANCELLED_ACTION> {
   return { type: CANCELLED_ACTION, payload: undefined };
+}
+
+const RESET_ACTION = "reset";
+
+export function reset(): FluxStandardAction<typeof RESET_ACTION> {
+  return { type: RESET_ACTION, payload: undefined };
 }

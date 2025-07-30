@@ -3,18 +3,15 @@
 // See the Electron documentation for details on how to use preload scripts:
 // https://www.electronjs.org/docs/latest/tutorial/process-model#preload-scripts
 
-import { contextBridge, ipcRenderer } from "electron";
+import { contextBridge, ipcRenderer } from "electron/renderer";
 
 import type {
   NimmPatientAufCommand,
   PatientenkarteiQuery,
 } from "../main/domain/naturheilpraxis";
 
-contextBridge.exposeInMainWorld("app", {
-  getConfiguration: () => ipcRenderer.sendSync("getConfiguration"),
-});
-
 contextBridge.exposeInMainWorld("naturheilpraxis", {
+  configuration: ipcRenderer.sendSync("getConfiguration"),
   nimmPatientAuf: (command: NimmPatientAufCommand) =>
     ipcRenderer.invoke("nimmPatientAuf", command),
   patientenkartei: (query: PatientenkarteiQuery) =>

@@ -2,7 +2,7 @@
 
 import path from "node:path";
 
-import { app, BrowserWindow, ipcMain } from "electron";
+import { app, BrowserWindow, ipcMain } from "electron/main";
 import {
   installExtension,
   REACT_DEVELOPER_TOOLS,

@@ -6,7 +6,7 @@ import { type RefObject, useEffect, useRef, useState } from "react";
 import { NavLink, useNavigate } from "react-router";
 
 import type { Patient } from "../../main/domain/naturheilpraxis";
-import { PATIENT_AUFNEHMEN_PAGE, PATIENTENKARTEI_PAGE } from "./pages";
+import { PATIENT_AUFNEHMEN_PAGE, PATIENTENKARTEIKARTE_PAGE } from "./pages";
 
 const columnHelper = createColumnHelper<Patient>();
 const columns = [
@@ -53,7 +53,7 @@ export default function Patientenkartei() {
   const navigate = useNavigate();
 
   function handlePatientClick(nummer: number) {
-    navigate(`${PATIENTENKARTEI_PAGE}/${nummer}`);
+    navigate(`${PATIENTENKARTEIKARTE_PAGE.replace(":nummer", String(nummer))}`);
   }
 
   useEffect(() => {

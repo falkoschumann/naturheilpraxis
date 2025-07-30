@@ -3,60 +3,48 @@
 import { describe, expect, it } from "vitest";
 
 import { createTestConfiguration } from "../../src/main/domain/configuration";
-import { createTestPatient } from "../../src/main/domain/naturheilpraxis";
+import {
+  createPatient,
+  createTestPatient,
+} from "../../src/main/domain/naturheilpraxis";
 import {
   cancelled,
-  editing,
+  edit,
   init,
   patientAktualisiert,
   reducer,
+  reset,
   type State,
   submitted,
   submitting,
+  view,
 } from "../../src/renderer/ui/patientenkarteikarte-model";
 
 describe("Patientenkarteikarte", () => {
-  describe("Initialisierung", () => {
-    it("Erstelle neue Patientenkarteikarte", () => {
-      const configuration = createTestConfiguration();
+  it("Initialisiere Patientenkarteikarte", () => {
+    const configuration = createTestConfiguration();
 
-      const state = init({ configuration });
+    const state = init({ configuration });
 
-      expect(state).toEqual({
-        patient: {
-          annahmejahr: new Date().getFullYear(),
-          praxis: "Praxis 1",
-          schluesselworte: ["Aktiv", "Weihnachtskarte"],
-        },
-        status: "new",
-        canSubmit: false,
-        canCancel: false,
-        isReadOnly: false,
-        submitButtonText: "Aufnehmen",
-        configuration,
-      });
-    });
-
-    it("Öffnen bestehende Patientenkarteikarte", () => {
-      const patient = createTestPatient();
-      const configuration = createTestConfiguration();
-
-      const state = init({ patient, configuration });
-
-      expect(state).toEqual({
-        patient,
-        status: "view",
-        canSubmit: true,
-        canCancel: false,
-        isReadOnly: true,
-        submitButtonText: "Bearbeiten",
-        configuration,
-      });
+    expect(state).toEqual({
+      patient: createPatient({
+        anrede: "Herr",
+        annahmejahr: new Date().getFullYear(),
+        praxis: "Praxis 1",
+        familienstand: "ledig",
+        schluesselworte: ["Aktiv", "Weihnachtskarte"],
+      }),
+      status: "new",
+      canSubmit: false,
+      canCancel: false,
+      isReadOnly: false,
+      submitButtonText: "Aufnehmen",
+      configuration,
     });
   });
 
   describe("Nimm Patient auf", () => {
-    it("Gib erforderliche Felder an", () => {
+    it("Enter required fields", () => {
       const configuration = createTestConfiguration();
       let state = init({ configuration });
 
@@ -76,14 +64,16 @@ describe("Patientenkarteikarte", () => {
       );
 
       expect(state).toEqual({
-        patient: {
+        patient: createPatient({
           geburtsdatum: "1980-01-01",
+          anrede: "Herr",
           vorname: "Max",
           nachname: "Mustermann",
           annahmejahr: new Date().getFullYear(),
           praxis: "Praxis 1",
+          familienstand: "ledig",
           schluesselworte: ["Aktiv", "Weihnachtskarte"],
-        },
+        }),
         status: "new",
         canSubmit: true,
         canCancel: false,
@@ -96,14 +86,14 @@ describe("Patientenkarteikarte", () => {
     it("Submitting", () => {
       const configuration = createTestConfiguration();
       let state: State = {
-        patient: {
+        patient: createPatient({
           geburtsdatum: "1980-01-01",
           vorname: "Max",
           nachname: "Mustermann",
           annahmejahr: new Date().getFullYear(),
           praxis: "Praxis 1",
           schluesselworte: ["Aktiv", "Weihnachtskarte"],
-        },
+        }),
         status: "new",
         canSubmit: true,
         canCancel: false,
@@ -115,14 +105,14 @@ describe("Patientenkarteikarte", () => {
       state = reducer(state, submitting());
 
       expect(state).toEqual({
-        patient: {
+        patient: createPatient({
           geburtsdatum: "1980-01-01",
           vorname: "Max",
           nachname: "Mustermann",
           annahmejahr: new Date().getFullYear(),
           praxis: "Praxis 1",
           schluesselworte: ["Aktiv", "Weihnachtskarte"],
-        },
+        }),
         status: "working",
         canSubmit: false,
         canCancel: false,
@@ -135,14 +125,14 @@ describe("Patientenkarteikarte", () => {
     it("Submitted", () => {
       const configuration = createTestConfiguration();
       let state: State = {
-        patient: {
+        patient: createPatient({
           geburtsdatum: "1980-01-01",
           vorname: "Max",
           nachname: "Mustermann",
           annahmejahr: new Date().getFullYear(),
           praxis: "Praxis 1",
           schluesselworte: ["Aktiv", "Weihnachtskarte"],
-        },
+        }),
         status: "working",
         canSubmit: false,
         canCancel: false,
@@ -154,14 +144,14 @@ describe("Patientenkarteikarte", () => {
       state = reducer(state, submitted());
 
       expect(state).toEqual({
-        patient: {
+        patient: createPatient({
           geburtsdatum: "1980-01-01",
           vorname: "Max",
           nachname: "Mustermann",
           annahmejahr: new Date().getFullYear(),
           praxis: "Praxis 1",
           schluesselworte: ["Aktiv", "Weihnachtskarte"],
-        },
+        }),
         status: "view",
         canSubmit: true,
         canCancel: false,
@@ -173,12 +163,22 @@ describe("Patientenkarteikarte", () => {
   });
 
   describe("Aktualisiere eine Patientenkarteikarte", () => {
-    it("Ändere Nachname", () => {
+    it("Change Nachname", () => {
       const patient = createTestPatient();
       const configuration = createTestConfiguration();
-      let state = init({ patient, configuration });
+      let state = init({ configuration });
 
-      state = reducer(state, editing());
+      state = reducer(state, view({ patient }));
+      expect(state).toEqual({
+        patient,
+        status: "view",
+        canSubmit: true,
+        canCancel: false,
+        isReadOnly: true,
+        submitButtonText: "Bearbeiten",
+        configuration,
+      });
+      state = reducer(state, edit());
       expect(state.status).toEqual("edit");
       expect(state.isReadOnly).toEqual(false);
       state = reducer(
@@ -197,7 +197,7 @@ describe("Patientenkarteikarte", () => {
       });
     });
 
-    it("submitting", () => {
+    it("Submitting", () => {
       const patient = createTestPatient();
       const configuration = createTestConfiguration();
       let state: State = {
@@ -223,7 +223,7 @@ describe("Patientenkarteikarte", () => {
       });
     });
 
-    it("submitted", () => {
+    it("Submitted", () => {
       const patient = createTestPatient();
       const configuration = createTestConfiguration();
       let state: State = {
@@ -249,12 +249,13 @@ describe("Patientenkarteikarte", () => {
       });
     });
 
-    it("cancelled", () => {
+    it("Cancelled", () => {
       const patient = createTestPatient();
       const configuration = createTestConfiguration();
-      let state = init({ patient, configuration });
+      let state = init({ configuration });
+      state = reducer(state, view({ patient }));
 
-      state = reducer(state, editing());
+      state = reducer(state, edit());
       expect(state.status).toEqual("edit");
       expect(state.canCancel).toEqual(true);
       expect(state.isReadOnly).toEqual(false);
@@ -272,6 +273,31 @@ describe("Patientenkarteikarte", () => {
         canCancel: false,
         isReadOnly: true,
         submitButtonText: "Bearbeiten",
+        configuration,
+      });
+    });
+
+    it("Reset", () => {
+      const patient = createTestPatient();
+      const configuration = createTestConfiguration();
+      let state = init({ configuration });
+      state = reducer(state, view({ patient }));
+
+      state = reducer(state, reset());
+
+      expect(state).toEqual({
+        patient: createPatient({
+          annahmejahr: new Date().getFullYear(),
+          praxis: configuration.praxis[0],
+          anrede: configuration.anrede[0],
+          familienstand: configuration.familienstand[0],
+          schluesselworte: configuration.defaultSchluesselworte,
+        }),
+        status: "new",
+        canSubmit: false,
+        canCancel: false,
+        isReadOnly: false,
+        submitButtonText: "Aufnehmen",
         configuration,
       });
     });

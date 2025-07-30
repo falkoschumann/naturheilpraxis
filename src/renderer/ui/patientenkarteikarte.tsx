@@ -2,456 +2,289 @@
 
 // @ts-expect-error TS7016
 import Tags from "bootstrap5-tags";
-import { type ChangeEvent, type FormEvent, type MouseEvent, useEffect, useMemo, useState } from "react";
+import { type ChangeEvent, type FormEvent, type MouseEvent, useEffect, useReducer } from "react";
 import { NavLink, useNavigate, useParams } from "react-router";
 
 import { PATIENT_AUFNEHMEN_PAGE, PATIENTENKARTEIKARTE_PAGE } from "./pages";
-import type { NimmPatientAufCommand, Patient } from "../../main/domain/naturheilpraxis";
-import type { Status } from "./patientenkarteikarte-model";
+import {
+  cancelled,
+  edit,
+  init,
+  patientAktualisiert,
+  reducer,
+  reset,
+  submitted,
+  submitting,
+  view,
+} from "./patientenkarteikarte-model";
 
 export default function Patientenkarteikarte() {
+  const configuration = window.naturheilpraxis.configuration;
+  const [state, dispatch] = useReducer(reducer, init({ configuration }));
   const { nummer } = useParams();
-  const [patient, setPatient] = useState<Patient>();
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (nummer != null) {
-      void findPatient(Number(nummer));
+    if (nummer == null) {
+      dispatch(reset());
     } else {
-      setPatient(undefined);
+      (async function () {
+        const result = await window.naturheilpraxis.patientenkartei({ nummer: Number(nummer) });
+        dispatch(view({ patient: result.patienten[0] }));
+      })();
     }
   }, [nummer]);
 
-  async function findPatient(nummer: number) {
-    const result = await window.naturheilpraxis.patientenkartei({ nummer });
-    setPatient(result.patienten[0]);
-  }
-
-  async function handleSubmit(command: NimmPatientAufCommand) {
-    const result = await window.naturheilpraxis.nimmPatientAuf(command);
-    if (result.success) {
-      navigate(`${PATIENTENKARTEIKARTE_PAGE}/${result.nummer}`, { replace: true });
-    }
-  }
-
-  return (
-    <main className="container my-4">
-      <h2 className="mb-3">
-        {patient
-          ? `${patient.nachname}, ${patient.vorname} (Nr. ${patient.nummer}), geboren am ${new Date(patient.geburtsdatum).toLocaleDateString(undefined, { dateStyle: "medium" })}`
-          : "Neuer Patient"}
-      </h2>
-      <Form patient={patient} onSubmit={handleSubmit} />
-    </main>
-  );
-}
-
-function Form({
-  patient,
-  onSubmit,
-}: {
-  patient?: Patient;
-  onSubmit: (command: NimmPatientAufCommand) => Promise<void>;
-}) {
-  // TODO update state when patient is updated
-  const configuration = window.app.getConfiguration();
-
-  const [status, setStatus] = useState<Status>(patient ? "view" : "new");
-  const [schluesselworte, setSchluesselworte] = useState<string[]>(
-    patient?.schluesselworte ?? configuration.defaultSchluesselworte,
-  );
-  const [geburtsdatum, setGeburtsdatum] = useState<string>(patient?.geburtsdatum ?? "");
-  const [annahmejahr, setAnnahmejahr] = useState<string>(String(patient?.annahmejahr ?? new Date().getFullYear()));
-  const [praxis, setPraxis] = useState<string>(patient?.praxis ?? "Praxis");
-  const [anrede, setAnrede] = useState<string>(patient?.anrede ?? "");
-  const [vorname, setVorname] = useState<string>(patient?.vorname ?? "");
-  const [nachname, setNachname] = useState<string>(patient?.nachname ?? "");
-  const [strasse, setStrasse] = useState<string>(patient?.strasse ?? "");
-  const [wohnort, setWohnort] = useState<string>(patient?.wohnort ?? "");
-  const [postleitzahl, setPostleitzahl] = useState<string>(patient?.postleitzahl ?? "");
-  const [staat, setStaat] = useState<string>(patient?.staat ?? "");
-  const [staatsangehoerigkeit, setStaatsangehoerigkeit] = useState<string>(patient?.staatsangehoerigkeit ?? "");
-  const [titel, setTitel] = useState<string>(patient?.titel ?? "");
-  const [beruf, setBeruf] = useState<string>(patient?.beruf ?? "");
-  const [telefon, setTelefon] = useState<string>(patient?.telefon ?? "");
-  const [mobil, setMobil] = useState<string>(patient?.mobil ?? "");
-  const [eMail, setEMail] = useState<string>(patient?.eMail ?? "");
-  const [familienstand, setFamilienstand] = useState<string>(patient?.familienstand ?? "");
-  const [partnerVon, setPartnerVon] = useState<string>(patient?.partnerVon ?? "");
-  const [kindVon, setKindVon] = useState<string>(patient?.kindVon ?? "");
-  const [memo, setMemo] = useState<string>(patient?.memo ?? "");
-
-  const canSubmit = useMemo(
-    () =>
-      geburtsdatum.trim() &&
-      annahmejahr.trim() &&
-      praxis.trim() &&
-      vorname.trim() &&
-      nachname.trim() &&
-      status !== "working",
-    [geburtsdatum, annahmejahr, praxis, vorname, nachname, status],
-  );
-  const canCancel = useMemo(() => status === "edit", [status]);
-
-  const isReadOnly = useMemo(() => status !== "new" && status !== "edit", [status]);
-  const submitText = useMemo(() => {
-    switch (status) {
-      case "new":
-        return "Aufnehmen";
-      case "view":
-        return "Bearbeiten";
-      default:
-        return "Speichern";
-    }
-  }, [status]);
-
-  useEffect(() => Tags.init(), [status]);
+  // Depending on the status, the tags component needs to be initialized
+  useEffect(() => Tags.init(), [state.status]);
 
   function handleSchluesselworteChange(e: ChangeEvent<HTMLSelectElement>) {
     const options = Array.from(e.target.selectedOptions, (option) => option.value);
-    setSchluesselworte(options);
+    dispatch(patientAktualisiert({ feld: "schluesselworte", wert: options }));
   }
 
-  function handleGeburtsdatumChange(e: ChangeEvent<HTMLInputElement>) {
-    setGeburtsdatum(e.target.value);
-  }
-
-  function handleAnnahmejahrChange(e: ChangeEvent<HTMLInputElement>) {
-    setAnnahmejahr(e.target.value);
-  }
-
-  function handlePraxisChange(e: ChangeEvent<HTMLSelectElement>) {
-    setPraxis(e.target.value);
-  }
-
-  function handleAnredeChange(e: ChangeEvent<HTMLSelectElement>) {
-    setAnrede(e.target.value);
-  }
-
-  function handleVornameChange(e: ChangeEvent<HTMLInputElement>) {
-    setVorname(e.target.value);
-  }
-
-  function handleNachnameChange(e: ChangeEvent<HTMLInputElement>) {
-    setNachname(e.target.value);
-  }
-
-  function handleStrasseChange(e: ChangeEvent<HTMLInputElement>) {
-    setStrasse(e.target.value);
-  }
-
-  function handleWohnortChange(e: ChangeEvent<HTMLInputElement>) {
-    setWohnort(e.target.value);
-  }
-
-  function handlePostleitzahlChange(e: ChangeEvent<HTMLInputElement>) {
-    setPostleitzahl(e.target.value);
-  }
-
-  function handleStaatChange(e: ChangeEvent<HTMLInputElement>) {
-    setStaat(e.target.value);
-  }
-
-  function handleStaatsangehoerigkeitChange(e: ChangeEvent<HTMLInputElement>) {
-    setStaatsangehoerigkeit(e.target.value);
-  }
-
-  function handleTitelChange(e: ChangeEvent<HTMLInputElement>) {
-    setTitel(e.target.value);
-  }
-
-  function handleBerufChange(e: ChangeEvent<HTMLInputElement>) {
-    setBeruf(e.target.value);
-  }
-
-  function handleTelefonChange(e: ChangeEvent<HTMLInputElement>) {
-    setTelefon(e.target.value);
-  }
-
-  function handleMobilChange(e: ChangeEvent<HTMLInputElement>) {
-    setMobil(e.target.value);
-  }
-
-  function handleEMailChange(e: ChangeEvent<HTMLInputElement>) {
-    setEMail(e.target.value);
-  }
-
-  function handleFamilienstandChange(e: ChangeEvent<HTMLSelectElement>) {
-    setFamilienstand(e.target.value);
-  }
-
-  function handlePartnerVonChange(e: ChangeEvent<HTMLInputElement>) {
-    setPartnerVon(e.target.value);
-  }
-
-  function handleKindVonChange(e: ChangeEvent<HTMLInputElement>) {
-    setKindVon(e.target.value);
-  }
-
-  function handleMemoChange(e: ChangeEvent<HTMLTextAreaElement>) {
-    setMemo(e.target.value);
-  }
-
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    switch (status) {
-      case "view":
-        setStatus("edit");
-        break;
-      case "new":
-        setStatus("working");
-        void save();
-        break;
-      case "edit":
-        setStatus("working");
-        void save();
-        break;
-    }
-
-    async function save() {
-      await onSubmit({
-        nachname,
-        vorname,
-        geburtsdatum,
-        annahmejahr: Number(annahmejahr),
-        praxis,
-        anrede,
-        strasse,
-        wohnort,
-        postleitzahl,
-        staat,
-        staatsangehoerigkeit,
-        titel,
-        beruf,
-        telefon,
-        mobil,
-        eMail,
-        familienstand,
-        partnerVon,
-        kindVon,
-        memo,
-        schluesselworte,
-      });
-      setStatus("view");
+    if (state.status == "new") {
+      dispatch(submitting());
+      const result = await window.naturheilpraxis.nimmPatientAuf(state.patient);
+      if (result.success) {
+        navigate(`${PATIENTENKARTEIKARTE_PAGE.replace(":nummer", String(result.nummer))}`);
+      }
+      dispatch(submitted());
+    } else if (state.status == "view") {
+      dispatch(edit());
+    } else if (state.status == "edit") {
+      dispatch(submitting());
+      dispatch(submitted());
     }
   }
 
   function handleCancel(event: MouseEvent<HTMLButtonElement>) {
     event.preventDefault();
-    setStatus("view");
+    dispatch(cancelled());
   }
 
+  console.log("nummer:", nummer, "current state:", state);
+
   return (
-    <form onSubmit={handleSubmit}>
-      <div className="position-relative overflow-auto" style={{ height: "calc(100vh - 15.5rem)" }}>
-        <div className="row g-3">
-          <MultiSelect
-            name="schluesselworte"
-            label="Schlüsselworte"
-            cols={12}
-            isReadOnly={isReadOnly}
-            options={configuration.schluesselworte}
-            value={schluesselworte}
-            onChange={handleSchluesselworteChange}
-          />
-          <Input
-            name="geburtsdatum"
-            label="Geburtsdatum"
-            type="date"
-            isRequired
-            isReadOnly={isReadOnly}
-            cols={4}
-            value={geburtsdatum}
-            onChange={handleGeburtsdatumChange}
-          />
-          <Input
-            name="annahmejahr"
-            label="Annahmejahr"
-            type="number"
-            isRequired
-            isReadOnly={isReadOnly}
-            cols={4}
-            value={annahmejahr}
-            onChange={handleAnnahmejahrChange}
-          />
-          <Select
-            name="praxis"
-            label="Praxis"
-            cols={4}
-            isReadOnly={isReadOnly}
-            options={configuration.praxis}
-            value={praxis}
-            onChange={handlePraxisChange}
-          />
-          <Select
-            name="anrede"
-            label="Anrede"
-            cols={2}
-            isReadOnly={isReadOnly}
-            options={configuration.anrede}
-            value={anrede}
-            onChange={handleAnredeChange}
-          />
-          <Input
-            name="titel"
-            label="Titel"
-            cols={2}
-            isReadOnly={isReadOnly}
-            value={titel}
-            onChange={handleTitelChange}
-          />
-          <Input
-            name="vorname"
-            label="Vorname"
-            isRequired
-            cols={4}
-            isReadOnly={isReadOnly}
-            value={vorname}
-            onChange={handleVornameChange}
-          />
-          <Input
-            name="nachname"
-            label="Nachname"
-            isRequired
-            isReadOnly={isReadOnly}
-            cols={4}
-            value={nachname}
-            onChange={handleNachnameChange}
-          />
-          <Input
-            name="strasse"
-            label="Straße"
-            cols={4}
-            isReadOnly={isReadOnly}
-            value={strasse}
-            onChange={handleStrasseChange}
-          />
-          <Input
-            name="postleitzahl"
-            label="Postleitzahl"
-            cols={2}
-            isReadOnly={isReadOnly}
-            value={postleitzahl}
-            onChange={handlePostleitzahlChange}
-          />
-          <Input
-            name="wohnort"
-            label="Wohnort"
-            cols={3}
-            isReadOnly={isReadOnly}
-            value={wohnort}
-            onChange={handleWohnortChange}
-          />
-          <Input
-            name="staat"
-            label="Staat"
-            cols={3}
-            isReadOnly={isReadOnly}
-            value={staat}
-            onChange={handleStaatChange}
-          />
-          <Input
-            name="telefon"
-            label="Telefon"
-            cols={3}
-            isReadOnly={isReadOnly}
-            value={telefon}
-            onChange={handleTelefonChange}
-          />
-          <Input
-            name="mobil"
-            label="Mobil"
-            cols={3}
-            isReadOnly={isReadOnly}
-            value={mobil}
-            onChange={handleMobilChange}
-          />
-          <Input
-            name="eMail"
-            label="E-Mail"
-            cols={6}
-            isReadOnly={isReadOnly}
-            value={eMail}
-            onChange={handleEMailChange}
-          />
-          <Select
-            name="familienstand"
-            label="Familienstand"
-            cols={2}
-            isReadOnly={isReadOnly}
-            options={configuration.familienstand}
-            value={familienstand}
-            onChange={handleFamilienstandChange}
-          />
-          <Input
-            name="partnerVon"
-            label="Partner von"
-            cols={5}
-            isReadOnly={isReadOnly}
-            value={partnerVon}
-            onChange={handlePartnerVonChange}
-          />
-          <Input
-            name="kindVon"
-            label="Kind von"
-            cols={5}
-            isReadOnly={isReadOnly}
-            value={kindVon}
-            onChange={handleKindVonChange}
-          />
-          <Input
-            name="staatsangehoeringkeit"
-            label="Staatsangehörigkeit"
-            cols={6}
-            isReadOnly={isReadOnly}
-            value={staatsangehoerigkeit}
-            onChange={handleStaatsangehoerigkeitChange}
-          />
-          <Input
-            name="beruf"
-            label="Beruf"
-            cols={6}
-            isReadOnly={isReadOnly}
-            value={beruf}
-            onChange={handleBerufChange}
-          />
-          <TextArea
-            name="memo"
-            label="Memo"
-            cols={12}
-            isReadOnly={isReadOnly}
-            value={memo}
-            onChange={handleMemoChange}
-          />
-        </div>
-      </div>
-      <div className="form-text mb-3">* Erforderliche Angaben</div>
-      <div
-        className="btn-toolbar justify-content-end align-items-center"
-        role="toolbar"
-        aria-label="Aktionen für Patient"
-      >
-        {status !== "new" && (
-          <NavLink to={PATIENT_AUFNEHMEN_PAGE} className="btn btn-primary">
-            Nimm Patient auf
-          </NavLink>
-        )}
-        {status !== "new" && <button className="btn btn-primary ms-2">Erfasse Leistungen</button>}
-        <div className="me-auto"></div>
-        {status === "working" && (
-          <div className="spinner-border text-primary" role="status">
-            <span className="visually-hidden">Loading...</span>
+    <main className="container my-4">
+      <h2 className="mb-3">
+        {state.status === "new"
+          ? "Neuer Patient"
+          : `${state.patient.nachname}, ${state.patient.vorname} (Nr. ${state.patient.nummer}), geboren am ${new Date(state.patient.geburtsdatum).toLocaleDateString(undefined, { dateStyle: "medium" })}`}
+      </h2>
+      <form onSubmit={handleSubmit}>
+        <div className="position-relative overflow-auto" style={{ height: "calc(100vh - 15.5rem)" }}>
+          <div className="row g-3">
+            <MultiSelect
+              name="schluesselworte"
+              label="Schlüsselworte"
+              cols={12}
+              isReadOnly={state.isReadOnly}
+              options={configuration.schluesselworte}
+              value={state.patient.schluesselworte ?? []}
+              onChange={handleSchluesselworteChange}
+            />
+            <Input
+              name="geburtsdatum"
+              label="Geburtsdatum"
+              type="date"
+              isRequired
+              isReadOnly={state.isReadOnly}
+              cols={4}
+              value={state.patient.geburtsdatum}
+              onChange={(e) => dispatch(patientAktualisiert({ feld: "geburtsdatum", wert: e.target.value }))}
+            />
+            <Input
+              name="annahmejahr"
+              label="Annahmejahr"
+              type="number"
+              isRequired
+              isReadOnly={state.isReadOnly}
+              cols={4}
+              value={String(state.patient.annahmejahr)}
+              onChange={(e) => dispatch(patientAktualisiert({ feld: "annahmejahr", wert: e.target.value }))}
+            />
+            <Select
+              name="praxis"
+              label="Praxis"
+              cols={4}
+              isReadOnly={state.isReadOnly}
+              options={configuration.praxis}
+              value={state.patient.praxis}
+              onChange={(e) => dispatch(patientAktualisiert({ feld: "praxis", wert: e.target.value }))}
+            />
+            <Select
+              name="anrede"
+              label="Anrede"
+              cols={2}
+              isReadOnly={state.isReadOnly}
+              options={configuration.anrede}
+              value={state.patient.anrede ?? ""}
+              onChange={(e) => dispatch(patientAktualisiert({ feld: "anrede", wert: e.target.value }))}
+            />
+            <Input
+              name="titel"
+              label="Titel"
+              cols={2}
+              isReadOnly={state.isReadOnly}
+              value={state.patient.titel ?? ""}
+              onChange={(e) => dispatch(patientAktualisiert({ feld: "titel", wert: e.target.value }))}
+            />
+            <Input
+              name="vorname"
+              label="Vorname"
+              isRequired
+              cols={4}
+              isReadOnly={state.isReadOnly}
+              value={state.patient.vorname}
+              onChange={(e) => dispatch(patientAktualisiert({ feld: "vorname", wert: e.target.value }))}
+            />
+            <Input
+              name="nachname"
+              label="Nachname"
+              isRequired
+              isReadOnly={state.isReadOnly}
+              cols={4}
+              value={state.patient.nachname}
+              onChange={(e) => dispatch(patientAktualisiert({ feld: "nachname", wert: e.target.value }))}
+            />
+            <Input
+              name="strasse"
+              label="Straße"
+              cols={4}
+              isReadOnly={state.isReadOnly}
+              value={state.patient.strasse ?? ""}
+              onChange={(e) => dispatch(patientAktualisiert({ feld: "strasse", wert: e.target.value }))}
+            />
+            <Input
+              name="postleitzahl"
+              label="Postleitzahl"
+              cols={2}
+              isReadOnly={state.isReadOnly}
+              value={state.patient.postleitzahl ?? ""}
+              onChange={(e) => dispatch(patientAktualisiert({ feld: "postleitzahl", wert: e.target.value }))}
+            />
+            <Input
+              name="wohnort"
+              label="Wohnort"
+              cols={3}
+              isReadOnly={state.isReadOnly}
+              value={state.patient.wohnort ?? ""}
+              onChange={(e) => dispatch(patientAktualisiert({ feld: "wohnort", wert: e.target.value }))}
+            />
+            <Input
+              name="staat"
+              label="Staat"
+              cols={3}
+              isReadOnly={state.isReadOnly}
+              value={state.patient.staat ?? ""}
+              onChange={(e) => dispatch(patientAktualisiert({ feld: "staat", wert: e.target.value }))}
+            />
+            <Input
+              name="telefon"
+              label="Telefon"
+              cols={3}
+              isReadOnly={state.isReadOnly}
+              value={state.patient.telefon ?? ""}
+              onChange={(e) => dispatch(patientAktualisiert({ feld: "telefon", wert: e.target.value }))}
+            />
+            <Input
+              name="mobil"
+              label="Mobil"
+              cols={3}
+              isReadOnly={state.isReadOnly}
+              value={state.patient.mobil ?? ""}
+              onChange={(e) => dispatch(patientAktualisiert({ feld: "mobil", wert: e.target.value }))}
+            />
+            <Input
+              name="eMail"
+              label="E-Mail"
+              cols={6}
+              isReadOnly={state.isReadOnly}
+              value={state.patient.eMail ?? ""}
+              onChange={(e) => dispatch(patientAktualisiert({ feld: "eMail", wert: e.target.value }))}
+            />
+            <Select
+              name="familienstand"
+              label="Familienstand"
+              cols={2}
+              isReadOnly={state.isReadOnly}
+              options={configuration.familienstand}
+              value={state.patient.familienstand ?? ""}
+              onChange={(e) => dispatch(patientAktualisiert({ feld: "familienstand", wert: e.target.value }))}
+            />
+            <Input
+              name="partnerVon"
+              label="Partner von"
+              cols={5}
+              isReadOnly={state.isReadOnly}
+              value={state.patient.partnerVon ?? ""}
+              onChange={(e) => dispatch(patientAktualisiert({ feld: "partnerVon", wert: e.target.value }))}
+            />
+            <Input
+              name="kindVon"
+              label="Kind von"
+              cols={5}
+              isReadOnly={state.isReadOnly}
+              value={state.patient.kindVon ?? ""}
+              onChange={(e) => dispatch(patientAktualisiert({ feld: "kindVon", wert: e.target.value }))}
+            />
+            <Input
+              name="staatsangehoeringkeit"
+              label="Staatsangehörigkeit"
+              cols={6}
+              isReadOnly={state.isReadOnly}
+              value={state.patient.staatsangehoerigkeit ?? ""}
+              onChange={(e) => dispatch(patientAktualisiert({ feld: "staatsangehoerigkeit", wert: e.target.value }))}
+            />
+            <Input
+              name="beruf"
+              label="Beruf"
+              cols={6}
+              isReadOnly={state.isReadOnly}
+              value={state.patient.beruf ?? ""}
+              onChange={(e) => dispatch(patientAktualisiert({ feld: "beruf", wert: e.target.value }))}
+            />
+            <TextArea
+              name="memo"
+              label="Memo"
+              cols={12}
+              isReadOnly={state.isReadOnly}
+              value={state.patient.memo ?? ""}
+              onChange={(e) => dispatch(patientAktualisiert({ feld: "memo", wert: e.target.value }))}
+            />
           </div>
-        )}
-        <button type="submit" className="btn btn-primary ms-2" disabled={!canSubmit}>
-          {submitText}
-        </button>
-        <button className="btn btn-secondary ms-2" disabled={!canCancel} onClick={handleCancel}>
-          Abbrechen
-        </button>
-      </div>
-    </form>
+        </div>
+        <div className="form-text mb-3">* Erforderliche Angaben</div>
+        <div
+          className="btn-toolbar justify-content-end align-items-center"
+          role="toolbar"
+          aria-label="Aktionen für Patient"
+        >
+          {state.status !== "new" && (
+            <NavLink to={PATIENT_AUFNEHMEN_PAGE} className="btn btn-primary">
+              Nimm Patient auf
+            </NavLink>
+          )}
+          {state.status !== "new" && <button className="btn btn-primary ms-2">Erfasse Leistungen</button>}
+          <div className="me-auto"></div>
+          {state.status === "working" && (
+            <div className="spinner-border text-primary" role="status">
+              <span className="visually-hidden">Loading...</span>
+            </div>
+          )}
+          <button type="submit" className="btn btn-primary ms-2" disabled={!state.canSubmit}>
+            {state.submitButtonText}
+          </button>
+          <button className="btn btn-secondary ms-2" disabled={!state.canCancel} onClick={handleCancel}>
+            Abbrechen
+          </button>
+        </div>
+      </form>
+    </main>
   );
 }
 
@@ -612,6 +445,12 @@ function MultiSelect({
   value: string[];
   onChange: (e: ChangeEvent<HTMLSelectElement>) => void;
 }) {
+  useEffect(() => {
+    if (!isReadOnly) {
+      Tags.init();
+    }
+  }, [isReadOnly]);
+
   if (isReadOnly) {
     return (
       <div className={`col-${cols}`}>
