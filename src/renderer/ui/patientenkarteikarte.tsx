@@ -25,18 +25,20 @@ export default function Patientenkarteikarte() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (nummer == null) {
-      dispatch(reset());
+    if (nummer != null) {
+      void findPatient(Number(nummer));
     } else {
-      (async function () {
-        const result = await window.naturheilpraxis.patientenkartei({ nummer: Number(nummer) });
-        dispatch(view({ patient: result.patienten[0] }));
-      })();
+      dispatch(reset());
     }
   }, [nummer]);
 
   // Depending on the status, the tags component needs to be initialized
   useEffect(() => Tags.init(), [state.status]);
+
+  async function findPatient(nummer: number) {
+    const result = await window.naturheilpraxis.patientenkartei({ nummer });
+    dispatch(view({ patient: result.patienten[0] }));
+  }
 
   function handleSchluesselworteChange(e: ChangeEvent<HTMLSelectElement>) {
     const options = Array.from(e.target.selectedOptions, (option) => option.value);
@@ -65,8 +67,6 @@ export default function Patientenkarteikarte() {
     event.preventDefault();
     dispatch(cancelled());
   }
-
-  console.log("nummer:", nummer, "current state:", state);
 
   return (
     <main className="container my-4">
