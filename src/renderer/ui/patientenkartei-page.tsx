@@ -8,6 +8,8 @@ import { NavLink, useNavigate } from "react-router";
 import type { Patient } from "../../main/domain/naturheilpraxis";
 import { PATIENT_AUFNEHMEN_PAGE, PATIENTENKARTEIKARTE_PAGE } from "./pages";
 
+// TODO use sorting
+
 const columnHelper = createColumnHelper<Patient>();
 const columns = [
   columnHelper.accessor("nummer", { header: "#", size: 80 }),
@@ -48,7 +50,7 @@ const columns = [
   }),
 ];
 
-export default function Patientenkartei() {
+export default function PatientenkarteiPage() {
   const [data, setData] = useState<Patient[]>([]);
   const navigate = useNavigate();
 

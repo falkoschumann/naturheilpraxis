@@ -18,7 +18,10 @@ import {
   view,
 } from "./patientenkarteikarte-model";
 
-export default function Patientenkarteikarte() {
+// TODO link spouse and parent
+// TODO handle patient not found
+
+export default function PatientenkarteikartePage() {
   const configuration = window.naturheilpraxis.configuration;
   const [state, dispatch] = useReducer(reducer, init({ configuration }));
   const { nummer } = useParams();
@@ -59,6 +62,7 @@ export default function Patientenkarteikarte() {
       dispatch(edit());
     } else if (state.status == "edit") {
       dispatch(submitting());
+      // TODO update patient
       dispatch(submitted());
     }
   }

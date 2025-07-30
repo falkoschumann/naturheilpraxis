@@ -4,7 +4,7 @@ import { NavLink } from "react-router";
 
 import { PATIENT_AUFNEHMEN_PAGE, PATIENTENKARTEI_PAGE } from "./pages";
 
-export default function Startseite() {
+export default function StartseitePage() {
   return (
     <main className="container my-4">
       <h2>Naturheilpraxis</h2>

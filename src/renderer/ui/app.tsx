@@ -11,19 +11,19 @@ import {
   RECHUNGEN_PAGE,
   START_PAGE,
 } from "./pages";
-import Patientenkartei from "./patientenkartei";
-import Patientenkarteikarte from "./patientenkarteikarte";
-import Startseite from "./startseite";
+import PatientenkarteiPage from "./patientenkartei-page";
+import PatientenkarteikartePage from "./patientenkarteikarte-page";
+import StartseitePage from "./startseite-page";
 
 export default function App() {
   return (
     <>
       <Header />
       <Routes>
-        <Route path={START_PAGE} element={<Startseite />} />
-        <Route path={PATIENTENKARTEI_PAGE} element={<Patientenkartei />} />
-        <Route path={PATIENTENKARTEIKARTE_PAGE} element={<Patientenkarteikarte />} />
-        <Route path={PATIENT_AUFNEHMEN_PAGE} element={<Patientenkarteikarte />} />
+        <Route path={START_PAGE} element={<StartseitePage />} />
+        <Route path={PATIENTENKARTEI_PAGE} element={<PatientenkarteiPage />} />
+        <Route path={PATIENTENKARTEIKARTE_PAGE} element={<PatientenkarteikartePage />} />
+        <Route path={PATIENT_AUFNEHMEN_PAGE} element={<PatientenkarteikartePage />} />
       </Routes>
     </>
   );
