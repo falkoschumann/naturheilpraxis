@@ -5,7 +5,7 @@ import type {
   NimmPatientAufCommand,
   NimmPatientAufCommandStatus,
   PatientenkarteiQuery,
-  PatientenkarteiResult,
+  PatientenkarteiQueryResult,
 } from "../main/domain/naturheilpraxis";
 
 declare global {
@@ -17,7 +17,7 @@ declare global {
       ) => Promise<NimmPatientAufCommandStatus>;
       patientenkartei: (
         query: PatientenkarteiQuery,
-      ) => Promise<PatientenkarteiResult>;
+      ) => Promise<PatientenkarteiQueryResult>;
     };
   }
 }

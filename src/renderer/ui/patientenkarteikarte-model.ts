@@ -1,7 +1,20 @@
 // Copyright (c) 2025 Falko Schumann. All rights reserved. MIT license.
 
-import { createPatient, type Patient } from "../../main/domain/naturheilpraxis";
+import {
+  createPatient,
+  type NimmPatientAufCommandStatus,
+  type Patient,
+  type PatientenkarteiQuery,
+} from "../../main/domain/naturheilpraxis";
 import type { Configuration } from "../../main/domain/configuration";
+import type { Dispatch } from "react";
+
+type FluxStandardAction<T extends string = string, P = undefined> = {
+  type: T;
+  payload: P;
+};
+
+export type Thunk<A, S, R> = (dispatch: Dispatch<A>, getState: () => S) => R;
 
 export type Status = "new" | "view" | "edit" | "working";
 
@@ -122,10 +135,14 @@ export function reducer(state: State, action: Action): State {
   }
 }
 
-type FluxStandardAction<T extends string = string, P = undefined> = {
-  type: T;
-  payload: P;
-};
+export function findePatient(
+  query: PatientenkarteiQuery,
+): Thunk<Action, State, Promise<void>> {
+  return async (dispatch: Dispatch<Action>, _getState: () => State) => {
+    const result = await window.naturheilpraxis.patientenkartei(query);
+    dispatch(view({ patient: result.patienten[0] }));
+  };
+}
 
 const PATIENT_AKTUALISIERT_ACTION = "patientAktualisiert";
 
@@ -141,6 +158,31 @@ export function patientAktualisiert(
   PatientAktualisiertPayload
 > {
   return { type: PATIENT_AKTUALISIERT_ACTION, payload };
+}
+
+export function submit(): Thunk<
+  Action,
+  State,
+  Promise<NimmPatientAufCommandStatus | void>
+> {
+  return async (
+    dispatch: Dispatch<Action>,
+    getState: () => State,
+  ): Promise<NimmPatientAufCommandStatus | void> => {
+    const state = getState();
+    if (state.status == "new") {
+      dispatch(submitting());
+      const result = await window.naturheilpraxis.nimmPatientAuf(state.patient);
+      dispatch(submitted());
+      return result;
+    } else if (state.status == "view") {
+      dispatch(edit());
+    } else if (state.status == "edit") {
+      dispatch(submitting());
+      // TODO update patient
+      dispatch(submitted());
+    }
+  };
 }
 
 const SUBMITTING_ACTION = "submitting";
