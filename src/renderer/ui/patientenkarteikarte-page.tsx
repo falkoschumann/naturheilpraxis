@@ -2,46 +2,30 @@
 
 // @ts-expect-error TS7016
 import Tags from "bootstrap5-tags";
-import { type ChangeEvent, type FormEvent, type MouseEvent, useEffect, useReducer } from "react";
+import { type ChangeEvent, type FormEvent, type MouseEvent, useEffect } from "react";
 import { NavLink, useNavigate, useParams } from "react-router";
 
 import { PATIENT_AUFNEHMEN_PAGE, PATIENTENKARTEIKARTE_PAGE } from "./pages";
-import {
-  cancelled,
-  edit,
-  init,
-  patientAktualisiert,
-  reducer,
-  reset,
-  submitted,
-  submitting,
-  view,
-} from "./patientenkarteikarte-model";
+import { cancel, findePatient, init, patientAktualisiert, reducer, submit } from "./patientenkarteikarte-model";
+import { useThunkReducer } from "./reducer";
 
 // TODO link spouse and parent
 // TODO handle patient not found
+// TODO Extract hook for testng return a custom dispatch function supporting async thunks
 
 export default function PatientenkarteikartePage() {
-  const configuration = window.naturheilpraxis.configuration;
-  const [state, dispatch] = useReducer(reducer, init({ configuration }));
+  const [state, dispatch] = useThunkReducer(reducer, {}, init);
   const { nummer } = useParams();
   const navigate = useNavigate();
 
+  // FIXME When adding dispatch to the dependency array, the component is re-rendered infinitely
+  //  because the dispatch function is recreated on every state change.
   useEffect(() => {
-    if (nummer != null) {
-      void findPatient(Number(nummer));
-    } else {
-      dispatch(reset());
-    }
-  }, [nummer]);
+    void dispatch(findePatient({ nummer: Number(nummer) }));
+  }, [dispatch, nummer]);
 
   // Depending on the status, the tags component needs to be initialized
   useEffect(() => Tags.init(), [state.status]);
-
-  async function findPatient(nummer: number) {
-    const result = await window.naturheilpraxis.patientenkartei({ nummer });
-    dispatch(view({ patient: result.patienten[0] }));
-  }
 
   function handleSchluesselworteChange(e: ChangeEvent<HTMLSelectElement>) {
     const options = Array.from(e.target.selectedOptions, (option) => option.value);
@@ -50,26 +34,15 @@ export default function PatientenkarteikartePage() {
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-
-    if (state.status == "new") {
-      dispatch(submitting());
-      const result = await window.naturheilpraxis.nimmPatientAuf(state.patient);
-      if (result.success) {
-        navigate(`${PATIENTENKARTEIKARTE_PAGE.replace(":nummer", String(result.nummer))}`);
-      }
-      dispatch(submitted());
-    } else if (state.status == "view") {
-      dispatch(edit());
-    } else if (state.status == "edit") {
-      dispatch(submitting());
-      // TODO update patient
-      dispatch(submitted());
+    const result = await dispatch(submit());
+    if (result?.success) {
+      navigate(`${PATIENTENKARTEIKARTE_PAGE.replace(":nummer", String(result.nummer))}`);
     }
   }
 
   function handleCancel(event: MouseEvent<HTMLButtonElement>) {
     event.preventDefault();
-    dispatch(cancelled());
+    void dispatch(cancel());
   }
 
   return (
@@ -87,7 +60,7 @@ export default function PatientenkarteikartePage() {
               label="Schlüsselworte"
               cols={12}
               isReadOnly={state.isReadOnly}
-              options={configuration.schluesselworte}
+              options={state.configuration.schluesselworte}
               value={state.patient.schluesselworte ?? []}
               onChange={handleSchluesselworteChange}
             />
@@ -116,7 +89,7 @@ export default function PatientenkarteikartePage() {
               label="Praxis"
               cols={4}
               isReadOnly={state.isReadOnly}
-              options={configuration.praxis}
+              options={state.configuration.praxis}
               value={state.patient.praxis}
               onChange={(e) => dispatch(patientAktualisiert({ feld: "praxis", wert: e.target.value }))}
             />
@@ -125,7 +98,7 @@ export default function PatientenkarteikartePage() {
               label="Anrede"
               cols={2}
               isReadOnly={state.isReadOnly}
-              options={configuration.anrede}
+              options={state.configuration.anrede}
               value={state.patient.anrede ?? ""}
               onChange={(e) => dispatch(patientAktualisiert({ feld: "anrede", wert: e.target.value }))}
             />
@@ -216,7 +189,7 @@ export default function PatientenkarteikartePage() {
               label="Familienstand"
               cols={2}
               isReadOnly={state.isReadOnly}
-              options={configuration.familienstand}
+              options={state.configuration.familienstand}
               value={state.patient.familienstand ?? ""}
               onChange={(e) => dispatch(patientAktualisiert({ feld: "familienstand", wert: e.target.value }))}
             />

@@ -88,7 +88,7 @@ export function createTestPatient({
   telefon = "0123456789",
   mobil = "0987654321",
   eMail = "max.mustermann@example.com",
-  familienstand,
+  familienstand = "verheiratet",
   partnerVon,
   kindVon,
   memo,

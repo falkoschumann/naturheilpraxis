@@ -4,332 +4,307 @@
 
 import { describe, expect, it } from "vitest";
 
-import { createTestConfiguration } from "../../src/main/domain/configuration";
+import {
+  type Configuration,
+  createTestConfiguration,
+} from "../../src/main/domain/configuration";
 import {
   createPatient,
   createTestPatient,
+  type NimmPatientAufCommandStatus,
+  type PatientenkarteiQueryResult,
 } from "../../src/main/domain/naturheilpraxis";
 import {
   type Action,
-  cancelled,
-  edit,
+  cancel,
   findePatient,
   init,
   patientAktualisiert,
   reducer,
-  reset,
   type State,
   submit,
-  type Thunk,
-  view,
 } from "../../src/renderer/ui/patientenkarteikarte-model";
 import { Failure } from "../../src/main/common/messages";
+import { Store } from "../../src/renderer/ui/reducer";
 
 describe("Patientenkarteikarte", () => {
-  it("Initialisiere Patientenkarteikarte", () => {
-    const configuration = createTestConfiguration();
-
-    const state = init({ configuration });
-
-    expect(state).toEqual({
-      patient: createPatient({
-        anrede: "Herr",
-        annahmejahr: new Date().getFullYear(),
-        praxis: "Praxis 1",
-        familienstand: "ledig",
-        schluesselworte: ["Aktiv", "Weihnachtskarte"],
-      }),
-      status: "new",
-      canSubmit: false,
-      canCancel: false,
-      isReadOnly: false,
-      submitButtonText: "Aufnehmen",
-      configuration,
-    });
-  });
-
-  it("Finde Patient", async () => {
-    const configuration = createTestConfiguration();
-    const patient = createTestPatient();
-    window.naturheilpraxis = {
-      configuration,
-      nimmPatientAuf: () => Promise.resolve(new Failure("Unknown error")),
-      patientenkartei: () => Promise.resolve({ patienten: [patient] }),
-    };
-    const state = init({ configuration });
-
-    const store = new StoreFake(state);
-    await store.dispatch(findePatient({ nummer: 1 }));
-
-    expect(store.getState()).toEqual({
-      patient,
-      status: "view",
-      canSubmit: true,
-      canCancel: false,
-      isReadOnly: true,
-      submitButtonText: "Bearbeiten",
-      configuration,
-    });
-  });
-
   describe("Nimm Patient auf", () => {
-    it("Enter required fields", () => {
-      const configuration = createTestConfiguration();
-      let state = init({ configuration });
+    describe("Erfasse Informationen wie Name, Geburtsdatum, Praxis, Annahmejahr, Anschrift, Kontaktmöglichkeit", () => {
+      it("Aufnehmen", async () => {
+        const store = createStore({
+          nimmPatientAuf: { success: true, nummer: 1 },
+        });
 
-      state = reducer(
-        state,
-        patientAktualisiert({ feld: "geburtsdatum", wert: "1980-01-01" }),
-      );
-      expect(state.canSubmit).toBe(false);
-      state = reducer(
-        state,
-        patientAktualisiert({ feld: "vorname", wert: "Max" }),
-      );
-      expect(state.canSubmit).toBe(false);
-      state = reducer(
-        state,
-        patientAktualisiert({ feld: "nachname", wert: "Mustermann" }),
-      );
+        store.dispatch(
+          patientAktualisiert({ feld: "geburtsdatum", wert: "1980-01-01" }),
+        );
+        store.dispatch(patientAktualisiert({ feld: "vorname", wert: "Max" }));
+        store.dispatch(
+          patientAktualisiert({ feld: "nachname", wert: "Mustermann" }),
+        );
+        await store.dispatch(submit());
 
-      expect(state).toEqual({
-        patient: createPatient({
-          geburtsdatum: "1980-01-01",
-          anrede: "Herr",
-          vorname: "Max",
-          nachname: "Mustermann",
-          annahmejahr: new Date().getFullYear(),
-          praxis: "Praxis 1",
-          familienstand: "ledig",
-          schluesselworte: ["Aktiv", "Weihnachtskarte"],
-        }),
-        status: "new",
-        canSubmit: true,
-        canCancel: false,
-        isReadOnly: false,
-        submitButtonText: "Aufnehmen",
-        configuration,
+        expect(store.getLog()).toEqual([
+          configuredState,
+          {
+            ...configuredState,
+            patient: {
+              ...configuredState.patient,
+              geburtsdatum: "1980-01-01",
+            },
+            canSubmit: false,
+            canCancel: true,
+          },
+          {
+            ...configuredState,
+            patient: {
+              ...configuredState.patient,
+              geburtsdatum: "1980-01-01",
+              vorname: "Max",
+            },
+            canSubmit: false,
+            canCancel: true,
+          },
+          {
+            ...configuredState,
+            patient: {
+              ...configuredState.patient,
+              geburtsdatum: "1980-01-01",
+              vorname: "Max",
+              nachname: "Mustermann",
+            },
+            canSubmit: true,
+            canCancel: true,
+          },
+          {
+            ...configuredState,
+            patient: {
+              ...configuredState.patient,
+              geburtsdatum: "1980-01-01",
+              vorname: "Max",
+              nachname: "Mustermann",
+            },
+            status: "working",
+            canSubmit: false,
+            canCancel: false,
+          },
+          {
+            ...configuredState,
+            patient: {
+              ...configuredState.patient,
+              nummer: 1,
+              geburtsdatum: "1980-01-01",
+              vorname: "Max",
+              nachname: "Mustermann",
+            },
+            status: "view",
+            canSubmit: true,
+            canCancel: false,
+            isReadOnly: true,
+            submitButtonText: "Bearbeiten",
+          },
+        ]);
+      });
+
+      it("Abbrechen", async () => {
+        const store = createStore({});
+
+        store.dispatch(
+          patientAktualisiert({ feld: "geburtsdatum", wert: "1980-01-01" }),
+        );
+        store.dispatch(patientAktualisiert({ feld: "vorname", wert: "Max" }));
+        store.dispatch(
+          patientAktualisiert({ feld: "nachname", wert: "Mustermann" }),
+        );
+        await store.dispatch(cancel());
+
+        expect(store.getLog()).toEqual([
+          configuredState,
+          {
+            ...configuredState,
+            patient: {
+              ...configuredState.patient,
+              geburtsdatum: "1980-01-01",
+            },
+            canSubmit: false,
+            canCancel: true,
+          },
+          {
+            ...configuredState,
+            patient: {
+              ...configuredState.patient,
+              geburtsdatum: "1980-01-01",
+              vorname: "Max",
+            },
+            canSubmit: false,
+            canCancel: true,
+          },
+          {
+            ...configuredState,
+            patient: {
+              ...configuredState.patient,
+              geburtsdatum: "1980-01-01",
+              vorname: "Max",
+              nachname: "Mustermann",
+            },
+            canSubmit: true,
+            canCancel: true,
+          },
+          configuredState,
+        ]);
       });
     });
 
-    it("Submit", async () => {
-      const configuration = createTestConfiguration();
-      window.naturheilpraxis = {
-        configuration,
-        nimmPatientAuf: () => Promise.resolve({ success: true, nummer: 1 }),
-        patientenkartei: () => Promise.resolve({ patienten: [] }),
-      };
-      const initialState: State = {
-        patient: createPatient({
-          geburtsdatum: "1980-01-01",
-          vorname: "Max",
-          nachname: "Mustermann",
-          annahmejahr: new Date().getFullYear(),
-          praxis: "Praxis 1",
-          schluesselworte: ["Aktiv", "Weihnachtskarte"],
-        }),
-        status: "new",
-        canSubmit: true,
-        canCancel: false,
-        isReadOnly: false,
-        submitButtonText: "Aufnehmen",
-        configuration,
-      };
+    describe("Aktualisiert eine Patientenkarteikarte", () => {
+      it("Speichern", async () => {
+        const patient = createTestPatient();
+        const store = createStore({
+          patientenkartei: { patienten: [patient] },
+        });
 
-      const store = new StoreFake(initialState);
-      await store.dispatch(submit());
+        await store.dispatch(findePatient({ nummer: 1 }));
+        store.dispatch(submit());
+        store.dispatch(
+          patientAktualisiert({ feld: "nachname", wert: "Schmidt" }),
+        );
+        await store.dispatch(submit());
 
-      expect(store.log).toEqual([
-        initialState,
-        {
-          patient: createPatient({
-            geburtsdatum: "1980-01-01",
-            vorname: "Max",
-            nachname: "Mustermann",
-            annahmejahr: new Date().getFullYear(),
-            praxis: "Praxis 1",
-            schluesselworte: ["Aktiv", "Weihnachtskarte"],
-          }),
-          status: "working",
-          canSubmit: false,
-          canCancel: false,
-          isReadOnly: false,
-          submitButtonText: "Aufnehmen",
-          configuration,
-        },
-        {
-          patient: createPatient({
-            geburtsdatum: "1980-01-01",
-            vorname: "Max",
-            nachname: "Mustermann",
-            annahmejahr: new Date().getFullYear(),
-            praxis: "Praxis 1",
-            schluesselworte: ["Aktiv", "Weihnachtskarte"],
-          }),
-          status: "view",
-          canSubmit: true,
-          canCancel: false,
-          isReadOnly: true,
-          submitButtonText: "Bearbeiten",
-          configuration,
-        },
-      ]);
-    });
-  });
-
-  describe("Aktualisiere eine Patientenkarteikarte", () => {
-    it("Change Nachname", () => {
-      const patient = createTestPatient();
-      const configuration = createTestConfiguration();
-      let state = init({ configuration });
-
-      state = reducer(state, view({ patient }));
-      expect(state).toEqual({
-        patient,
-        status: "view",
-        canSubmit: true,
-        canCancel: false,
-        isReadOnly: true,
-        submitButtonText: "Bearbeiten",
-        configuration,
+        expect(store.getLog()).toEqual([
+          configuredState,
+          {
+            ...configuredState,
+            patient,
+            status: "view",
+            canSubmit: true,
+            canCancel: false,
+            isReadOnly: true,
+            submitButtonText: "Bearbeiten",
+          },
+          {
+            ...configuredState,
+            patient,
+            status: "edit",
+            canSubmit: true,
+            canCancel: true,
+            isReadOnly: false,
+            submitButtonText: "Speichern",
+          },
+          {
+            ...configuredState,
+            patient: { ...patient, nachname: "Schmidt" },
+            status: "edit",
+            canSubmit: true,
+            canCancel: true,
+            isReadOnly: false,
+            submitButtonText: "Speichern",
+          },
+          {
+            ...configuredState,
+            patient: { ...patient, nachname: "Schmidt" },
+            status: "working",
+            canSubmit: false,
+            canCancel: false,
+            isReadOnly: false,
+            submitButtonText: "Speichern",
+          },
+          {
+            ...configuredState,
+            patient: { ...patient, nachname: "Schmidt" },
+            status: "view",
+            canSubmit: true,
+            canCancel: false,
+            isReadOnly: true,
+            submitButtonText: "Bearbeiten",
+          },
+        ]);
       });
-      state = reducer(state, edit());
-      expect(state.status).toEqual("edit");
-      expect(state.isReadOnly).toEqual(false);
-      state = reducer(
-        state,
-        patientAktualisiert({ feld: "nachname", wert: "Schmidt" }),
-      );
 
-      expect(state).toEqual({
-        patient: { ...patient, nachname: "Schmidt" },
-        status: "edit",
-        canSubmit: true,
-        canCancel: true,
-        isReadOnly: false,
-        submitButtonText: "Speichern",
-        configuration,
-      });
-    });
+      it("Abbrechen", async () => {
+        const patient = createTestPatient();
+        const store = createStore({
+          patientenkartei: { patienten: [patient] },
+        });
 
-    it("Submit", async () => {
-      const configuration = createTestConfiguration();
-      const patient = createTestPatient();
-      window.naturheilpraxis = {
-        configuration,
-        nimmPatientAuf: () =>
-          Promise.resolve({ success: true, nummer: patient.nummer }),
-        patientenkartei: () => Promise.resolve({ patienten: [] }),
-      };
-      const initialState: State = {
-        patient: { ...patient, nachname: "Schmidt" },
-        status: "edit",
-        canSubmit: true,
-        canCancel: false,
-        isReadOnly: false,
-        submitButtonText: "Speichern",
-        configuration,
-      };
+        await store.dispatch(findePatient({ nummer: 1 }));
+        store.dispatch(submit());
+        store.dispatch(
+          patientAktualisiert({ feld: "nachname", wert: "Schmidt" }),
+        );
+        await store.dispatch(cancel());
 
-      const store = new StoreFake(initialState);
-      await store.dispatch(submit());
-
-      expect(store.log).toEqual([
-        initialState,
-        {
-          patient: { ...patient, nachname: "Schmidt" },
-          status: "working",
-          canSubmit: false,
-          canCancel: false,
-          isReadOnly: false,
-          submitButtonText: "Speichern",
-          configuration,
-        },
-        {
-          patient: { ...patient, nachname: "Schmidt" },
-          status: "view",
-          canSubmit: true,
-          canCancel: false,
-          isReadOnly: true,
-          submitButtonText: "Bearbeiten",
-          configuration,
-        },
-      ]);
-    });
-
-    it("Cancelled", () => {
-      const patient = createTestPatient();
-      const configuration = createTestConfiguration();
-      let state = init({ configuration });
-      state = reducer(state, view({ patient }));
-
-      state = reducer(state, edit());
-      expect(state.status).toEqual("edit");
-      expect(state.canCancel).toEqual(true);
-      expect(state.isReadOnly).toEqual(false);
-      state = reducer(
-        state,
-        patientAktualisiert({ feld: "nachname", wert: "Schmidt" }),
-      );
-      state = reducer(state, cancelled());
-
-      // TODO reset patient to original state or get new projection
-      expect(state).toEqual({
-        patient: { ...patient, nachname: "Schmidt" },
-        status: "view",
-        canSubmit: true,
-        canCancel: false,
-        isReadOnly: true,
-        submitButtonText: "Bearbeiten",
-        configuration,
-      });
-    });
-
-    it("Reset", () => {
-      const patient = createTestPatient();
-      const configuration = createTestConfiguration();
-      let state = init({ configuration });
-      state = reducer(state, view({ patient }));
-
-      state = reducer(state, reset());
-
-      expect(state).toEqual({
-        patient: createPatient({
-          annahmejahr: new Date().getFullYear(),
-          praxis: configuration.praxis[0],
-          anrede: configuration.anrede[0],
-          familienstand: configuration.familienstand[0],
-          schluesselworte: configuration.defaultSchluesselworte,
-        }),
-        status: "new",
-        canSubmit: false,
-        canCancel: false,
-        isReadOnly: false,
-        submitButtonText: "Aufnehmen",
-        configuration,
+        expect(store.getLog()).toEqual([
+          configuredState,
+          {
+            ...configuredState,
+            patient,
+            status: "view",
+            canSubmit: true,
+            canCancel: false,
+            isReadOnly: true,
+            submitButtonText: "Bearbeiten",
+          },
+          {
+            ...configuredState,
+            patient,
+            status: "edit",
+            canSubmit: true,
+            canCancel: true,
+            isReadOnly: false,
+            submitButtonText: "Speichern",
+          },
+          {
+            ...configuredState,
+            patient: { ...patient, nachname: "Schmidt" },
+            status: "edit",
+            canSubmit: true,
+            canCancel: true,
+            isReadOnly: false,
+            submitButtonText: "Speichern",
+          },
+          {
+            ...configuredState,
+            patient,
+            status: "view",
+            canSubmit: true,
+            canCancel: false,
+            isReadOnly: true,
+            submitButtonText: "Bearbeiten",
+          },
+        ]);
       });
     });
   });
 });
 
-class StoreFake {
-  log: State[] = [];
-
-  constructor(initialState: State) {
-    this.log.push(initialState);
-  }
-
-  getState(): State {
-    return this.log.slice(-1)[0];
-  }
-
-  dispatch<T>(action: Action | Thunk<Action, State, T>): void | T {
-    if (typeof action === "function") {
-      const thunk = action as Thunk<Action, State, T>;
-      return thunk(this.dispatch.bind(this), this.getState.bind(this));
-    }
-
-    const state = reducer(this.getState(), action);
-    this.log.push(state);
-  }
+function createStore({
+  configuration = createTestConfiguration(),
+  nimmPatientAuf = new Failure("Nulled failure"),
+  patientenkartei = { patienten: [] },
+}: {
+  configuration?: Configuration;
+  nimmPatientAuf?: NimmPatientAufCommandStatus;
+  patientenkartei?: PatientenkarteiQueryResult;
+}): Store<State, Action> {
+  window.naturheilpraxis = {
+    configuration,
+    nimmPatientAuf: () => Promise.resolve(nimmPatientAuf),
+    patientenkartei: () => Promise.resolve(patientenkartei),
+  };
+  return Store.create(reducer, { configuration }, init);
 }
+
+const configuredState: State = {
+  patient: createPatient({
+    anrede: "Herr",
+    annahmejahr: new Date().getFullYear(),
+    praxis: "Praxis 1",
+    familienstand: "ledig",
+    schluesselworte: ["Aktiv", "Weihnachtskarte"],
+  }),
+  status: "new",
+  canSubmit: false,
+  canCancel: false,
+  isReadOnly: false,
+  submitButtonText: "Aufnehmen",
+  configuration: createTestConfiguration(),
+} as const;

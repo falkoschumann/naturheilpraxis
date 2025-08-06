@@ -7,14 +7,7 @@ import {
   type PatientenkarteiQuery,
 } from "../../main/domain/naturheilpraxis";
 import type { Configuration } from "../../main/domain/configuration";
-import type { Dispatch } from "react";
-
-type FluxStandardAction<T extends string = string, P = undefined> = {
-  type: T;
-  payload: P;
-};
-
-export type Thunk<A, S, R> = (dispatch: Dispatch<A>, getState: () => S) => R;
+import type { FluxStandardAction, ThunkAction } from "./reducer";
 
 export type Status = "new" | "view" | "edit" | "working";
 
@@ -37,10 +30,10 @@ export interface State {
 }
 
 export function init({
-  configuration,
+  configuration = window.naturheilpraxis.configuration,
 }: {
-  configuration: Configuration;
-}): State {
+  configuration?: Configuration;
+} = {}): State {
   return {
     patient: createPatient({
       annahmejahr: new Date().getFullYear(),
@@ -64,7 +57,6 @@ export type Action =
   | ReturnType<typeof submitted>
   | ReturnType<typeof view>
   | ReturnType<typeof edit>
-  | ReturnType<typeof cancelled>
   | ReturnType<typeof reset>;
 
 export function reducer(state: State, action: Action): State {
@@ -84,18 +76,23 @@ export function reducer(state: State, action: Action): State {
         patient.vorname.trim().length > 0 &&
         patient.nachname != null &&
         patient.nachname.trim().length > 0;
-
-      return { ...state, patient, canSubmit };
+      const canCancel = true;
+      return { ...state, patient, canSubmit, canCancel };
     }
     case SUBMITTING_ACTION:
       return {
         ...state,
         status: "working",
         canSubmit: false,
+        canCancel: false,
       };
     case SUBMITTED_ACTION:
       return {
         ...state,
+        patient: {
+          ...state.patient,
+          nummer: action.payload?.nummer || state.patient.nummer,
+        },
         status: "view",
         canSubmit: true,
         isReadOnly: true,
@@ -119,28 +116,24 @@ export function reducer(state: State, action: Action): State {
         isReadOnly: false,
         submitButtonText: "Speichern",
       };
-    case CANCELLED_ACTION:
-      return {
-        ...state,
-        status: "view",
-        canSubmit: true,
-        canCancel: false,
-        isReadOnly: true,
-        submitButtonText: "Bearbeiten",
-      };
     case RESET_ACTION:
       return init({ configuration: state.configuration });
     default:
-      throw new Error(`Unhandled action type: ${JSON.stringify(action)}`);
+      return state;
   }
 }
 
 export function findePatient(
   query: PatientenkarteiQuery,
-): Thunk<Action, State, Promise<void>> {
-  return async (dispatch: Dispatch<Action>, _getState: () => State) => {
+): ThunkAction<Promise<void>, State, Action> {
+  return async (dispatch, _getState) => {
     const result = await window.naturheilpraxis.patientenkartei(query);
-    dispatch(view({ patient: result.patienten[0] }));
+    if (result.patienten.length > 0) {
+      const patient = result.patienten[0];
+      dispatch(view({ patient }));
+    } else {
+      dispatch(reset());
+    }
   };
 }
 
@@ -160,48 +153,59 @@ export function patientAktualisiert(
   return { type: PATIENT_AKTUALISIERT_ACTION, payload };
 }
 
-export function submit(): Thunk<
-  Action,
+export function submit(): ThunkAction<
+  Promise<NimmPatientAufCommandStatus | void>,
   State,
-  Promise<NimmPatientAufCommandStatus | void>
+  Action
 > {
-  return async (
-    dispatch: Dispatch<Action>,
-    getState: () => State,
-  ): Promise<NimmPatientAufCommandStatus | void> => {
+  return async (dispatch, getState) => {
     const state = getState();
     if (state.status == "new") {
       dispatch(submitting());
       const result = await window.naturheilpraxis.nimmPatientAuf(state.patient);
-      dispatch(submitted());
+      dispatch(submitted(result));
       return result;
     } else if (state.status == "view") {
       dispatch(edit());
     } else if (state.status == "edit") {
       dispatch(submitting());
       // TODO update patient
-      dispatch(submitted());
+      dispatch(submitted({ success: true }));
     }
+    return;
   };
 }
 
 const SUBMITTING_ACTION = "submitting";
 
-export function submitting(): FluxStandardAction<typeof SUBMITTING_ACTION> {
+function submitting(): FluxStandardAction<typeof SUBMITTING_ACTION> {
   return { type: SUBMITTING_ACTION, payload: undefined };
 }
 
 const SUBMITTED_ACTION = "submitted";
 
-export function submitted(): FluxStandardAction<typeof SUBMITTED_ACTION> {
-  return { type: SUBMITTED_ACTION, payload: undefined };
+type SubmittedPayload = {
+  nummer?: number;
+  success: boolean;
+  errorMessage?: string;
+};
+
+function submitted({
+  nummer,
+  success,
+  errorMessage,
+}: SubmittedPayload): FluxStandardAction<
+  typeof SUBMITTED_ACTION,
+  SubmittedPayload
+> {
+  return { type: SUBMITTED_ACTION, payload: { nummer, success, errorMessage } };
 }
 
 const VIEW_ACTION = "view";
 
 type ViewPayload = { patient: Patient };
 
-export function view(
+function view(
   payload: ViewPayload,
 ): FluxStandardAction<typeof VIEW_ACTION, ViewPayload> {
   return { type: VIEW_ACTION, payload };
@@ -209,18 +213,31 @@ export function view(
 
 const EDIT_ACTION = "edit";
 
-export function edit(): FluxStandardAction<typeof EDIT_ACTION> {
+function edit(): FluxStandardAction<typeof EDIT_ACTION> {
   return { type: EDIT_ACTION, payload: undefined };
 }
 
-const CANCELLED_ACTION = "cancelled";
+export function cancel(): ThunkAction<Promise<void>, State, Action> {
+  return async (dispatch, getState) => {
+    const state = getState();
+    if (state.patient.nummer != null) {
+      const result = await window.naturheilpraxis.patientenkartei({
+        nummer: state.patient.nummer,
+      });
+      // If the patient is found, view it
+      if (result.patienten.length > 0) {
+        const patient = result.patienten[0];
+        dispatch(view({ patient }));
+        return;
+      }
+    }
 
-export function cancelled(): FluxStandardAction<typeof CANCELLED_ACTION> {
-  return { type: CANCELLED_ACTION, payload: undefined };
+    dispatch(reset());
+  };
 }
 
 const RESET_ACTION = "reset";
 
-export function reset(): FluxStandardAction<typeof RESET_ACTION> {
+function reset(): FluxStandardAction<typeof RESET_ACTION> {
   return { type: RESET_ACTION, payload: undefined };
 }
