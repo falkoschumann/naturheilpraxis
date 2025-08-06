@@ -6,20 +6,15 @@ import { type ChangeEvent, type FormEvent, type MouseEvent, useEffect } from "re
 import { NavLink, useNavigate, useParams } from "react-router";
 
 import { PATIENT_AUFNEHMEN_PAGE, PATIENTENKARTEIKARTE_PAGE } from "./pages";
-import { cancel, findePatient, init, patientAktualisiert, reducer, submit } from "./patientenkarteikarte-model";
-import { useThunkReducer } from "./reducer";
+import { cancel, findePatient, submit, updated, usePatientenkarteikarte } from "./patientenkarteikarte-model"; // TODO link spouse and parent
 
 // TODO link spouse and parent
-// TODO handle patient not found
-// TODO Extract hook for testng return a custom dispatch function supporting async thunks
 
 export default function PatientenkarteikartePage() {
-  const [state, dispatch] = useThunkReducer(reducer, {}, init);
+  const [state, dispatch] = usePatientenkarteikarte();
   const { nummer } = useParams();
   const navigate = useNavigate();
 
-  // FIXME When adding dispatch to the dependency array, the component is re-rendered infinitely
-  //  because the dispatch function is recreated on every state change.
   useEffect(() => {
     void dispatch(findePatient({ nummer: Number(nummer) }));
   }, [dispatch, nummer]);
@@ -29,7 +24,7 @@ export default function PatientenkarteikartePage() {
 
   function handleSchluesselworteChange(e: ChangeEvent<HTMLSelectElement>) {
     const options = Array.from(e.target.selectedOptions, (option) => option.value);
-    dispatch(patientAktualisiert({ feld: "schluesselworte", wert: options }));
+    dispatch(updated({ feld: "schluesselworte", wert: options }));
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -72,7 +67,7 @@ export default function PatientenkarteikartePage() {
               isReadOnly={state.isReadOnly}
               cols={4}
               value={state.patient.geburtsdatum}
-              onChange={(e) => dispatch(patientAktualisiert({ feld: "geburtsdatum", wert: e.target.value }))}
+              onChange={(e) => dispatch(updated({ feld: "geburtsdatum", wert: e.target.value }))}
             />
             <Input
               name="annahmejahr"
@@ -82,7 +77,7 @@ export default function PatientenkarteikartePage() {
               isReadOnly={state.isReadOnly}
               cols={4}
               value={String(state.patient.annahmejahr)}
-              onChange={(e) => dispatch(patientAktualisiert({ feld: "annahmejahr", wert: e.target.value }))}
+              onChange={(e) => dispatch(updated({ feld: "annahmejahr", wert: e.target.value }))}
             />
             <Select
               name="praxis"
@@ -91,7 +86,7 @@ export default function PatientenkarteikartePage() {
               isReadOnly={state.isReadOnly}
               options={state.configuration.praxis}
               value={state.patient.praxis}
-              onChange={(e) => dispatch(patientAktualisiert({ feld: "praxis", wert: e.target.value }))}
+              onChange={(e) => dispatch(updated({ feld: "praxis", wert: e.target.value }))}
             />
             <Select
               name="anrede"
@@ -100,7 +95,7 @@ export default function PatientenkarteikartePage() {
               isReadOnly={state.isReadOnly}
               options={state.configuration.anrede}
               value={state.patient.anrede ?? ""}
-              onChange={(e) => dispatch(patientAktualisiert({ feld: "anrede", wert: e.target.value }))}
+              onChange={(e) => dispatch(updated({ feld: "anrede", wert: e.target.value }))}
             />
             <Input
               name="titel"
@@ -108,7 +103,7 @@ export default function PatientenkarteikartePage() {
               cols={2}
               isReadOnly={state.isReadOnly}
               value={state.patient.titel ?? ""}
-              onChange={(e) => dispatch(patientAktualisiert({ feld: "titel", wert: e.target.value }))}
+              onChange={(e) => dispatch(updated({ feld: "titel", wert: e.target.value }))}
             />
             <Input
               name="vorname"
@@ -117,7 +112,7 @@ export default function PatientenkarteikartePage() {
               cols={4}
               isReadOnly={state.isReadOnly}
               value={state.patient.vorname}
-              onChange={(e) => dispatch(patientAktualisiert({ feld: "vorname", wert: e.target.value }))}
+              onChange={(e) => dispatch(updated({ feld: "vorname", wert: e.target.value }))}
             />
             <Input
               name="nachname"
@@ -126,7 +121,7 @@ export default function PatientenkarteikartePage() {
               isReadOnly={state.isReadOnly}
               cols={4}
               value={state.patient.nachname}
-              onChange={(e) => dispatch(patientAktualisiert({ feld: "nachname", wert: e.target.value }))}
+              onChange={(e) => dispatch(updated({ feld: "nachname", wert: e.target.value }))}
             />
             <Input
               name="strasse"
@@ -134,7 +129,7 @@ export default function PatientenkarteikartePage() {
               cols={4}
               isReadOnly={state.isReadOnly}
               value={state.patient.strasse ?? ""}
-              onChange={(e) => dispatch(patientAktualisiert({ feld: "strasse", wert: e.target.value }))}
+              onChange={(e) => dispatch(updated({ feld: "strasse", wert: e.target.value }))}
             />
             <Input
               name="postleitzahl"
@@ -142,7 +137,7 @@ export default function PatientenkarteikartePage() {
               cols={2}
               isReadOnly={state.isReadOnly}
               value={state.patient.postleitzahl ?? ""}
-              onChange={(e) => dispatch(patientAktualisiert({ feld: "postleitzahl", wert: e.target.value }))}
+              onChange={(e) => dispatch(updated({ feld: "postleitzahl", wert: e.target.value }))}
             />
             <Input
               name="wohnort"
@@ -150,7 +145,7 @@ export default function PatientenkarteikartePage() {
               cols={3}
               isReadOnly={state.isReadOnly}
               value={state.patient.wohnort ?? ""}
-              onChange={(e) => dispatch(patientAktualisiert({ feld: "wohnort", wert: e.target.value }))}
+              onChange={(e) => dispatch(updated({ feld: "wohnort", wert: e.target.value }))}
             />
             <Input
               name="staat"
@@ -158,7 +153,7 @@ export default function PatientenkarteikartePage() {
               cols={3}
               isReadOnly={state.isReadOnly}
               value={state.patient.staat ?? ""}
-              onChange={(e) => dispatch(patientAktualisiert({ feld: "staat", wert: e.target.value }))}
+              onChange={(e) => dispatch(updated({ feld: "staat", wert: e.target.value }))}
             />
             <Input
               name="telefon"
@@ -166,7 +161,7 @@ export default function PatientenkarteikartePage() {
               cols={3}
               isReadOnly={state.isReadOnly}
               value={state.patient.telefon ?? ""}
-              onChange={(e) => dispatch(patientAktualisiert({ feld: "telefon", wert: e.target.value }))}
+              onChange={(e) => dispatch(updated({ feld: "telefon", wert: e.target.value }))}
             />
             <Input
               name="mobil"
@@ -174,7 +169,7 @@ export default function PatientenkarteikartePage() {
               cols={3}
               isReadOnly={state.isReadOnly}
               value={state.patient.mobil ?? ""}
-              onChange={(e) => dispatch(patientAktualisiert({ feld: "mobil", wert: e.target.value }))}
+              onChange={(e) => dispatch(updated({ feld: "mobil", wert: e.target.value }))}
             />
             <Input
               name="eMail"
@@ -182,7 +177,7 @@ export default function PatientenkarteikartePage() {
               cols={6}
               isReadOnly={state.isReadOnly}
               value={state.patient.eMail ?? ""}
-              onChange={(e) => dispatch(patientAktualisiert({ feld: "eMail", wert: e.target.value }))}
+              onChange={(e) => dispatch(updated({ feld: "eMail", wert: e.target.value }))}
             />
             <Select
               name="familienstand"
@@ -191,7 +186,7 @@ export default function PatientenkarteikartePage() {
               isReadOnly={state.isReadOnly}
               options={state.configuration.familienstand}
               value={state.patient.familienstand ?? ""}
-              onChange={(e) => dispatch(patientAktualisiert({ feld: "familienstand", wert: e.target.value }))}
+              onChange={(e) => dispatch(updated({ feld: "familienstand", wert: e.target.value }))}
             />
             <Input
               name="partnerVon"
@@ -199,7 +194,7 @@ export default function PatientenkarteikartePage() {
               cols={5}
               isReadOnly={state.isReadOnly}
               value={state.patient.partnerVon ?? ""}
-              onChange={(e) => dispatch(patientAktualisiert({ feld: "partnerVon", wert: e.target.value }))}
+              onChange={(e) => dispatch(updated({ feld: "partnerVon", wert: e.target.value }))}
             />
             <Input
               name="kindVon"
@@ -207,7 +202,7 @@ export default function PatientenkarteikartePage() {
               cols={5}
               isReadOnly={state.isReadOnly}
               value={state.patient.kindVon ?? ""}
-              onChange={(e) => dispatch(patientAktualisiert({ feld: "kindVon", wert: e.target.value }))}
+              onChange={(e) => dispatch(updated({ feld: "kindVon", wert: e.target.value }))}
             />
             <Input
               name="staatsangehoeringkeit"
@@ -215,7 +210,7 @@ export default function PatientenkarteikartePage() {
               cols={6}
               isReadOnly={state.isReadOnly}
               value={state.patient.staatsangehoerigkeit ?? ""}
-              onChange={(e) => dispatch(patientAktualisiert({ feld: "staatsangehoerigkeit", wert: e.target.value }))}
+              onChange={(e) => dispatch(updated({ feld: "staatsangehoerigkeit", wert: e.target.value }))}
             />
             <Input
               name="beruf"
@@ -223,7 +218,7 @@ export default function PatientenkarteikartePage() {
               cols={6}
               isReadOnly={state.isReadOnly}
               value={state.patient.beruf ?? ""}
-              onChange={(e) => dispatch(patientAktualisiert({ feld: "beruf", wert: e.target.value }))}
+              onChange={(e) => dispatch(updated({ feld: "beruf", wert: e.target.value }))}
             />
             <TextArea
               name="memo"
@@ -231,7 +226,7 @@ export default function PatientenkarteikartePage() {
               cols={12}
               isReadOnly={state.isReadOnly}
               value={state.patient.memo ?? ""}
-              onChange={(e) => dispatch(patientAktualisiert({ feld: "memo", wert: e.target.value }))}
+              onChange={(e) => dispatch(updated({ feld: "memo", wert: e.target.value }))}
             />
           </div>
         </div>

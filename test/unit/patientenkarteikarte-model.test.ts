@@ -19,10 +19,10 @@ import {
   cancel,
   findePatient,
   init,
-  patientAktualisiert,
   reducer,
   type State,
   submit,
+  updated,
 } from "../../src/renderer/ui/patientenkarteikarte-model";
 import { Failure } from "../../src/main/common/messages";
 import { Store } from "../../src/renderer/ui/reducer";
@@ -35,13 +35,9 @@ describe("Patientenkarteikarte", () => {
           nimmPatientAuf: { success: true, nummer: 1 },
         });
 
-        store.dispatch(
-          patientAktualisiert({ feld: "geburtsdatum", wert: "1980-01-01" }),
-        );
-        store.dispatch(patientAktualisiert({ feld: "vorname", wert: "Max" }));
-        store.dispatch(
-          patientAktualisiert({ feld: "nachname", wert: "Mustermann" }),
-        );
+        store.dispatch(updated({ feld: "geburtsdatum", wert: "1980-01-01" }));
+        store.dispatch(updated({ feld: "vorname", wert: "Max" }));
+        store.dispatch(updated({ feld: "nachname", wert: "Mustermann" }));
         await store.dispatch(submit());
 
         expect(store.getLog()).toEqual([
@@ -109,13 +105,9 @@ describe("Patientenkarteikarte", () => {
       it("Abbrechen", async () => {
         const store = createStore({});
 
-        store.dispatch(
-          patientAktualisiert({ feld: "geburtsdatum", wert: "1980-01-01" }),
-        );
-        store.dispatch(patientAktualisiert({ feld: "vorname", wert: "Max" }));
-        store.dispatch(
-          patientAktualisiert({ feld: "nachname", wert: "Mustermann" }),
-        );
+        store.dispatch(updated({ feld: "geburtsdatum", wert: "1980-01-01" }));
+        store.dispatch(updated({ feld: "vorname", wert: "Max" }));
+        store.dispatch(updated({ feld: "nachname", wert: "Mustermann" }));
         await store.dispatch(cancel());
 
         expect(store.getLog()).toEqual([
@@ -164,9 +156,7 @@ describe("Patientenkarteikarte", () => {
 
         await store.dispatch(findePatient({ nummer: 1 }));
         store.dispatch(submit());
-        store.dispatch(
-          patientAktualisiert({ feld: "nachname", wert: "Schmidt" }),
-        );
+        store.dispatch(updated({ feld: "nachname", wert: "Schmidt" }));
         await store.dispatch(submit());
 
         expect(store.getLog()).toEqual([
@@ -227,9 +217,7 @@ describe("Patientenkarteikarte", () => {
 
         await store.dispatch(findePatient({ nummer: 1 }));
         store.dispatch(submit());
-        store.dispatch(
-          patientAktualisiert({ feld: "nachname", wert: "Schmidt" }),
-        );
+        store.dispatch(updated({ feld: "nachname", wert: "Schmidt" }));
         await store.dispatch(cancel());
 
         expect(store.getLog()).toEqual([
