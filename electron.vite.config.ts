@@ -1,7 +1,5 @@
 // Copyright (c) 2025 Falko Schumann. All rights reserved. MIT license.
 
-/// <reference types="vitest" />
-
 import react from "@vitejs/plugin-react";
 import { defineConfig, externalizeDepsPlugin } from "electron-vite";
 
@@ -39,11 +37,5 @@ export default defineConfig({
       },
     },
     plugins: [react()],
-    test: {
-      coverage: {
-        provider: "v8",
-        include: ["src/**/*", "test/**/*"],
-      },
-    },
   },
 });
