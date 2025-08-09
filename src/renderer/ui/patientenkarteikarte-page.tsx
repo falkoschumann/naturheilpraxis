@@ -6,7 +6,7 @@ import { type ChangeEvent, type FormEvent, type MouseEvent, useEffect } from "re
 import { NavLink, useNavigate, useParams } from "react-router";
 
 import { PATIENT_AUFNEHMEN_PAGE, PATIENTENKARTEIKARTE_PAGE } from "./pages";
-import { cancel, findePatient, submit, updated, usePatientenkarteikarte } from "./patientenkarteikarte-model"; // TODO link spouse and parent
+import { cancel, findePatient, submit, updated, usePatientenkarteikarte } from "./patientenkarteikarte-reducer";
 
 // TODO link spouse and parent
 

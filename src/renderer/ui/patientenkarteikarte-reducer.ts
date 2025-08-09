@@ -40,42 +40,51 @@ export function updated(
 
 const SUBMITTING_ACTION = "submitting";
 
-function submitting(): FluxStandardAction<typeof SUBMITTING_ACTION> {
+export function submitting(): FluxStandardAction<typeof SUBMITTING_ACTION> {
   return { type: SUBMITTING_ACTION, payload: undefined };
 }
 
-const SUBMITTED_ACTION = "submitted";
+const DONE_ACTION = "done";
 
-type SubmittedPayload = {
+type DonePayload = {
   nummer?: number;
   success: boolean;
   errorMessage?: string;
 };
 
-function submitted({
+export function done({
   nummer,
   success,
   errorMessage,
-}: SubmittedPayload): FluxStandardAction<
-  typeof SUBMITTED_ACTION,
-  SubmittedPayload
-> {
-  return { type: SUBMITTED_ACTION, payload: { nummer, success, errorMessage } };
+}: DonePayload): FluxStandardAction<typeof DONE_ACTION, DonePayload> {
+  return { type: DONE_ACTION, payload: { nummer, success, errorMessage } };
 }
 
-const VIEW_ACTION = "view";
+const CANCELLED_ACTION = "cancelled";
 
-type ViewPayload = { patient: Patient };
+export function cancelled(): FluxStandardAction<typeof CANCELLED_ACTION> {
+  return { type: CANCELLED_ACTION, payload: undefined };
+}
 
-function view(
-  payload: ViewPayload,
-): FluxStandardAction<typeof VIEW_ACTION, ViewPayload> {
-  return { type: VIEW_ACTION, payload };
+const SUBMIT_ACTION = "submit";
+
+export function submit2(): FluxStandardAction<typeof SUBMIT_ACTION> {
+  return { type: SUBMIT_ACTION, payload: undefined };
+}
+
+const FOUND_ACTION = "found";
+
+type FoundPayload = { patient: Patient };
+
+export function found(
+  payload: FoundPayload,
+): FluxStandardAction<typeof FOUND_ACTION, FoundPayload> {
+  return { type: FOUND_ACTION, payload };
 }
 
 const EDIT_ACTION = "edit";
 
-function edit(): FluxStandardAction<typeof EDIT_ACTION> {
+export function edit(): FluxStandardAction<typeof EDIT_ACTION> {
   return { type: EDIT_ACTION, payload: undefined };
 }
 
@@ -94,9 +103,10 @@ export function findePatient(
 ): ThunkAction<Promise<void>, State, Action> {
   return async (dispatch, _getState) => {
     const result = await window.naturheilpraxis.patientenkartei(query);
+    // TODO create action to handle query result
     if (result.patienten.length > 0) {
       const patient = result.patienten[0];
-      dispatch(view({ patient }));
+      dispatch(found({ patient }));
     } else {
       dispatch(reset());
     }
@@ -109,18 +119,20 @@ export function submit(): ThunkAction<
   Action
 > {
   return async (dispatch, getState) => {
+    // TODO create action to handle state machine
+    // TODO create action to handle command status
     const state = getState();
     if (state.status == "new") {
       dispatch(submitting());
       const result = await window.naturheilpraxis.nimmPatientAuf(state.patient);
-      dispatch(submitted(result));
+      dispatch(done(result));
       return result;
     } else if (state.status == "view") {
       dispatch(edit());
     } else if (state.status == "edit") {
       dispatch(submitting());
       // TODO update patient
-      dispatch(submitted({ success: true }));
+      dispatch(done({ success: true }));
     }
     return;
   };
@@ -129,19 +141,16 @@ export function submit(): ThunkAction<
 export function cancel(): ThunkAction<Promise<void>, State, Action> {
   return async (dispatch, getState) => {
     const state = getState();
-    if (state.patient.nummer != null) {
-      const result = await window.naturheilpraxis.patientenkartei({
-        nummer: state.patient.nummer,
-      });
-      // If the patient is found, view it
-      if (result.patienten.length > 0) {
-        const patient = result.patienten[0];
-        dispatch(view({ patient }));
-        return;
-      }
+    const result = await window.naturheilpraxis.patientenkartei({
+      nummer: state.patient.nummer,
+    });
+    // TODO create action to handle query result
+    if (result.patienten.length > 0) {
+      const patient = result.patienten[0];
+      dispatch(found({ patient }));
+    } else {
+      dispatch(reset());
     }
-
-    dispatch(reset());
   };
 }
 
@@ -149,6 +158,11 @@ export function cancel(): ThunkAction<Promise<void>, State, Action> {
 // State and Reducer
 //
 
+// Paths through the state machine:
+// new --submit--> working --done--> view
+// new --cancel--> new
+// new --found--> view --submit--> edit --submit--> working --done--> view
+// new --found--> view --submit--> edit --cancel--> view
 export type Status = "new" | "view" | "edit" | "working";
 
 export type SubmitText = "Aufnehmen" | "Bearbeiten" | "Speichern";
@@ -194,8 +208,9 @@ export function init({
 export type Action =
   | ReturnType<typeof updated>
   | ReturnType<typeof submitting>
-  | ReturnType<typeof submitted>
-  | ReturnType<typeof view>
+  | ReturnType<typeof done>
+  | ReturnType<typeof cancelled>
+  | ReturnType<typeof found>
   | ReturnType<typeof edit>
   | ReturnType<typeof reset>;
 
@@ -207,15 +222,11 @@ export function reducer(state: State, action: Action): State {
         [action.payload.feld]: action.payload.wert,
       };
       const canSubmit =
-        patient.geburtsdatum != null &&
-        patient.geburtsdatum.trim().length > 0 &&
-        patient.annahmejahr != null &&
-        patient.praxis != null &&
-        patient.praxis.trim().length > 0 &&
-        patient.vorname != null &&
+        patient.nachname.trim().length > 0 &&
         patient.vorname.trim().length > 0 &&
-        patient.nachname != null &&
-        patient.nachname.trim().length > 0;
+        patient.geburtsdatum.trim().length > 0 &&
+        Number.isInteger(patient.annahmejahr) &&
+        patient.praxis.trim().length > 0;
       const canCancel = true;
       return { ...state, patient, canSubmit, canCancel };
     }
@@ -225,8 +236,9 @@ export function reducer(state: State, action: Action): State {
         status: "working",
         canSubmit: false,
         canCancel: false,
+        isReadOnly: true,
       };
-    case SUBMITTED_ACTION:
+    case DONE_ACTION:
       return {
         ...state,
         patient: {
@@ -238,7 +250,19 @@ export function reducer(state: State, action: Action): State {
         isReadOnly: true,
         submitButtonText: "Bearbeiten",
       };
-    case VIEW_ACTION:
+    case CANCELLED_ACTION:
+      if (state.status === "new") {
+        return init({ configuration: state.configuration });
+      } else {
+        return {
+          ...state,
+          status: "view",
+          canCancel: false,
+          isReadOnly: true,
+          submitButtonText: "Bearbeiten",
+        };
+      }
+    case FOUND_ACTION:
       return {
         ...state,
         patient: action.payload.patient,
@@ -259,6 +283,8 @@ export function reducer(state: State, action: Action): State {
     case RESET_ACTION:
       return init({ configuration: state.configuration });
     default:
-      return state;
+      throw new Error(
+        `Unhandled action in patientenkarteikarte reducer: ${JSON.stringify(action)}`,
+      );
   }
 }

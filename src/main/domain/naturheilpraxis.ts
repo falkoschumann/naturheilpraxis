@@ -125,7 +125,7 @@ export function createPatient({
   nachname = "",
   vorname = "",
   geburtsdatum = "",
-  annahmejahr = 1970,
+  annahmejahr = 0,
   praxis = "",
   anrede,
   strasse,

@@ -23,7 +23,7 @@ import {
   type State,
   submit,
   updated,
-} from "../../src/renderer/ui/patientenkarteikarte-model";
+} from "../../src/renderer/ui/patientenkarteikarte-reducer";
 import { Failure } from "../../src/main/common/messages";
 import { Store } from "../../src/renderer/ui/reducer";
 
@@ -83,6 +83,7 @@ describe("Patientenkarteikarte", () => {
             status: "working",
             canSubmit: false,
             canCancel: false,
+            isReadOnly: true,
           },
           {
             ...configuredState,
@@ -194,7 +195,7 @@ describe("Patientenkarteikarte", () => {
             status: "working",
             canSubmit: false,
             canCancel: false,
-            isReadOnly: false,
+            isReadOnly: true,
             submitButtonText: "Speichern",
           },
           {
