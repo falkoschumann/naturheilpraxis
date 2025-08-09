@@ -6,13 +6,12 @@ import { createTestConfiguration } from "../../src/main/domain/configuration";
 import {
   cancelled,
   done,
-  edit,
   found,
   init,
   reducer,
   type State,
-  submitting,
-  updated,
+  submit2,
+  updated
 } from "../../src/renderer/ui/patientenkarteikarte-reducer";
 
 const initialState: State = init({ configuration: createTestConfiguration() });
@@ -142,8 +141,7 @@ describe("Patientenkarteikarte reducer", () => {
     it("Submit", () => {
       let state = newState;
 
-      // TODO rename submitting to submit
-      state = reducer(state, submitting());
+      state = reducer(state, submit2());
 
       expect(state).toEqual({
         ...newState,
@@ -201,8 +199,7 @@ describe("Patientenkarteikarte reducer", () => {
     it("Submit", () => {
       let state = viewState;
 
-      // TODO rename edit to submit
-      state = reducer(state, edit());
+      state = reducer(state, submit2());
 
       expect(state).toEqual(editState);
     });
@@ -227,8 +224,7 @@ describe("Patientenkarteikarte reducer", () => {
     it("Submit", () => {
       let state = editState;
 
-      // TODO rename submitting to submit
-      state = reducer(state, submitting());
+      state = reducer(state, submit2());
 
       expect(state).toEqual({
         ...viewState,

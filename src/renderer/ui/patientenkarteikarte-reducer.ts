@@ -38,10 +38,11 @@ export function updated(
   return { type: UPDATED_ACTION, payload };
 }
 
-const SUBMITTING_ACTION = "submitting";
+const SUBMIT_ACTION = "submit";
 
-export function submitting(): FluxStandardAction<typeof SUBMITTING_ACTION> {
-  return { type: SUBMITTING_ACTION, payload: undefined };
+export function submit2(): FluxStandardAction<typeof SUBMIT_ACTION> {
+  // TODO rename submit2 to submit
+  return { type: SUBMIT_ACTION, payload: undefined };
 }
 
 const DONE_ACTION = "done";
@@ -66,12 +67,6 @@ export function cancelled(): FluxStandardAction<typeof CANCELLED_ACTION> {
   return { type: CANCELLED_ACTION, payload: undefined };
 }
 
-const SUBMIT_ACTION = "submit";
-
-export function submit2(): FluxStandardAction<typeof SUBMIT_ACTION> {
-  return { type: SUBMIT_ACTION, payload: undefined };
-}
-
 const FOUND_ACTION = "found";
 
 type FoundPayload = { patient: Patient };
@@ -81,6 +76,8 @@ export function found(
 ): FluxStandardAction<typeof FOUND_ACTION, FoundPayload> {
   return { type: FOUND_ACTION, payload };
 }
+
+// TODO remove next actions
 
 const EDIT_ACTION = "edit";
 
@@ -92,6 +89,12 @@ const RESET_ACTION = "reset";
 
 function reset(): FluxStandardAction<typeof RESET_ACTION> {
   return { type: RESET_ACTION, payload: undefined };
+}
+
+const SUBMITTING_ACTION = "submitting";
+
+export function submitting(): FluxStandardAction<typeof SUBMITTING_ACTION> {
+  return { type: SUBMITTING_ACTION, payload: undefined };
 }
 
 //
@@ -163,6 +166,7 @@ export function cancel(): ThunkAction<Promise<void>, State, Action> {
 // new --cancel--> new
 // new --found--> view --submit--> edit --submit--> working --done--> view
 // new --found--> view --submit--> edit --cancel--> view
+// TODO rename status to state?
 export type Status = "new" | "view" | "edit" | "working";
 
 export type SubmitText = "Aufnehmen" | "Bearbeiten" | "Speichern";
@@ -207,11 +211,12 @@ export function init({
 
 export type Action =
   | ReturnType<typeof updated>
-  | ReturnType<typeof submitting>
+  | ReturnType<typeof submit2>
   | ReturnType<typeof done>
   | ReturnType<typeof cancelled>
   | ReturnType<typeof found>
   | ReturnType<typeof edit>
+  | ReturnType<typeof submitting>
   | ReturnType<typeof reset>;
 
 export function reducer(state: State, action: Action): State {
@@ -230,14 +235,30 @@ export function reducer(state: State, action: Action): State {
       const canCancel = true;
       return { ...state, patient, canSubmit, canCancel };
     }
-    case SUBMITTING_ACTION:
-      return {
-        ...state,
-        status: "working",
-        canSubmit: false,
-        canCancel: false,
-        isReadOnly: true,
-      };
+    case SUBMIT_ACTION:
+      switch (state.status) {
+        case "new":
+        case "edit":
+          return {
+            ...state,
+            status: "working",
+            canSubmit: false,
+            canCancel: false,
+            isReadOnly: true,
+          };
+        case "view":
+          return {
+            ...state,
+            status: "edit",
+            canCancel: true,
+            isReadOnly: false,
+            submitButtonText: "Speichern",
+          };
+        default:
+          throw new Error(
+            `Unexpected status in patientenkarteikarte reducer: ${state.status}`,
+          );
+      }
     case DONE_ACTION:
       return {
         ...state,
@@ -271,6 +292,14 @@ export function reducer(state: State, action: Action): State {
         canCancel: false,
         isReadOnly: true,
         submitButtonText: "Bearbeiten",
+      };
+    case SUBMITTING_ACTION:
+      return {
+        ...state,
+        status: "working",
+        canSubmit: false,
+        canCancel: false,
+        isReadOnly: true,
       };
     case EDIT_ACTION:
       return {
