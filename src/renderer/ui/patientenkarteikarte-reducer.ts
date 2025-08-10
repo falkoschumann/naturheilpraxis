@@ -1,25 +1,8 @@
 // Copyright (c) 2025 Falko Schumann. All rights reserved. MIT license.
 
-import {
-  createPatient,
-  type NimmPatientAufCommandStatus,
-  type Patient,
-  type PatientenkarteiQuery,
-} from "../../main/domain/naturheilpraxis";
+import { createPatient, type Patient } from "../../main/domain/naturheilpraxis";
 import type { Configuration } from "../../main/domain/configuration";
-import {
-  type FluxStandardAction,
-  type ThunkAction,
-  useThunkReducer,
-} from "./reducer";
-
-//
-// Hooks
-//
-
-export function usePatientenkarteikarte() {
-  return useThunkReducer(reducer, {}, init);
-}
+import type { FluxStandardAction } from "./reducer";
 
 //
 // Actions and Action Creators
@@ -40,8 +23,7 @@ export function updated(
 
 const SUBMIT_ACTION = "submit";
 
-export function submit2(): FluxStandardAction<typeof SUBMIT_ACTION> {
-  // TODO rename submit2 to submit
+export function submit(): FluxStandardAction<typeof SUBMIT_ACTION> {
   return { type: SUBMIT_ACTION, payload: undefined };
 }
 
@@ -49,16 +31,12 @@ const DONE_ACTION = "done";
 
 type DonePayload = {
   nummer?: number;
-  success: boolean;
-  errorMessage?: string;
 };
 
 export function done({
   nummer,
-  success,
-  errorMessage,
 }: DonePayload): FluxStandardAction<typeof DONE_ACTION, DonePayload> {
-  return { type: DONE_ACTION, payload: { nummer, success, errorMessage } };
+  return { type: DONE_ACTION, payload: { nummer } };
 }
 
 const CANCELLED_ACTION = "cancelled";
@@ -69,7 +47,7 @@ export function cancelled(): FluxStandardAction<typeof CANCELLED_ACTION> {
 
 const FOUND_ACTION = "found";
 
-type FoundPayload = { patient: Patient };
+type FoundPayload = { patient?: Patient };
 
 export function found(
   payload: FoundPayload,
@@ -77,103 +55,17 @@ export function found(
   return { type: FOUND_ACTION, payload };
 }
 
-// TODO remove next actions
-
-const EDIT_ACTION = "edit";
-
-export function edit(): FluxStandardAction<typeof EDIT_ACTION> {
-  return { type: EDIT_ACTION, payload: undefined };
-}
-
-const RESET_ACTION = "reset";
-
-function reset(): FluxStandardAction<typeof RESET_ACTION> {
-  return { type: RESET_ACTION, payload: undefined };
-}
-
-const SUBMITTING_ACTION = "submitting";
-
-export function submitting(): FluxStandardAction<typeof SUBMITTING_ACTION> {
-  return { type: SUBMITTING_ACTION, payload: undefined };
-}
-
-//
-// Thunks
-//
-
-export function findePatient(
-  query: PatientenkarteiQuery,
-): ThunkAction<Promise<void>, State, Action> {
-  return async (dispatch, _getState) => {
-    const result = await window.naturheilpraxis.patientenkartei(query);
-    // TODO create action to handle query result
-    if (result.patienten.length > 0) {
-      const patient = result.patienten[0];
-      dispatch(found({ patient }));
-    } else {
-      dispatch(reset());
-    }
-  };
-}
-
-export function submit(): ThunkAction<
-  Promise<NimmPatientAufCommandStatus | void>,
-  State,
-  Action
-> {
-  return async (dispatch, getState) => {
-    // TODO create action to handle state machine
-    // TODO create action to handle command status
-    const state = getState();
-    if (state.status == "new") {
-      dispatch(submitting());
-      const result = await window.naturheilpraxis.nimmPatientAuf(state.patient);
-      dispatch(done(result));
-      return result;
-    } else if (state.status == "view") {
-      dispatch(edit());
-    } else if (state.status == "edit") {
-      dispatch(submitting());
-      // TODO update patient
-      dispatch(done({ success: true }));
-    }
-    return;
-  };
-}
-
-export function cancel(): ThunkAction<Promise<void>, State, Action> {
-  return async (dispatch, getState) => {
-    const state = getState();
-    const result = await window.naturheilpraxis.patientenkartei({
-      nummer: state.patient.nummer,
-    });
-    // TODO create action to handle query result
-    if (result.patienten.length > 0) {
-      const patient = result.patienten[0];
-      dispatch(found({ patient }));
-    } else {
-      dispatch(reset());
-    }
-  };
-}
-
 //
 // State and Reducer
 //
 
-// Paths through the state machine:
-// new --submit--> working --done--> view
-// new --cancel--> new
-// new --found--> view --submit--> edit --submit--> working --done--> view
-// new --found--> view --submit--> edit --cancel--> view
-// TODO rename status to state?
-export type Status = "new" | "view" | "edit" | "working";
+export type FormState = "new" | "view" | "edit" | "working";
 
 export type SubmitText = "Aufnehmen" | "Bearbeiten" | "Speichern";
 
 export interface State {
   patient: Patient;
-  status: Status;
+  state: FormState;
   canSubmit: boolean;
   canCancel: boolean;
   isReadOnly: boolean;
@@ -200,7 +92,7 @@ export function init({
       familienstand: configuration.familienstand[0],
       schluesselworte: configuration.defaultSchluesselworte,
     }),
-    status: "new",
+    state: "new",
     canSubmit: false,
     canCancel: false,
     isReadOnly: false,
@@ -211,13 +103,10 @@ export function init({
 
 export type Action =
   | ReturnType<typeof updated>
-  | ReturnType<typeof submit2>
+  | ReturnType<typeof submit>
   | ReturnType<typeof done>
   | ReturnType<typeof cancelled>
-  | ReturnType<typeof found>
-  | ReturnType<typeof edit>
-  | ReturnType<typeof submitting>
-  | ReturnType<typeof reset>;
+  | ReturnType<typeof found>;
 
 export function reducer(state: State, action: Action): State {
   switch (action.type) {
@@ -236,12 +125,12 @@ export function reducer(state: State, action: Action): State {
       return { ...state, patient, canSubmit, canCancel };
     }
     case SUBMIT_ACTION:
-      switch (state.status) {
+      switch (state.state) {
         case "new":
         case "edit":
           return {
             ...state,
-            status: "working",
+            state: "working",
             canSubmit: false,
             canCancel: false,
             isReadOnly: true,
@@ -249,14 +138,15 @@ export function reducer(state: State, action: Action): State {
         case "view":
           return {
             ...state,
-            status: "edit",
+            state: "edit",
+            canSubmit: false,
             canCancel: true,
             isReadOnly: false,
             submitButtonText: "Speichern",
           };
         default:
           throw new Error(
-            `Unexpected status in patientenkarteikarte reducer: ${state.status}`,
+            `Unexpected status in patientenkarteikarte reducer: ${state.state}`,
           );
       }
     case DONE_ACTION:
@@ -266,51 +156,38 @@ export function reducer(state: State, action: Action): State {
           ...state.patient,
           nummer: action.payload?.nummer || state.patient.nummer,
         },
-        status: "view",
+        state: "view",
         canSubmit: true,
         isReadOnly: true,
         submitButtonText: "Bearbeiten",
       };
     case CANCELLED_ACTION:
-      if (state.status === "new") {
+      if (state.state === "new") {
         return init({ configuration: state.configuration });
       } else {
         return {
           ...state,
-          status: "view",
+          state: "view",
+          canSubmit: true,
           canCancel: false,
           isReadOnly: true,
           submitButtonText: "Bearbeiten",
         };
       }
     case FOUND_ACTION:
-      return {
-        ...state,
-        patient: action.payload.patient,
-        status: "view",
-        canSubmit: true,
-        canCancel: false,
-        isReadOnly: true,
-        submitButtonText: "Bearbeiten",
-      };
-    case SUBMITTING_ACTION:
-      return {
-        ...state,
-        status: "working",
-        canSubmit: false,
-        canCancel: false,
-        isReadOnly: true,
-      };
-    case EDIT_ACTION:
-      return {
-        ...state,
-        status: "edit",
-        canCancel: true,
-        isReadOnly: false,
-        submitButtonText: "Speichern",
-      };
-    case RESET_ACTION:
-      return init({ configuration: state.configuration });
+      if (action.payload.patient != null) {
+        return {
+          ...state,
+          patient: action.payload.patient,
+          state: "view",
+          canSubmit: true,
+          canCancel: false,
+          isReadOnly: true,
+          submitButtonText: "Bearbeiten",
+        };
+      } else {
+        return init({ configuration: state.configuration });
+      }
     default:
       throw new Error(
         `Unhandled action in patientenkarteikarte reducer: ${JSON.stringify(action)}`,

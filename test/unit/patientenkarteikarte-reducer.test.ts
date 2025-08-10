@@ -10,8 +10,8 @@ import {
   init,
   reducer,
   type State,
-  submit2,
-  updated
+  submit,
+  updated,
 } from "../../src/renderer/ui/patientenkarteikarte-reducer";
 
 const initialState: State = init({ configuration: createTestConfiguration() });
@@ -24,10 +24,19 @@ const newState: State = {
     vorname: "Max",
     nachname: "Mustermann",
   },
-  status: "new",
+  state: "new",
   canSubmit: true,
   canCancel: true,
   isReadOnly: false,
+  submitButtonText: "Aufnehmen",
+};
+
+const workingNewState: State = {
+  ...newState,
+  state: "working",
+  canSubmit: false,
+  canCancel: false,
+  isReadOnly: true,
   submitButtonText: "Aufnehmen",
 };
 
@@ -40,28 +49,28 @@ const viewState: State = {
     vorname: "Max",
     nachname: "Mustermann",
   },
-  status: "view",
+  state: "view",
   canSubmit: true,
   canCancel: false,
   isReadOnly: true,
   submitButtonText: "Bearbeiten",
 };
 
-const workingState: State = {
-  ...newState,
-  status: "working",
+const editState: State = {
+  ...viewState,
+  state: "edit",
+  canSubmit: false,
+  canCancel: true,
+  isReadOnly: false,
+  submitButtonText: "Speichern",
+};
+
+const workingEditState: State = {
+  ...editState,
+  state: "working",
   canSubmit: false,
   canCancel: false,
   isReadOnly: true,
-  submitButtonText: "Aufnehmen",
-};
-
-const editState: State = {
-  ...viewState,
-  status: "edit",
-  canSubmit: true, // TODO could be false if no changes
-  canCancel: true,
-  isReadOnly: false,
   submitButtonText: "Speichern",
 };
 
@@ -79,7 +88,7 @@ describe("Patientenkarteikarte reducer", () => {
         familienstand: "ledig",
         schluesselworte: ["Aktiv", "Weihnachtskarte"],
       },
-      status: "new",
+      state: "new",
       canSubmit: false,
       canCancel: false,
       isReadOnly: false,
@@ -141,11 +150,11 @@ describe("Patientenkarteikarte reducer", () => {
     it("Submit", () => {
       let state = newState;
 
-      state = reducer(state, submit2());
+      state = reducer(state, submit());
 
       expect(state).toEqual({
         ...newState,
-        status: "working",
+        state: "working",
         canSubmit: false,
         canCancel: false,
         isReadOnly: true,
@@ -161,7 +170,7 @@ describe("Patientenkarteikarte reducer", () => {
       expect(state).toEqual(initialState);
     });
 
-    it("Found", () => {
+    it("Found with patient", () => {
       let state = initialState;
       const patient = viewState.patient;
 
@@ -169,27 +178,29 @@ describe("Patientenkarteikarte reducer", () => {
 
       expect(state).toEqual(viewState);
     });
+
+    it("Found without patient", () => {
+      let state = initialState;
+
+      state = reducer(state, found({ patient: undefined }));
+
+      expect(state).toEqual(initialState);
+    });
   });
 
   describe("Verarbeiten (working)", () => {
     it("Done from new", () => {
-      let state = workingState;
+      let state = workingNewState;
 
-      state = reducer(state, done({ nummer: 1, success: true }));
+      state = reducer(state, done({ nummer: 1 }));
 
       expect(state).toEqual(viewState);
     });
 
     it("Done from edit", () => {
-      let state: State = {
-        ...viewState,
-        status: "working",
-        canSubmit: false,
-        submitButtonText: "Speichern",
-      };
+      let state: State = workingEditState;
 
-      // TODO nummer should be optional, because it is not needed for updates
-      state = reducer(state, done({ nummer: 1, success: true }));
+      state = reducer(state, done({}));
 
       expect(state).toEqual(viewState);
     });
@@ -199,7 +210,7 @@ describe("Patientenkarteikarte reducer", () => {
     it("Submit", () => {
       let state = viewState;
 
-      state = reducer(state, submit2());
+      state = reducer(state, submit());
 
       expect(state).toEqual(editState);
     });
@@ -217,6 +228,7 @@ describe("Patientenkarteikarte reducer", () => {
           ...editState.patient,
           vorname: "Erika",
         },
+        canSubmit: true,
         canCancel: true,
       });
     });
@@ -224,11 +236,11 @@ describe("Patientenkarteikarte reducer", () => {
     it("Submit", () => {
       let state = editState;
 
-      state = reducer(state, submit2());
+      state = reducer(state, submit());
 
       expect(state).toEqual({
         ...viewState,
-        status: "working",
+        state: "working",
         canSubmit: false,
         submitButtonText: "Speichern",
       });

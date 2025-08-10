@@ -2,25 +2,30 @@
 
 // @ts-expect-error TS7016
 import Tags from "bootstrap5-tags";
-import { type ChangeEvent, type FormEvent, type MouseEvent, useEffect } from "react";
+import { type ChangeEvent, type FormEvent, type MouseEvent, useEffect, useReducer } from "react";
 import { NavLink, useNavigate, useParams } from "react-router";
 
 import { PATIENT_AUFNEHMEN_PAGE, PATIENTENKARTEIKARTE_PAGE } from "./pages";
-import { cancel, findePatient, submit, updated, usePatientenkarteikarte } from "./patientenkarteikarte-reducer";
+import { cancelled, done, found, init, reducer, submit, updated } from "./patientenkarteikarte-reducer";
 
 // TODO link spouse and parent
 
 export default function PatientenkarteikartePage() {
-  const [state, dispatch] = usePatientenkarteikarte();
+  const [state, dispatch] = useReducer(reducer, { configuration: window.naturheilpraxis.configuration }, init);
   const { nummer } = useParams();
   const navigate = useNavigate();
 
   useEffect(() => {
-    void dispatch(findePatient({ nummer: Number(nummer) }));
-  }, [dispatch, nummer]);
+    async function findPatient() {
+      const result = await window.naturheilpraxis.patientenkartei({ nummer: Number(nummer) });
+      void dispatch(found({ patient: result.patienten[0] }));
+    }
+
+    void findPatient();
+  }, [nummer]);
 
   // Depending on the status, the tags component needs to be initialized
-  useEffect(() => Tags.init(), [state.status]);
+  useEffect(() => Tags.init(), [state.state]);
 
   function handleSchluesselworteChange(e: ChangeEvent<HTMLSelectElement>) {
     const options = Array.from(e.target.selectedOptions, (option) => option.value);
@@ -29,21 +34,28 @@ export default function PatientenkarteikartePage() {
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const result = await dispatch(submit());
-    if (result?.success) {
-      navigate(`${PATIENTENKARTEIKARTE_PAGE.replace(":nummer", String(result.nummer))}`);
+    const formState = state.state;
+    dispatch(submit());
+    if (formState === "new") {
+      const result = await window.naturheilpraxis.nimmPatientAuf(state.patient);
+      if (result.success) {
+        navigate(`${PATIENTENKARTEIKARTE_PAGE.replace(":nummer", String(result.nummer))}`);
+        dispatch(done({ nummer: result.nummer }));
+      }
+    } else if (formState === "edit") {
+      dispatch(done({}));
     }
   }
 
   function handleCancel(event: MouseEvent<HTMLButtonElement>) {
     event.preventDefault();
-    void dispatch(cancel());
+    void dispatch(cancelled());
   }
 
   return (
     <main className="container my-4">
       <h2 className="mb-3">
-        {state.status === "new"
+        {state.state === "new"
           ? "Neuer Patient"
           : `${state.patient.nachname}, ${state.patient.vorname} (Nr. ${state.patient.nummer}), geboren am ${new Date(state.patient.geburtsdatum).toLocaleDateString(undefined, { dateStyle: "medium" })}`}
       </h2>
@@ -236,14 +248,14 @@ export default function PatientenkarteikartePage() {
           role="toolbar"
           aria-label="Aktionen für Patient"
         >
-          {state.status !== "new" && (
+          {state.state !== "new" && (
             <NavLink to={PATIENT_AUFNEHMEN_PAGE} className="btn btn-primary">
               Nimm Patient auf
             </NavLink>
           )}
-          {state.status !== "new" && <button className="btn btn-primary ms-2">Erfasse Leistungen</button>}
+          {state.state !== "new" && <button className="btn btn-primary ms-2">Erfasse Leistungen</button>}
           <div className="me-auto"></div>
-          {state.status === "working" && (
+          {state.state === "working" && (
             <div className="spinner-border text-primary" role="status">
               <span className="visually-hidden">Loading...</span>
             </div>
