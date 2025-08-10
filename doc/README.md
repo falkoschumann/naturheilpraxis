@@ -101,3 +101,9 @@ Stories for the MVP are marked with ❗.
 ## Architecture
 
 [Architecture Communication Canvas](https://html-preview.github.io/?url=https://github.com/falkoschumann/naturheilpraxis/blob/main/doc/acc.html)
+
+## Behaviour
+
+### Nimm Patient auf
+
+![Nimm Patient auf](nimm-patient-auf.png)
