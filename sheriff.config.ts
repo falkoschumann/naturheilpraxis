@@ -19,6 +19,10 @@ export const config: SheriffConfig = {
     "src/main/infrastructure": ["layer:infrastructure", "component:main"],
 
     "src/preload": ["layer:entry", "component:preload"],
+    "src/preload/application": ["layer:application", "component:preload"],
+    "src/preload/common": ["layer:common", "component:preload"],
+    "src/preload/domain": ["layer:domain", "component:preload"],
+    "src/preload/infrastructure": ["layer:infrastructure", "component:preload"],
 
     "src/renderer": ["layer:entry", "component:renderer"],
     "src/renderer/application": ["layer:application", "component:renderer"],
