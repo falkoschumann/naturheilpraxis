@@ -2,8 +2,6 @@
 
 import { sameTag, type SheriffConfig } from "@softarc/sheriff-core";
 
-// TODO extract shared component for shared code
-
 export const config: SheriffConfig = {
   autoTagging: false,
   enableBarrelLess: true,

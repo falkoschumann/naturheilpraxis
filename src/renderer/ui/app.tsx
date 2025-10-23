@@ -8,7 +8,7 @@ import {
   PATIENT_AUFNEHMEN_PAGE,
   PATIENTENKARTEI_PAGE,
   PATIENTENKARTEIKARTE_PAGE,
-  RECHUNGEN_PAGE,
+  RECHNUNGEN_PAGE,
   START_PAGE,
 } from "./pages";
 import PatientenkarteiPage from "./patientenkartei-page";
@@ -62,7 +62,7 @@ function Header() {
                 </NavLink>
               </li>
               <li className="nav-item">
-                <NavLink to={RECHUNGEN_PAGE} className="nav-link">
+                <NavLink to={RECHNUNGEN_PAGE} className="nav-link">
                   Rechnungen
                 </NavLink>
               </li>

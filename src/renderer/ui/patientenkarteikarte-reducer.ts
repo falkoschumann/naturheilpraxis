@@ -7,6 +7,8 @@ import {
 } from "../../shared/domain/naturheilpraxis";
 import type { FluxStandardAction } from "./reducer";
 
+// TODO replace redux with reducer hook
+
 //
 // Actions and Action Creators
 //
