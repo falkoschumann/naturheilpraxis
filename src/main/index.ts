@@ -13,7 +13,7 @@ import { NaturheilpraxisService } from "./application/naturheilpraxis-service";
 import type {
   NimmPatientAufCommand,
   PatientenkarteiQuery,
-} from "./domain/naturheilpraxis";
+} from "../shared/domain/naturheilpraxis";
 import { NdjsonEventStore } from "./infrastructure/event-store";
 import icon from "../../resources/icon.png?asset";
 import { ConfigurationGateway } from "./infrastructure/configuration-gateway";
@@ -59,7 +59,7 @@ app.whenReady().then(async () => {
   const eventStore = new NdjsonEventStore("./data/events.ndjson");
   const naturheilpraxisService = new NaturheilpraxisService(eventStore);
 
-  ipcMain.on("getConfiguration", (event) => {
+  ipcMain.on("configuration", (event) => {
     event.returnValue = configuration;
   });
   ipcMain.handle(

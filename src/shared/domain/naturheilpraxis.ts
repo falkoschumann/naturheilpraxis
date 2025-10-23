@@ -1,6 +1,6 @@
 // Copyright (c) 2025 Falko Schumann. All rights reserved. MIT license.
 
-import { Failure, Success } from "../common/messages";
+import { Failure, Success } from "@muspellheim/shared";
 
 export interface NimmPatientAufCommand {
   readonly nachname: string;

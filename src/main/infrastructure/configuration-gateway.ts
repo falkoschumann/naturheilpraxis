@@ -3,7 +3,7 @@
 import fsPromise from "node:fs/promises";
 import path from "node:path";
 
-import type { Configuration } from "../domain/configuration";
+import type { Configuration } from "../../shared/domain/configuration";
 
 export const DEFAULT_CONFIGURATION: Configuration = Object.freeze({
   praxis: ["Naturheilpraxis"],

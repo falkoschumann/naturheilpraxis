@@ -7,8 +7,12 @@ import {
   type Patient,
   type PatientenkarteiQuery,
   type PatientenkarteiQueryResult,
-} from "../domain/naturheilpraxis";
-import type { EventStore } from "../infrastructure/event-store";
+} from "../../shared/domain/naturheilpraxis";
+import {
+  type EventStore,
+  MemoryEventStore,
+  NdjsonEventStore,
+} from "../infrastructure/event-store";
 import {
   PATIENT_SOURCE,
   PatientAufgenommenV1Event,
@@ -18,6 +22,22 @@ import {
 //   That is not a failure as command status
 
 export class NaturheilpraxisService {
+  static create({
+    eventStore = new NdjsonEventStore("data/events.ndjson"),
+  }: {
+    eventStore?: EventStore;
+  } = {}): NaturheilpraxisService {
+    return new NaturheilpraxisService(eventStore);
+  }
+
+  static createNull({
+    eventStore = new MemoryEventStore(),
+  }: {
+    eventStore?: EventStore;
+  } = {}): NaturheilpraxisService {
+    return new NaturheilpraxisService(eventStore);
+  }
+
   #eventStore: EventStore;
 
   constructor(eventStore: EventStore) {

@@ -2,7 +2,7 @@
 
 import { describe, expect, it } from "vitest";
 
-import { createTestConfiguration } from "../../src/main/domain/configuration";
+import { createTestConfiguration } from "../../src/shared/domain/configuration";
 import {
   cancelled,
   done,

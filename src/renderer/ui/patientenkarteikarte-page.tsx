@@ -38,7 +38,7 @@ export default function PatientenkarteikartePage() {
     dispatch(submit());
     if (formState === "new") {
       const result = await window.naturheilpraxis.nimmPatientAuf(state.patient);
-      if (result.success) {
+      if (result.isSuccess) {
         navigate(`${PATIENTENKARTEIKARTE_PAGE.replace(":nummer", String(result.nummer))}`);
         dispatch(done({ nummer: result.nummer }));
       }

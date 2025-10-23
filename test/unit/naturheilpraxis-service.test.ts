@@ -1,7 +1,7 @@
 // Copyright (c) 2025 Falko Schumann. All rights reserved. MIT license.
 
 import { describe, expect, it } from "vitest";
-import { arrayFromAsync } from "../../src/main/common/polyfills";
+import { arrayFromAsync } from "../../src/shared/common/polyfills";
 import { NaturheilpraxisService } from "../../src/main/application/naturheilpraxis-service";
 import { MemoryEventStore } from "../../src/main/infrastructure/event-store";
 import {
@@ -9,7 +9,7 @@ import {
   PATIENT_AUFGENOMMEN_V1_EVENT_TYPE,
   PATIENT_SOURCE,
 } from "../../src/main/infrastructure/events";
-import { NimmPatientAufSuccess } from "../../src/main/domain/naturheilpraxis";
+import { NimmPatientAufSuccess } from "../../src/shared/domain/naturheilpraxis";
 
 describe("Naturheilpraxis Service", () => {
   describe("Nimm Patient auf", () => {

@@ -6,7 +6,7 @@ import path from "node:path";
 import { CloudEvent, type CloudEventV1 } from "cloudevents";
 import { beforeEach, describe, expect, it } from "vitest";
 
-import { arrayFromAsync } from "../../src/main/common/polyfills";
+import { arrayFromAsync } from "../../src/shared/common/polyfills";
 import {
   MemoryEventStore,
   NdjsonEventStore,

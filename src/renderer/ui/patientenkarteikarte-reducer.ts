@@ -1,7 +1,10 @@
 // Copyright (c) 2025 Falko Schumann. All rights reserved. MIT license.
 
-import { createPatient, type Patient } from "../../main/domain/naturheilpraxis";
-import type { Configuration } from "../../main/domain/configuration";
+import type { Configuration } from "../../shared/domain/configuration";
+import {
+  createPatient,
+  type Patient,
+} from "../../shared/domain/naturheilpraxis";
 import type { FluxStandardAction } from "./reducer";
 
 //
@@ -190,7 +193,7 @@ export function reducer(state: State, action: Action): State {
       }
     default:
       throw new Error(
-        `Unhandled action in patientenkarteikarte reducer: ${JSON.stringify(action)}`,
+        `Unhandled action in patientenkarteikarte reducer: ${JSON.stringify(action)}.`,
       );
   }
 }

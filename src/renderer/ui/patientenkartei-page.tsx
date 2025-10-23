@@ -5,7 +5,7 @@ import { useVirtualizer } from "@tanstack/react-virtual";
 import { type RefObject, useEffect, useRef, useState } from "react";
 import { NavLink, useNavigate } from "react-router";
 
-import type { Patient } from "../../main/domain/naturheilpraxis";
+import type { Patient } from "../../shared/domain/naturheilpraxis";
 import { PATIENT_AUFNEHMEN_PAGE, PATIENTENKARTEIKARTE_PAGE } from "./pages";
 
 // TODO use sorting
