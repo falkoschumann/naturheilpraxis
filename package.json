@@ -27,7 +27,7 @@
     "electron-squirrel-startup": "1.0.1",
     "react": "19.2.0",
     "react-dom": "19.2.0",
-    "react-router": "7.9.3"
+    "react-router": "7.9.4"
   },
   "devDependencies": {
     "@electron-forge/cli": "7.9.0",
