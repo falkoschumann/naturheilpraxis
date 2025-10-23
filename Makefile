@@ -80,5 +80,5 @@ $(DIAGRAM_FILES): %.png: %.puml
 	all clean distclean dist start \
 	doc \
 	check format \
-	dev \
+	dev test watch coverage unit-tests integration-tests e2e-tests \
 	build prepare version

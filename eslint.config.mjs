@@ -16,6 +16,11 @@ export default ts.config(
     languageOptions: {
       ecmaVersion: 2020,
       globals: globals.browser,
+      parserOptions: {
+        ecmaFeatures: {
+          jsx: true,
+        },
+      },
     },
     plugins: {
       headers,
@@ -25,10 +30,7 @@ export default ts.config(
     },
     rules: {
       ...reactHooks.configs.recommended.rules,
-      "react-refresh/only-export-components": [
-        "warn",
-        { allowConstantExport: true },
-      ],
+      ...reactRefresh.configs.recommended.rules,
       "headers/header-format": [
         "error",
         {

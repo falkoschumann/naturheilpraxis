@@ -13,26 +13,17 @@ export default defineConfig({
   renderer: {
     build: {
       rollupOptions: {
-        output: {
-          manualChunks: (id: string) => {
-            if (id.includes("node_modules")) {
-              return "vendor";
-            }
-
-            return null;
-          },
-        },
+        //input: {
+        //  index: "src/renderer/index.html",
+        //},
       },
     },
     css: {
       preprocessorOptions: {
         scss: {
-          silenceDeprecations: [
-            "import",
-            "mixed-decls",
-            "color-functions",
-            "global-builtin",
-          ],
+          // WORKAROUND: Silence deprecation warnings in Bootstrap 5.3
+          // See https://github.com/twbs/bootstrap/pull/41512
+          silenceDeprecations: ["import", "color-functions", "global-builtin"],
         },
       },
     },

@@ -17,6 +17,7 @@
     "publish": "electron-forge publish"
   },
   "dependencies": {
+    "@muspellheim/shared": "0.12.5",
     "@tanstack/react-table": "8.21.3",
     "@tanstack/react-virtual": "3.13.12",
     "bootstrap": "5.3.8",
