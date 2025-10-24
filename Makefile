@@ -14,8 +14,13 @@ distclean: clean
 	rm -rf out
 	rm -rf node_modules
 
+# TODO Build only one platform and configure platform, arch and target via environment variable
 dist: build
 	npm run make
+#	npm run make -- --platform darwin --arch arm64 --targets @electron-forge/maker-zip
+#	npm run make -- --platform darwin --arch x64 --targets @electron-forge/maker-zip
+#	npm run make -- --platform win32 --arch x64 --targets @electron-forge/maker-zip
+#	npm run make -- --platform win32 --arch arm64 --targets @electron-forge/maker-zip
 
 start: prepare
 	npm start
@@ -52,13 +57,8 @@ integration-tests: prepare
 e2e-tests: prepare
 	npx vitest run e2e
 
-# TODO Build only one platform and configure platform, arch and target via environment variable
 build: prepare
 	npm run build
-#	npm run make -- --platform darwin --arch arm64 --targets @electron-forge/maker-zip
-#	npm run make -- --platform darwin --arch x64 --targets @electron-forge/maker-zip
-#	npm run make -- --platform win32 --arch x64 --targets @electron-forge/maker-zip
-#	npm run make -- --platform win32 --arch arm64 --targets @electron-forge/maker-zip
 
 prepare: version
 	@if [ -n "$(CI)" ] ; then \
