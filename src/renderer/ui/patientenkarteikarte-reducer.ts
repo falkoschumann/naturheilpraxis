@@ -1,13 +1,12 @@
 // Copyright (c) 2025 Falko Schumann. All rights reserved. MIT license.
 
+import type { FluxStandardActionAuto } from "flux-standard-action";
+
 import type { Configuration } from "../../shared/domain/configuration";
 import {
   createPatient,
   type Patient,
 } from "../../shared/domain/naturheilpraxis";
-import type { FluxStandardAction } from "./reducer";
-
-// TODO replace redux with reducer hook
 
 //
 // Actions and Action Creators
@@ -22,13 +21,13 @@ type UpdatedPayload = {
 
 export function updated(
   payload: UpdatedPayload,
-): FluxStandardAction<typeof UPDATED_ACTION, UpdatedPayload> {
+): FluxStandardActionAuto<typeof UPDATED_ACTION, UpdatedPayload> {
   return { type: UPDATED_ACTION, payload };
 }
 
 const SUBMIT_ACTION = "submit";
 
-export function submit(): FluxStandardAction<typeof SUBMIT_ACTION> {
+export function submit(): FluxStandardActionAuto<typeof SUBMIT_ACTION> {
   return { type: SUBMIT_ACTION, payload: undefined };
 }
 
@@ -40,13 +39,13 @@ type DonePayload = {
 
 export function done({
   nummer,
-}: DonePayload): FluxStandardAction<typeof DONE_ACTION, DonePayload> {
+}: DonePayload): FluxStandardActionAuto<typeof DONE_ACTION, DonePayload> {
   return { type: DONE_ACTION, payload: { nummer } };
 }
 
 const CANCELLED_ACTION = "cancelled";
 
-export function cancelled(): FluxStandardAction<typeof CANCELLED_ACTION> {
+export function cancelled(): FluxStandardActionAuto<typeof CANCELLED_ACTION> {
   return { type: CANCELLED_ACTION, payload: undefined };
 }
 
@@ -56,7 +55,7 @@ type FoundPayload = { patient?: Patient };
 
 export function found(
   payload: FoundPayload,
-): FluxStandardAction<typeof FOUND_ACTION, FoundPayload> {
+): FluxStandardActionAuto<typeof FOUND_ACTION, FoundPayload> {
   return { type: FOUND_ACTION, payload };
 }
 
