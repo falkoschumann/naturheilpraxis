@@ -12,7 +12,7 @@ import {
   type State,
   submit,
   updated,
-} from "../../src/renderer/ui/patientenkarteikarte-reducer";
+} from "../../src/renderer/domain/patientenkarteikarte";
 
 const initialState: State = init({ configuration: createTestConfiguration() });
 

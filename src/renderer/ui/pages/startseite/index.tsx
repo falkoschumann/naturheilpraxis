@@ -2,7 +2,7 @@
 
 import { NavLink } from "react-router";
 
-import { PATIENT_AUFNEHMEN_PAGE, PATIENTENKARTEI_PAGE } from "./pages";
+import { PATIENT_AUFNEHMEN_PAGE, PATIENTENKARTEI_PAGE } from "../../components/pages";
 
 export default function StartseitePage() {
   return (

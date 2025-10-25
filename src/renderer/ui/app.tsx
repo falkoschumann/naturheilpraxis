@@ -2,7 +2,7 @@
 
 import { NavLink, Route, Routes } from "react-router";
 
-import logo from "./logo.svg";
+import logo from "./assets/logo.svg";
 import {
   LEISTUNGEN_PAGE,
   PATIENT_AUFNEHMEN_PAGE,
@@ -10,10 +10,10 @@ import {
   PATIENTENKARTEIKARTE_PAGE,
   RECHNUNGEN_PAGE,
   START_PAGE,
-} from "./pages";
-import PatientenkarteiPage from "./patientenkartei-page";
-import PatientenkarteikartePage from "./patientenkarteikarte-page";
-import StartseitePage from "./startseite-page";
+} from "./components/pages";
+import PatientenkarteiPage from "./pages/patientenkartei";
+import PatientenkarteikartePage from "./pages/patientenkarteikarte";
+import StartseitePage from "./pages/startseite";
 
 export default function App() {
   return (

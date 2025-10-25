@@ -5,8 +5,8 @@ import Tags from "bootstrap5-tags";
 import { type ChangeEvent, type FormEvent, type MouseEvent, useEffect, useReducer } from "react";
 import { NavLink, useNavigate, useParams } from "react-router";
 
-import { PATIENT_AUFNEHMEN_PAGE, PATIENTENKARTEIKARTE_PAGE } from "./pages";
-import { cancelled, done, found, init, reducer, submit, updated } from "./patientenkarteikarte-reducer";
+import { cancelled, done, found, init, reducer, submit, updated } from "../../../domain/patientenkarteikarte";
+import { PATIENT_AUFNEHMEN_PAGE, PATIENTENKARTEIKARTE_PAGE } from "../../components/pages";
 
 // TODO link spouse and parent
 
