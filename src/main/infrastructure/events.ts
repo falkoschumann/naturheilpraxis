@@ -1,6 +1,6 @@
 // Copyright (c) 2025 Falko Schumann. All rights reserved. MIT license.
 
-import { CloudEvent } from "cloudevents";
+import { CloudEvent, type CloudEventV1 } from "cloudevents";
 
 export const CLOUD_EVENT_SPEC_VERSION = "1.0";
 
@@ -36,7 +36,7 @@ export interface PatientAufgenommenDataV1 {
 
 export class PatientAufgenommenV1Event extends CloudEvent<PatientAufgenommenDataV1> {
   static isType(
-    event: CloudEvent<unknown>,
+    event: CloudEventV1<unknown>,
   ): event is PatientAufgenommenV1Event {
     return (
       event.type === PATIENT_AUFGENOMMEN_V1_EVENT_TYPE &&
