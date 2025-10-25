@@ -38,7 +38,7 @@ describe("Event store", () => {
       await store.record(event);
       const events = await arrayFromAsync(store.replay());
 
-      expect(events).toEqual([event]);
+      expect(events).toEqual<CloudEventV1<unknown>[]>([event]);
     });
   });
 
@@ -54,7 +54,7 @@ describe("Event store", () => {
       await store.record(event);
       const events = await arrayFromAsync(store.replay());
 
-      expect(events).toEqual([event]);
+      expect(events).toEqual<CloudEventV1<unknown>[]>([event]);
     });
 
     it("Replays no events from non existing file", async () => {
@@ -62,7 +62,7 @@ describe("Event store", () => {
 
       const events = await arrayFromAsync(store.replay());
 
-      expect(events).toEqual([]);
+      expect(events).toEqual<CloudEventV1<unknown>[]>([]);
     });
 
     it("Replays events from example file", async () => {
@@ -70,7 +70,7 @@ describe("Event store", () => {
 
       const events = await arrayFromAsync(store.replay());
 
-      expect(events).toEqual([
+      expect(events).toEqual<CloudEventV1<unknown>[]>([
         {
           id: "id-1",
           time: "2025-07-09T06:17:11Z",
@@ -105,6 +105,6 @@ function createTestCloudEvent<T>({
   specversion = "1.0",
   time = new Date().toISOString(),
   data = undefined,
-}: Partial<CloudEventV1<T>> = {}): CloudEvent<T> {
+}: Partial<CloudEventV1<T>> = {}): CloudEventV1<T> {
   return new CloudEvent<T>({ id, type, source, specversion, time, data });
 }

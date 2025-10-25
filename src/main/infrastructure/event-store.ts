@@ -3,22 +3,22 @@
 import fsPromise from "node:fs/promises";
 import path from "node:path";
 
-import { CloudEvent } from "cloudevents";
+import { CloudEvent, type CloudEventV1 } from "cloudevents";
 
 export interface EventStore {
-  record(event: CloudEvent<unknown>): Promise<void>;
+  record(event: CloudEventV1<unknown>): Promise<void>;
 
-  replay(): AsyncGenerator<CloudEvent<unknown>>;
+  replay(): AsyncGenerator<CloudEventV1<unknown>>;
 }
 
 export class MemoryEventStore implements EventStore {
-  readonly #events: CloudEvent<unknown>[] = [];
+  readonly #events: CloudEventV1<unknown>[] = [];
 
-  async record(event: CloudEvent<unknown>): Promise<void> {
+  async record(event: CloudEventV1<unknown>): Promise<void> {
     this.#events.push(event);
   }
 
-  async *replay(): AsyncGenerator<CloudEvent<unknown>> {
+  async *replay(): AsyncGenerator<CloudEventV1<unknown>> {
     for (const event of this.#events) {
       yield event;
     }
@@ -32,7 +32,7 @@ export class NdjsonEventStore implements EventStore {
     this.#fileName = fileName;
   }
 
-  async record(event: CloudEvent<unknown>): Promise<void> {
+  async record(event: CloudEventV1<unknown>): Promise<void> {
     const dirName = path.dirname(this.#fileName);
     await fsPromise.mkdir(dirName, { recursive: true });
 
@@ -42,7 +42,7 @@ export class NdjsonEventStore implements EventStore {
     await file.close();
   }
 
-  async *replay(): AsyncGenerator<CloudEvent<unknown>> {
+  async *replay(): AsyncGenerator<CloudEventV1<unknown>> {
     try {
       const file = await fsPromise.open(this.#fileName, "r");
       for await (const line of file.readLines({ encoding: "utf8" })) {

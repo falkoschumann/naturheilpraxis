@@ -95,7 +95,7 @@ describe("Patientenkarteikarte reducer", () => {
       submitButtonText: "Aufnehmen",
       configuration: createTestConfiguration(),
     };
-    expect(initialState).toEqual(expectedState);
+    expect(initialState).toEqual<State>(expectedState);
   });
 
   describe("Aufnahme (new)", () => {
@@ -113,7 +113,7 @@ describe("Patientenkarteikarte reducer", () => {
       state = reducer(state, updated({ feld: "nachname", wert: "Mustermann" }));
       log.push(state);
 
-      expect(log).toEqual([
+      expect(log).toEqual<State[]>([
         {
           ...initialState,
           patient: {
@@ -152,7 +152,7 @@ describe("Patientenkarteikarte reducer", () => {
 
       state = reducer(state, submit());
 
-      expect(state).toEqual({
+      expect(state).toEqual<State>({
         ...newState,
         state: "working",
         canSubmit: false,
@@ -167,7 +167,7 @@ describe("Patientenkarteikarte reducer", () => {
 
       state = reducer(state, cancelled());
 
-      expect(state).toEqual(initialState);
+      expect(state).toEqual<State>(initialState);
     });
 
     it("Found with patient", () => {
@@ -176,7 +176,7 @@ describe("Patientenkarteikarte reducer", () => {
 
       state = reducer(state, found({ patient }));
 
-      expect(state).toEqual(viewState);
+      expect(state).toEqual<State>(viewState);
     });
 
     it("Found without patient", () => {
@@ -184,7 +184,7 @@ describe("Patientenkarteikarte reducer", () => {
 
       state = reducer(state, found({ patient: undefined }));
 
-      expect(state).toEqual(initialState);
+      expect(state).toEqual<State>(initialState);
     });
   });
 
@@ -194,7 +194,7 @@ describe("Patientenkarteikarte reducer", () => {
 
       state = reducer(state, done({ nummer: 1 }));
 
-      expect(state).toEqual(viewState);
+      expect(state).toEqual<State>(viewState);
     });
 
     it("Done from edit", () => {
@@ -202,7 +202,7 @@ describe("Patientenkarteikarte reducer", () => {
 
       state = reducer(state, done({}));
 
-      expect(state).toEqual(viewState);
+      expect(state).toEqual<State>(viewState);
     });
   });
 
@@ -212,7 +212,7 @@ describe("Patientenkarteikarte reducer", () => {
 
       state = reducer(state, submit());
 
-      expect(state).toEqual(editState);
+      expect(state).toEqual<State>(editState);
     });
   });
 
@@ -222,7 +222,7 @@ describe("Patientenkarteikarte reducer", () => {
 
       state = reducer(state, updated({ feld: "vorname", wert: "Erika" }));
 
-      expect(state).toEqual({
+      expect(state).toEqual<State>({
         ...editState,
         patient: {
           ...editState.patient,
@@ -238,7 +238,7 @@ describe("Patientenkarteikarte reducer", () => {
 
       state = reducer(state, submit());
 
-      expect(state).toEqual({
+      expect(state).toEqual<State>({
         ...viewState,
         state: "working",
         canSubmit: false,
@@ -252,7 +252,7 @@ describe("Patientenkarteikarte reducer", () => {
       // TODO discard changes
       state = reducer(state, cancelled());
 
-      expect(state).toEqual(viewState);
+      expect(state).toEqual<State>(viewState);
     });
   });
 });

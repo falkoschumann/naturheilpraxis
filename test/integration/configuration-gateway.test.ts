@@ -7,6 +7,7 @@ import {
   DEFAULT_CONFIGURATION,
 } from "../../src/main/infrastructure/configuration-gateway";
 import path from "node:path";
+import type { Configuration } from "../../src/shared/domain/configuration";
 
 const TEST_FILE = path.resolve(
   __dirname,
@@ -39,7 +40,7 @@ describe("Configuration gateway", () => {
     await gateway.store(configuration);
     const result = await gateway.load();
 
-    expect(result).toEqual(configuration);
+    expect(result).toEqual<Configuration>(configuration);
   });
 
   it("Loads default configuration if file does not exist", async () => {
@@ -47,7 +48,7 @@ describe("Configuration gateway", () => {
 
     const configuration = await gateway.load();
 
-    expect(configuration).toEqual(DEFAULT_CONFIGURATION);
+    expect(configuration).toEqual<Configuration>(DEFAULT_CONFIGURATION);
   });
 
   it("Loads example configuration from file", async () => {
@@ -55,7 +56,7 @@ describe("Configuration gateway", () => {
 
     const configuration = await gateway.load();
 
-    expect(configuration).toEqual(DEFAULT_CONFIGURATION);
+    expect(configuration).toEqual<Configuration>(DEFAULT_CONFIGURATION);
   });
 
   it("Throws error if file is corrupted", async () => {

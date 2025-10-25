@@ -9,7 +9,12 @@ import {
   PATIENT_AUFGENOMMEN_V1_EVENT_TYPE,
   PATIENT_SOURCE,
 } from "../../src/main/infrastructure/events";
-import { NimmPatientAufSuccess } from "../../src/shared/domain/naturheilpraxis";
+import {
+  type NimmPatientAufCommandStatus,
+  NimmPatientAufSuccess,
+  type PatientenkarteiQueryResult,
+} from "../../src/shared/domain/naturheilpraxis";
+import type { CloudEventV1 } from "cloudevents";
 
 describe("Naturheilpraxis Service", () => {
   describe("Nimm Patient auf", () => {
@@ -19,9 +24,11 @@ describe("Naturheilpraxis Service", () => {
 
       const status = await service.nimmPatientAuf(createTestPatient());
 
-      expect(status).toEqual(new NimmPatientAufSuccess(1));
+      expect(status).toEqual<NimmPatientAufCommandStatus>(
+        new NimmPatientAufSuccess(1),
+      );
       const events = await arrayFromAsync(eventStore.replay());
-      expect(events).toEqual([
+      expect(events).toEqual<CloudEventV1<unknown>[]>([
         {
           id: expect.any(String),
           type: PATIENT_AUFGENOMMEN_V1_EVENT_TYPE,
@@ -45,9 +52,11 @@ describe("Naturheilpraxis Service", () => {
         }),
       );
 
-      expect(status).toEqual(new NimmPatientAufSuccess(2));
+      expect(status).toEqual<NimmPatientAufCommandStatus>(
+        new NimmPatientAufSuccess(2),
+      );
       const events = await arrayFromAsync(eventStore.replay());
-      expect(events.slice(-1)).toEqual([
+      expect(events.slice(-1)).toEqual<CloudEventV1<unknown>[]>([
         {
           id: expect.any(String),
           type: PATIENT_AUFGENOMMEN_V1_EVENT_TYPE,
@@ -72,9 +81,11 @@ describe("Naturheilpraxis Service", () => {
         createTestPatient({ anrede: "" }),
       );
 
-      expect(status).toEqual(new NimmPatientAufSuccess(1));
+      expect(status).toEqual<NimmPatientAufCommandStatus>(
+        new NimmPatientAufSuccess(1),
+      );
       const events = await arrayFromAsync(eventStore.replay());
-      expect(events).toEqual([
+      expect(events).toEqual<CloudEventV1<unknown>[]>([
         {
           id: expect.any(String),
           type: PATIENT_AUFGENOMMEN_V1_EVENT_TYPE,
@@ -101,7 +112,7 @@ describe("Naturheilpraxis Service", () => {
 
       const result = await service.patientenkartei({});
 
-      expect(result).toEqual({
+      expect(result).toEqual<PatientenkarteiQueryResult>({
         patienten: [
           {
             ...createTestPatient(),
@@ -130,7 +141,7 @@ describe("Naturheilpraxis Service", () => {
 
       const result = await service.patientenkartei({ nummer: 2 });
 
-      expect(result).toEqual({
+      expect(result).toEqual<PatientenkarteiQueryResult>({
         patienten: [
           {
             ...createTestPatient(),
