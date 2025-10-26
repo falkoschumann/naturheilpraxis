@@ -7,11 +7,10 @@ DIAGRAM_FILES = $(subst .puml,.png,$(PLANTUML_FILES))
 all: dist check
 
 clean:
-	rm -rf coverage out/Naturheilpraxis-* testdata
-	rm -rf dist
+	rm -rf coverage out testdata
 
 distclean: clean
-	rm -rf out
+	rm -rf dist
 	rm -rf node_modules
 
 # TODO Build only one platform and configure platform, arch and target via environment variable

@@ -28,14 +28,21 @@ const linuxPackager =
   os.type() === "Linux" ? { executableName: "naturheilpraxis" } : {};
 
 const config: ForgeConfig = {
+  outDir: "dist",
   packagerConfig: {
     ...linuxPackager,
     ...osxPackager,
     asar: true,
     icon: "build/icon",
     ignore: [
+      /^\/build/,
+      /^\/data/,
+      /^\/doc/,
       /^\/src/,
-      /(.eslintrc.json)|(.gitignore)|(electron.vite.config.ts)|(forge.config.cjs)|(tsconfig.*)/,
+      /^\/test/,
+      /^\/tmp/,
+      /(CONTRIBUTING.*)|(LICENSE.*)|(README.*)|(Makefile)|(sheriff.config.*)|(vitest.config.*)/,
+      /(eslint.config.*)|(.gitignore)|(electron.vite.config.ts)|(forge.config.ts)|(tsconfig.*)/,
     ],
   },
   rebuildConfig: {},
