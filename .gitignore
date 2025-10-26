@@ -1,8 +1,10 @@
 # see also https://gitignore.io
 
+/coverage/
 /data/
 dist/
-testdata/
+out/
+/testdata/
 tmp/
 vendor/
 .env.local
