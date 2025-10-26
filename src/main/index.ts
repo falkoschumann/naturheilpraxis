@@ -2,84 +2,55 @@
 
 import path from "node:path";
 
+import { shell } from "electron/common";
 import { app, BrowserWindow, ipcMain } from "electron/main";
 import {
   installExtension,
   REACT_DEVELOPER_TOOLS,
 } from "electron-devtools-installer";
-import started from "electron-squirrel-startup";
 
 import { NaturheilpraxisService } from "./application/naturheilpraxis-service";
 import type {
   NimmPatientAufCommand,
   PatientenkarteiQuery,
 } from "../shared/domain/naturheilpraxis";
+import {
+  CONFIGURATION_CHANNEL,
+  NIMM_PATIENT_AUF_CHANNEL,
+  QUERY_PATIENTENKARTEI_CHANNEL,
+} from "../shared/infrastructur/channels";
 import { NdjsonEventStore } from "./infrastructure/event-store";
-import icon from "../../resources/icon.png?asset";
 import { ConfigurationGateway } from "./infrastructure/configuration-gateway";
+import icon from "../../build/icon.png?asset";
 
-// Handle creating/removing shortcuts on Windows when installing/uninstalling.
-if (started) {
-  app.quit();
-}
+// TODO Make the file paths configurable
+const configurationGateway = new ConfigurationGateway(
+  "./data/configuration.json",
+);
+const eventStore = new NdjsonEventStore("./data/events.ndjson");
+const naturheilpraxisService = new NaturheilpraxisService(eventStore);
 
-const createWindow = () => {
-  const mainWindow = new BrowserWindow({
-    width: 1024,
-    height: 2048,
-    ...(process.platform === "linux" ? { icon } : {}),
-    webPreferences: {
-      preload: path.join(__dirname, "../preload/index.js"),
-    },
-  });
+const isProduction = app.isPackaged;
 
-  // HMR for renderer base on electron-vite cli.
-  // Load the remote URL for development or the local html file for production.
-  if (!app.isPackaged && process.env["ELECTRON_RENDERER_URL"]) {
-    void mainWindow.loadURL(process.env["ELECTRON_RENDERER_URL"]);
-    setTimeout(() => mainWindow.reload(), 1000);
-  } else {
-    void mainWindow.loadFile(path.join(__dirname, "../renderer/index.html"));
-  }
-
-  if (!app.isPackaged) {
-    mainWindow.webContents.openDevTools();
-  }
-};
-
-// This method will be called when Electron has finished
-// initialization and is ready to create browser windows.
-// Some APIs can only be used after this event occurs.
 app.whenReady().then(async () => {
-  // TODO Make the file paths configurable
-  const configurationGateway = new ConfigurationGateway(
-    "./data/configuration.json",
-  );
-  const configuration = await configurationGateway.load();
-  const eventStore = new NdjsonEventStore("./data/events.ndjson");
-  const naturheilpraxisService = new NaturheilpraxisService(eventStore);
-
-  ipcMain.on("configuration", (event) => {
-    event.returnValue = configuration;
-  });
-  ipcMain.handle(
-    "nimmPatientAuf",
-    async (_event, command: NimmPatientAufCommand) =>
-      naturheilpraxisService.nimmPatientAuf(command),
-  );
-  ipcMain.handle(
-    "patientenkartei",
-    async (_event, query: PatientenkarteiQuery) =>
-      naturheilpraxisService.patientenkartei(query),
-  );
+  await installDevTools();
+  createRendererToMainChannels();
   createWindow();
+});
 
-  if (!app.isPackaged) {
-    installExtension([REACT_DEVELOPER_TOOLS])
-      .then(([redux, react]) =>
-        console.log(`Added Extensions:  ${redux.name}, ${react.name}`),
-      )
-      .catch((err) => console.log("An error occurred: ", err));
+app.on("web-contents-created", (_event, contents) => {
+  contents.setWindowOpenHandler((details) => {
+    if (isSafeForExternalOpen(details.url)) {
+      setTimeout(() => {
+        void shell.openExternal(details.url);
+      }, 0);
+    }
+
+    return { action: "deny" };
+  });
+
+  function isSafeForExternalOpen(url: string): boolean {
+    return url.startsWith("mailto:");
   }
 });
 
@@ -100,5 +71,51 @@ app.on("activate", () => {
   }
 });
 
-// In this file, you can include the rest of your app's specific main process
-// code. You can also put them in separate files and import them here.
+async function installDevTools() {
+  if (isProduction) {
+    // No dev tools in production
+    return;
+  }
+
+  try {
+    const extensions = await installExtension([REACT_DEVELOPER_TOOLS]);
+    console.info(
+      `Added Extensions:  ${extensions.map((e) => e.name).join(", ")}`,
+    );
+  } catch (error) {
+    console.error("An error occurred: ", error);
+  }
+}
+
+function createRendererToMainChannels() {
+  ipcMain.handle(CONFIGURATION_CHANNEL, async (_event) =>
+    configurationGateway.load(),
+  );
+  ipcMain.handle(
+    NIMM_PATIENT_AUF_CHANNEL,
+    async (_event, command: NimmPatientAufCommand) =>
+      naturheilpraxisService.nimmPatientAuf(command),
+  );
+  ipcMain.handle(
+    QUERY_PATIENTENKARTEI_CHANNEL,
+    async (_event, query: PatientenkarteiQuery) =>
+      naturheilpraxisService.patientenkartei(query),
+  );
+}
+
+export const createWindow = () => {
+  const mainWindow = new BrowserWindow({
+    width: 1024,
+    height: 2048,
+    ...(process.platform === "linux" ? { icon } : {}),
+    webPreferences: {
+      preload: path.join(__dirname, "../preload/index.js"),
+    },
+  });
+
+  if (!isProduction && process.env["ELECTRON_RENDERER_URL"]) {
+    void mainWindow.loadURL(process.env["ELECTRON_RENDERER_URL"]);
+  } else {
+    void mainWindow.loadFile(path.join(__dirname, "../renderer/index.html"));
+  }
+};

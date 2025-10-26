@@ -5,15 +5,31 @@ import Tags from "bootstrap5-tags";
 import { type ChangeEvent, type FormEvent, type MouseEvent, useEffect, useReducer } from "react";
 import { NavLink, useNavigate, useParams } from "react-router";
 
-import { cancelled, done, found, init, reducer, submit, updated } from "../../../domain/patientenkarteikarte";
+import {
+  cancelled,
+  configure,
+  done,
+  found,
+  initialState,
+  reducer,
+  submit,
+  updated,
+} from "../../../domain/patientenkarteikarte";
 import { PATIENT_AUFNEHMEN_PAGE, PATIENTENKARTEIKARTE_PAGE } from "../../components/pages";
 
 // TODO link spouse and parent
 
 export default function PatientenkarteikartePage() {
-  const [state, dispatch] = useReducer(reducer, { configuration: window.naturheilpraxis.configuration }, init);
+  const [state, dispatch] = useReducer(reducer, initialState);
   const { nummer } = useParams();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    (async function () {
+      const configuration = await window.naturheilpraxis.configuration();
+      dispatch(configure({ configuration }));
+    })();
+  }, []);
 
   useEffect(() => {
     async function findPatient() {

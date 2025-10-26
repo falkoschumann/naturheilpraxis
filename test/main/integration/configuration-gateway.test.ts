@@ -1,13 +1,14 @@
 // Copyright (c) 2025 Falko Schumann. All rights reserved. MIT license.
 
+import path from "node:path";
+
 import { describe, expect, it } from "vitest";
 
+import type { Configuration } from "../../../src/shared/domain/configuration";
 import {
   ConfigurationGateway,
   DEFAULT_CONFIGURATION,
-} from "../../src/main/infrastructure/configuration-gateway";
-import path from "node:path";
-import type { Configuration } from "../../src/shared/domain/configuration";
+} from "../../../src/main/infrastructure/configuration-gateway";
 
 const TEST_FILE = path.resolve(
   __dirname,
@@ -15,15 +16,15 @@ const TEST_FILE = path.resolve(
 );
 const NON_EXISTING_FILE = path.resolve(
   __dirname,
-  "../data/configuration.non-existent.json",
+  "../data/configuration/non-existent.json",
 );
 const EXAMPLE_FILE = path.resolve(
   __dirname,
-  "../data/configuration.example.json",
+  "../data/configuration/example.json",
 );
 const CORRUPTED_FILE = path.resolve(
   __dirname,
-  "../data/configuration.corrupt.json",
+  "../data/configuration/corrupt.json",
 );
 
 describe("Configuration gateway", () => {

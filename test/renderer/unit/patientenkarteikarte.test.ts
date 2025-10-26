@@ -2,24 +2,43 @@
 
 import { describe, expect, it } from "vitest";
 
-import { createTestConfiguration } from "../../src/shared/domain/configuration";
+import { createTestConfiguration } from "../../../src/shared/domain/configuration";
 import {
   cancelled,
+  configure,
   done,
   found,
-  init,
+  initialState,
   reducer,
   type State,
   submit,
   updated,
-} from "../../src/renderer/domain/patientenkarteikarte";
+} from "../../../src/renderer/domain/patientenkarteikarte";
 
-const initialState: State = init({ configuration: createTestConfiguration() });
+const configuredState: State = {
+  patient: {
+    nummer: -1,
+    nachname: "",
+    vorname: "",
+    geburtsdatum: "",
+    annahmejahr: new Date().getFullYear(),
+    praxis: "Praxis 1",
+    anrede: "Herr",
+    familienstand: "ledig",
+    schluesselworte: ["Aktiv", "Weihnachtskarte"],
+  },
+  state: "new",
+  canSubmit: false,
+  canCancel: false,
+  isReadOnly: false,
+  submitButtonText: "Aufnehmen",
+  configuration: createTestConfiguration(),
+};
 
 const newState: State = {
-  ...initialState,
+  ...configuredState,
   patient: {
-    ...initialState.patient,
+    ...configuredState.patient,
     geburtsdatum: "1980-01-01",
     vorname: "Max",
     nachname: "Mustermann",
@@ -41,9 +60,9 @@ const workingNewState: State = {
 };
 
 const viewState: State = {
-  ...initialState,
+  ...configuredState,
   patient: {
-    ...initialState.patient,
+    ...configuredState.patient,
     nummer: 1,
     geburtsdatum: "1980-01-01",
     vorname: "Max",
@@ -76,32 +95,20 @@ const workingEditState: State = {
 
 describe("Patientenkarteikarte reducer", () => {
   it("Initialisierung", () => {
-    const expectedState: State = {
-      patient: {
-        nummer: -1,
-        nachname: "",
-        vorname: "",
-        geburtsdatum: "",
-        annahmejahr: new Date().getFullYear(),
-        praxis: "Praxis 1",
-        anrede: "Herr",
-        familienstand: "ledig",
-        schluesselworte: ["Aktiv", "Weihnachtskarte"],
-      },
-      state: "new",
-      canSubmit: false,
-      canCancel: false,
-      isReadOnly: false,
-      submitButtonText: "Aufnehmen",
-      configuration: createTestConfiguration(),
-    };
-    expect(initialState).toEqual<State>(expectedState);
+    let state = initialState;
+
+    state = reducer(
+      state,
+      configure({ configuration: createTestConfiguration() }),
+    );
+
+    expect(state).toEqual<State>(configuredState);
   });
 
   describe("Aufnahme (new)", () => {
     it("Updated", () => {
       const log: State[] = [];
-      let state = initialState;
+      let state = configuredState;
 
       state = reducer(
         state,
@@ -115,18 +122,18 @@ describe("Patientenkarteikarte reducer", () => {
 
       expect(log).toEqual<State[]>([
         {
-          ...initialState,
+          ...configuredState,
           patient: {
-            ...initialState.patient,
+            ...configuredState.patient,
             geburtsdatum: "1980-01-01",
           },
           canSubmit: false,
           canCancel: true, // Cancellable after update
         },
         {
-          ...initialState,
+          ...configuredState,
           patient: {
-            ...initialState.patient,
+            ...configuredState.patient,
             geburtsdatum: "1980-01-01",
             vorname: "Max",
           },
@@ -134,9 +141,9 @@ describe("Patientenkarteikarte reducer", () => {
           canCancel: true,
         },
         {
-          ...initialState,
+          ...configuredState,
           patient: {
-            ...initialState.patient,
+            ...configuredState.patient,
             geburtsdatum: "1980-01-01",
             vorname: "Max",
             nachname: "Mustermann",
@@ -167,11 +174,11 @@ describe("Patientenkarteikarte reducer", () => {
 
       state = reducer(state, cancelled());
 
-      expect(state).toEqual<State>(initialState);
+      expect(state).toEqual<State>(configuredState);
     });
 
     it("Found with patient", () => {
-      let state = initialState;
+      let state = configuredState;
       const patient = viewState.patient;
 
       state = reducer(state, found({ patient }));
@@ -180,11 +187,11 @@ describe("Patientenkarteikarte reducer", () => {
     });
 
     it("Found without patient", () => {
-      let state = initialState;
+      let state = configuredState;
 
       state = reducer(state, found({ patient: undefined }));
 
-      expect(state).toEqual<State>(initialState);
+      expect(state).toEqual<State>(configuredState);
     });
   });
 

@@ -6,11 +6,11 @@ import path from "node:path";
 import { CloudEvent, type CloudEventV1 } from "cloudevents";
 import { beforeEach, describe, expect, it } from "vitest";
 
-import { arrayFromAsync } from "../../src/shared/common/polyfills";
+import { arrayFromAsync } from "../../../src/shared/common/polyfills";
 import {
   MemoryEventStore,
   NdjsonEventStore,
-} from "../../src/main/infrastructure/event-store";
+} from "../../../src/main/infrastructure/event-store";
 
 const TEST_FILE = path.resolve(
   __dirname,
@@ -18,15 +18,15 @@ const TEST_FILE = path.resolve(
 );
 const NON_EXISTING_FILE = path.resolve(
   __dirname,
-  "../data/event-store.non-existent.ndjson",
+  "../data/event-store/non-existent.ndjson",
 );
 const EXAMPLE_FILE = path.resolve(
   __dirname,
-  "../data/event-store.example.ndjson",
+  "../data/event-store/example.ndjson",
 );
 const CORRUPTED_FILE = path.resolve(
   __dirname,
-  "../data/event-store.corrupt.ndjson",
+  "../data/event-store/corrupt.ndjson",
 );
 
 describe("Event store", () => {

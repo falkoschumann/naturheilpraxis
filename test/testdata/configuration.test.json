@@ -1,0 +1,20 @@
+{
+  "praxis": [
+    "Testpraxis"
+  ],
+  "anrede": [
+    "Herr",
+    "Frau"
+  ],
+  "familienstand": [
+    "ledig",
+    "verheiratet"
+  ],
+  "schluesselworte": [
+    "Test",
+    "Beispiel"
+  ],
+  "defaultSchluesselworte": [
+    "Test"
+  ]
+}

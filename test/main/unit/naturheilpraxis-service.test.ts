@@ -1,20 +1,21 @@
 // Copyright (c) 2025 Falko Schumann. All rights reserved. MIT license.
 
+import type { CloudEventV1 } from "cloudevents";
 import { describe, expect, it } from "vitest";
-import { arrayFromAsync } from "../../src/shared/common/polyfills";
-import { NaturheilpraxisService } from "../../src/main/application/naturheilpraxis-service";
-import { MemoryEventStore } from "../../src/main/infrastructure/event-store";
-import {
-  CLOUD_EVENT_SPEC_VERSION,
-  PATIENT_AUFGENOMMEN_V1_EVENT_TYPE,
-  PATIENT_SOURCE,
-} from "../../src/main/infrastructure/events";
+
+import { arrayFromAsync } from "../../../src/shared/common/polyfills";
+import { NaturheilpraxisService } from "../../../src/main/application/naturheilpraxis-service";
 import {
   type NimmPatientAufCommandStatus,
   NimmPatientAufSuccess,
   type PatientenkarteiQueryResult,
-} from "../../src/shared/domain/naturheilpraxis";
-import type { CloudEventV1 } from "cloudevents";
+} from "../../../src/shared/domain/naturheilpraxis";
+import { MemoryEventStore } from "../../../src/main/infrastructure/event-store";
+import {
+  CLOUD_EVENT_SPEC_VERSION,
+  PATIENT_AUFGENOMMEN_V1_EVENT_TYPE,
+  PATIENT_SOURCE,
+} from "../../../src/main/infrastructure/events";
 
 describe("Naturheilpraxis Service", () => {
   describe("Nimm Patient auf", () => {

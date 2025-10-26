@@ -9,7 +9,7 @@ import type {
 } from "../shared/domain/naturheilpraxis";
 
 export interface Naturheilpraxis {
-  configuration: Configuration;
+  configuration: () => Promise<Configuration>;
 
   nimmPatientAuf: (
     command: NimmPatientAufCommand,

@@ -19,7 +19,6 @@ Create a file `.env.local` with:
 
 ```bash
 APPLE_ID=<your-apple-id>
-APPLE_PASSWORD=<app-specific-password>
+APPLE_APP_SPECIFIC_PASSWORD=<your-app-specific-password>
 APPLE_TEAM_ID=<your-team-id>
-SIGN=true
 ```

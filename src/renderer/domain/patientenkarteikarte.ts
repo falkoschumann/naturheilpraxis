@@ -12,6 +12,18 @@ import {
 // Actions and Action Creators
 //
 
+const CONFIGURE_ACTION = "configure";
+
+type ConfigurePayload = {
+  configuration: Configuration;
+};
+
+export function configure(
+  payload: ConfigurePayload,
+): FluxStandardActionAuto<typeof CONFIGURE_ACTION, ConfigurePayload> {
+  return { type: CONFIGURE_ACTION, payload };
+}
+
 const UPDATED_ACTION = "updated";
 
 type UpdatedPayload = {
@@ -63,17 +75,30 @@ export function found(
 // State and Reducer
 //
 
-export type FormState = "new" | "view" | "edit" | "working";
+export const FormState = Object.freeze({
+  NEW: "new",
+  VIEW: "view",
+  EDIT: "edit",
+  WORKING: "working",
+});
 
-export type SubmitText = "Aufnehmen" | "Bearbeiten" | "Speichern";
+export type FormStateType = (typeof FormState)[keyof typeof FormState];
+
+export const SubmitText = Object.freeze({
+  AUFNEHMEN: "Aufnehmen",
+  BEARBEITEN: "Bearbeiten",
+  SPEICHERN: "Speichern",
+});
+
+export type SubmitTextType = (typeof SubmitText)[keyof typeof SubmitText];
 
 export interface State {
   patient: Patient;
-  state: FormState;
+  state: FormStateType;
   canSubmit: boolean;
   canCancel: boolean;
   isReadOnly: boolean;
-  submitButtonText: SubmitText;
+  submitButtonText: SubmitTextType;
   configuration: {
     praxis: string[];
     anrede: string[];
@@ -83,29 +108,24 @@ export interface State {
   };
 }
 
-export function init({
-  configuration = window.naturheilpraxis.configuration,
-}: {
-  configuration?: Configuration;
-} = {}): State {
-  return {
-    patient: createPatient({
-      annahmejahr: new Date().getFullYear(),
-      praxis: configuration.praxis[0],
-      anrede: configuration.anrede[0],
-      familienstand: configuration.familienstand[0],
-      schluesselworte: configuration.defaultSchluesselworte,
-    }),
-    state: "new",
-    canSubmit: false,
-    canCancel: false,
-    isReadOnly: false,
-    submitButtonText: "Aufnehmen",
-    configuration,
-  };
-}
+export const initialState: State = {
+  patient: createPatient(),
+  state: FormState.NEW,
+  canSubmit: false,
+  canCancel: false,
+  isReadOnly: false,
+  submitButtonText: SubmitText.AUFNEHMEN,
+  configuration: {
+    praxis: [],
+    anrede: [],
+    familienstand: [],
+    schluesselworte: [],
+    defaultSchluesselworte: [],
+  },
+};
 
 export type Action =
+  | ReturnType<typeof configure>
   | ReturnType<typeof updated>
   | ReturnType<typeof submit>
   | ReturnType<typeof done>
@@ -114,6 +134,22 @@ export type Action =
 
 export function reducer(state: State, action: Action): State {
   switch (action.type) {
+    case CONFIGURE_ACTION:
+      return {
+        patient: createPatient({
+          annahmejahr: new Date().getFullYear(),
+          praxis: action.payload.configuration.praxis[0],
+          anrede: action.payload.configuration.anrede[0],
+          familienstand: action.payload.configuration.familienstand[0],
+          schluesselworte: action.payload.configuration.defaultSchluesselworte,
+        }),
+        state: "new",
+        canSubmit: false,
+        canCancel: false,
+        isReadOnly: false,
+        submitButtonText: "Aufnehmen",
+        configuration: action.payload.configuration,
+      };
     case UPDATED_ACTION: {
       const patient = {
         ...state.patient,
@@ -167,7 +203,21 @@ export function reducer(state: State, action: Action): State {
       };
     case CANCELLED_ACTION:
       if (state.state === "new") {
-        return init({ configuration: state.configuration });
+        return {
+          patient: createPatient({
+            annahmejahr: new Date().getFullYear(),
+            praxis: state.configuration.praxis[0],
+            anrede: state.configuration.anrede[0],
+            familienstand: state.configuration.familienstand[0],
+            schluesselworte: state.configuration.defaultSchluesselworte,
+          }),
+          state: "new",
+          canSubmit: false,
+          canCancel: false,
+          isReadOnly: false,
+          submitButtonText: "Aufnehmen",
+          configuration: state.configuration,
+        };
       } else {
         return {
           ...state,
@@ -190,7 +240,21 @@ export function reducer(state: State, action: Action): State {
           submitButtonText: "Bearbeiten",
         };
       } else {
-        return init({ configuration: state.configuration });
+        return {
+          patient: createPatient({
+            annahmejahr: new Date().getFullYear(),
+            praxis: state.configuration.praxis[0],
+            anrede: state.configuration.anrede[0],
+            familienstand: state.configuration.familienstand[0],
+            schluesselworte: state.configuration.defaultSchluesselworte,
+          }),
+          state: "new",
+          canSubmit: false,
+          canCancel: false,
+          isReadOnly: false,
+          submitButtonText: "Aufnehmen",
+          configuration: state.configuration,
+        };
       }
     default:
       throw new Error(

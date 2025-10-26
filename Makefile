@@ -1,6 +1,3 @@
--include .env.local
-export $(shell sed 's/=.*//' .env.local)
-
 PLANTUML_FILES = $(wildcard doc/*.puml)
 DIAGRAM_FILES = $(subst .puml,.png,$(PLANTUML_FILES))
 
@@ -13,13 +10,10 @@ distclean: clean
 	rm -rf dist
 	rm -rf node_modules
 
-# TODO Build only one platform and configure platform, arch and target via environment variable
 dist: build
-	npm run make
-#	npm run make -- --platform darwin --arch arm64 --targets @electron-forge/maker-zip
-#	npm run make -- --platform darwin --arch x64 --targets @electron-forge/maker-zip
-#	npm run make -- --platform win32 --arch x64 --targets @electron-forge/maker-zip
-#	npm run make -- --platform win32 --arch arm64 --targets @electron-forge/maker-zip
+	npm run build:electron
+#	npm run build:mac
+#	npm run build:win
 
 start: prepare
 	npm start

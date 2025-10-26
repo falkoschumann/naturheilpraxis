@@ -1,8 +1,9 @@
 // Copyright (c) 2025 Falko Schumann. All rights reserved. MIT license.
 
 import { describe, it } from "vitest";
-import { NaturheilpraxisService } from "../../src/main/application/naturheilpraxis-service";
-import { NdjsonEventStore } from "../../src/main/infrastructure/event-store";
+
+import { NaturheilpraxisService } from "../../../src/main/application/naturheilpraxis-service";
+import { NdjsonEventStore } from "../../../src/main/infrastructure/event-store";
 
 describe("Performance", () => {
   it("Queries Patientenkartei", async () => {
