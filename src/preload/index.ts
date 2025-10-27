@@ -13,7 +13,7 @@ import {
   CONFIGURATION_CHANNEL,
   NIMM_PATIENT_AUF_CHANNEL,
   QUERY_PATIENTENKARTEI_CHANNEL,
-} from "../shared/infrastructur/channels";
+} from "../shared/infrastructure/channels";
 
 contextBridge.exposeInMainWorld("naturheilpraxis", {
   configuration: (): Promise<Configuration> =>

@@ -18,7 +18,7 @@ import {
   CONFIGURATION_CHANNEL,
   NIMM_PATIENT_AUF_CHANNEL,
   QUERY_PATIENTENKARTEI_CHANNEL,
-} from "../shared/infrastructur/channels";
+} from "../shared/infrastructure/channels";
 import { NdjsonEventStore } from "./infrastructure/event-store";
 import { ConfigurationGateway } from "./infrastructure/configuration-gateway";
 import icon from "../../build/icon.png?asset";
