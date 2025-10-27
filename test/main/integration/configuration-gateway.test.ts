@@ -12,7 +12,7 @@ import {
 
 const TEST_FILE = path.resolve(
   __dirname,
-  "../../testdata/configuration.test.json",
+  "../../../testdata/configuration.test.json",
 );
 const NON_EXISTING_FILE = path.resolve(
   __dirname,

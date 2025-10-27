@@ -4,7 +4,7 @@ import fsPromise from "node:fs/promises";
 import path from "node:path";
 
 import { CloudEvent, type CloudEventV1 } from "cloudevents";
-import { beforeEach, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 
 import { arrayFromAsync } from "../../../src/shared/common/polyfills";
 import {
@@ -14,7 +14,7 @@ import {
 
 const TEST_FILE = path.resolve(
   __dirname,
-  "../../testdata/event-store.test.ndjson",
+  "../../../testdata/event-store.test.ndjson",
 );
 const NON_EXISTING_FILE = path.resolve(
   __dirname,
@@ -43,11 +43,8 @@ describe("Event store", () => {
   });
 
   describe("NDJSON event store", () => {
-    beforeEach(async () => {
-      await fsPromise.rm(TEST_FILE, { force: true });
-    });
-
     it("Replays recorded events", async () => {
+      await fsPromise.rm(TEST_FILE, { force: true });
       const store = new NdjsonEventStore(TEST_FILE);
 
       const event = createTestCloudEvent();

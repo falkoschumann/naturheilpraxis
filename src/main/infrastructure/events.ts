@@ -1,8 +1,6 @@
 // Copyright (c) 2025 Falko Schumann. All rights reserved. MIT license.
 
-import { CloudEvent, type CloudEventV1 } from "cloudevents";
-
-export const CLOUD_EVENT_SPEC_VERSION = "1.0";
+import { CloudEvent, type CloudEventV1, V1 } from "cloudevents";
 
 export const PATIENT_SOURCE = "/naturheilpraxis/patient";
 
@@ -49,7 +47,7 @@ export class PatientAufgenommenV1Event extends CloudEvent<PatientAufgenommenData
       id: crypto.randomUUID(),
       type: PATIENT_AUFGENOMMEN_V1_EVENT_TYPE,
       source: PATIENT_SOURCE,
-      specversion: CLOUD_EVENT_SPEC_VERSION,
+      specversion: V1,
       data,
     });
   }

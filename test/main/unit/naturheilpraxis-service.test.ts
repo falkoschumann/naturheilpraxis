@@ -1,6 +1,6 @@
 // Copyright (c) 2025 Falko Schumann. All rights reserved. MIT license.
 
-import type { CloudEventV1 } from "cloudevents";
+import { type CloudEventV1, V1 } from "cloudevents";
 import { describe, expect, it } from "vitest";
 
 import { arrayFromAsync } from "../../../src/shared/common/polyfills";
@@ -12,7 +12,6 @@ import {
 } from "../../../src/shared/domain/naturheilpraxis";
 import { MemoryEventStore } from "../../../src/main/infrastructure/event-store";
 import {
-  CLOUD_EVENT_SPEC_VERSION,
   PATIENT_AUFGENOMMEN_V1_EVENT_TYPE,
   PATIENT_SOURCE,
 } from "../../../src/main/infrastructure/events";
@@ -34,7 +33,7 @@ describe("Naturheilpraxis Service", () => {
           id: expect.any(String),
           type: PATIENT_AUFGENOMMEN_V1_EVENT_TYPE,
           source: PATIENT_SOURCE,
-          specversion: CLOUD_EVENT_SPEC_VERSION,
+          specversion: V1,
           time: expect.any(String),
           data: { ...createTestPatient(), nummer: 1 },
         },
@@ -62,7 +61,7 @@ describe("Naturheilpraxis Service", () => {
           id: expect.any(String),
           type: PATIENT_AUFGENOMMEN_V1_EVENT_TYPE,
           source: PATIENT_SOURCE,
-          specversion: CLOUD_EVENT_SPEC_VERSION,
+          specversion: V1,
           time: expect.any(String),
           data: {
             ...createTestPatient(),
@@ -91,7 +90,7 @@ describe("Naturheilpraxis Service", () => {
           id: expect.any(String),
           type: PATIENT_AUFGENOMMEN_V1_EVENT_TYPE,
           source: PATIENT_SOURCE,
-          specversion: CLOUD_EVENT_SPEC_VERSION,
+          specversion: V1,
           time: expect.any(String),
           data: { ...createTestPatient(), nummer: 1 },
         },
