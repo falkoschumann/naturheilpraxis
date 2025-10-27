@@ -1,6 +1,6 @@
 // Copyright (c) 2025 Falko Schumann. All rights reserved. MIT license.
 
-import fsPromise from "node:fs/promises";
+import fs from "node:fs/promises";
 import path from "node:path";
 
 import { CloudEvent, type CloudEventV1 } from "cloudevents";
@@ -34,17 +34,18 @@ export class NdjsonEventStore implements EventStore {
 
   async record(event: CloudEventV1<unknown>): Promise<void> {
     const dirName = path.dirname(this.#fileName);
-    await fsPromise.mkdir(dirName, { recursive: true });
+    await fs.mkdir(dirName, { recursive: true });
 
+    event = new CloudEvent(event);
     const json = JSON.stringify(event);
-    const file = await fsPromise.open(this.#fileName, "a");
+    const file = await fs.open(this.#fileName, "a");
     await file.write(`${json}\n`, null, "utf8");
     await file.close();
   }
 
   async *replay(): AsyncGenerator<CloudEventV1<unknown>> {
     try {
-      const file = await fsPromise.open(this.#fileName, "r");
+      const file = await fs.open(this.#fileName, "r");
       for await (const line of file.readLines({ encoding: "utf8" })) {
         const json = JSON.parse(line);
         yield new CloudEvent(json);
