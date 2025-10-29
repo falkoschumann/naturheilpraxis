@@ -2,7 +2,11 @@
 
 import { describe, expect, it } from "vitest";
 
-import { parse, stringify } from "../../../src/main/infrastructure/ndjson";
+import {
+  parse,
+  stringify,
+  type StringifyOptions,
+} from "../../../src/main/infrastructure/ndjson";
 
 describe("NDJSON", () => {
   describe("Parser", () => {
@@ -32,8 +36,9 @@ describe("NDJSON", () => {
   });
 
   describe("Stringify", () => {
-    it("should stringify an object", () => {
+    it("should stringify with newline as default line delimiter", () => {
       const output = stringifyRecords(
+        undefined,
         { foo: "bar" },
         { baz: 42 },
         { qux: [1, 2, 3] },
@@ -41,6 +46,19 @@ describe("NDJSON", () => {
 
       expect(output).toEqual<string>(
         '{"foo":"bar"}\n{"baz":42}\n{"qux":[1,2,3]}\n',
+      );
+    });
+
+    it("should stringify with carriage return and newline as line delimiter", () => {
+      const output = stringifyRecords(
+        { recordDelimiter: "\r\n" },
+        { foo: "bar" },
+        { baz: 42 },
+        { qux: [1, 2, 3] },
+      );
+
+      expect(output).toEqual<string>(
+        '{"foo":"bar"}\r\n{"baz":42}\r\n{"qux":[1,2,3]}\r\n',
       );
     });
   });
@@ -57,8 +75,11 @@ function parseRecords(...chunks: string[]): Record<string, unknown>[] {
   return records;
 }
 
-function stringifyRecords(...records: Record<string, unknown>[]): string {
-  const stringifier = stringify();
+function stringifyRecords(
+  options?: StringifyOptions,
+  ...records: Record<string, unknown>[]
+): string {
+  const stringifier = stringify(options);
   let output = "";
   stringifier.on("data", (record) => (output += record));
 

@@ -12,7 +12,10 @@ export class Parser extends stream.Transform {
   #buffer = "";
 
   constructor() {
-    super({ writableObjectMode: false, readableObjectMode: true });
+    super({
+      writableObjectMode: false,
+      readableObjectMode: true,
+    });
   }
 
   _transform(
@@ -67,13 +70,23 @@ export class Parser extends stream.Transform {
   }
 }
 
-export function stringify() {
-  return new Stringify();
+export interface StringifyOptions {
+  recordDelimiter?: string;
+}
+
+export function stringify(options: StringifyOptions = {}) {
+  return new Stringify(options);
 }
 
 export class Stringify extends stream.Transform {
-  constructor() {
-    super({ writableObjectMode: true, readableObjectMode: false });
+  #recordDelimiter: string;
+
+  constructor(options: StringifyOptions = {}) {
+    super({
+      writableObjectMode: true,
+      readableObjectMode: false,
+    });
+    this.#recordDelimiter = options.recordDelimiter ?? "\n";
   }
 
   _transform(
@@ -83,7 +96,7 @@ export class Stringify extends stream.Transform {
   ) {
     try {
       const json = JSON.stringify(chunk);
-      this.push(json + "\n");
+      this.push(json + this.#recordDelimiter);
       callback();
     } catch (err) {
       callback(err as Error);
