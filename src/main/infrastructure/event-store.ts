@@ -5,6 +5,8 @@ import path from "node:path";
 
 import { CloudEvent, type CloudEventV1 } from "cloudevents";
 
+import * as ndjson from "./ndjson";
+
 export interface EventStore {
   record(event: CloudEventV1<unknown>): Promise<void>;
 
@@ -33,24 +35,30 @@ export class NdjsonEventStore implements EventStore {
   }
 
   async record(event: CloudEventV1<unknown>): Promise<void> {
-    const dirName = path.dirname(this.#fileName);
-    await fs.mkdir(dirName, { recursive: true });
+    let file: fs.FileHandle | undefined;
+    try {
+      const dirName = path.dirname(this.#fileName);
+      await fs.mkdir(dirName, { recursive: true });
 
-    event = new CloudEvent(event);
-    const json = JSON.stringify(event);
-    const file = await fs.open(this.#fileName, "a");
-    await file.write(`${json}\n`, null, "utf8");
-    await file.close();
+      const stringifier = ndjson.stringify();
+      const file = await fs.open(this.#fileName, "a");
+      const stream = file.createWriteStream();
+      stringifier.pipe(stream);
+      stringifier.write(new CloudEvent(event));
+      stringifier.end();
+    } finally {
+      await file?.close();
+    }
   }
 
   async *replay(): AsyncGenerator<CloudEventV1<unknown>> {
+    let file: fs.FileHandle | undefined;
     try {
-      const file = await fs.open(this.#fileName, "r");
-      for await (const line of file.readLines({ encoding: "utf8" })) {
-        const json = JSON.parse(line);
-        yield new CloudEvent(json);
+      file = await fs.open(this.#fileName);
+      const parser = file.createReadStream().pipe(ndjson.parse());
+      for await (const record of parser) {
+        yield new CloudEvent(record);
       }
-      await file.close();
     } catch (error) {
       if ((error as NodeJS.ErrnoException).code === "ENOENT") {
         // No such file or directory, no events recorded yet
@@ -58,6 +66,8 @@ export class NdjsonEventStore implements EventStore {
       }
 
       throw error;
+    } finally {
+      file?.close();
     }
   }
 }
