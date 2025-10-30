@@ -4,18 +4,31 @@
 
 import stream from "node:stream";
 
-export function parse() {
-  return new Parser();
+export interface ParseOptions {
+  skipEmptyLines?: boolean;
+  skipRecordWithError?: boolean;
+  onSkip?: (message: string, record: string) => void;
+}
+
+export function parse(options: ParseOptions = {}) {
+  return new Parser(options);
 }
 
 export class Parser extends stream.Transform {
+  readonly #skipEmptyLines: boolean;
+  readonly #skipRecordWithError: boolean;
+  readonly #onSkip?: (message: string, record: string) => void;
+
   #buffer = "";
 
-  constructor() {
+  constructor(options: ParseOptions = {}) {
     super({
       writableObjectMode: false,
       readableObjectMode: true,
     });
+    this.#skipEmptyLines = options.skipEmptyLines ?? false;
+    this.#skipRecordWithError = options.skipRecordWithError ?? false;
+    this.#onSkip = options.onSkip;
   }
 
   _transform(
@@ -35,15 +48,27 @@ export class Parser extends stream.Transform {
 
       const trimmed = line.trim();
       if (trimmed === "") {
-        continue;
+        if (this.#skipEmptyLines) {
+          continue;
+        }
+
+        this.emit("error", new SyntaxError("Line is empty."));
       }
 
       try {
         const json = JSON.parse(trimmed);
         this.push(json);
       } catch (err) {
-        callback(err as Error);
-        return;
+        if (!this.#skipRecordWithError) {
+          this.emit("error", err);
+        }
+
+        if (this.#onSkip) {
+          this.#onSkip(
+            `Skipping record due to error: ${(err as Error).message}`,
+            trimmed,
+          );
+        }
       }
     }
 
@@ -62,7 +87,7 @@ export class Parser extends stream.Transform {
         const json = JSON.parse(trimmed);
         this.push(json);
       } catch (err) {
-        callback(err as Error);
+        this.emit("error", err);
         return;
       }
     }
@@ -75,10 +100,10 @@ export interface StringifyOptions {
 }
 
 export function stringify(options: StringifyOptions = {}) {
-  return new Stringify(options);
+  return new Stringifier(options);
 }
 
-export class Stringify extends stream.Transform {
+export class Stringifier extends stream.Transform {
   #recordDelimiter: string;
 
   constructor(options: StringifyOptions = {}) {
@@ -99,7 +124,7 @@ export class Stringify extends stream.Transform {
       this.push(json + this.#recordDelimiter);
       callback();
     } catch (err) {
-      callback(err as Error);
+      this.emit("error", err);
     }
   }
 }

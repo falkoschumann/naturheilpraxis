@@ -4,14 +4,16 @@ import { describe, expect, it } from "vitest";
 
 import {
   parse,
+  type ParseOptions,
   stringify,
   type StringifyOptions,
 } from "../../../src/main/infrastructure/ndjson";
 
 describe("NDJSON", () => {
   describe("Parser", () => {
-    it("should parse with newline as line delimiter", async () => {
+    it("should parse with newline as line delimiter", () => {
       const records = parseRecords(
+        undefined,
         '{"foo":"bar"}\n{"baz":42}\n{"qux":[1,2,3]}\n',
       );
 
@@ -22,8 +24,9 @@ describe("NDJSON", () => {
       ]);
     });
 
-    it("should parse with carriage return and newline as line delimiter", async () => {
+    it("should parse with carriage return and newline as line delimiter", () => {
       const records = parseRecords(
+        undefined,
         '{"foo":"bar"}\r\n{"baz":42}\r\n{"qux":[1,2,3]}\r\n',
       );
 
@@ -32,6 +35,54 @@ describe("NDJSON", () => {
         { baz: 42 },
         { qux: [1, 2, 3] },
       ]);
+    });
+
+    it("should throw an error when a line is not parsable", () => {
+      // missing closing brace in second record
+      expect(() =>
+        parseRecords(undefined, '{"foo":"bar"}\n{"baz":42\n{"qux":[1,2,3]}\n'),
+      ).toThrow(SyntaxError);
+    });
+
+    it("should skip records with error", () => {
+      // missing closing brace in second record
+      const records = parseRecords(
+        { skipRecordWithError: true },
+        '{"foo":"bar"}\n{"baz":42\n{"qux":[1,2,3]}\n',
+      );
+
+      expect(records).toEqual([{ foo: "bar" }, { qux: [1, 2, 3] }]);
+    });
+
+    it("should log skipped records", () => {
+      const skipped: string[] = [];
+      // missing closing brace in second record
+      parseRecords(
+        {
+          skipRecordWithError: true,
+          onSkip: (_message, record) => skipped.push(record),
+        },
+        '{"foo":"bar"}\n{"baz":42\n{"qux":[1,2,3]}\n',
+      );
+
+      expect(skipped).toEqual(['{"baz":42']);
+    });
+
+    it("should throw an error when a line is empty", () => {
+      // second record is empty
+      expect(() =>
+        parseRecords(undefined, '{"foo":"bar"}\n\n{"qux":[1,2,3]}\n'),
+      ).toThrow(SyntaxError);
+    });
+
+    it("should skip empty line", () => {
+      // second record is empty
+      const records = parseRecords(
+        { skipEmptyLines: true },
+        '{"foo":"bar"}\n\n{"qux":[1,2,3]}\n',
+      );
+
+      expect(records).toEqual([{ foo: "bar" }, { qux: [1, 2, 3] }]);
     });
   });
 
@@ -64,8 +115,11 @@ describe("NDJSON", () => {
   });
 });
 
-function parseRecords(...chunks: string[]): Record<string, unknown>[] {
-  const parser = parse();
+function parseRecords(
+  options?: ParseOptions,
+  ...chunks: string[]
+): Record<string, unknown>[] {
+  const parser = parse(options);
   const records: Record<string, unknown>[] = [];
   parser.on("data", (record) => records.push(record));
 
