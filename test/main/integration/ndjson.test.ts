@@ -3,6 +3,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  NdjsonError,
   parse,
   type ParseOptions,
   stringify,
@@ -41,7 +42,7 @@ describe("NDJSON", () => {
       // missing closing brace in second record
       expect(() =>
         parseRecords(undefined, '{"foo":"bar"}\n{"baz":42\n{"qux":[1,2,3]}\n'),
-      ).toThrow(SyntaxError);
+      ).toThrow(NdjsonError);
       expect(() =>
         parseRecords(undefined, '{"foo":"bar"}\n{"baz":42\n{"qux":[1,2,3]}\n'),
       ).toThrow(/^Line 2 is not valid JSON: /);
@@ -68,36 +69,38 @@ describe("NDJSON", () => {
 
       expect(skipped).toEqual([
         {
-          error: expect.stringMatching(/^Skipping line 2 due to error: /),
+          error: expect.any(NdjsonError),
           raw: '{"baz":42',
         },
       ]);
+      expect(skipped[0].error.message).toMatch(/^Line 2 is not valid JSON: /);
     });
 
     it("should log skipped records", () => {
-      const skipped: { error: string; record: string }[] = [];
+      const skipped: { error: NdjsonError; raw: string }[] = [];
       // missing closing brace in second record
       parseRecords(
         {
           skipRecordWithError: true,
-          onSkip: (error, record) => skipped.push({ error, record }),
+          onSkip: (error, raw) => skipped.push({ error, raw }),
         },
         '{"foo":"bar"}\n{"baz":42\n{"qux":[1,2,3]}\n',
       );
 
       expect(skipped).toEqual([
         {
-          error: expect.stringMatching(/^Skipping line 2 due to error: /),
-          record: '{"baz":42',
+          error: expect.any(NdjsonError),
+          raw: '{"baz":42',
         },
       ]);
+      expect(skipped[0].error.message).toMatch(/^Line 2 is not valid JSON: /);
     });
 
     it("should throw an error when a line is empty", () => {
       // second record is empty
       expect(() =>
         parseRecords(undefined, '{"foo":"bar"}\n\n{"qux":[1,2,3]}\n'),
-      ).toThrow(SyntaxError("Line 2 is empty."));
+      ).toThrow(new NdjsonError("Line 2 is empty."));
     });
 
     it("should skip empty line", () => {
@@ -156,11 +159,11 @@ function parseRecords(
   ...chunks: string[]
 ): {
   records: Record<string, unknown>[];
-  skipped: { error: string; raw: string }[];
+  skipped: { error: NdjsonError; raw: string }[];
 } {
   const parser = parse(options);
   const records: Record<string, unknown>[] = [];
-  const skipped: { error: string; raw: string }[] = [];
+  const skipped: { error: NdjsonError; raw: string }[] = [];
   parser.on("data", (record) => records.push(record));
   parser.on("skip", (error, raw) => skipped.push({ error, raw }));
 

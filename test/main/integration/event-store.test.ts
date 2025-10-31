@@ -11,6 +11,7 @@ import {
   MemoryEventStore,
   NdjsonEventStore,
 } from "../../../src/main/infrastructure/event-store";
+import { NdjsonError } from "../../../src/main/infrastructure/ndjson";
 
 const TEST_FILE = path.resolve(
   __dirname,
@@ -90,7 +91,7 @@ describe("Event store", () => {
 
       const result = arrayFromAsync(store.replay());
 
-      await expect(result).rejects.toThrow(SyntaxError);
+      await expect(result).rejects.toThrow(NdjsonError);
     });
   });
 });

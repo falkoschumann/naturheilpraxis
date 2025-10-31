@@ -7,7 +7,7 @@ import stream from "node:stream";
 export interface ParseOptions {
   skipEmptyLines?: boolean;
   skipRecordWithError?: boolean;
-  onSkip?: (error: string, raw: string) => void;
+  onSkip?: (error: NdjsonError, raw: string) => void;
 }
 
 export function parse(options: ParseOptions = {}) {
@@ -17,7 +17,7 @@ export function parse(options: ParseOptions = {}) {
 export class Parser extends stream.Transform {
   readonly #skipEmptyLines: boolean;
   readonly #skipRecordWithError: boolean;
-  readonly #onSkip: (error: string, raw: string) => void;
+  readonly #onSkip: (error: NdjsonError, raw: string) => void;
 
   #buffer = "";
   #line = 0;
@@ -58,26 +58,21 @@ export class Parser extends stream.Transform {
           continue;
         }
 
-        this.emit("error", new SyntaxError(`Line ${this.#line} is empty.`));
+        this.emit("error", new NdjsonError(`Line ${this.#line} is empty.`));
       }
 
       try {
         const json = JSON.parse(trimmed);
         this.push(json);
       } catch (error) {
+        const ndjsonError = new NdjsonError(
+          `Line ${this.#line} is not valid JSON: ${(error as Error).message}`,
+        );
         if (!this.#skipRecordWithError) {
-          this.emit(
-            "error",
-            new SyntaxError(
-              `Line ${this.#line} is not valid JSON: ${(error as Error).message}`,
-            ),
-          );
+          this.emit("error", ndjsonError);
         }
 
-        this.#onSkip(
-          `Skipping line ${this.#line} due to error: ${(error as Error).message}`,
-          line,
-        );
+        this.#onSkip(ndjsonError, line);
       }
     }
 
@@ -95,7 +90,7 @@ export class Parser extends stream.Transform {
       } catch (error) {
         this.emit(
           "error",
-          new SyntaxError(
+          new NdjsonError(
             `Line ${this.#line} is not valid JSON: ${(error as Error).message}`,
           ),
         );
@@ -137,5 +132,12 @@ export class Stringifier extends stream.Transform {
     } catch (err) {
       this.emit("error", err);
     }
+  }
+}
+
+export class NdjsonError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "NdjsonError";
   }
 }
