@@ -58,7 +58,10 @@ export class Parser extends stream.Transform {
           continue;
         }
 
-        this.emit("error", new NdjsonError(`Line ${this.#line} is empty.`));
+        const ndjsonError = new NdjsonError(`Line ${this.#line} is empty.`);
+        callback(ndjsonError);
+        this.destroy(ndjsonError);
+        return;
       }
 
       try {
@@ -69,7 +72,9 @@ export class Parser extends stream.Transform {
           `Line ${this.#line} is not valid JSON: ${(error as Error).message}`,
         );
         if (!this.#skipRecordWithError) {
-          this.emit("error", ndjsonError);
+          callback(ndjsonError);
+          this.destroy(ndjsonError);
+          return;
         }
 
         this.#onSkip(ndjsonError, line);
@@ -88,12 +93,12 @@ export class Parser extends stream.Transform {
         const json = JSON.parse(trimmed);
         this.push(json);
       } catch (error) {
-        this.emit(
-          "error",
-          new NdjsonError(
-            `Line ${this.#line} is not valid JSON: ${(error as Error).message}`,
-          ),
+        const ndjsonError = new NdjsonError(
+          `Line ${this.#line} is not valid JSON: ${(error as Error).message}`,
         );
+        callback(ndjsonError);
+        this.destroy(ndjsonError);
+        return;
       }
     }
 
@@ -130,7 +135,12 @@ export class Stringifier extends stream.Transform {
       this.push(json + this.#recordDelimiter);
       callback();
     } catch (err) {
-      this.emit("error", err);
+      const ndjsonError = new NdjsonError(
+        "Failed to stringify record: " + (err as Error).message,
+      );
+      callback(ndjsonError);
+      this.destroy(ndjsonError);
+      return;
     }
   }
 }
