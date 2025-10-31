@@ -7,7 +7,7 @@ import stream from "node:stream";
 export interface ParseOptions {
   skipEmptyLines?: boolean;
   skipRecordWithError?: boolean;
-  onSkip?: (message: string, record: string) => void;
+  onSkip?: (error: string, raw: string) => void;
 }
 
 export function parse(options: ParseOptions = {}) {
@@ -17,9 +17,10 @@ export function parse(options: ParseOptions = {}) {
 export class Parser extends stream.Transform {
   readonly #skipEmptyLines: boolean;
   readonly #skipRecordWithError: boolean;
-  readonly #onSkip?: (message: string, record: string) => void;
+  readonly #onSkip: (error: string, raw: string) => void;
 
   #buffer = "";
+  #line = 0;
 
   constructor(options: ParseOptions = {}) {
     super({
@@ -28,7 +29,11 @@ export class Parser extends stream.Transform {
     });
     this.#skipEmptyLines = options.skipEmptyLines ?? false;
     this.#skipRecordWithError = options.skipRecordWithError ?? false;
-    this.#onSkip = options.onSkip;
+    this.#onSkip =
+      options.onSkip ??
+      ((error, chunk) => {
+        this.emit("skip", error, chunk);
+      });
   }
 
   _transform(
@@ -40,6 +45,7 @@ export class Parser extends stream.Transform {
 
     let idx: number;
     while ((idx = this.#buffer.indexOf("\n")) !== -1) {
+      this.#line++;
       let line = this.#buffer.slice(0, idx);
       this.#buffer = this.#buffer.slice(idx + 1);
       if (line.endsWith("\r")) {
@@ -52,23 +58,26 @@ export class Parser extends stream.Transform {
           continue;
         }
 
-        this.emit("error", new SyntaxError("Line is empty."));
+        this.emit("error", new SyntaxError(`Line ${this.#line} is empty.`));
       }
 
       try {
         const json = JSON.parse(trimmed);
         this.push(json);
-      } catch (err) {
+      } catch (error) {
         if (!this.#skipRecordWithError) {
-          this.emit("error", err);
-        }
-
-        if (this.#onSkip) {
-          this.#onSkip(
-            `Skipping record due to error: ${(err as Error).message}`,
-            trimmed,
+          this.emit(
+            "error",
+            new SyntaxError(
+              `Line ${this.#line} is not valid JSON: ${(error as Error).message}`,
+            ),
           );
         }
+
+        this.#onSkip(
+          `Skipping line ${this.#line} due to error: ${(error as Error).message}`,
+          line,
+        );
       }
     }
 
@@ -76,21 +85,23 @@ export class Parser extends stream.Transform {
   }
 
   _flush(callback: (err?: Error | null) => void) {
-    let line = this.#buffer;
-    if (line.endsWith("\r")) {
-      line = line.slice(0, -1);
-    }
-
+    this.#line++;
+    const line = this.#buffer;
     const trimmed = line.trim();
     if (trimmed !== "") {
       try {
         const json = JSON.parse(trimmed);
         this.push(json);
-      } catch (err) {
-        this.emit("error", err);
-        return;
+      } catch (error) {
+        this.emit(
+          "error",
+          new SyntaxError(
+            `Line ${this.#line} is not valid JSON: ${(error as Error).message}`,
+          ),
+        );
       }
     }
+
     callback();
   }
 }

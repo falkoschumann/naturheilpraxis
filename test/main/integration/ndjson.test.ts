@@ -42,6 +42,9 @@ describe("NDJSON", () => {
       expect(() =>
         parseRecords(undefined, '{"foo":"bar"}\n{"baz":42\n{"qux":[1,2,3]}\n'),
       ).toThrow(SyntaxError);
+      expect(() =>
+        parseRecords(undefined, '{"foo":"bar"}\n{"baz":42\n{"qux":[1,2,3]}\n'),
+      ).toThrow(/^Line 2 is not valid JSON: /);
     });
 
     it("should skip records with error", () => {
@@ -54,25 +57,49 @@ describe("NDJSON", () => {
       expect(records).toEqual([{ foo: "bar" }, { qux: [1, 2, 3] }]);
     });
 
-    it("should log skipped records", () => {
-      const skipped: string[] = [];
+    it.skip("should emit skipped records", () => {
+      const skipped: { message: string; record: string }[] = [];
+      // TODO add skip event listener
       // missing closing brace in second record
       parseRecords(
         {
           skipRecordWithError: true,
-          onSkip: (_message, record) => skipped.push(record),
         },
         '{"foo":"bar"}\n{"baz":42\n{"qux":[1,2,3]}\n',
       );
 
-      expect(skipped).toEqual(['{"baz":42']);
+      expect(skipped).toEqual([
+        {
+          message: expect.stringMatching(/^Skipping line 2 due to error: /),
+          record: '{"baz":42',
+        },
+      ]);
+    });
+
+    it("should log skipped records", () => {
+      const skipped: { message: string; record: string }[] = [];
+      // missing closing brace in second record
+      parseRecords(
+        {
+          skipRecordWithError: true,
+          onSkip: (message, record) => skipped.push({ message, record }),
+        },
+        '{"foo":"bar"}\n{"baz":42\n{"qux":[1,2,3]}\n',
+      );
+
+      expect(skipped).toEqual([
+        {
+          message: expect.stringMatching(/^Skipping line 2 due to error: /),
+          record: '{"baz":42',
+        },
+      ]);
     });
 
     it("should throw an error when a line is empty", () => {
       // second record is empty
       expect(() =>
         parseRecords(undefined, '{"foo":"bar"}\n\n{"qux":[1,2,3]}\n'),
-      ).toThrow(SyntaxError);
+      ).toThrow(SyntaxError("Line 2 is empty."));
     });
 
     it("should skip empty line", () => {
@@ -111,6 +138,17 @@ describe("NDJSON", () => {
       expect(output).toEqual<string>(
         '{"foo":"bar"}\r\n{"baz":42}\r\n{"qux":[1,2,3]}\r\n',
       );
+    });
+
+    it("should throw an error when object can not stringify", () => {
+      expect(() =>
+        stringifyRecords(
+          undefined,
+          { foo: "bar" },
+          { baz: BigInt(42) },
+          { qux: [1, 2, 3] },
+        ),
+      ).toThrow(TypeError);
     });
   });
 });
