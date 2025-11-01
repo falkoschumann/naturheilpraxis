@@ -18,7 +18,7 @@ describe("NDJSON", () => {
         '{"foo":"bar"}\n{"baz":42}\n{"qux":[1,2,3]}\n',
       );
 
-      expect(records).toEqual([
+      expect(records).toEqual<JsonObject[]>([
         { foo: "bar" },
         { baz: 42 },
         { qux: [1, 2, 3] },
@@ -31,7 +31,7 @@ describe("NDJSON", () => {
         '{"foo":"bar"}\r\n{"baz":42}\r\n{"qux":[1,2,3]}\r\n',
       );
 
-      expect(records).toEqual<Record<string, unknown>[]>([
+      expect(records).toEqual<JsonObject[]>([
         { foo: "bar" },
         { baz: 42 },
         { qux: [1, 2, 3] },
@@ -45,7 +45,7 @@ describe("NDJSON", () => {
         '{"foo":"bar"}\n{"baz":42\n{"qux":[1,2,3]}\n',
       );
 
-      expect(errors).toEqual([expect.any(NdjsonError)]);
+      expect(errors).toEqual<JsonObject[]>([expect.any(NdjsonError)]);
       expect(errors[0].message).toMatch(/^Line 2 is not valid JSON: /);
     });
 
@@ -56,7 +56,10 @@ describe("NDJSON", () => {
         '{"foo":"bar"}\n{"baz":42\n{"qux":[1,2,3]}\n',
       );
 
-      expect(records).toEqual([{ foo: "bar" }, { qux: [1, 2, 3] }]);
+      expect(records).toEqual<JsonObject[]>([
+        { foo: "bar" },
+        { qux: [1, 2, 3] },
+      ]);
     });
 
     it("should emit skipped records", async () => {
@@ -68,7 +71,7 @@ describe("NDJSON", () => {
         '{"foo":"bar"}\n{"baz":42\n{"qux":[1,2,3]}\n',
       );
 
-      expect(skipped).toEqual([
+      expect(skipped).toEqual<JsonObject[]>([
         {
           error: expect.any(NdjsonError),
           raw: '{"baz":42',
@@ -88,7 +91,7 @@ describe("NDJSON", () => {
         '{"foo":"bar"}\n{"baz":42\n{"qux":[1,2,3]}\n',
       );
 
-      expect(skipped).toEqual([
+      expect(skipped).toEqual<JsonObject[]>([
         {
           error: expect.any(NdjsonError),
           raw: '{"baz":42',
@@ -104,8 +107,8 @@ describe("NDJSON", () => {
         '{"foo":"bar"}\n\n{"qux":[1,2,3]}\n',
       );
 
-      expect(errors).toEqual([expect.any(NdjsonError)]);
-      expect(errors[0].message).toEqual("Line 2 is empty.");
+      expect(errors).toEqual<JsonObject[]>([expect.any(NdjsonError)]);
+      expect(errors[0].message).toBe("Line 2 is empty.");
     });
 
     it("should skip empty line", async () => {
@@ -115,7 +118,10 @@ describe("NDJSON", () => {
         '{"foo":"bar"}\n\n{"qux":[1,2,3]}\n',
       );
 
-      expect(records).toEqual([{ foo: "bar" }, { qux: [1, 2, 3] }]);
+      expect(records).toEqual<JsonObject[]>([
+        { foo: "bar" },
+        { qux: [1, 2, 3] },
+      ]);
     });
   });
 
@@ -128,9 +134,7 @@ describe("NDJSON", () => {
         { qux: [1, 2, 3] },
       );
 
-      expect(output).toEqual<string>(
-        '{"foo":"bar"}\n{"baz":42}\n{"qux":[1,2,3]}\n',
-      );
+      expect(output).toBe('{"foo":"bar"}\n{"baz":42}\n{"qux":[1,2,3]}\n');
     });
 
     it("should stringify with carriage return and newline as line delimiter", async () => {
@@ -141,9 +145,7 @@ describe("NDJSON", () => {
         { qux: [1, 2, 3] },
       );
 
-      expect(output).toEqual<string>(
-        '{"foo":"bar"}\r\n{"baz":42}\r\n{"qux":[1,2,3]}\r\n',
-      );
+      expect(output).toBe('{"foo":"bar"}\r\n{"baz":42}\r\n{"qux":[1,2,3]}\r\n');
     });
 
     it("should emit an error when object can not stringify", async () => {
@@ -154,7 +156,7 @@ describe("NDJSON", () => {
         { qux: [1, 2, 3] },
       );
 
-      expect(errors).toEqual([expect.any(NdjsonError)]);
+      expect(errors).toEqual<JsonObject[]>([expect.any(NdjsonError)]);
     });
   });
 });
@@ -163,15 +165,20 @@ async function parseRecords(
   options?: ParseOptions,
   ...chunks: string[]
 ): Promise<{
-  records: Record<string, unknown>[];
+  records: JsonObject[];
   errors: Error[];
   skipped: { error: NdjsonError; raw: string }[];
 }> {
   const parser = parse(options);
-  const records: Record<string, unknown>[] = [];
+  const records: JsonObject[] = [];
   const errors: Error[] = [];
   const skipped: { error: NdjsonError; raw: string }[] = [];
-  parser.on("data", (record) => records.push(record));
+  parser.on("readable", () => {
+    let record;
+    while ((record = parser.read()) !== null) {
+      records.push(record);
+    }
+  });
   parser.on("error", (error) => {
     errors.push(error);
   });
@@ -189,12 +196,17 @@ async function parseRecords(
 
 async function stringifyRecords(
   options?: StringifyOptions,
-  ...records: Record<string, unknown>[]
+  ...records: JsonObject[]
 ): Promise<{ output: string; errors: Error[] }> {
   const stringifier = stringify(options);
   let output = "";
   const errors: Error[] = [];
-  stringifier.on("data", (record) => (output += record));
+  stringifier.on("readable", () => {
+    let data;
+    while ((data = stringifier.read()) !== null) {
+      output += data;
+    }
+  });
   stringifier.on("error", (error) => {
     errors.push(error);
   });
@@ -208,3 +220,5 @@ async function stringifyRecords(
 
   return { output, errors };
 }
+
+type JsonObject = Record<string, unknown>;
