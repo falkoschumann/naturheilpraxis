@@ -14,7 +14,6 @@ describe("NDJSON", () => {
   describe("Parser", () => {
     it("should parse with newline as line delimiter", async () => {
       const { records } = await parseRecords(
-        undefined,
         '{"foo":"bar"}\n{"baz":42}\n{"qux":[1,2,3]}\n',
       );
 
@@ -27,7 +26,6 @@ describe("NDJSON", () => {
 
     it("should parse with carriage return and newline as line delimiter", async () => {
       const { records } = await parseRecords(
-        undefined,
         '{"foo":"bar"}\r\n{"baz":42}\r\n{"qux":[1,2,3]}\r\n',
       );
 
@@ -41,7 +39,6 @@ describe("NDJSON", () => {
     it("should emit an error when a line is not parsable", async () => {
       // missing closing brace in second record
       const { errors } = await parseRecords(
-        undefined,
         '{"foo":"bar"}\n{"baz":42\n{"qux":[1,2,3]}\n',
       );
 
@@ -52,8 +49,8 @@ describe("NDJSON", () => {
     it("should skip records with error", async () => {
       // missing closing brace in second record
       const { records } = await parseRecords(
-        { skipRecordWithError: true },
         '{"foo":"bar"}\n{"baz":42\n{"qux":[1,2,3]}\n',
+        { skipRecordWithError: true },
       );
 
       expect(records).toEqual<JsonObject[]>([
@@ -65,10 +62,8 @@ describe("NDJSON", () => {
     it("should emit skipped records", async () => {
       // missing closing brace in second record
       const { skipped } = await parseRecords(
-        {
-          skipRecordWithError: true,
-        },
         '{"foo":"bar"}\n{"baz":42\n{"qux":[1,2,3]}\n',
+        { skipRecordWithError: true },
       );
 
       expect(skipped).toEqual<JsonObject[]>([
@@ -83,13 +78,10 @@ describe("NDJSON", () => {
     it("should log skipped records", async () => {
       const skipped: { error: NdjsonError; raw: string }[] = [];
       // missing closing brace in second record
-      await parseRecords(
-        {
-          skipRecordWithError: true,
-          onSkip: (error, raw) => skipped.push({ error, raw }),
-        },
-        '{"foo":"bar"}\n{"baz":42\n{"qux":[1,2,3]}\n',
-      );
+      await parseRecords('{"foo":"bar"}\n{"baz":42\n{"qux":[1,2,3]}\n', {
+        skipRecordWithError: true,
+        onSkip: (error, raw) => skipped.push({ error, raw }),
+      });
 
       expect(skipped).toEqual<JsonObject[]>([
         {
@@ -103,7 +95,6 @@ describe("NDJSON", () => {
     it("should emit an error when a line is empty", async () => {
       // second record is empty
       const { errors } = await parseRecords(
-        undefined,
         '{"foo":"bar"}\n\n{"qux":[1,2,3]}\n',
       );
 
@@ -114,8 +105,8 @@ describe("NDJSON", () => {
     it("should skip empty line", async () => {
       // second record is empty
       const { records } = await parseRecords(
-        { skipEmptyLines: true },
         '{"foo":"bar"}\n\n{"qux":[1,2,3]}\n',
+        { skipEmptyLines: true },
       );
 
       expect(records).toEqual<JsonObject[]>([
@@ -127,34 +118,30 @@ describe("NDJSON", () => {
 
   describe("Stringify", () => {
     it("should stringify with newline as default line delimiter", async () => {
-      const { output } = await stringifyRecords(
-        undefined,
+      const { output } = await stringifyRecords([
         { foo: "bar" },
         { baz: 42 },
         { qux: [1, 2, 3] },
-      );
+      ]);
 
       expect(output).toBe('{"foo":"bar"}\n{"baz":42}\n{"qux":[1,2,3]}\n');
     });
 
     it("should stringify with carriage return and newline as line delimiter", async () => {
       const { output } = await stringifyRecords(
+        [{ foo: "bar" }, { baz: 42 }, { qux: [1, 2, 3] }],
         { recordDelimiter: "\r\n" },
-        { foo: "bar" },
-        { baz: 42 },
-        { qux: [1, 2, 3] },
       );
 
       expect(output).toBe('{"foo":"bar"}\r\n{"baz":42}\r\n{"qux":[1,2,3]}\r\n');
     });
 
     it("should emit an error when object can not stringify", async () => {
-      const { errors } = await stringifyRecords(
-        undefined,
+      const { errors } = await stringifyRecords([
         { foo: "bar" },
         { baz: BigInt(42) },
         { qux: [1, 2, 3] },
-      );
+      ]);
 
       expect(errors).toEqual<JsonObject[]>([expect.any(NdjsonError)]);
     });
@@ -162,8 +149,8 @@ describe("NDJSON", () => {
 });
 
 async function parseRecords(
+  data: string,
   options?: ParseOptions,
-  ...chunks: string[]
 ): Promise<{
   records: JsonObject[];
   errors: Error[];
@@ -187,7 +174,7 @@ async function parseRecords(
     parser.on("close", resolve);
   });
 
-  chunks.forEach((chunk) => parser.write(chunk));
+  parser.write(data);
   parser.end();
   await closed;
 
@@ -195,8 +182,8 @@ async function parseRecords(
 }
 
 async function stringifyRecords(
+  records: JsonObject[],
   options?: StringifyOptions,
-  ...records: JsonObject[]
 ): Promise<{ output: string; errors: Error[] }> {
   const stringifier = stringify(options);
   let output = "";
