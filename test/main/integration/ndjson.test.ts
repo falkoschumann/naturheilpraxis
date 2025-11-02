@@ -1,5 +1,8 @@
 // Copyright (c) 2025 Falko Schumann. All rights reserved. MIT license.
 
+import { finished } from "node:stream/promises";
+
+import type { JsonValue } from "type-fest";
 import { describe, expect, it } from "vitest";
 
 import {
@@ -17,7 +20,7 @@ describe("NDJSON", () => {
         '{"foo":"bar"}\n{"baz":42}\n{"qux":[1,2,3]}\n',
       );
 
-      expect(records).toEqual<JsonObject[]>([
+      expect(records).toEqual<JsonValue[]>([
         { foo: "bar" },
         { baz: 42 },
         { qux: [1, 2, 3] },
@@ -29,21 +32,21 @@ describe("NDJSON", () => {
         '{"foo":"bar"}\r\n{"baz":42}\r\n{"qux":[1,2,3]}\r\n',
       );
 
-      expect(records).toEqual<JsonObject[]>([
+      expect(records).toEqual<JsonValue[]>([
         { foo: "bar" },
         { baz: 42 },
         { qux: [1, 2, 3] },
       ]);
     });
 
-    it("should emit an error when a line is not parsable", async () => {
+    it("should throw an error when a line is not parsable", async () => {
       // missing closing brace in second record
-      const { errors } = await parseRecords(
+      const result = parseRecords(
         '{"foo":"bar"}\n{"baz":42\n{"qux":[1,2,3]}\n',
       );
 
-      expect(errors).toEqual<JsonObject[]>([expect.any(NdjsonError)]);
-      expect(errors[0].message).toMatch(/^Line 2 is not valid JSON: /);
+      await expect(result).rejects.toThrow(NdjsonError);
+      await expect(result).rejects.toThrow(/^Line 2 is not valid JSON: /);
     });
 
     it("should skip records with error", async () => {
@@ -53,7 +56,7 @@ describe("NDJSON", () => {
         { skipRecordWithError: true },
       );
 
-      expect(records).toEqual<JsonObject[]>([
+      expect(records).toEqual<JsonValue[]>([
         { foo: "bar" },
         { qux: [1, 2, 3] },
       ]);
@@ -66,7 +69,7 @@ describe("NDJSON", () => {
         { skipRecordWithError: true },
       );
 
-      expect(skipped).toEqual<JsonObject[]>([
+      expect(skipped).toEqual<JsonValue[]>([
         {
           error: expect.any(NdjsonError),
           raw: '{"baz":42',
@@ -83,7 +86,7 @@ describe("NDJSON", () => {
         onSkip: (error, raw) => skipped.push({ error, raw }),
       });
 
-      expect(skipped).toEqual<JsonObject[]>([
+      expect(skipped).toEqual<JsonValue[]>([
         {
           error: expect.any(NdjsonError),
           raw: '{"baz":42',
@@ -92,14 +95,12 @@ describe("NDJSON", () => {
       expect(skipped[0].error.message).toMatch(/^Line 2 is not valid JSON: /);
     });
 
-    it("should emit an error when a line is empty", async () => {
+    it("should throw an error when a line is empty", async () => {
       // second record is empty
-      const { errors } = await parseRecords(
-        '{"foo":"bar"}\n\n{"qux":[1,2,3]}\n',
-      );
+      const result = parseRecords('{"foo":"bar"}\n\n{"qux":[1,2,3]}\n');
 
-      expect(errors).toEqual<JsonObject[]>([expect.any(NdjsonError)]);
-      expect(errors[0].message).toBe("Line 2 is empty.");
+      await expect(result).rejects.toThrow(NdjsonError);
+      await expect(result).rejects.toThrow("Line 2 is empty.");
     });
 
     it("should skip empty line", async () => {
@@ -109,7 +110,7 @@ describe("NDJSON", () => {
         { skipEmptyLines: true },
       );
 
-      expect(records).toEqual<JsonObject[]>([
+      expect(records).toEqual<JsonValue[]>([
         { foo: "bar" },
         { qux: [1, 2, 3] },
       ]);
@@ -136,76 +137,49 @@ describe("NDJSON", () => {
       expect(output).toBe('{"foo":"bar"}\r\n{"baz":42}\r\n{"qux":[1,2,3]}\r\n');
     });
 
-    it("should emit an error when object can not stringify", async () => {
-      const { errors } = await stringifyRecords([
+    it("should throw an error when object can not stringify", async () => {
+      const result = stringifyRecords([
         { foo: "bar" },
+        // @ts-expect-error testing invalid value
         { baz: BigInt(42) },
         { qux: [1, 2, 3] },
       ]);
 
-      expect(errors).toEqual<JsonObject[]>([expect.any(NdjsonError)]);
+      await expect(result).rejects.toThrow(NdjsonError);
+      await expect(result).rejects.toThrow(/^Failed to stringify record #2: /);
     });
   });
 });
 
 async function parseRecords(
-  data: string,
-  options?: ParseOptions,
+  input: string | Buffer | Uint8Array,
+  options: ParseOptions = {},
 ): Promise<{
-  records: JsonObject[];
-  errors: Error[];
+  records: JsonValue[];
   skipped: { error: NdjsonError; raw: string }[];
 }> {
-  const parser = parse(options);
-  const records: JsonObject[] = [];
-  const errors: Error[] = [];
+  let records: JsonValue[] = [];
   const skipped: { error: NdjsonError; raw: string }[] = [];
-  parser.on("readable", () => {
-    let record;
-    while ((record = parser.read()) !== null) {
-      records.push(record);
+  const parser = parse(input, options, (_error, output) => {
+    if (output) {
+      records = output;
     }
   });
-  parser.on("error", (error) => {
-    errors.push(error);
-  });
   parser.on("skip", (error, raw) => skipped.push({ error, raw }));
-  const closed = new Promise((resolve) => {
-    parser.on("close", resolve);
-  });
-
-  parser.write(data);
-  parser.end();
-  await closed;
-
-  return { records, errors, skipped };
+  await finished(parser);
+  return { records, skipped };
 }
 
 async function stringifyRecords(
-  records: JsonObject[],
-  options?: StringifyOptions,
-): Promise<{ output: string; errors: Error[] }> {
-  const stringifier = stringify(options);
+  records: JsonValue[],
+  options: StringifyOptions = {},
+): Promise<{ output: string }> {
   let output = "";
-  const errors: Error[] = [];
-  stringifier.on("readable", () => {
-    let data;
-    while ((data = stringifier.read()) !== null) {
-      output += data;
+  const stringifier = stringify(records, options, (_error, output0) => {
+    if (output0) {
+      output = output0;
     }
   });
-  stringifier.on("error", (error) => {
-    errors.push(error);
-  });
-  const closed = new Promise((resolve) => {
-    stringifier.on("close", resolve);
-  });
-
-  records.forEach((record) => stringifier.write(record));
-  stringifier.end();
-  await closed;
-
-  return { output, errors };
+  await finished(stringifier);
+  return { output };
 }
-
-type JsonObject = Record<string, unknown>;

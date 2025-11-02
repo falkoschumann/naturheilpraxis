@@ -4,14 +4,82 @@
 
 import stream from "node:stream";
 
+import type { JsonValue } from "type-fest";
+
+export type ParserCallback<T = JsonValue> = (
+  error?: NdjsonError,
+  records?: T[],
+) => void;
+
 export interface ParseOptions {
   skipEmptyLines?: boolean;
   skipRecordWithError?: boolean;
   onSkip?: (error: NdjsonError, raw: string) => void;
 }
 
-export function parse(options: ParseOptions = {}) {
-  return new Parser(options);
+export function parse<T = JsonValue>(
+  input?: string | Buffer | Uint8Array,
+  options?: ParseOptions,
+  callback?: ParserCallback<T>,
+): Parser;
+export function parse<T = JsonValue>(
+  options: ParseOptions,
+  callback?: ParserCallback<T>,
+): Parser;
+export function parse<T = JsonValue>(
+  input?: string | Buffer | Uint8Array,
+  callback?: ParserCallback<T>,
+): Parser;
+export function parse<T = JsonValue>(callback?: ParserCallback<T>): Parser;
+export function parse<T = JsonValue>(...args: unknown[]): Parser {
+  let input: string | Buffer | Uint8Array | undefined;
+  let options: ParseOptions | undefined;
+  let callback: ParserCallback<T> | undefined;
+  for (const i in args) {
+    const argument = args[i];
+    if (
+      input === undefined &&
+      (typeof argument === "string" ||
+        Buffer.isBuffer(argument) ||
+        argument instanceof Uint8Array)
+    ) {
+      input = argument;
+    } else if (options === undefined && isObject(argument)) {
+      options = argument as ParseOptions;
+    } else if (callback === undefined && typeof argument === "function") {
+      callback = argument as ParserCallback<T>;
+    } else {
+      throw new NdjsonError(
+        `Invalid arguments: got ${JSON.stringify(argument)} at index ${i}.`,
+      );
+    }
+  }
+
+  const parser = new Parser(options);
+  if (callback) {
+    const records: T[] = [];
+    parser.on("readable", () => {
+      let record;
+      while ((record = parser.read()) !== null) {
+        records.push(record);
+      }
+    });
+    parser.on("error", (error) => {
+      callback(error);
+    });
+    parser.on("end", () => {
+      callback(undefined, records);
+    });
+  }
+  if (input !== undefined) {
+    const writer = () => {
+      parser.write(input);
+      parser.end();
+    };
+    setTimeout(writer, 0);
+  }
+
+  return parser;
 }
 
 export class Parser extends stream.Transform {
@@ -106,16 +174,84 @@ export class Parser extends stream.Transform {
   }
 }
 
+export type StringifyCallback = (error?: NdjsonError, output?: string) => void;
+
 export interface StringifyOptions {
   recordDelimiter?: string;
 }
 
-export function stringify(options: StringifyOptions = {}) {
-  return new Stringifier(options);
+export function stringify(callback?: StringifyCallback): Stringifier;
+export function stringify(
+  options: StringifyOptions,
+  callback?: StringifyCallback,
+): Stringifier;
+export function stringify(
+  input: JsonValue,
+  callback?: StringifyCallback,
+): Stringifier;
+export function stringify(
+  input: JsonValue,
+  options?: StringifyOptions,
+  callback?: StringifyCallback,
+): Stringifier;
+export function stringify(...args: unknown[]): Stringifier {
+  let input: JsonValue | undefined;
+  let options: StringifyOptions | undefined;
+  let callback: StringifyCallback | undefined;
+  for (const i in args) {
+    const argument = args[i];
+    if (input === undefined && Array.isArray(argument)) {
+      input = argument as JsonValue;
+    } else if (options === undefined && isObject(argument)) {
+      options = argument as StringifyOptions;
+    } else if (callback === undefined && typeof argument === "function") {
+      callback = argument as StringifyCallback;
+    } else {
+      throw new NdjsonError(
+        `Invalid arguments: got ${JSON.stringify(argument)} at index ${i}.`,
+      );
+    }
+  }
+
+  const stringifier = new Stringifier(options);
+  if (callback) {
+    const chunks: string[] = [];
+    stringifier.on("readable", () => {
+      let chunk;
+      while ((chunk = stringifier.read()) !== null) {
+        chunks.push(chunk);
+      }
+    });
+    stringifier.on("error", (error) => {
+      callback(error);
+    });
+    stringifier.on("end", () => {
+      try {
+        callback(undefined, chunks.join(""));
+      } catch (error) {
+        // This can happen if chunks is extremely large.
+        callback(error as Error);
+        return;
+      }
+    });
+  }
+  if (input !== undefined) {
+    const writer = () => {
+      if (Array.isArray(input)) {
+        input.forEach((record) => stringifier.write(record));
+      } else {
+        stringifier.write(input);
+      }
+      stringifier.end();
+    };
+    setTimeout(writer, 0);
+  }
+  return stringifier;
 }
 
 export class Stringifier extends stream.Transform {
   #recordDelimiter: string;
+  #recordNumber = 0;
 
   constructor(options: StringifyOptions = {}) {
     super({
@@ -131,12 +267,14 @@ export class Stringifier extends stream.Transform {
     callback: (err?: Error | null) => void,
   ) {
     try {
+      this.#recordNumber++;
       const json = JSON.stringify(chunk);
       this.push(json + this.#recordDelimiter);
       callback();
     } catch (err) {
       const ndjsonError = new NdjsonError(
-        "Failed to stringify record: " + (err as Error).message,
+        `Failed to stringify record #${this.#recordNumber}: ` +
+          (err as Error).message,
       );
       callback(ndjsonError);
       this.destroy(ndjsonError);
@@ -151,3 +289,7 @@ export class NdjsonError extends Error {
     this.name = "NdjsonError";
   }
 }
+
+const isObject = function (obj: unknown): obj is Record<string, unknown> {
+  return typeof obj === "object" && obj !== null && !Array.isArray(obj);
+};
