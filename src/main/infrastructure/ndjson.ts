@@ -50,7 +50,7 @@ export function parse<T = JsonValue>(...args: unknown[]): Parser {
       callback = argument as ParserCallback<T>;
     } else {
       throw new NdjsonError(
-        `Invalid arguments: got ${JSON.stringify(argument)} at index ${i}.`,
+        `Invalid argument, got ${JSON.stringify(argument)} at index ${i}.`,
       );
     }
   }
@@ -186,29 +186,29 @@ export function stringify(
   callback?: StringifyCallback,
 ): Stringifier;
 export function stringify(
-  input: JsonValue,
+  input: JsonValue[],
   callback?: StringifyCallback,
 ): Stringifier;
 export function stringify(
-  input: JsonValue,
+  input: JsonValue[],
   options?: StringifyOptions,
   callback?: StringifyCallback,
 ): Stringifier;
 export function stringify(...args: unknown[]): Stringifier {
-  let input: JsonValue | undefined;
+  let input: JsonValue[] | undefined;
   let options: StringifyOptions | undefined;
   let callback: StringifyCallback | undefined;
   for (const i in args) {
     const argument = args[i];
     if (input === undefined && Array.isArray(argument)) {
-      input = argument as JsonValue;
+      input = argument as JsonValue[];
     } else if (options === undefined && isObject(argument)) {
       options = argument as StringifyOptions;
     } else if (callback === undefined && typeof argument === "function") {
       callback = argument as StringifyCallback;
     } else {
       throw new NdjsonError(
-        `Invalid arguments: got ${JSON.stringify(argument)} at index ${i}.`,
+        `Invalid argument, got ${JSON.stringify(argument)} at index ${i}.`,
       );
     }
   }
@@ -237,11 +237,7 @@ export function stringify(...args: unknown[]): Stringifier {
   }
   if (input !== undefined) {
     const writer = () => {
-      if (Array.isArray(input)) {
-        input.forEach((record) => stringifier.write(record));
-      } else {
-        stringifier.write(input);
-      }
+      input.forEach((record) => stringifier.write(record));
       stringifier.end();
     };
     setTimeout(writer, 0);

@@ -39,6 +39,44 @@ describe("NDJSON", () => {
       ]);
     });
 
+    it("should parse without newline at the end", async () => {
+      const { records } = await parseRecords(
+        '{"foo":"bar"}\n{"baz":42}\n{"qux":[1,2,3]}',
+      );
+
+      expect(records).toEqual<JsonValue[]>([
+        { foo: "bar" },
+        { baz: 42 },
+        { qux: [1, 2, 3] },
+      ]);
+    });
+
+    it("should parse a buffer", async () => {
+      const { records } = await parseRecords(
+        Buffer.from('{"foo":"bar"}\n{"baz":42}\n{"qux":[1,2,3]}\n'),
+      );
+
+      expect(records).toEqual<JsonValue[]>([
+        { foo: "bar" },
+        { baz: 42 },
+        { qux: [1, 2, 3] },
+      ]);
+    });
+
+    it("should parse an uint array", async () => {
+      const { records } = await parseRecords(
+        new TextEncoder().encode(
+          '{"foo":"bar"}\n{"baz":42}\n{"qux":[1,2,3]}\n',
+        ),
+      );
+
+      expect(records).toEqual<JsonValue[]>([
+        { foo: "bar" },
+        { baz: 42 },
+        { qux: [1, 2, 3] },
+      ]);
+    });
+
     it("should throw an error when a line is not parsable", async () => {
       // missing closing brace in second record
       const result = parseRecords(
@@ -47,6 +85,14 @@ describe("NDJSON", () => {
 
       await expect(result).rejects.toThrow(NdjsonError);
       await expect(result).rejects.toThrow(/^Line 2 is not valid JSON: /);
+    });
+
+    it("should throw an error when the last line is not parsable without newline at the end", async () => {
+      // missing closing brace in second record
+      const result = parseRecords('{"foo":"bar"}\n{"baz":42}\n{"qux":[1,2,3]');
+
+      await expect(result).rejects.toThrow(NdjsonError);
+      await expect(result).rejects.toThrow(/^Line 3 is not valid JSON: /);
     });
 
     it("should skip records with error", async () => {
@@ -115,6 +161,15 @@ describe("NDJSON", () => {
         { qux: [1, 2, 3] },
       ]);
     });
+
+    it("should throw an error when an argument is invalid", async () => {
+      const result = parseRecords(42 as unknown as string);
+
+      await expect(result).rejects.toThrow(NdjsonError);
+      await expect(result).rejects.toThrow(
+        "Invalid argument, got 42 at index 0",
+      );
+    });
   });
 
   describe("Stringify", () => {
@@ -147,6 +202,15 @@ describe("NDJSON", () => {
 
       await expect(result).rejects.toThrow(NdjsonError);
       await expect(result).rejects.toThrow(/^Failed to stringify record #2: /);
+    });
+
+    it("should throw an error when an argument is invalid", async () => {
+      const result = stringifyRecords(42 as unknown as JsonValue[]);
+
+      await expect(result).rejects.toThrow(NdjsonError);
+      await expect(result).rejects.toThrow(
+        "Invalid argument, got 42 at index 0",
+      );
     });
   });
 });
