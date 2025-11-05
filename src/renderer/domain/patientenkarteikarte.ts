@@ -3,10 +3,8 @@
 import type { FluxStandardActionAuto } from "flux-standard-action";
 
 import type { Configuration } from "../../shared/domain/configuration";
-import {
-  createPatient,
-  type Patient,
-} from "../../shared/domain/naturheilpraxis";
+import { Patient } from "../../shared/domain/naturheilpraxis";
+import { Temporal } from "@js-temporal/polyfill";
 
 //
 // Actions and Action Creators
@@ -28,7 +26,7 @@ const UPDATED_ACTION = "updated";
 
 type UpdatedPayload = {
   feld: keyof Patient;
-  wert: string | number | string[] | undefined;
+  wert?: unknown;
 };
 
 export function updated(
@@ -109,7 +107,7 @@ export interface State {
 }
 
 export const initialState: State = {
-  patient: createPatient(),
+  patient: Patient.create(),
   state: FormState.NEW,
   canSubmit: false,
   canCancel: false,
@@ -136,7 +134,7 @@ export function reducer(state: State, action: Action): State {
   switch (action.type) {
     case CONFIGURE_ACTION:
       return {
-        patient: createPatient({
+        patient: Patient.create({
           annahmejahr: new Date().getFullYear(),
           praxis: action.payload.configuration.praxis[0],
           anrede: action.payload.configuration.anrede[0],
@@ -158,7 +156,7 @@ export function reducer(state: State, action: Action): State {
       const canSubmit =
         patient.nachname.trim().length > 0 &&
         patient.vorname.trim().length > 0 &&
-        patient.geburtsdatum.trim().length > 0 &&
+        Temporal.PlainDate.compare(patient.geburtsdatum, "0001-01-01") >= 0 &&
         Number.isInteger(patient.annahmejahr) &&
         patient.praxis.trim().length > 0;
       const canCancel = true;
@@ -204,7 +202,7 @@ export function reducer(state: State, action: Action): State {
     case CANCELLED_ACTION:
       if (state.state === "new") {
         return {
-          patient: createPatient({
+          patient: Patient.create({
             annahmejahr: new Date().getFullYear(),
             praxis: state.configuration.praxis[0],
             anrede: state.configuration.anrede[0],
@@ -241,7 +239,7 @@ export function reducer(state: State, action: Action): State {
         };
       } else {
         return {
-          patient: createPatient({
+          patient: Patient.create({
             annahmejahr: new Date().getFullYear(),
             praxis: state.configuration.praxis[0],
             anrede: state.configuration.anrede[0],

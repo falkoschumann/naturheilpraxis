@@ -20,6 +20,7 @@
   },
   "devDependencies": {
     "@eslint/js": "9.39.0",
+    "@js-temporal/polyfill": "0.5.1",
     "@muspellheim/shared": "0.12.6",
     "@softarc/sheriff-core": "0.19.6",
     "@tanstack/react-table": "8.21.3",

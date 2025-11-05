@@ -14,14 +14,15 @@ import {
   submit,
   updated,
 } from "../../../src/renderer/domain/patientenkarteikarte";
+import { Temporal } from "@js-temporal/polyfill";
 
 const configuredState: State = {
   patient: {
     nummer: -1,
     nachname: "",
     vorname: "",
-    geburtsdatum: "",
-    annahmejahr: new Date().getFullYear(),
+    geburtsdatum: Temporal.PlainDate.from("0001-01-01"),
+    annahmejahr: Temporal.Now.plainDateISO().year,
     praxis: "Praxis 1",
     anrede: "Herr",
     familienstand: "ledig",
@@ -39,7 +40,7 @@ const newState: State = {
   ...configuredState,
   patient: {
     ...configuredState.patient,
-    geburtsdatum: "1980-01-01",
+    geburtsdatum: Temporal.PlainDate.from("1980-01-01"),
     vorname: "Max",
     nachname: "Mustermann",
   },
@@ -64,7 +65,7 @@ const viewState: State = {
   patient: {
     ...configuredState.patient,
     nummer: 1,
-    geburtsdatum: "1980-01-01",
+    geburtsdatum: Temporal.PlainDate.from("1980-01-01"),
     vorname: "Max",
     nachname: "Mustermann",
   },
@@ -112,7 +113,10 @@ describe("Patientenkarteikarte reducer", () => {
 
       state = reducer(
         state,
-        updated({ feld: "geburtsdatum", wert: "1980-01-01" }),
+        updated({
+          feld: "geburtsdatum",
+          wert: Temporal.PlainDate.from("1980-01-01"),
+        }),
       );
       log.push(state);
       state = reducer(state, updated({ feld: "vorname", wert: "Max" }));
@@ -125,7 +129,7 @@ describe("Patientenkarteikarte reducer", () => {
           ...configuredState,
           patient: {
             ...configuredState.patient,
-            geburtsdatum: "1980-01-01",
+            geburtsdatum: Temporal.PlainDate.from("1980-01-01"),
           },
           canSubmit: false,
           canCancel: true, // Cancellable after update
@@ -134,7 +138,7 @@ describe("Patientenkarteikarte reducer", () => {
           ...configuredState,
           patient: {
             ...configuredState.patient,
-            geburtsdatum: "1980-01-01",
+            geburtsdatum: Temporal.PlainDate.from("1980-01-01"),
             vorname: "Max",
           },
           canSubmit: false,
@@ -144,7 +148,7 @@ describe("Patientenkarteikarte reducer", () => {
           ...configuredState,
           patient: {
             ...configuredState.patient,
-            geburtsdatum: "1980-01-01",
+            geburtsdatum: Temporal.PlainDate.from("1980-01-01"),
             vorname: "Max",
             nachname: "Mustermann",
           },
