@@ -2,7 +2,7 @@
 
 import { describe, expect, it } from "vitest";
 
-import { createTestConfiguration } from "../../../src/shared/domain/configuration";
+import { Configuration } from "../../../src/shared/domain/configuration";
 import {
   cancelled,
   configure,
@@ -33,7 +33,7 @@ const configuredState: State = {
   canCancel: false,
   isReadOnly: false,
   submitButtonText: "Aufnehmen",
-  configuration: createTestConfiguration(),
+  configuration: Configuration.createTestInstance(),
 };
 
 const newState: State = {
@@ -100,7 +100,7 @@ describe("Patientenkarteikarte reducer", () => {
 
     state = reducer(
       state,
-      configure({ configuration: createTestConfiguration() }),
+      configure({ configuration: Configuration.createTestInstance() }),
     );
 
     expect(state).toEqual<State>(configuredState);
