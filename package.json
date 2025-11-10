@@ -30,7 +30,7 @@
     "@types/react": "19.2.2",
     "@types/react-dom": "19.2.2",
     "@vitejs/plugin-react": "5.1.0",
-    "@vitest/coverage-v8": "3.2.4",
+    "@vitest/coverage-v8": "4.0.8",
     "bootstrap": "5.3.8",
     "bootstrap-icons": "1.13.1",
     "bootstrap5-tags": "1.7.15",
@@ -55,7 +55,7 @@
     "typescript": "5.9.3",
     "typescript-eslint": "8.46.2",
     "vite": "7.1.12",
-    "vitest": "3.2.4"
+    "vitest": "4.0.8"
   },
   "keywords": [
     "naturheilpraxis",
