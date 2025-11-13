@@ -78,6 +78,76 @@ export class NimmPatientAufCommand {
     );
   }
 
+  static createTestInstance({
+    nachname = "Mustermann",
+    vorname = "Max",
+    geburtsdatum = "1980-01-01",
+    annahmejahr = 2025,
+    praxis = "Naturheilpraxis",
+    anrede,
+    strasse,
+    wohnort,
+    postleitzahl,
+    staat,
+    staatsangehoerigkeit,
+    titel,
+    beruf,
+    telefon,
+    mobil,
+    eMail,
+    familienstand,
+    partnerVon,
+    kindVon,
+    memo,
+    schluesselworte,
+  }: {
+    nachname?: string;
+    vorname?: string;
+    geburtsdatum?: Temporal.PlainDate | string;
+    annahmejahr?: number;
+    praxis?: string;
+    anrede?: string;
+    strasse?: string;
+    wohnort?: string;
+    postleitzahl?: string;
+    staat?: string;
+    staatsangehoerigkeit?: string;
+    titel?: string;
+    beruf?: string;
+    telefon?: string;
+    mobil?: string;
+    eMail?: string;
+    familienstand?: string;
+    partnerVon?: string;
+    kindVon?: string;
+    memo?: string;
+    schluesselworte?: string[];
+  } = {}): NimmPatientAufCommand {
+    return NimmPatientAufCommand.create({
+      nachname: nachname,
+      vorname: vorname,
+      geburtsdatum: geburtsdatum,
+      annahmejahr: annahmejahr,
+      praxis: praxis,
+      anrede,
+      strasse,
+      wohnort,
+      postleitzahl,
+      staat,
+      staatsangehoerigkeit,
+      titel,
+      beruf,
+      telefon,
+      mobil,
+      eMail,
+      familienstand,
+      partnerVon,
+      kindVon,
+      memo,
+      schluesselworte,
+    });
+  }
+
   readonly nachname: string;
   readonly vorname: string;
   readonly geburtsdatum: Temporal.PlainDate;
@@ -150,6 +220,10 @@ export class NimmPatientAufCommand {
 export type NimmPatientAufCommandStatus = NimmPatientAufSuccess | Failure;
 
 export class NimmPatientAufSuccess extends Success {
+  static create({ nummer }: { nummer: number }) {
+    return new NimmPatientAufSuccess(nummer);
+  }
+
   readonly nummer: number;
 
   private constructor(nummer: number) {
@@ -188,12 +262,85 @@ export class PatientenkarteiQueryResult {
 
 export class Patient {
   static create({
-    nummer = -1,
-    nachname = "",
-    vorname = "",
-    geburtsdatum = Temporal.PlainDate.from("0001-01-01"),
-    annahmejahr = 0,
-    praxis = "",
+    nummer,
+    nachname,
+    vorname,
+    geburtsdatum,
+    annahmejahr,
+    praxis,
+    anrede,
+    strasse,
+    wohnort,
+    postleitzahl,
+    staat,
+    staatsangehoerigkeit,
+    titel,
+    beruf,
+    telefon,
+    mobil,
+    eMail,
+    familienstand,
+    partnerVon,
+    kindVon,
+    memo,
+    schluesselworte,
+  }: {
+    nummer: number;
+    nachname: string;
+    vorname: string;
+    geburtsdatum: Temporal.PlainDate | string;
+    annahmejahr: number;
+    praxis: string;
+    anrede?: string;
+    strasse?: string;
+    wohnort?: string;
+    postleitzahl?: string;
+    staat?: string;
+    staatsangehoerigkeit?: string;
+    titel?: string;
+    beruf?: string;
+    telefon?: string;
+    mobil?: string;
+    eMail?: string;
+    familienstand?: string;
+    partnerVon?: string;
+    kindVon?: string;
+    memo?: string;
+    schluesselworte?: string[];
+  }): Patient {
+    return new Patient(
+      nummer,
+      nachname,
+      vorname,
+      geburtsdatum,
+      annahmejahr,
+      praxis,
+      anrede,
+      strasse,
+      wohnort,
+      postleitzahl,
+      staat,
+      staatsangehoerigkeit,
+      titel,
+      beruf,
+      telefon,
+      mobil,
+      eMail,
+      familienstand,
+      partnerVon,
+      kindVon,
+      memo,
+      schluesselworte,
+    );
+  }
+
+  static createTestInstance({
+    nummer = 1,
+    nachname = "Mustermann",
+    vorname = "Max",
+    geburtsdatum = "1980-01-01",
+    annahmejahr = 2025,
+    praxis = "Naturheilpraxis",
     anrede,
     strasse,
     wohnort,
@@ -234,79 +381,6 @@ export class Patient {
     memo?: string;
     schluesselworte?: string[];
   } = {}): Patient {
-    return new Patient(
-      nummer,
-      nachname,
-      vorname,
-      geburtsdatum,
-      annahmejahr,
-      praxis,
-      anrede,
-      strasse,
-      wohnort,
-      postleitzahl,
-      staat,
-      staatsangehoerigkeit,
-      titel,
-      beruf,
-      telefon,
-      mobil,
-      eMail,
-      familienstand,
-      partnerVon,
-      kindVon,
-      memo,
-      schluesselworte,
-    );
-  }
-
-  static createTestInstance({
-    nummer = Math.floor(Math.random() * 1000),
-    nachname = "Mustermann",
-    vorname = "Max",
-    geburtsdatum = "1980-01-01",
-    annahmejahr = 2025,
-    praxis = "Praxis 1",
-    anrede = "Herr",
-    strasse = "Musterstraße 1",
-    wohnort = "Musterstadt",
-    postleitzahl = "12345",
-    staat = "Deutschland",
-    staatsangehoerigkeit = "Deutsch",
-    titel = "Dr.",
-    beruf = "Arzt",
-    telefon = "0123456789",
-    mobil = "0987654321",
-    eMail = "max.mustermann@example.com",
-    familienstand = "verheiratet",
-    partnerVon,
-    kindVon,
-    memo,
-    schluesselworte = ["Aktiv", "Weihnachtskarte"],
-  }: {
-    nummer: number;
-    nachname: string;
-    vorname: string;
-    geburtsdatum: Temporal.PlainDate | string;
-    annahmejahr: number;
-    praxis: string;
-    anrede?: string;
-    strasse?: string;
-    wohnort?: string;
-    postleitzahl?: string;
-    staat?: string;
-    staatsangehoerigkeit?: string;
-    titel?: string;
-    beruf?: string;
-    telefon?: string;
-    mobil?: string;
-    eMail?: string;
-    familienstand?: string;
-    partnerVon?: string;
-    kindVon?: string;
-    memo?: string;
-    schluesselworte?: string[];
-  }): Patient {
     return Patient.create({
       nummer,
       nachname,

@@ -15,18 +15,16 @@ import type {
   PatientenkarteiQuery,
 } from "../shared/domain/naturheilpraxis";
 import {
-  CONFIGURATION_CHANNEL,
+  LOAD_SETTINGS_CHANNEL,
   NIMM_PATIENT_AUF_CHANNEL,
   QUERY_PATIENTENKARTEI_CHANNEL,
 } from "../shared/infrastructure/channels";
 import { NdjsonEventStore } from "./infrastructure/event-store";
-import { ConfigurationGateway } from "./infrastructure/configuration-gateway";
+import { EinstellungenGateway } from "./infrastructure/einstellungen-gateway";
 import icon from "../../build/icon.png?asset";
 
 // TODO Make the file paths configurable
-const configurationGateway = new ConfigurationGateway(
-  "./data/configuration.json",
-);
+const settingsGateway = new EinstellungenGateway("./data/settings.json");
 const eventStore = new NdjsonEventStore("./data/events.ndjson");
 const naturheilpraxisService = new NaturheilpraxisService(eventStore);
 
@@ -88,9 +86,6 @@ async function installDevTools() {
 }
 
 function createRendererToMainChannels() {
-  ipcMain.handle(CONFIGURATION_CHANNEL, async (_event) =>
-    configurationGateway.load(),
-  );
   ipcMain.handle(
     NIMM_PATIENT_AUF_CHANNEL,
     async (_event, command: NimmPatientAufCommand) =>
@@ -99,7 +94,10 @@ function createRendererToMainChannels() {
   ipcMain.handle(
     QUERY_PATIENTENKARTEI_CHANNEL,
     async (_event, query: PatientenkarteiQuery) =>
-      naturheilpraxisService.patientenkartei(query),
+      naturheilpraxisService.queryPatientenkartei(query),
+  );
+  ipcMain.handle(LOAD_SETTINGS_CHANNEL, async (_event) =>
+    settingsGateway.lade(),
   );
 }
 

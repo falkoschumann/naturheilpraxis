@@ -14,7 +14,11 @@ export interface EventStore {
 }
 
 export class MemoryEventStore implements EventStore {
-  readonly #events: CloudEventV1<unknown>[] = [];
+  readonly #events: CloudEventV1<unknown>[];
+
+  constructor(...events: CloudEventV1<unknown>[]) {
+    this.#events = events;
+  }
 
   async record(event: CloudEventV1<unknown>): Promise<void> {
     this.#events.push(event);

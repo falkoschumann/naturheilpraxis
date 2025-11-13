@@ -18,7 +18,7 @@ const columns = [
   columnHelper.accessor("vorname", { header: "Vorname" }),
   columnHelper.accessor("geburtsdatum", {
     header: "Geburtsdatum",
-    cell: (info) => new Date(info.getValue()).toLocaleDateString(undefined, { dateStyle: "medium" }),
+    cell: (info) => info.getValue().toLocaleString(undefined, { dateStyle: "medium" }),
   }),
   columnHelper.accessor("strasse", { header: "Straße", size: 200 }),
   columnHelper.accessor("postleitzahl", { header: "PLZ", size: 80 }),
@@ -58,9 +58,11 @@ export default function PatientenkarteiPage() {
     navigate(`${PATIENTENKARTEIKARTE_PAGE.replace(":nummer", String(nummer))}`);
   }
 
+  // TODO extract service and create DTOs
+
   useEffect(() => {
     async function queryPatientenkartei() {
-      const result = await window.naturheilpraxis.patientenkartei({});
+      const result = await window.naturheilpraxis.queryPatientenkartei({});
       setData(result.patienten);
     }
 

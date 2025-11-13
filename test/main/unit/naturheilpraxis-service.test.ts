@@ -1,19 +1,21 @@
 // Copyright (c) 2025 Falko Schumann. All rights reserved. MIT license.
 
-import { type CloudEventV1, V1 } from "cloudevents";
+import { type CloudEventV1 } from "cloudevents";
 import { describe, expect, it } from "vitest";
 
 import { arrayFromAsync } from "../../../src/shared/common/polyfills";
 import { NaturheilpraxisService } from "../../../src/main/application/naturheilpraxis-service";
 import {
+  NimmPatientAufCommand,
   type NimmPatientAufCommandStatus,
   NimmPatientAufSuccess,
+  Patient,
   type PatientenkarteiQueryResult,
 } from "../../../src/shared/domain/naturheilpraxis";
 import { MemoryEventStore } from "../../../src/main/infrastructure/event-store";
 import {
-  PATIENT_AUFGENOMMEN_V1_EVENT_TYPE,
-  PATIENT_SOURCE,
+  type PatientAufgenommenV1Data,
+  PatientAufgenommenV1Event,
 } from "../../../src/main/infrastructure/events";
 
 describe("Naturheilpraxis Service", () => {
@@ -22,20 +24,19 @@ describe("Naturheilpraxis Service", () => {
       const eventStore = new MemoryEventStore();
       const service = new NaturheilpraxisService(eventStore);
 
-      const status = await service.nimmPatientAuf(createTestPatient());
+      const status = await service.nimmPatientAuf(
+        NimmPatientAufCommand.createTestInstance(),
+      );
 
       expect(status).toEqual<NimmPatientAufCommandStatus>(
-        new NimmPatientAufSuccess(1),
+        NimmPatientAufSuccess.create({ nummer: 1 }),
       );
       const events = await arrayFromAsync(eventStore.replay());
-      expect(events).toEqual<CloudEventV1<unknown>[]>([
+      expect(events).toEqual<CloudEventV1<PatientAufgenommenV1Data>[]>([
         {
+          ...PatientAufgenommenV1Event.createTestInstance(),
           id: expect.any(String),
-          type: PATIENT_AUFGENOMMEN_V1_EVENT_TYPE,
-          source: PATIENT_SOURCE,
-          specversion: V1,
           time: expect.any(String),
-          data: { ...createTestPatient(), nummer: 1 },
         },
       ]);
     });
@@ -43,32 +44,30 @@ describe("Naturheilpraxis Service", () => {
     it("Zählt Patientennummer hoch", async () => {
       const eventStore = new MemoryEventStore();
       const service = new NaturheilpraxisService(eventStore);
-      await service.nimmPatientAuf(createTestPatient());
+      await service.nimmPatientAuf(NimmPatientAufCommand.createTestInstance());
 
       const status = await service.nimmPatientAuf(
-        createTestPatient({
+        Patient.createTestInstance({
           vorname: "Erika",
           geburtsdatum: "1985-05-05",
         }),
       );
 
       expect(status).toEqual<NimmPatientAufCommandStatus>(
-        new NimmPatientAufSuccess(2),
+        NimmPatientAufSuccess.create({ nummer: 2 }),
       );
       const events = await arrayFromAsync(eventStore.replay());
-      expect(events.slice(-1)).toEqual<CloudEventV1<unknown>[]>([
+      expect(events.slice(-1)).toEqual<
+        CloudEventV1<PatientAufgenommenV1Data>[]
+      >([
         {
-          id: expect.any(String),
-          type: PATIENT_AUFGENOMMEN_V1_EVENT_TYPE,
-          source: PATIENT_SOURCE,
-          specversion: V1,
-          time: expect.any(String),
-          data: {
-            ...createTestPatient(),
+          ...PatientAufgenommenV1Event.createTestInstance({
             nummer: 2,
             vorname: "Erika",
             geburtsdatum: "1985-05-05",
-          },
+          }),
+          id: expect.any(String),
+          time: expect.any(String),
         },
       ]);
     });
@@ -78,21 +77,18 @@ describe("Naturheilpraxis Service", () => {
       const service = new NaturheilpraxisService(eventStore);
 
       const status = await service.nimmPatientAuf(
-        createTestPatient({ anrede: "" }),
+        NimmPatientAufCommand.createTestInstance({ anrede: "" }),
       );
 
       expect(status).toEqual<NimmPatientAufCommandStatus>(
-        new NimmPatientAufSuccess(1),
+        NimmPatientAufSuccess.create({ nummer: 1 }),
       );
       const events = await arrayFromAsync(eventStore.replay());
-      expect(events).toEqual<CloudEventV1<unknown>[]>([
+      expect(events).toEqual<CloudEventV1<PatientAufgenommenV1Data>[]>([
         {
+          ...PatientAufgenommenV1Event.createTestInstance(),
           id: expect.any(String),
-          type: PATIENT_AUFGENOMMEN_V1_EVENT_TYPE,
-          source: PATIENT_SOURCE,
-          specversion: V1,
           time: expect.any(String),
-          data: { ...createTestPatient(), nummer: 1 },
         },
       ]);
     });
@@ -100,75 +96,53 @@ describe("Naturheilpraxis Service", () => {
 
   describe("Patientenkartei", () => {
     it("Listet alle Patienten auf", async () => {
-      const eventStore = new MemoryEventStore();
-      const service = new NaturheilpraxisService(eventStore);
-      await service.nimmPatientAuf(createTestPatient());
-      await service.nimmPatientAuf(
-        createTestPatient({
+      const eventStore = new MemoryEventStore(
+        PatientAufgenommenV1Event.createTestInstance(),
+        PatientAufgenommenV1Event.createTestInstance({
+          nummer: 2,
           vorname: "Erika",
           geburtsdatum: "1985-05-05",
         }),
       );
+      const service = new NaturheilpraxisService(eventStore);
 
-      const result = await service.patientenkartei({});
+      const result = await service.queryPatientenkartei({});
 
       expect(result).toEqual<PatientenkarteiQueryResult>({
         patienten: [
-          {
-            ...createTestPatient(),
+          Patient.createTestInstance({
             nummer: 2,
             vorname: "Erika",
             geburtsdatum: "1985-05-05",
-          },
-          {
-            ...createTestPatient(),
-            nummer: 1,
-          },
+          }),
+
+          Patient.createTestInstance(),
         ],
       });
     });
 
     it("Suche Patient nach Nummer", async () => {
-      const eventStore = new MemoryEventStore();
-      const service = new NaturheilpraxisService(eventStore);
-      await service.nimmPatientAuf(createTestPatient());
-      await service.nimmPatientAuf(
-        createTestPatient({
+      const eventStore = new MemoryEventStore(
+        PatientAufgenommenV1Event.createTestInstance(),
+        PatientAufgenommenV1Event.createTestInstance({
+          nummer: 2,
           vorname: "Erika",
           geburtsdatum: "1985-05-05",
         }),
       );
+      const service = new NaturheilpraxisService(eventStore);
 
-      const result = await service.patientenkartei({ nummer: 2 });
+      const result = await service.queryPatientenkartei({ nummer: 2 });
 
       expect(result).toEqual<PatientenkarteiQueryResult>({
         patienten: [
-          {
-            ...createTestPatient(),
+          Patient.createTestInstance({
             nummer: 2,
             vorname: "Erika",
             geburtsdatum: "1985-05-05",
-          },
+          }),
         ],
       });
     });
   });
 });
-
-function createTestPatient({
-  anrede,
-  vorname = "Max",
-  nachname = "Mustermann",
-  geburtsdatum = "1980-01-01",
-  annahmejahr = 2025,
-  praxis = "Naturheilpraxis",
-}: {
-  anrede?: string;
-  nachname?: string;
-  vorname?: string;
-  geburtsdatum?: string;
-  annahmejahr?: number;
-  praxis?: string;
-} = {}) {
-  return { anrede, vorname, nachname, geburtsdatum, annahmejahr, praxis };
-}

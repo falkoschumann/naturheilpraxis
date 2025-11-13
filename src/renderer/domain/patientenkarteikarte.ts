@@ -1,257 +1,275 @@
 // Copyright (c) 2025 Falko Schumann. All rights reserved. MIT license.
 
+import { Temporal } from "@js-temporal/polyfill";
 import type { FluxStandardActionAuto } from "flux-standard-action";
 
-import type { Configuration } from "../../shared/domain/configuration";
 import { Patient } from "../../shared/domain/naturheilpraxis";
-import { Temporal } from "@js-temporal/polyfill";
+import type { Einstellungen } from "../../shared/domain/einstellungen";
 
 //
 // Actions and Action Creators
 //
 
-const CONFIGURE_ACTION = "configure";
+const INITIALISIERE_FORMULAR_ACTION = "initialisiereFormular";
 
-type ConfigurePayload = {
-  configuration: Configuration;
+type InitialisiereFormularPayload = {
+  einstellungen: Einstellungen;
 };
 
-export function configure(
-  payload: ConfigurePayload,
-): FluxStandardActionAuto<typeof CONFIGURE_ACTION, ConfigurePayload> {
-  return { type: CONFIGURE_ACTION, payload };
+export function initialisiereFormular(
+  payload: InitialisiereFormularPayload,
+): FluxStandardActionAuto<
+  typeof INITIALISIERE_FORMULAR_ACTION,
+  InitialisiereFormularPayload
+> {
+  return { type: INITIALISIERE_FORMULAR_ACTION, payload };
 }
 
-const UPDATED_ACTION = "updated";
+const FELD_AKTUALISIERT_ACTION = "feldAktualisiert";
 
-type UpdatedPayload = {
+type FeldAktualisiertPayload = {
   feld: keyof Patient;
   wert?: unknown;
 };
 
-export function updated(
-  payload: UpdatedPayload,
-): FluxStandardActionAuto<typeof UPDATED_ACTION, UpdatedPayload> {
-  return { type: UPDATED_ACTION, payload };
+export function feldAktualisiert(
+  payload: FeldAktualisiertPayload,
+): FluxStandardActionAuto<
+  typeof FELD_AKTUALISIERT_ACTION,
+  FeldAktualisiertPayload
+> {
+  return { type: FELD_AKTUALISIERT_ACTION, payload };
 }
 
-const SUBMIT_ACTION = "submit";
+const SENDE_FORMULAR_ACTION = "sendeFormular";
 
-export function submit(): FluxStandardActionAuto<typeof SUBMIT_ACTION> {
-  return { type: SUBMIT_ACTION, payload: undefined };
+export function sendeFormular(): FluxStandardActionAuto<
+  typeof SENDE_FORMULAR_ACTION
+> {
+  return { type: SENDE_FORMULAR_ACTION, payload: undefined };
 }
 
-const DONE_ACTION = "done";
+const VERARBEITUNG_ABGESCHLOSSEN_ACTION = "verarbeitungAbgeschlossen";
 
-type DonePayload = {
+type VerarbeitungAbgeschlossenPayload = {
   nummer?: number;
 };
 
-export function done({
+export function verarbeitungAbgeschlossen({
   nummer,
-}: DonePayload): FluxStandardActionAuto<typeof DONE_ACTION, DonePayload> {
-  return { type: DONE_ACTION, payload: { nummer } };
+}: VerarbeitungAbgeschlossenPayload): FluxStandardActionAuto<
+  typeof VERARBEITUNG_ABGESCHLOSSEN_ACTION,
+  VerarbeitungAbgeschlossenPayload
+> {
+  return { type: VERARBEITUNG_ABGESCHLOSSEN_ACTION, payload: { nummer } };
 }
 
-const CANCELLED_ACTION = "cancelled";
+const ABGEBROCHEN_ACTION = "abgebrochen";
 
-export function cancelled(): FluxStandardActionAuto<typeof CANCELLED_ACTION> {
-  return { type: CANCELLED_ACTION, payload: undefined };
+export function abgebrochen(): FluxStandardActionAuto<
+  typeof ABGEBROCHEN_ACTION
+> {
+  return { type: ABGEBROCHEN_ACTION, payload: undefined };
 }
 
-const FOUND_ACTION = "found";
+const PATIENT_GEFUNDEN_ACTION = "patientGefunden";
 
-type FoundPayload = { patient?: Patient };
+type PatientGefundenPayload = { patient?: Patient };
 
-export function found(
-  payload: FoundPayload,
-): FluxStandardActionAuto<typeof FOUND_ACTION, FoundPayload> {
-  return { type: FOUND_ACTION, payload };
+export function patientGefunden(
+  payload: PatientGefundenPayload,
+): FluxStandardActionAuto<
+  typeof PATIENT_GEFUNDEN_ACTION,
+  PatientGefundenPayload
+> {
+  return { type: PATIENT_GEFUNDEN_ACTION, payload };
 }
 
 //
 // State and Reducer
 //
 
-export const FormState = Object.freeze({
-  NEW: "new",
-  VIEW: "view",
-  EDIT: "edit",
-  WORKING: "working",
+export const FormularZustand = Object.freeze({
+  AUFNEHMEN: "Aufnehmen",
+  ANZEIGEN: "Anzeigen",
+  BEARBEITEN: "Bearbeiten",
+  VERARBEITEN: "Verarbeiten",
 });
 
-export type FormStateType = (typeof FormState)[keyof typeof FormState];
+export type FormularZustandType =
+  (typeof FormularZustand)[keyof typeof FormularZustand];
 
-export const SubmitText = Object.freeze({
+export const SendenText = Object.freeze({
   AUFNEHMEN: "Aufnehmen",
   BEARBEITEN: "Bearbeiten",
   SPEICHERN: "Speichern",
 });
 
-export type SubmitTextType = (typeof SubmitText)[keyof typeof SubmitText];
+export type SendenTextType = (typeof SendenText)[keyof typeof SendenText];
 
 export interface State {
-  patient: Patient;
-  state: FormStateType;
-  canSubmit: boolean;
-  canCancel: boolean;
-  isReadOnly: boolean;
-  submitButtonText: SubmitTextType;
-  configuration: {
-    praxis: string[];
-    anrede: string[];
-    familienstand: string[];
-    schluesselworte: string[];
-    defaultSchluesselworte: string[];
-  };
+  patient: Partial<Patient>;
+  formularZustand: FormularZustandType;
+  kannAbschicken: boolean;
+  kannAbbrechen: boolean;
+  istSchreibgeschuetzt: boolean;
+  sendenText: SendenTextType;
+  praxis: string[];
+  anrede: string[];
+  familienstand: string[];
+  schluesselworte: string[];
+  standardSchluesselworte: string[];
 }
 
 export const initialState: State = {
-  patient: Patient.create(),
-  state: FormState.NEW,
-  canSubmit: false,
-  canCancel: false,
-  isReadOnly: false,
-  submitButtonText: SubmitText.AUFNEHMEN,
-  configuration: {
-    praxis: [],
-    anrede: [],
-    familienstand: [],
-    schluesselworte: [],
-    defaultSchluesselworte: [],
-  },
+  patient: {},
+  formularZustand: FormularZustand.AUFNEHMEN,
+  kannAbschicken: false,
+  kannAbbrechen: false,
+  istSchreibgeschuetzt: false,
+  sendenText: SendenText.AUFNEHMEN,
+  praxis: [],
+  anrede: [],
+  familienstand: [],
+  schluesselworte: [],
+  standardSchluesselworte: [],
 };
 
 export type Action =
-  | ReturnType<typeof configure>
-  | ReturnType<typeof updated>
-  | ReturnType<typeof submit>
-  | ReturnType<typeof done>
-  | ReturnType<typeof cancelled>
-  | ReturnType<typeof found>;
+  | ReturnType<typeof initialisiereFormular>
+  | ReturnType<typeof feldAktualisiert>
+  | ReturnType<typeof sendeFormular>
+  | ReturnType<typeof verarbeitungAbgeschlossen>
+  | ReturnType<typeof abgebrochen>
+  | ReturnType<typeof patientGefunden>;
 
 export function reducer(state: State, action: Action): State {
   switch (action.type) {
-    case CONFIGURE_ACTION:
+    case INITIALISIERE_FORMULAR_ACTION:
       return {
-        patient: Patient.create({
-          annahmejahr: new Date().getFullYear(),
-          praxis: action.payload.configuration.praxis[0],
-          anrede: action.payload.configuration.anrede[0],
-          familienstand: action.payload.configuration.familienstand[0],
-          schluesselworte: action.payload.configuration.defaultSchluesselworte,
-        }),
-        state: "new",
-        canSubmit: false,
-        canCancel: false,
-        isReadOnly: false,
-        submitButtonText: "Aufnehmen",
-        configuration: action.payload.configuration,
+        patient: {
+          annahmejahr: Temporal.Now.plainDateISO().year,
+          praxis: action.payload.einstellungen.praxis[0],
+          schluesselworte: action.payload.einstellungen.standardSchluesselworte,
+        },
+        formularZustand: FormularZustand.AUFNEHMEN,
+        kannAbschicken: false,
+        kannAbbrechen: false,
+        istSchreibgeschuetzt: false,
+        sendenText: "Aufnehmen",
+        praxis: action.payload.einstellungen.praxis,
+        anrede: action.payload.einstellungen.anrede,
+        familienstand: action.payload.einstellungen.familienstand,
+        schluesselworte: action.payload.einstellungen.schluesselworte,
+        standardSchluesselworte:
+          action.payload.einstellungen.standardSchluesselworte,
       };
-    case UPDATED_ACTION: {
+    case FELD_AKTUALISIERT_ACTION: {
       const patient = {
         ...state.patient,
         [action.payload.feld]: action.payload.wert,
       };
       const canSubmit =
+        patient.nachname != null &&
         patient.nachname.trim().length > 0 &&
+        patient.vorname != null &&
         patient.vorname.trim().length > 0 &&
+        patient.geburtsdatum != null &&
         Temporal.PlainDate.compare(patient.geburtsdatum, "0001-01-01") >= 0 &&
         Number.isInteger(patient.annahmejahr) &&
+        patient.praxis != null &&
         patient.praxis.trim().length > 0;
       const canCancel = true;
-      return { ...state, patient, canSubmit, canCancel };
+      return {
+        ...state,
+        patient,
+        kannAbschicken: canSubmit,
+        kannAbbrechen: canCancel,
+      };
     }
-    case SUBMIT_ACTION:
-      switch (state.state) {
-        case "new":
-        case "edit":
+    case SENDE_FORMULAR_ACTION:
+      switch (state.formularZustand) {
+        case FormularZustand.AUFNEHMEN:
+        case FormularZustand.BEARBEITEN:
           return {
             ...state,
-            state: "working",
-            canSubmit: false,
-            canCancel: false,
-            isReadOnly: true,
+            formularZustand: FormularZustand.VERARBEITEN,
+            kannAbschicken: false,
+            kannAbbrechen: false,
+            istSchreibgeschuetzt: true,
           };
-        case "view":
+        case FormularZustand.ANZEIGEN:
           return {
             ...state,
-            state: "edit",
-            canSubmit: false,
-            canCancel: true,
-            isReadOnly: false,
-            submitButtonText: "Speichern",
+            formularZustand: FormularZustand.BEARBEITEN,
+            kannAbschicken: false,
+            kannAbbrechen: true,
+            istSchreibgeschuetzt: false,
+            sendenText: "Speichern",
           };
         default:
           throw new Error(
-            `Unexpected status in patientenkarteikarte reducer: ${state.state}`,
+            `Unexpected status in patientenkarteikarte reducer: ${state.formularZustand}`,
           );
       }
-    case DONE_ACTION:
+    case VERARBEITUNG_ABGESCHLOSSEN_ACTION:
       return {
         ...state,
         patient: {
           ...state.patient,
           nummer: action.payload?.nummer || state.patient.nummer,
         },
-        state: "view",
-        canSubmit: true,
-        isReadOnly: true,
-        submitButtonText: "Bearbeiten",
+        formularZustand: FormularZustand.ANZEIGEN,
+        kannAbschicken: true,
+        istSchreibgeschuetzt: true,
+        sendenText: SendenText.BEARBEITEN,
       };
-    case CANCELLED_ACTION:
-      if (state.state === "new") {
+    case ABGEBROCHEN_ACTION:
+      if (state.formularZustand === FormularZustand.AUFNEHMEN) {
         return {
-          patient: Patient.create({
+          ...state,
+          patient: {
             annahmejahr: new Date().getFullYear(),
-            praxis: state.configuration.praxis[0],
-            anrede: state.configuration.anrede[0],
-            familienstand: state.configuration.familienstand[0],
-            schluesselworte: state.configuration.defaultSchluesselworte,
-          }),
-          state: "new",
-          canSubmit: false,
-          canCancel: false,
-          isReadOnly: false,
-          submitButtonText: "Aufnehmen",
-          configuration: state.configuration,
+            praxis: state.praxis[0],
+            schluesselworte: state.standardSchluesselworte,
+          },
+          kannAbschicken: false,
+          kannAbbrechen: false,
         };
       } else {
         return {
           ...state,
-          state: "view",
-          canSubmit: true,
-          canCancel: false,
-          isReadOnly: true,
-          submitButtonText: "Bearbeiten",
+          formularZustand: FormularZustand.ANZEIGEN,
+          kannAbschicken: true,
+          kannAbbrechen: false,
+          istSchreibgeschuetzt: true,
+          sendenText: SendenText.BEARBEITEN,
         };
       }
-    case FOUND_ACTION:
+    case PATIENT_GEFUNDEN_ACTION:
       if (action.payload.patient != null) {
         return {
           ...state,
           patient: action.payload.patient,
-          state: "view",
-          canSubmit: true,
-          canCancel: false,
-          isReadOnly: true,
-          submitButtonText: "Bearbeiten",
+          formularZustand: FormularZustand.ANZEIGEN,
+          kannAbschicken: true,
+          kannAbbrechen: false,
+          istSchreibgeschuetzt: true,
+          sendenText: SendenText.BEARBEITEN,
         };
       } else {
         return {
-          patient: Patient.create({
-            annahmejahr: new Date().getFullYear(),
-            praxis: state.configuration.praxis[0],
-            anrede: state.configuration.anrede[0],
-            familienstand: state.configuration.familienstand[0],
-            schluesselworte: state.configuration.defaultSchluesselworte,
-          }),
-          state: "new",
-          canSubmit: false,
-          canCancel: false,
-          isReadOnly: false,
-          submitButtonText: "Aufnehmen",
-          configuration: state.configuration,
+          ...state,
+          patient: {
+            annahmejahr: Temporal.Now.plainDateISO().year,
+            praxis: state.praxis[0],
+            schluesselworte: state.standardSchluesselworte,
+          },
+          formularZustand: FormularZustand.AUFNEHMEN,
+          kannAbschicken: false,
+          kannAbbrechen: false,
+          istSchreibgeschuetzt: false,
+          sendenText: SendenText.AUFNEHMEN,
         };
       }
     default:

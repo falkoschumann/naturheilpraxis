@@ -7,7 +7,7 @@ export const PATIENT_SOURCE = "/naturheilpraxis/patient";
 export const PATIENT_AUFGENOMMEN_V1_EVENT_TYPE =
   "de.muspellheim.naturheilpraxis.patient-aufgenommen.v1";
 
-export interface PatientAufgenommenDataV1 {
+export interface PatientAufgenommenV1Data {
   readonly nummer: number;
   readonly nachname: string;
   readonly vorname: string;
@@ -32,7 +32,61 @@ export interface PatientAufgenommenDataV1 {
   readonly schluesselworte?: string[];
 }
 
-export class PatientAufgenommenV1Event extends CloudEvent<PatientAufgenommenDataV1> {
+export class PatientAufgenommenV1Event extends CloudEvent<PatientAufgenommenV1Data> {
+  static create(data: PatientAufgenommenV1Data): PatientAufgenommenV1Event {
+    return new PatientAufgenommenV1Event(data);
+  }
+
+  static createTestInstance({
+    nummer = 1,
+    nachname = "Mustermann",
+    vorname = "Max",
+    geburtsdatum = "1980-01-01",
+    annahmejahr = 2025,
+    praxis = "Naturheilpraxis",
+    anrede,
+    strasse,
+    wohnort,
+    postleitzahl,
+    staat,
+    staatsangehoerigkeit,
+    titel,
+    beruf,
+    telefon,
+    mobil,
+    eMail,
+    familienstand,
+    partnerVon,
+    kindVon,
+    memo,
+    schluesselworte,
+  }: Partial<PatientAufgenommenV1Data> = {}): PatientAufgenommenV1Event {
+    return PatientAufgenommenV1Event.create({
+      nummer,
+      nachname,
+      vorname,
+      geburtsdatum,
+      annahmejahr,
+      praxis,
+      anrede,
+      strasse,
+      wohnort,
+      postleitzahl,
+      staat,
+      staatsangehoerigkeit,
+      titel,
+      beruf,
+      telefon,
+      mobil,
+      eMail,
+      familienstand,
+      partnerVon,
+      kindVon,
+      memo,
+      schluesselworte,
+    });
+  }
+
   static isType(
     event: CloudEventV1<unknown>,
   ): event is PatientAufgenommenV1Event {
@@ -42,7 +96,7 @@ export class PatientAufgenommenV1Event extends CloudEvent<PatientAufgenommenData
     );
   }
 
-  constructor(data: PatientAufgenommenDataV1) {
+  constructor(data: PatientAufgenommenV1Data) {
     super({
       id: crypto.randomUUID(),
       type: PATIENT_AUFGENOMMEN_V1_EVENT_TYPE,

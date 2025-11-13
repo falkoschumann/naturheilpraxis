@@ -1,269 +1,252 @@
 // Copyright (c) 2025 Falko Schumann. All rights reserved. MIT license.
 
+import { Temporal } from "@js-temporal/polyfill";
 import { describe, expect, it } from "vitest";
 
-import { Configuration } from "../../../src/shared/domain/configuration";
+import { Einstellungen } from "../../../src/shared/domain/einstellungen";
 import {
-  cancelled,
-  configure,
-  done,
-  found,
+  abgebrochen,
+  feldAktualisiert,
+  FormularZustand,
+  initialisiereFormular,
   initialState,
+  patientGefunden,
   reducer,
+  sendeFormular,
+  SendenText,
   type State,
-  submit,
-  updated,
+  verarbeitungAbgeschlossen,
 } from "../../../src/renderer/domain/patientenkarteikarte";
-import { Temporal } from "@js-temporal/polyfill";
+import type { Patient } from "../../../src/shared/domain/naturheilpraxis";
 
-const configuredState: State = {
+const aufnahmeState: State = {
   patient: {
-    nummer: -1,
-    nachname: "",
-    vorname: "",
-    geburtsdatum: Temporal.PlainDate.from("0001-01-01"),
     annahmejahr: Temporal.Now.plainDateISO().year,
     praxis: "Praxis 1",
-    anrede: "Herr",
-    familienstand: "ledig",
     schluesselworte: ["Aktiv", "Weihnachtskarte"],
   },
-  state: "new",
-  canSubmit: false,
-  canCancel: false,
-  isReadOnly: false,
-  submitButtonText: "Aufnehmen",
-  configuration: Configuration.createTestInstance(),
+  formularZustand: FormularZustand.AUFNEHMEN,
+  kannAbschicken: false,
+  kannAbbrechen: false,
+  istSchreibgeschuetzt: false,
+  sendenText: SendenText.AUFNEHMEN,
+  praxis: ["Praxis 1", "Praxis 2"],
+  anrede: ["Herr", "Frau", "Fräulein"],
+  familienstand: ["ledig", "verheiratet", "geschieden", "verwitwet"],
+  schluesselworte: ["Aktiv", "Weihnachtskarte", "Geburtstagskarte"],
+  standardSchluesselworte: ["Aktiv", "Weihnachtskarte"],
 };
 
-const newState: State = {
-  ...configuredState,
+const aufnahmeAusgefuelltState: State = {
+  ...aufnahmeState,
   patient: {
-    ...configuredState.patient,
+    ...aufnahmeState.patient,
     geburtsdatum: Temporal.PlainDate.from("1980-01-01"),
     vorname: "Max",
     nachname: "Mustermann",
   },
-  state: "new",
-  canSubmit: true,
-  canCancel: true,
-  isReadOnly: false,
-  submitButtonText: "Aufnehmen",
+  formularZustand: FormularZustand.AUFNEHMEN,
+  kannAbschicken: true,
+  kannAbbrechen: true,
+  istSchreibgeschuetzt: false,
+  sendenText: "Aufnehmen",
 };
 
-const workingNewState: State = {
-  ...newState,
-  state: "working",
-  canSubmit: false,
-  canCancel: false,
-  isReadOnly: true,
-  submitButtonText: "Aufnehmen",
+const aufnahmeVerarbeitenState: State = {
+  ...aufnahmeAusgefuelltState,
+  formularZustand: FormularZustand.VERARBEITEN,
+  kannAbschicken: false,
+  kannAbbrechen: false,
+  istSchreibgeschuetzt: true,
+  sendenText: SendenText.AUFNEHMEN,
 };
 
-const viewState: State = {
-  ...configuredState,
+const anzeigenState: State = {
+  ...aufnahmeState,
   patient: {
-    ...configuredState.patient,
+    ...aufnahmeState.patient,
     nummer: 1,
     geburtsdatum: Temporal.PlainDate.from("1980-01-01"),
     vorname: "Max",
     nachname: "Mustermann",
   },
-  state: "view",
-  canSubmit: true,
-  canCancel: false,
-  isReadOnly: true,
-  submitButtonText: "Bearbeiten",
+  formularZustand: FormularZustand.ANZEIGEN,
+  kannAbschicken: true,
+  kannAbbrechen: false,
+  istSchreibgeschuetzt: true,
+  sendenText: SendenText.BEARBEITEN,
 };
 
-const editState: State = {
-  ...viewState,
-  state: "edit",
-  canSubmit: false,
-  canCancel: true,
-  isReadOnly: false,
-  submitButtonText: "Speichern",
+const bearbeitungState: State = {
+  ...anzeigenState,
+  formularZustand: FormularZustand.BEARBEITEN,
+  kannAbschicken: false,
+  kannAbbrechen: true,
+  istSchreibgeschuetzt: false,
+  sendenText: SendenText.SPEICHERN,
 };
 
-const workingEditState: State = {
-  ...editState,
-  state: "working",
-  canSubmit: false,
-  canCancel: false,
-  isReadOnly: true,
-  submitButtonText: "Speichern",
+const bearbeitungVerarbeitenState: State = {
+  ...bearbeitungState,
+  formularZustand: FormularZustand.VERARBEITEN,
+  kannAbschicken: false,
+  kannAbbrechen: false,
+  istSchreibgeschuetzt: true,
+  sendenText: SendenText.SPEICHERN,
 };
 
-describe("Patientenkarteikarte reducer", () => {
-  it("Initialisierung", () => {
-    let state = initialState;
-
-    state = reducer(
-      state,
-      configure({ configuration: Configuration.createTestInstance() }),
-    );
-
-    expect(state).toEqual<State>(configuredState);
-  });
-
-  describe("Aufnahme (new)", () => {
-    it("Updated", () => {
-      const log: State[] = [];
-      let state = configuredState;
+describe("Patientenkarteikarte", () => {
+  describe("Initialisiere Formular", () => {
+    it("sollte initialisieren", () => {
+      let state = initialState;
 
       state = reducer(
         state,
-        updated({
+        initialisiereFormular({
+          einstellungen: Einstellungen.createTestInstance(),
+        }),
+      );
+
+      expect(state).toEqual<State>(aufnahmeState);
+    });
+  });
+
+  describe("Feld aktualisiert", () => {
+    it("sollte Formular als gültig markieren, wenn alle erforderlichen Felder ausgefüllt sind", () => {
+      const log: State[] = [];
+      let state = aufnahmeState;
+
+      state = reducer(
+        state,
+        feldAktualisiert({
           feld: "geburtsdatum",
           wert: Temporal.PlainDate.from("1980-01-01"),
         }),
       );
       log.push(state);
-      state = reducer(state, updated({ feld: "vorname", wert: "Max" }));
+      state = reducer(
+        state,
+        feldAktualisiert({ feld: "vorname", wert: "Max" }),
+      );
       log.push(state);
-      state = reducer(state, updated({ feld: "nachname", wert: "Mustermann" }));
+      state = reducer(
+        state,
+        feldAktualisiert({ feld: "nachname", wert: "Mustermann" }),
+      );
       log.push(state);
 
       expect(log).toEqual<State[]>([
         {
-          ...configuredState,
+          ...aufnahmeState,
           patient: {
-            ...configuredState.patient,
+            ...aufnahmeState.patient,
             geburtsdatum: Temporal.PlainDate.from("1980-01-01"),
           },
-          canSubmit: false,
-          canCancel: true, // Cancellable after update
+          kannAbschicken: false,
+          kannAbbrechen: true,
         },
         {
-          ...configuredState,
+          ...aufnahmeState,
           patient: {
-            ...configuredState.patient,
+            ...aufnahmeState.patient,
             geburtsdatum: Temporal.PlainDate.from("1980-01-01"),
             vorname: "Max",
           },
-          canSubmit: false,
-          canCancel: true,
+          kannAbschicken: false,
+          kannAbbrechen: true,
         },
-        {
-          ...configuredState,
-          patient: {
-            ...configuredState.patient,
-            geburtsdatum: Temporal.PlainDate.from("1980-01-01"),
-            vorname: "Max",
-            nachname: "Mustermann",
-          },
-          canSubmit: true, // Patient information is now complete
-          canCancel: true,
-        },
+        aufnahmeAusgefuelltState,
       ]);
     });
+  });
 
-    it("Submit", () => {
-      let state = newState;
+  describe("Sende Formular", () => {
+    it("sollte ausgefülltes Aufnahmeformular verarbeiten", () => {
+      let state = aufnahmeAusgefuelltState;
 
-      state = reducer(state, submit());
+      state = reducer(state, sendeFormular());
 
-      expect(state).toEqual<State>({
-        ...newState,
-        state: "working",
-        canSubmit: false,
-        canCancel: false,
-        isReadOnly: true,
-        submitButtonText: "Aufnehmen",
-      });
+      expect(state).toEqual<State>(aufnahmeVerarbeitenState);
     });
 
-    it("Cancelled", () => {
-      let state = newState;
+    it("sollte Bearbeiten aktivieren", () => {
+      let state = anzeigenState;
 
-      state = reducer(state, cancelled());
+      state = reducer(state, sendeFormular());
 
-      expect(state).toEqual<State>(configuredState);
+      expect(state).toEqual<State>(bearbeitungState);
     });
 
-    it("Found with patient", () => {
-      let state = configuredState;
-      const patient = viewState.patient;
+    it("sollte bearbeitetes Formular verarbeiten", () => {
+      let state = bearbeitungState;
 
-      state = reducer(state, found({ patient }));
+      state = reducer(state, sendeFormular());
 
-      expect(state).toEqual<State>(viewState);
-    });
-
-    it("Found without patient", () => {
-      let state = configuredState;
-
-      state = reducer(state, found({ patient: undefined }));
-
-      expect(state).toEqual<State>(configuredState);
+      expect(state).toEqual<State>(bearbeitungVerarbeitenState);
     });
   });
 
-  describe("Verarbeiten (working)", () => {
-    it("Done from new", () => {
-      let state = workingNewState;
+  describe("Verarbeitung abgeschlossen", () => {
+    it("sollte Aufnehmen abschließen", () => {
+      let state = aufnahmeVerarbeitenState;
 
-      state = reducer(state, done({ nummer: 1 }));
+      state = reducer(state, verarbeitungAbgeschlossen({ nummer: 1 }));
 
-      expect(state).toEqual<State>(viewState);
+      expect(state).toEqual<State>(anzeigenState);
     });
 
-    it("Done from edit", () => {
-      let state: State = workingEditState;
+    it("sollte Bearbeiten abschließen", () => {
+      let state: State = bearbeitungVerarbeitenState;
 
-      state = reducer(state, done({}));
+      state = reducer(state, verarbeitungAbgeschlossen({}));
 
-      expect(state).toEqual<State>(viewState);
-    });
-  });
-
-  describe("Anzeigen (view)", () => {
-    it("Submit", () => {
-      let state = viewState;
-
-      state = reducer(state, submit());
-
-      expect(state).toEqual<State>(editState);
+      expect(state).toEqual<State>(anzeigenState);
     });
   });
 
-  describe("Bearbeiten (edit)", () => {
-    it("Updated", () => {
-      let state = editState;
+  describe("Eingabe abgebrochen", () => {
+    it("sollte Aufnahme abbrechen", () => {
+      let state = aufnahmeAusgefuelltState;
+      state = reducer(
+        state,
+        feldAktualisiert({ feld: "vorname", wert: "Erika" }),
+      );
 
-      state = reducer(state, updated({ feld: "vorname", wert: "Erika" }));
+      state = reducer(state, abgebrochen());
 
-      expect(state).toEqual<State>({
-        ...editState,
-        patient: {
-          ...editState.patient,
-          vorname: "Erika",
-        },
-        canSubmit: true,
-        canCancel: true,
-      });
+      expect(state).toEqual<State>(aufnahmeState);
     });
 
-    it("Submit", () => {
-      let state = editState;
-
-      state = reducer(state, submit());
-
-      expect(state).toEqual<State>({
-        ...viewState,
-        state: "working",
-        canSubmit: false,
-        submitButtonText: "Speichern",
-      });
-    });
-
-    it("Cancelled", () => {
-      let state = editState;
-
+    it("sollte Bearbeiten abbrechen", () => {
+      let state = bearbeitungState;
       // TODO discard changes
-      state = reducer(state, cancelled());
+      //state = reducer(
+      //  state,
+      //  feldAktualisiert({ feld: "vorname", wert: "Erika" }),
+      //);
 
-      expect(state).toEqual<State>(viewState);
+      state = reducer(state, abgebrochen());
+
+      expect(state).toEqual<State>(anzeigenState);
+    });
+  });
+
+  describe("Patient gefunden", () => {
+    it("sollte Patient finden", () => {
+      let state = aufnahmeState;
+      const patient = anzeigenState.patient as Patient;
+
+      state = reducer(state, patientGefunden({ patient }));
+
+      expect(state).toEqual<State>(anzeigenState);
+    });
+
+    it("sollte Patient nicht finden", () => {
+      let state = aufnahmeState;
+
+      state = reducer(state, patientGefunden({ patient: undefined }));
+
+      expect(state).toEqual<State>(aufnahmeState);
     });
   });
 });

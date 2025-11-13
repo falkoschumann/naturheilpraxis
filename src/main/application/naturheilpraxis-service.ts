@@ -4,7 +4,7 @@ import {
   type NimmPatientAufCommand,
   type NimmPatientAufCommandStatus,
   NimmPatientAufSuccess,
-  type Patient,
+  Patient,
   type PatientenkarteiQuery,
   type PatientenkarteiQueryResult,
 } from "../../shared/domain/naturheilpraxis";
@@ -48,11 +48,11 @@ export class NaturheilpraxisService {
     command: NimmPatientAufCommand,
   ): Promise<NimmPatientAufCommandStatus> {
     const nummer = await this.#nextPatientennummer();
-    const event = new PatientAufgenommenV1Event({
+    const event = PatientAufgenommenV1Event.create({
       nummer,
       nachname: command.nachname,
       vorname: command.vorname,
-      geburtsdatum: command.geburtsdatum,
+      geburtsdatum: command.geburtsdatum.toString(),
       annahmejahr: command.annahmejahr,
       praxis: command.praxis,
       anrede: command.anrede || undefined,
@@ -73,10 +73,10 @@ export class NaturheilpraxisService {
       schluesselworte: command.schluesselworte || undefined,
     });
     await this.#eventStore.record(event);
-    return new NimmPatientAufSuccess(nummer);
+    return NimmPatientAufSuccess.create({ nummer });
   }
 
-  async patientenkartei(
+  async queryPatientenkartei(
     query: PatientenkarteiQuery,
   ): Promise<PatientenkarteiQueryResult> {
     let patienten = await this.#projectPatienten();
@@ -103,7 +103,7 @@ export class NaturheilpraxisService {
       }
 
       if (PatientAufgenommenV1Event.isType(event)) {
-        const patient = event.data!;
+        const patient = Patient.create(event.data!);
         patienten.push(patient);
       }
     }

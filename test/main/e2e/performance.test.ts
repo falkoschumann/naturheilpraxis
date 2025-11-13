@@ -6,13 +6,17 @@ import { NaturheilpraxisService } from "../../../src/main/application/naturheilp
 import { NdjsonEventStore } from "../../../src/main/infrastructure/event-store";
 
 describe("Performance", () => {
-  it("Queries Patientenkartei", async () => {
+  /**
+   * Use a large file with many events for performance testing when enable this
+   * test.
+   */
+  it.skip("Queries Patientenkartei", async () => {
     const service = NaturheilpraxisService.create({
       eventStore: new NdjsonEventStore("data/events.ndjson"),
     });
 
     const start = Date.now();
-    const result = await service.patientenkartei({});
+    const result = await service.queryPatientenkartei({});
     const end = Date.now();
 
     console.info(
@@ -20,5 +24,5 @@ describe("Performance", () => {
       result.patienten.length,
     );
     console.info(`Query Patientenkartei took ${end - start} ms`);
-  }, 60_000_000);
+  });
 });

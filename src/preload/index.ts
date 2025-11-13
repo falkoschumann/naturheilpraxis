@@ -2,30 +2,30 @@
 
 import { contextBridge, ipcRenderer } from "electron/renderer";
 
-import type { Configuration } from "../shared/domain/configuration";
 import type {
   NimmPatientAufCommand,
   NimmPatientAufCommandStatus,
   PatientenkarteiQuery,
   PatientenkarteiQueryResult,
 } from "../shared/domain/naturheilpraxis";
+import type { Einstellungen } from "../shared/domain/einstellungen";
 import {
-  CONFIGURATION_CHANNEL,
+  LOAD_SETTINGS_CHANNEL,
   NIMM_PATIENT_AUF_CHANNEL,
   QUERY_PATIENTENKARTEI_CHANNEL,
 } from "../shared/infrastructure/channels";
 
 contextBridge.exposeInMainWorld("naturheilpraxis", {
-  configuration: (): Promise<Configuration> =>
-    ipcRenderer.invoke(CONFIGURATION_CHANNEL),
-
   nimmPatientAuf: (
     command: NimmPatientAufCommand,
   ): Promise<NimmPatientAufCommandStatus> =>
     ipcRenderer.invoke(NIMM_PATIENT_AUF_CHANNEL, command),
 
-  patientenkartei: (
+  queryPatientenkartei: (
     query: PatientenkarteiQuery,
   ): Promise<PatientenkarteiQueryResult> =>
     ipcRenderer.invoke(QUERY_PATIENTENKARTEI_CHANNEL, query),
+
+  loadSettings: (): Promise<Einstellungen> =>
+    ipcRenderer.invoke(LOAD_SETTINGS_CHANNEL),
 });
