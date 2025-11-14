@@ -4,7 +4,7 @@
   "version": "0.1.0",
   "description": "Mit dieser App können Heilpraktiker Leistungen für Patienten erfassen, um ihnen diese in Rechnung stellen zu können.",
   "engines": {
-    "node": ">=22.0.0"
+    "node": ">=24.0.0"
   },
   "main": "./out/main/index.js",
   "scripts": {
@@ -26,7 +26,7 @@
     "@tanstack/react-table": "8.21.3",
     "@tanstack/react-virtual": "3.13.12",
     "@types/electron-squirrel-startup": "1.0.2",
-    "@types/node": "22.18.13",
+    "@types/node": "24.10.1",
     "@types/react": "19.2.2",
     "@types/react-dom": "19.2.2",
     "@vitejs/plugin-react": "5.1.0",
