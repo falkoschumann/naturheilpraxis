@@ -10,23 +10,25 @@ import {
 } from "electron-devtools-installer";
 
 import { NaturheilpraxisService } from "./application/naturheilpraxis-service";
-import type {
-  NimmPatientAufCommand,
-  PatientenkarteiQuery,
-} from "../shared/domain/naturheilpraxis";
+import { EinstellungenService } from "./application/einstellungen-service";
 import {
-  LOAD_SETTINGS_CHANNEL,
+  LADE_EINSTELLUNGEN_CHANNEL,
   NIMM_PATIENT_AUF_CHANNEL,
   QUERY_PATIENTENKARTEI_CHANNEL,
 } from "../shared/infrastructure/channels";
-import { NdjsonEventStore } from "./infrastructure/event-store";
-import { EinstellungenGateway } from "./infrastructure/einstellungen-gateway";
+import {
+  NimmPatientAufCommandDto,
+  NimmPatientAufCommandStatusDto,
+  PatientenkarteiQueryDto,
+  PatientenkarteiQueryResultDto,
+} from "../shared/infrastructure/naturheilpraxis";
+import { EinstellungenDto } from "../shared/infrastructure/einstellungen";
 import icon from "../../build/icon.png?asset";
 
 // TODO Make the file paths configurable
-const settingsGateway = new EinstellungenGateway("./data/settings.json");
-const eventStore = new NdjsonEventStore("./data/events.ndjson");
-const naturheilpraxisService = new NaturheilpraxisService(eventStore);
+// TODO wrap settings gateway with settings service
+const einstellungenService = EinstellungenService.create();
+const naturheilpraxisService = NaturheilpraxisService.create();
 
 const isProduction = app.isPackaged;
 
@@ -88,17 +90,24 @@ async function installDevTools() {
 function createRendererToMainChannels() {
   ipcMain.handle(
     NIMM_PATIENT_AUF_CHANNEL,
-    async (_event, command: NimmPatientAufCommand) =>
-      naturheilpraxisService.nimmPatientAuf(command),
+    async (_event, commandDto: NimmPatientAufCommandDto) => {
+      const command = NimmPatientAufCommandDto.create(commandDto).validate();
+      const status = await naturheilpraxisService.nimmPatientAuf(command);
+      return NimmPatientAufCommandStatusDto.fromModel(status);
+    },
   );
   ipcMain.handle(
     QUERY_PATIENTENKARTEI_CHANNEL,
-    async (_event, query: PatientenkarteiQuery) =>
-      naturheilpraxisService.queryPatientenkartei(query),
+    async (_event, queryDto: PatientenkarteiQueryDto) => {
+      const query = PatientenkarteiQueryDto.create(queryDto).validate();
+      const result = await naturheilpraxisService.queryPatientenkartei(query);
+      return PatientenkarteiQueryResultDto.fromModel(result);
+    },
   );
-  ipcMain.handle(LOAD_SETTINGS_CHANNEL, async (_event) =>
-    settingsGateway.lade(),
-  );
+  ipcMain.handle(LADE_EINSTELLUNGEN_CHANNEL, async (_event) => {
+    const einstellungen = await einstellungenService.ladeEinstellungen();
+    return EinstellungenDto.fromModel(einstellungen);
+  });
 }
 
 export const createWindow = () => {

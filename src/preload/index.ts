@@ -3,29 +3,29 @@
 import { contextBridge, ipcRenderer } from "electron/renderer";
 
 import type {
-  NimmPatientAufCommand,
-  NimmPatientAufCommandStatus,
-  PatientenkarteiQuery,
-  PatientenkarteiQueryResult,
-} from "../shared/domain/naturheilpraxis";
-import type { Einstellungen } from "../shared/domain/einstellungen";
+  NimmPatientAufCommandDto,
+  NimmPatientAufCommandStatusDto,
+  PatientenkarteiQueryDto,
+  PatientenkarteiQueryResultDto,
+} from "../shared/infrastructure/naturheilpraxis";
+import type { EinstellungenDto } from "../shared/infrastructure/einstellungen";
 import {
-  LOAD_SETTINGS_CHANNEL,
+  LADE_EINSTELLUNGEN_CHANNEL,
   NIMM_PATIENT_AUF_CHANNEL,
   QUERY_PATIENTENKARTEI_CHANNEL,
 } from "../shared/infrastructure/channels";
 
 contextBridge.exposeInMainWorld("naturheilpraxis", {
   nimmPatientAuf: (
-    command: NimmPatientAufCommand,
-  ): Promise<NimmPatientAufCommandStatus> =>
+    command: NimmPatientAufCommandDto,
+  ): Promise<NimmPatientAufCommandStatusDto> =>
     ipcRenderer.invoke(NIMM_PATIENT_AUF_CHANNEL, command),
 
   queryPatientenkartei: (
-    query: PatientenkarteiQuery,
-  ): Promise<PatientenkarteiQueryResult> =>
+    query: PatientenkarteiQueryDto,
+  ): Promise<PatientenkarteiQueryResultDto> =>
     ipcRenderer.invoke(QUERY_PATIENTENKARTEI_CHANNEL, query),
 
-  loadSettings: (): Promise<Einstellungen> =>
-    ipcRenderer.invoke(LOAD_SETTINGS_CHANNEL),
+  ladeEinstellungen: (): Promise<EinstellungenDto> =>
+    ipcRenderer.invoke(LADE_EINSTELLUNGEN_CHANNEL),
 });

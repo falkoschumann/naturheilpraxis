@@ -3,23 +3,49 @@
 import fsPromise from "node:fs/promises";
 import path from "node:path";
 
+import { ConfigurableResponses, OutputTracker } from "@muspellheim/shared";
+
 import { Einstellungen } from "../../shared/domain/einstellungen";
+import { EinstellungenDto } from "../../shared/infrastructure/einstellungen";
 
-export class EinstellungenGateway {
-  #filePath: string;
+const STORED_EVENT = "stored";
 
-  constructor(filePath: string) {
-    this.#filePath = filePath;
+export class EinstellungenGateway extends EventTarget {
+  static create({
+    fileName = "./data/einstellungen.json",
+  }: { fileName?: string } = {}): EinstellungenGateway {
+    return new EinstellungenGateway(fileName, fsPromise);
   }
 
-  async lade(): Promise<Einstellungen> {
+  static createNull({
+    readFileResponses = [],
+  }: {
+    readFileResponses?: (EinstellungenDto | null | Error)[];
+  } = {}): EinstellungenGateway {
+    return new EinstellungenGateway(
+      "null-einstellungen.json",
+      new FsPromiseStub(readFileResponses) as unknown as typeof fsPromise,
+    );
+  }
+
+  #fileName: string;
+  readonly #fs: typeof fsPromise;
+
+  constructor(fileName: string, fs: typeof fsPromise) {
+    super();
+    this.#fileName = fileName;
+    this.#fs = fs;
+  }
+
+  async lade(): Promise<Einstellungen | undefined> {
     try {
-      const json = await fsPromise.readFile(this.#filePath, "utf8");
-      return JSON.parse(json) as Einstellungen;
+      const fileContent = await this.#fs.readFile(this.#fileName, "utf8");
+      const json = JSON.parse(fileContent);
+      return EinstellungenDto.fromJson(json).validate();
     } catch (error) {
       if ((error as NodeJS.ErrnoException).code === "ENOENT") {
         // No such file or directory
-        return Einstellungen.createDefault();
+        return;
       }
 
       throw error;
@@ -27,10 +53,47 @@ export class EinstellungenGateway {
   }
 
   async sichere(einstellungen: Einstellungen): Promise<void> {
-    const dirName = path.dirname(this.#filePath);
-    await fsPromise.mkdir(dirName, { recursive: true });
+    const dirName = path.dirname(this.#fileName);
+    await this.#fs.mkdir(dirName, { recursive: true });
 
     const json = JSON.stringify(einstellungen, null, 2);
-    await fsPromise.writeFile(this.#filePath, json, "utf8");
+    await this.#fs.writeFile(this.#fileName, json, "utf8");
+    this.dispatchEvent(
+      new CustomEvent(STORED_EVENT, { detail: einstellungen }),
+    );
   }
+
+  trackStored(): OutputTracker<Einstellungen> {
+    return OutputTracker.create(this, STORED_EVENT);
+  }
+}
+
+class FsPromiseStub {
+  readonly #readFileResponses: ConfigurableResponses<
+    EinstellungenDto | null | Error
+  >;
+
+  constructor(readFileResponses: (EinstellungenDto | null | Error)[]) {
+    this.#readFileResponses = ConfigurableResponses.create(
+      readFileResponses,
+      "read file",
+    );
+  }
+
+  async mkdir() {}
+
+  async readFile() {
+    const response = this.#readFileResponses.next();
+    if (response === null) {
+      throw { code: "ENOENT" };
+    }
+    if (response instanceof Error) {
+      throw response;
+    }
+
+    const s = JSON.stringify(response);
+    return Promise.resolve(s);
+  }
+
+  async writeFile() {}
 }

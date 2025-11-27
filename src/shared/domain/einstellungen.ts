@@ -1,5 +1,6 @@
 // Copyright (c) 2025 Falko Schumann. All rights reserved. MIT license.
 
+// TODO configure data folder
 // TODO split configuration: Mandant, Patient, ...
 
 export class Einstellungen {

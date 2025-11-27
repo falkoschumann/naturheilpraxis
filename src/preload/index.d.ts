@@ -1,23 +1,23 @@
 // Copyright (c) 2025 Falko Schumann. All rights reserved. MIT license.
 
 import type {
-  NimmPatientAufCommand,
-  NimmPatientAufCommandStatus,
-  PatientenkarteiQuery,
-  PatientenkarteiQueryResult,
-} from "../shared/domain/naturheilpraxis";
-import type { Settings } from "../shared/domain/settings";
+  NimmPatientAufCommandDto,
+  NimmPatientAufCommandStatusDto,
+  PatientenkarteiQueryDto,
+  PatientenkarteiQueryResultDto,
+} from "../shared/infrastructure/naturheilpraxis";
+import type { EinstellungenDto } from "../shared/infrastructure/einstellungen";
 
 export interface Naturheilpraxis {
   nimmPatientAuf(
-    command: NimmPatientAufCommand,
-  ): Promise<NimmPatientAufCommandStatus>;
+    command: NimmPatientAufCommandDto,
+  ): Promise<NimmPatientAufCommandStatusDto>;
 
   queryPatientenkartei(
-    query: PatientenkarteiQuery,
-  ): Promise<PatientenkarteiQueryResult>;
+    query: PatientenkarteiQueryDto,
+  ): Promise<PatientenkarteiQueryResultDto>;
 
-  loadSettings(): Promise<Settings>;
+  ladeEinstellungen(): Promise<EinstellungenDto>;
 }
 
 declare global {

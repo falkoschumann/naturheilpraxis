@@ -6,56 +6,120 @@ import { describe, expect, it } from "vitest";
 
 import { Einstellungen } from "../../../src/shared/domain/einstellungen";
 import { EinstellungenGateway } from "../../../src/main/infrastructure/einstellungen-gateway";
+import { EinstellungenDto } from "../../../src/shared/infrastructure/einstellungen";
+
+const NON_EXISTING_FILE = path.resolve(
+  __dirname,
+  "../data/einstellungen/non-existent.json",
+);
+
+const EXAMPLE_FILE = path.resolve(
+  __dirname,
+  "../data/einstellungen/example.json",
+);
+
+const CORRUPT_FILE = path.resolve(
+  __dirname,
+  "../data/einstellungen/corrupt.json",
+);
 
 const TEST_FILE = path.resolve(
   __dirname,
-  "../../../testdata/settings.test.json",
+  "../../../testdata/einstellungen.test.json",
 );
-const NON_EXISTING_FILE = path.resolve(
-  __dirname,
-  "../data/settings/non-existent.json",
-);
-const EXAMPLE_FILE = path.resolve(__dirname, "../data/settings/example.json");
-const CORRUPTED_FILE = path.resolve(__dirname, "../data/settings/corrupt.json");
 
 describe("Einstellungen Gateway", () => {
-  it("sollte Einstellungen sichern und laden", async () => {
-    const gateway = new EinstellungenGateway(TEST_FILE);
-    const settings = {
-      praxis: ["Testpraxis"],
-      anrede: ["Herr", "Frau"],
-      familienstand: ["ledig", "verheiratet"],
-      schluesselworte: ["Test", "Beispiel"],
-      standardSchluesselworte: ["Test"],
-    };
+  describe("Lade", () => {
+    it("sollte nichts liefern, wenn Datei nicht existiert", async () => {
+      const gateway = EinstellungenGateway.create({
+        fileName: NON_EXISTING_FILE,
+      });
 
-    await gateway.sichere(settings);
-    const result = await gateway.lade();
+      const einstellungen = await gateway.lade();
 
-    expect(result).toEqual<Einstellungen>(settings);
+      expect(einstellungen).toBeUndefined();
+    });
+
+    it("sollte Beispieldatei laden", async () => {
+      const gateway = EinstellungenGateway.create({
+        fileName: EXAMPLE_FILE,
+      });
+
+      const einstellungen = await gateway.lade();
+
+      expect(einstellungen).toEqual<Einstellungen>(
+        Einstellungen.createTestInstance(),
+      );
+    });
+
+    it("sollte einen Fehler werfen, wenn Datei kaputt ist", async () => {
+      const gateway = EinstellungenGateway.create({ fileName: CORRUPT_FILE });
+
+      const result = gateway.lade();
+
+      await expect(result).rejects.toThrow(SyntaxError);
+    });
   });
 
-  it("sollte Defaulteinstellungen liefern, wenn Datei nicht existiert", async () => {
-    const gateway = new EinstellungenGateway(NON_EXISTING_FILE);
+  describe("Sichere", () => {
+    it("sollte Einstellungen sichern", async () => {
+      const gateway = EinstellungenGateway.create({ fileName: TEST_FILE });
 
-    const settings = await gateway.lade();
+      await gateway.sichere(Einstellungen.createTestInstance());
 
-    expect(settings).toEqual<Einstellungen>(Einstellungen.createDefault());
+      const result = await gateway.lade();
+      expect(result).toEqual<Einstellungen>(Einstellungen.createTestInstance());
+    });
   });
 
-  it("sollte Beispieldatei laden", async () => {
-    const gateway = new EinstellungenGateway(EXAMPLE_FILE);
+  describe("Nullable", () => {
+    describe("Load", () => {
+      it("sollte nichts liefern, wenn die konfigurierte Antwort null ist", async () => {
+        const gateway = EinstellungenGateway.createNull({
+          readFileResponses: [null],
+        });
 
-    const settings = await gateway.lade();
+        const einstellungen = await gateway.lade();
 
-    expect(settings).toEqual<Einstellungen>(Einstellungen.createTestInstance());
-  });
+        expect(einstellungen).toBeUndefined();
+      });
 
-  it("sollte einen Fehler werfen, wenn Datei kaputt ist", async () => {
-    const gateway = new EinstellungenGateway(CORRUPTED_FILE);
+      it("sollte konfigurierte Antwort liefern", async () => {
+        const gateway = EinstellungenGateway.createNull({
+          readFileResponses: [
+            EinstellungenDto.fromModel(Einstellungen.createTestInstance()),
+          ],
+        });
 
-    const result = gateway.lade();
+        const einstellungen = await gateway.lade();
 
-    await expect(result).rejects.toThrow(SyntaxError);
+        expect(einstellungen).toEqual<Einstellungen>(
+          Einstellungen.createTestInstance(),
+        );
+      });
+
+      it("sollte einen Fehler werfen, wenn die konfigurierte Antwort ein Fehler ist", async () => {
+        const gateway = EinstellungenGateway.createNull({
+          readFileResponses: [new Error("Test error")],
+        });
+
+        const einstellungen = gateway.lade();
+
+        await expect(einstellungen).rejects.toThrow("Test error");
+      });
+    });
+
+    describe("Store", () => {
+      it("sollte Einstellungen sichern", async () => {
+        const gateway = EinstellungenGateway.createNull();
+        const gesicherteEinstellungen = gateway.trackStored();
+
+        await gateway.sichere(Einstellungen.createTestInstance());
+
+        expect(gesicherteEinstellungen.data).toEqual<Einstellungen[]>([
+          Einstellungen.createTestInstance(),
+        ]);
+      });
+    });
   });
 });

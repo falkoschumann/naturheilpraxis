@@ -17,7 +17,7 @@ import {
   verarbeitungAbgeschlossen,
 } from "../../../domain/patientenkarteikarte";
 import { PATIENT_AUFNEHMEN_PAGE, PATIENTENKARTEIKARTE_PAGE } from "../../components/pages";
-import type { Patient } from "../../../../shared/domain/naturheilpraxis"; // TODO link spouse and parent
+import type { Patient } from "../../../../shared/domain/naturheilpraxis";
 
 // TODO link spouse and parent
 

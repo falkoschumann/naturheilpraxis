@@ -7,4 +7,4 @@ export const NIMM_PATIENT_AUF_CHANNEL = "nimmPatientAuf";
 export const QUERY_PATIENTENKARTEI_CHANNEL = "queryPatientenkartei";
 
 // Settings
-export const LOAD_SETTINGS_CHANNEL = "loadSettings";
+export const LADE_EINSTELLUNGEN_CHANNEL = "loadSettings";
