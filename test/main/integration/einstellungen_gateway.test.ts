@@ -5,7 +5,7 @@ import path from "node:path";
 import { describe, expect, it } from "vitest";
 
 import { Einstellungen } from "../../../src/shared/domain/einstellungen";
-import { EinstellungenGateway } from "../../../src/main/infrastructure/einstellungen-gateway";
+import { EinstellungenGateway } from "../../../src/main/infrastructure/einstellungen_gateway";
 import { EinstellungenDto } from "../../../src/shared/infrastructure/einstellungen";
 
 const NON_EXISTING_FILE = path.resolve(

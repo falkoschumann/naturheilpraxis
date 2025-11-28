@@ -9,7 +9,7 @@ import {
   REACT_DEVELOPER_TOOLS,
 } from "electron-devtools-installer";
 
-import { NaturheilpraxisService } from "./application/naturheilpraxis-service";
+import { NaturheilpraxisService } from "./application/naturheilpraxis_service";
 import { EinstellungenService } from "./application/einstellungen-service";
 import {
   LADE_EINSTELLUNGEN_CHANNEL,

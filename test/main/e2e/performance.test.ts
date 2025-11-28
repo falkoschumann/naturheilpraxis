@@ -2,8 +2,8 @@
 
 import { describe, it } from "vitest";
 
-import { NaturheilpraxisService } from "../../../src/main/application/naturheilpraxis-service";
-import { NdjsonEventStore } from "../../../src/main/infrastructure/event-store";
+import { NaturheilpraxisService } from "../../../src/main/application/naturheilpraxis_service";
+import { NdjsonEventStore } from "../../../src/main/infrastructure/event_store";
 
 describe("Performance", () => {
   /**

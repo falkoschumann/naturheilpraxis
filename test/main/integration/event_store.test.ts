@@ -10,7 +10,7 @@ import { arrayFromAsync } from "../../../src/shared/common/polyfills";
 import {
   MemoryEventStore,
   NdjsonEventStore,
-} from "../../../src/main/infrastructure/event-store";
+} from "../../../src/main/infrastructure/event_store";
 import { NdjsonError } from "../../../src/main/infrastructure/ndjson";
 
 const TEST_FILE = path.resolve(

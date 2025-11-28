@@ -1,6 +1,6 @@
 // Copyright (c) 2025 Falko Schumann. All rights reserved. MIT license.
 
-import { EinstellungenGateway } from "../infrastructure/einstellungen-gateway";
+import { EinstellungenGateway } from "../infrastructure/einstellungen_gateway";
 import { Einstellungen } from "../../shared/domain/einstellungen";
 
 export class EinstellungenService {

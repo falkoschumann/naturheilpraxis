@@ -12,7 +12,7 @@ import {
   type EventStore,
   MemoryEventStore,
   NdjsonEventStore,
-} from "../infrastructure/event-store";
+} from "../infrastructure/event_store";
 import {
   PATIENT_SOURCE,
   PatientAufgenommenV1Event,

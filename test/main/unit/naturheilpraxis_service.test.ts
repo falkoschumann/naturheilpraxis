@@ -4,7 +4,7 @@ import { type CloudEventV1 } from "cloudevents";
 import { describe, expect, it } from "vitest";
 
 import { arrayFromAsync } from "../../../src/shared/common/polyfills";
-import { NaturheilpraxisService } from "../../../src/main/application/naturheilpraxis-service";
+import { NaturheilpraxisService } from "../../../src/main/application/naturheilpraxis_service";
 import {
   NimmPatientAufCommand,
   type NimmPatientAufCommandStatus,
@@ -12,7 +12,7 @@ import {
   Patient,
   type PatientenkarteiQueryResult,
 } from "../../../src/shared/domain/naturheilpraxis";
-import { MemoryEventStore } from "../../../src/main/infrastructure/event-store";
+import { MemoryEventStore } from "../../../src/main/infrastructure/event_store";
 import {
   type PatientAufgenommenV1Data,
   PatientAufgenommenV1Event,

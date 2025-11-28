@@ -2,10 +2,10 @@
 
 import { describe, expect, it } from "vitest";
 
-import { EinstellungenService } from "../../../src/main/application/einstellungen-service";
+import { EinstellungenService } from "../../../src/main/application/einstellungen_service";
 import { Einstellungen } from "../../../src/shared/domain/einstellungen";
 import { EinstellungenDto } from "../../../src/shared/infrastructure/einstellungen";
-import { EinstellungenGateway } from "../../../src/main/infrastructure/einstellungen-gateway";
+import { EinstellungenGateway } from "../../../src/main/infrastructure/einstellungen_gateway";
 
 describe("Einstellungen Service", () => {
   describe("Lade Einstellungen", () => {
