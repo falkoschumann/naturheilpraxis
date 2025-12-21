@@ -10,7 +10,7 @@ import {
 } from "electron-devtools-installer";
 
 import { NaturheilpraxisService } from "./application/naturheilpraxis_service";
-import { EinstellungenService } from "./application/einstellungen-service";
+import { EinstellungenService } from "./application/einstellungen_service";
 import {
   LADE_EINSTELLUNGEN_CHANNEL,
   NIMM_PATIENT_AUF_CHANNEL,
