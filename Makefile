@@ -1,10 +1,13 @@
+export ASAR?=true
+export SIGN?=true
+
 PLANTUML_FILES = $(wildcard doc/*.puml)
 DIAGRAM_FILES = $(subst .puml,.png,$(PLANTUML_FILES))
 
 all: dist check
 
 clean:
-	rm -rf coverage out testdata
+	rm -rf build coverage testdata
 
 distclean: clean
 	rm -rf dist
@@ -62,8 +65,8 @@ prepare: version
   	fi
 
 version:
-	@echo "Node.js $(shell node --version)"
-	@echo "NPM $(shell npm --version)"
+	@echo "Using Node.js $(shell node --version)"
+	@echo "Using NPM $(shell npm --version)"
 
 $(DIAGRAM_FILES): %.png: %.puml
 	plantuml $^

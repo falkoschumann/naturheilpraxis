@@ -2,6 +2,7 @@
 /data/
 
 # Build and test
+.venv/
 coverage/
 dist/
 out/

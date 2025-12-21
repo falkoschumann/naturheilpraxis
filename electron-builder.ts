@@ -6,12 +6,13 @@ const options: Configuration = {
   appId: "de.muspellheim.naturheilpraxis",
   productName: "Naturheilpraxis",
   directories: {
-    buildResources: "build",
+    buildResources: "resources",
   },
   files: [
+    "!**/.github/*",
+    "!**/.venv/*",
     "!**/.vscode/*",
     "!data/*",
-    "!resources/*",
     "!src/*",
     "!test/*",
     "!testdata/*",
@@ -27,8 +28,7 @@ const options: Configuration = {
     "!vitest.config.*",
     "!.prettierrc",
   ],
-  // uncomment to inspect distribution artifact
-  //asar: false,
+  asar: process.env.ASAR === "true",
   asarUnpack: ["resources/**"],
   win: {
     executableName: "naturheilpraxis",
@@ -45,9 +45,8 @@ const options: Configuration = {
       "NSDocumentsFolderUsageDescription: Application requests access to the user's Documents folder.",
       "NSDownloadsFolderUsageDescription: Application requests access to the user's Downloads folder.",
     ],
-    // uncomment to speed up build for local testing
-    //notarize: false,
-    //identity: null,
+    notarize: process.env.SIGN === "true",
+    identity: process.env.SIGN === "true" ? undefined : null,
   },
   dmg: {
     artifactName: "${name}-${version}.${ext}",

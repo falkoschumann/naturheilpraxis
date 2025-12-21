@@ -23,7 +23,7 @@ import {
   PatientenkarteiQueryResultDto,
 } from "../shared/infrastructure/naturheilpraxis";
 import { EinstellungenDto } from "../shared/infrastructure/einstellungen";
-import icon from "../../build/icon.png?asset";
+import icon from "../../resources/icon.png?asset";
 
 // TODO Make the file paths configurable
 // TODO wrap settings gateway with settings service

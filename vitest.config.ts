@@ -1,14 +1,24 @@
 // Copyright (c) 2025 Falko Schumann. All rights reserved. MIT license.
 
-/// <reference types="vitest" />
-
-import { defineConfig } from "vite";
+import { defineConfig } from "vitest/config";
 
 export default defineConfig({
   test: {
     coverage: {
+      enabled: true,
+      include: [
+        "src/**/application/**/*",
+        "src/**/common/**/*",
+        "src/**/domain/**/*",
+        "src/**/infrastructure/**/*",
+        // exclude layers UI and root
+      ],
       provider: "v8",
-      include: ["src/**/*"],
+      thresholds: {
+        statements: 70, // TODO increase statements coverage
+        branches: 80,
+        lines: 70, // TODO increase lines coverage
+      },
     },
   },
 });
