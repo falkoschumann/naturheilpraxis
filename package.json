@@ -1,16 +1,30 @@
 {
   "name": "naturheilpraxis",
-  "productName": "Naturheilpraxis",
   "version": "0.1.0",
   "description": "Mit dieser App können Heilpraktiker Leistungen für Patienten erfassen, um ihnen diese in Rechnung stellen zu können.",
+  "keywords": [
+    "naturheilpraxis",
+    "heilpraktiker",
+    "rechnung"
+  ],
+  "author": "Falko Schumann",
+  "homepage": "https://github.com/falkoschumann/naturheilpraxis",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/falkoschumann/naturheilpraxis/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/falkoschumann/naturheilpraxis.git"
+  },
   "engines": {
     "node": ">=24.0.0"
   },
-  "main": "./out/main/index.js",
+  "main": "./build/main/index.js",
   "scripts": {
-    "start": "electron-vite preview",
-    "dev": "electron-vite dev --watch",
-    "build": "tsc --build && electron-vite build",
+    "start": "electron-vite preview --outDir=build",
+    "dev": "electron-vite dev --outDir=build --watch",
+    "build": "tsc --build && electron-vite build --outDir=build",
     "build:unpack": "electron-builder --dir",
     "build:electron": "electron-builder",
     "build:win": "electron-builder --win --x64",
@@ -25,12 +39,11 @@
     "@softarc/sheriff-core": "0.19.6",
     "@tanstack/react-table": "8.21.3",
     "@tanstack/react-virtual": "3.13.13",
-    "@types/electron-squirrel-startup": "1.0.2",
     "@types/node": "24.10.4",
     "@types/react": "19.2.7",
     "@types/react-dom": "19.2.3",
     "@vitejs/plugin-react": "5.1.2",
-    "@vitest/coverage-v8": "3.2.4",
+    "@vitest/coverage-v8": "4.0.16",
     "bootstrap": "5.3.8",
     "bootstrap-icons": "1.13.1",
     "bootstrap5-tags": "1.7.16",
@@ -38,41 +51,23 @@
     "electron": "39.2.7",
     "electron-builder": "26.0.12",
     "electron-devtools-installer": "4.0.0",
-    "electron-vite": "4.0.1",
+    "electron-vite": "5.0.0",
     "eslint": "9.39.2",
     "eslint-plugin-headers": "1.3.3",
     "eslint-plugin-react": "7.37.5",
     "eslint-plugin-react-hooks": "7.0.1",
-    "eslint-plugin-react-refresh": "0.4.25",
+    "eslint-plugin-react-refresh": "0.4.26",
     "flux-standard-action": "2.1.2",
     "globals": "16.5.0",
     "prettier": "3.7.4",
     "react": "19.2.3",
     "react-dom": "19.2.3",
-    "react-router": "7.10.1",
-    "sass": "1.96.0",
-    "type-fest": "^5.3.1",
+    "react-router": "7.11.0",
+    "sass": "1.97.1",
+    "type-fest": "5.3.1",
     "typescript": "5.9.3",
-    "typescript-eslint": "8.49.0",
-    "vite": "7.2.7",
-    "vitest": "3.2.4"
-  },
-  "keywords": [
-    "naturheilpraxis",
-    "heilpraktiker",
-    "rechnung"
-  ],
-  "author": {
-    "name": "Falko Schumann",
-    "email": "falko.schumann@muspellheim.de"
-  },
-  "license": "MIT",
-  "homepage": "https://github.com/falkoschumann/naturheilpraxis",
-  "bugs": {
-    "url": "https://github.com/falkoschumann/naturheilpraxis/issues"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/falkoschumann/naturheilpraxis.git"
+    "typescript-eslint": "8.50.0",
+    "vite": "7.3.0",
+    "vitest": "4.0.16"
   }
 }
