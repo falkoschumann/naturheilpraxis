@@ -3,9 +3,7 @@
 import { Temporal } from "@js-temporal/polyfill";
 import { Failure, Success } from "@muspellheim/shared";
 
-//
-// Commands
-//
+// region Commands
 
 export class NimmPatientAufCommand {
   static create({
@@ -232,9 +230,8 @@ export class NimmPatientAufSuccess extends Success {
   }
 }
 
-//
-// Queries
-//
+// endregion
+// region Queries
 
 export class PatientenkarteiQuery {
   static create({ nummer }: PatientenkarteiQuery) {
@@ -251,6 +248,10 @@ export class PatientenkarteiQuery {
 export class PatientenkarteiQueryResult {
   static create({ patienten }: PatientenkarteiQueryResult) {
     return new PatientenkarteiQueryResult(patienten);
+  }
+
+  static createEmpty() {
+    return PatientenkarteiQueryResult.create({ patienten: [] });
   }
 
   readonly patienten: Patient[];
@@ -409,10 +410,10 @@ export class Patient {
 
   readonly nummer: number;
   readonly nachname: string;
-  readonly vorname: string;
-  readonly geburtsdatum: Temporal.PlainDate;
+  readonly vorname: string; // TODO can be empty
+  readonly geburtsdatum: Temporal.PlainDate; // TODO can be empty
   readonly annahmejahr: number;
-  readonly praxis: string;
+  readonly praxis: string; // TODO can be empty
   readonly anrede?: string;
   readonly strasse?: string;
   readonly wohnort?: string;
@@ -478,3 +479,5 @@ export class Patient {
     this.schluesselworte = schluesselworte;
   }
 }
+
+// endregion

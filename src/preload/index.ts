@@ -13,6 +13,7 @@ import {
   LADE_EINSTELLUNGEN_CHANNEL,
   NIMM_PATIENT_AUF_CHANNEL,
   QUERY_PATIENTENKARTEI_CHANNEL,
+  SICHERE_EINSTELLUNGEN_CHANNEL,
 } from "../shared/infrastructure/channels";
 
 contextBridge.exposeInMainWorld("naturheilpraxis", {
@@ -28,4 +29,7 @@ contextBridge.exposeInMainWorld("naturheilpraxis", {
 
   ladeEinstellungen: (): Promise<EinstellungenDto> =>
     ipcRenderer.invoke(LADE_EINSTELLUNGEN_CHANNEL),
+
+  sichereEinstellungen: (einstellungen: EinstellungenDto) =>
+    ipcRenderer.invoke(SICHERE_EINSTELLUNGEN_CHANNEL, einstellungen),
 });

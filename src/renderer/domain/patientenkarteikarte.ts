@@ -6,9 +6,7 @@ import type { FluxStandardActionAuto } from "flux-standard-action";
 import { Patient } from "../../shared/domain/naturheilpraxis";
 import type { Einstellungen } from "../../shared/domain/einstellungen";
 
-//
-// Actions and Action Creators
-//
+// region Actions and Action Creators
 
 const INITIALISIERE_FORMULAR_ACTION = "initialisiereFormular";
 
@@ -85,9 +83,16 @@ export function patientGefunden(
   return { type: PATIENT_GEFUNDEN_ACTION, payload };
 }
 
-//
-// State and Reducer
-//
+export type Action =
+  | ReturnType<typeof initialisiereFormular>
+  | ReturnType<typeof feldAktualisiert>
+  | ReturnType<typeof sendeFormular>
+  | ReturnType<typeof verarbeitungAbgeschlossen>
+  | ReturnType<typeof abgebrochen>
+  | ReturnType<typeof patientGefunden>;
+
+// endregion
+// region State
 
 export const FormularZustand = Object.freeze({
   AUFNEHMEN: "Aufnehmen",
@@ -135,13 +140,8 @@ export const initialState: State = {
   standardSchluesselworte: [],
 };
 
-export type Action =
-  | ReturnType<typeof initialisiereFormular>
-  | ReturnType<typeof feldAktualisiert>
-  | ReturnType<typeof sendeFormular>
-  | ReturnType<typeof verarbeitungAbgeschlossen>
-  | ReturnType<typeof abgebrochen>
-  | ReturnType<typeof patientGefunden>;
+// endregion
+// region Reducer
 
 export function reducer(state: State, action: Action): State {
   switch (action.type) {
@@ -278,3 +278,5 @@ export function reducer(state: State, action: Action): State {
       );
   }
 }
+
+// endregion

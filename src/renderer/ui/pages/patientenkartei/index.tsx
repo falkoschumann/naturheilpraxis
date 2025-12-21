@@ -2,11 +2,12 @@
 
 import { createColumnHelper, flexRender, getCoreRowModel, type Table, useReactTable } from "@tanstack/react-table";
 import { useVirtualizer } from "@tanstack/react-virtual";
-import { type RefObject, useEffect, useRef, useState } from "react";
+import { type RefObject, useRef } from "react";
 import { NavLink, useNavigate } from "react-router";
 
 import type { Patient } from "../../../../shared/domain/naturheilpraxis";
 import { PATIENT_AUFNEHMEN_PAGE, PATIENTENKARTEIKARTE_PAGE } from "../../components/pages";
+import { usePatientenkartei } from "../../../application/naturheilpraxis_service";
 
 // TODO use sorting
 
@@ -51,23 +52,12 @@ const columns = [
 ];
 
 export default function PatientenkarteiPage() {
-  const [data, setData] = useState<Patient[]>([]);
+  const patientenkartei = usePatientenkartei({});
   const navigate = useNavigate();
 
   function handlePatientClick(nummer: number) {
     navigate(`${PATIENTENKARTEIKARTE_PAGE.replace(":nummer", String(nummer))}`);
   }
-
-  // TODO extract service and create DTOs
-
-  useEffect(() => {
-    async function queryPatientenkartei() {
-      const result = await window.naturheilpraxis.queryPatientenkartei({});
-      setData(result.patienten);
-    }
-
-    void queryPatientenkartei();
-  }, []);
 
   return (
     <main className="container-fluid my-4">
@@ -82,7 +72,7 @@ export default function PatientenkarteiPage() {
           </form>
         </div>
       </div>
-      <Table data={data} onPatientSelect={handlePatientClick} />
+      <Table data={patientenkartei.patienten} onPatientSelect={handlePatientClick} />
       <div className="btn-toolbar mt-3" role="toolbar" aria-label="Aktionen für Patienten">
         <NavLink to={PATIENT_AUFNEHMEN_PAGE} type="button" className="btn btn-primary">
           Nimm Patient auf

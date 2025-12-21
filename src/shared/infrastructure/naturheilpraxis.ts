@@ -1,18 +1,17 @@
 // Copyright (c) 2025 Falko Schumann. All rights reserved. MIT license.
 
-import { Failure, Success } from "@muspellheim/shared";
+import { Failure } from "@muspellheim/shared";
 
 import {
   NimmPatientAufCommand,
   type NimmPatientAufCommandStatus,
+  NimmPatientAufSuccess,
   Patient,
   PatientenkarteiQuery,
   PatientenkarteiQueryResult,
 } from "../domain/naturheilpraxis";
 
-//
-// Commands
-//
+// region Commands
 
 export class NimmPatientAufCommandDto {
   static create({
@@ -85,73 +84,10 @@ export class NimmPatientAufCommandDto {
     );
   }
 
-  static createTestInstance({
-    nachname = "Mustermann",
-    vorname = "Max",
-    geburtsdatum = "1980-01-01",
-    annahmejahr = 2025,
-    praxis = "Naturheilpraxis",
-    anrede,
-    strasse,
-    wohnort,
-    postleitzahl,
-    staat,
-    staatsangehoerigkeit,
-    titel,
-    beruf,
-    telefon,
-    mobil,
-    eMail,
-    familienstand,
-    partnerVon,
-    kindVon,
-    memo,
-    schluesselworte,
-  }: {
-    nachname?: string;
-    vorname?: string;
-    geburtsdatum?: string;
-    annahmejahr?: number;
-    praxis?: string;
-    anrede?: string;
-    strasse?: string;
-    wohnort?: string;
-    postleitzahl?: string;
-    staat?: string;
-    staatsangehoerigkeit?: string;
-    titel?: string;
-    beruf?: string;
-    telefon?: string;
-    mobil?: string;
-    eMail?: string;
-    familienstand?: string;
-    partnerVon?: string;
-    kindVon?: string;
-    memo?: string;
-    schluesselworte?: string[];
-  } = {}): NimmPatientAufCommandDto {
+  static fromModel(model: NimmPatientAufCommand): NimmPatientAufCommandDto {
     return NimmPatientAufCommandDto.create({
-      nachname: nachname,
-      vorname: vorname,
-      geburtsdatum: geburtsdatum,
-      annahmejahr: annahmejahr,
-      praxis: praxis,
-      anrede,
-      strasse,
-      wohnort,
-      postleitzahl,
-      staat,
-      staatsangehoerigkeit,
-      titel,
-      beruf,
-      telefon,
-      mobil,
-      eMail,
-      familienstand,
-      partnerVon,
-      kindVon,
-      memo,
-      schluesselworte,
+      ...model,
+      geburtsdatum: model.geburtsdatum.toString(),
     });
   }
 
@@ -245,9 +181,15 @@ export class NimmPatientAufCommandStatusDto {
     model: NimmPatientAufCommandStatus,
   ): NimmPatientAufCommandStatusDto {
     if (model.isSuccess) {
-      return NimmPatientAufSuccessDto.create({ nummer: model.nummer });
+      return NimmPatientAufCommandStatusDto.create({
+        isSuccess: true,
+        nummer: model.nummer,
+      });
     } else {
-      return new Failure(model.errorMessage);
+      return NimmPatientAufCommandStatusDto.create({
+        isSuccess: false,
+        errorMessage: model.errorMessage,
+      });
     }
   }
 
@@ -260,28 +202,26 @@ export class NimmPatientAufCommandStatusDto {
     this.errorMessage = errorMessage;
     this.nummer = nummer;
   }
-}
 
-export class NimmPatientAufSuccessDto extends Success {
-  static create({ nummer }: { nummer: number }) {
-    return new NimmPatientAufSuccessDto(nummer);
-  }
-
-  readonly nummer: number;
-
-  private constructor(nummer: number) {
-    super();
-    this.nummer = nummer;
+  validate(): NimmPatientAufCommandStatus {
+    if (this.isSuccess) {
+      return NimmPatientAufSuccess.create({ nummer: this.nummer! });
+    } else {
+      return new Failure(this.errorMessage!);
+    }
   }
 }
 
-//
-// Queries
-//
+// endregion
+// region Queries
 
 export class PatientenkarteiQueryDto {
-  static create({ nummer }: PatientenkarteiQueryDto) {
+  static create({ nummer }: { nummer?: number }) {
     return new PatientenkarteiQueryDto(nummer);
+  }
+
+  static fromModel(model: PatientenkarteiQuery): PatientenkarteiQueryDto {
+    return PatientenkarteiQueryDto.create(model);
   }
 
   readonly nummer?: number;
@@ -296,7 +236,7 @@ export class PatientenkarteiQueryDto {
 }
 
 export class PatientenkarteiQueryResultDto {
-  static create({ patienten }: PatientenkarteiQueryResultDto) {
+  static create({ patienten }: { patienten: PatientDto[] }) {
     return new PatientenkarteiQueryResultDto(patienten);
   }
 
@@ -316,6 +256,13 @@ export class PatientenkarteiQueryResultDto {
 
   private constructor(patienten: PatientDto[]) {
     this.patienten = patienten;
+  }
+
+  validate(): PatientenkarteiQueryResult {
+    const patienten = this.patienten.map((patientDto) =>
+      PatientDto.create(patientDto).validate(),
+    );
+    return PatientenkarteiQueryResult.create({ patienten });
   }
 }
 
@@ -393,79 +340,6 @@ export class PatientDto {
     );
   }
 
-  static createTestInstance({
-    nummer = 1,
-    nachname = "Mustermann",
-    vorname = "Max",
-    geburtsdatum = "1980-01-01",
-    annahmejahr = 2025,
-    praxis = "Naturheilpraxis",
-    anrede,
-    strasse,
-    wohnort,
-    postleitzahl,
-    staat,
-    staatsangehoerigkeit,
-    titel,
-    beruf,
-    telefon,
-    mobil,
-    eMail,
-    familienstand,
-    partnerVon,
-    kindVon,
-    memo,
-    schluesselworte,
-  }: {
-    nummer?: number;
-    nachname?: string;
-    vorname?: string;
-    geburtsdatum?: string;
-    annahmejahr?: number;
-    praxis?: string;
-    anrede?: string;
-    strasse?: string;
-    wohnort?: string;
-    postleitzahl?: string;
-    staat?: string;
-    staatsangehoerigkeit?: string;
-    titel?: string;
-    beruf?: string;
-    telefon?: string;
-    mobil?: string;
-    eMail?: string;
-    familienstand?: string;
-    partnerVon?: string;
-    kindVon?: string;
-    memo?: string;
-    schluesselworte?: string[];
-  } = {}): PatientDto {
-    return PatientDto.create({
-      nummer,
-      nachname,
-      vorname,
-      geburtsdatum,
-      annahmejahr,
-      praxis,
-      anrede,
-      strasse,
-      wohnort,
-      postleitzahl,
-      staat,
-      staatsangehoerigkeit,
-      titel,
-      beruf,
-      telefon,
-      mobil,
-      eMail,
-      familienstand,
-      partnerVon,
-      kindVon,
-      memo,
-      schluesselworte,
-    });
-  }
-
   readonly nummer: number;
   readonly nachname: string;
   readonly vorname: string;
@@ -541,3 +415,5 @@ export class PatientDto {
     return Patient.create(this);
   }
 }
+
+// endregion

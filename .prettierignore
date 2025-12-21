@@ -3,6 +3,7 @@
 
 # Build and test
 .venv/
+build/
 coverage/
 dist/
 out/

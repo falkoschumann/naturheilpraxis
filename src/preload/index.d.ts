@@ -18,6 +18,8 @@ export interface Naturheilpraxis {
   ): Promise<PatientenkarteiQueryResultDto>;
 
   ladeEinstellungen(): Promise<EinstellungenDto>;
+
+  sichereEinstellungen(einstellungen: EinstellungenDto): Promise<void>;
 }
 
 declare global {

@@ -15,6 +15,7 @@ import {
   LADE_EINSTELLUNGEN_CHANNEL,
   NIMM_PATIENT_AUF_CHANNEL,
   QUERY_PATIENTENKARTEI_CHANNEL,
+  SICHERE_EINSTELLUNGEN_CHANNEL,
 } from "../shared/infrastructure/channels";
 import {
   NimmPatientAufCommandDto,
@@ -108,6 +109,14 @@ function createRendererToMainChannels() {
     const einstellungen = await einstellungenService.ladeEinstellungen();
     return EinstellungenDto.fromModel(einstellungen);
   });
+  ipcMain.handle(
+    SICHERE_EINSTELLUNGEN_CHANNEL,
+    async (_event, einstellungenDto: EinstellungenDto) => {
+      const einstellungen =
+        EinstellungenDto.create(einstellungenDto).validate();
+      await einstellungenService.sichereEinstellungen(einstellungen);
+    },
+  );
 }
 
 export const createWindow = () => {

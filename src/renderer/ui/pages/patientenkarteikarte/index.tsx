@@ -2,75 +2,47 @@
 
 // @ts-expect-error TS7016
 import Tags from "bootstrap5-tags";
-import { type ChangeEvent, type FormEvent, type MouseEvent, useEffect, useReducer } from "react";
+import { type ChangeEvent, type FormEvent, type MouseEvent, useEffect } from "react";
 import { NavLink, useNavigate, useParams } from "react-router";
 
-import {
-  abgebrochen,
-  feldAktualisiert,
-  FormularZustand,
-  initialisiereFormular,
-  initialState,
-  patientGefunden,
-  reducer,
-  sendeFormular,
-  verarbeitungAbgeschlossen,
-} from "../../../domain/patientenkarteikarte";
+import { FormularZustand } from "../../../domain/patientenkarteikarte";
 import { PATIENT_AUFNEHMEN_PAGE, PATIENTENKARTEIKARTE_PAGE } from "../../components/pages";
-import type { Patient } from "../../../../shared/domain/naturheilpraxis";
+import { usePatientenkarteikarte } from "../../../application/naturheilpraxis_service";
 
 // TODO link spouse and parent
 
 export default function PatientenkarteikartePage() {
-  const [state, dispatch] = useReducer(reducer, initialState);
-  const { nummer } = useParams();
   const navigate = useNavigate();
-
-  // TODO extract service and create DTOs
-
-  useEffect(() => {
-    (async function () {
-      const configuration = await window.naturheilpraxis.loadSettings();
-      dispatch(initialisiereFormular({ einstellungen: configuration }));
-    })();
-  }, []);
-
-  useEffect(() => {
-    async function findPatient() {
-      const result = await window.naturheilpraxis.queryPatientenkartei({ nummer: Number(nummer) });
-      void dispatch(patientGefunden({ patient: result.patienten[0] }));
-    }
-
-    void findPatient();
-  }, [nummer]);
-
-  // Depending on the status, the tags component needs to be initialized
-  useEffect(() => Tags.init(), [state.formularZustand]);
+  const { nummer } = useParams();
+  const { state, handleFeldAktualisiert, handleSendeFormular, handleAbbrechen } = usePatientenkarteikarte({
+    nummer: nummer != null ? Number(nummer) : undefined,
+  });
 
   function handleSchluesselworteChange(e: ChangeEvent<HTMLSelectElement>) {
     const options = Array.from(e.target.selectedOptions, (option) => option.value);
-    dispatch(feldAktualisiert({ feld: "schluesselworte", wert: options }));
+    handleFeldAktualisiert("schluesselworte", options);
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const formularZustand = state.formularZustand;
-    dispatch(sendeFormular());
-    if (formularZustand === FormularZustand.AUFNEHMEN) {
-      const result = await window.naturheilpraxis.nimmPatientAuf(state.patient as Patient);
-      if (result.isSuccess) {
-        navigate(`${PATIENTENKARTEIKARTE_PAGE.replace(":nummer", String(result.nummer))}`);
-        dispatch(verarbeitungAbgeschlossen({ nummer: result.nummer }));
-      }
-    } else if (formularZustand === FormularZustand.BEARBEITEN) {
-      dispatch(verarbeitungAbgeschlossen({}));
-    }
+    await handleSendeFormular();
   }
 
   function handleCancel(event: MouseEvent<HTMLButtonElement>) {
     event.preventDefault();
-    void dispatch(abgebrochen());
+    handleAbbrechen();
   }
+
+  // Depending on the status, the tags component needs to be initialized
+  useEffect(() => Tags.init(), [state.formularZustand]);
+
+  useEffect(() => {
+    if (state.patient.nummer == null) {
+      return;
+    }
+
+    navigate(`${PATIENTENKARTEIKARTE_PAGE.replace(":nummer", String(state.patient.nummer))}`);
+  }, [navigate, state.patient.nummer]);
 
   return (
     <main className="container my-4">
@@ -99,7 +71,7 @@ export default function PatientenkarteikartePage() {
               isReadOnly={state.istSchreibgeschuetzt}
               cols={4}
               value={state.patient.geburtsdatum?.toString() ?? ""}
-              onChange={(e) => dispatch(feldAktualisiert({ feld: "geburtsdatum", wert: e.target.value }))}
+              onChange={(e) => handleFeldAktualisiert("geburtsdatum", e.target.value)}
             />
             <Input
               name="annahmejahr"
@@ -109,7 +81,7 @@ export default function PatientenkarteikartePage() {
               isReadOnly={state.istSchreibgeschuetzt}
               cols={4}
               value={String(state.patient.annahmejahr)}
-              onChange={(e) => dispatch(feldAktualisiert({ feld: "annahmejahr", wert: e.target.value }))}
+              onChange={(e) => handleFeldAktualisiert("annahmejahr", e.target.value)}
             />
             <Select
               name="praxis"
@@ -118,7 +90,7 @@ export default function PatientenkarteikartePage() {
               isReadOnly={state.istSchreibgeschuetzt}
               options={state.praxis}
               value={state.patient.praxis ?? ""}
-              onChange={(e) => dispatch(feldAktualisiert({ feld: "praxis", wert: e.target.value }))}
+              onChange={(e) => handleFeldAktualisiert("praxis", e.target.value)}
             />
             <Select
               name="anrede"
@@ -127,7 +99,7 @@ export default function PatientenkarteikartePage() {
               isReadOnly={state.istSchreibgeschuetzt}
               options={state.anrede}
               value={state.patient.anrede ?? ""}
-              onChange={(e) => dispatch(feldAktualisiert({ feld: "anrede", wert: e.target.value }))}
+              onChange={(e) => handleFeldAktualisiert("anrede", e.target.value)}
             />
             <Input
               name="titel"
@@ -135,7 +107,7 @@ export default function PatientenkarteikartePage() {
               cols={2}
               isReadOnly={state.istSchreibgeschuetzt}
               value={state.patient.titel ?? ""}
-              onChange={(e) => dispatch(feldAktualisiert({ feld: "titel", wert: e.target.value }))}
+              onChange={(e) => handleFeldAktualisiert("titel", e.target.value)}
             />
             <Input
               name="vorname"
@@ -144,7 +116,7 @@ export default function PatientenkarteikartePage() {
               cols={4}
               isReadOnly={state.istSchreibgeschuetzt}
               value={state.patient.vorname ?? ""}
-              onChange={(e) => dispatch(feldAktualisiert({ feld: "vorname", wert: e.target.value }))}
+              onChange={(e) => handleFeldAktualisiert("vorname", e.target.value)}
             />
             <Input
               name="nachname"
@@ -153,7 +125,7 @@ export default function PatientenkarteikartePage() {
               isReadOnly={state.istSchreibgeschuetzt}
               cols={4}
               value={state.patient.nachname ?? ""}
-              onChange={(e) => dispatch(feldAktualisiert({ feld: "nachname", wert: e.target.value }))}
+              onChange={(e) => handleFeldAktualisiert("nachname", e.target.value)}
             />
             <Input
               name="strasse"
@@ -161,7 +133,7 @@ export default function PatientenkarteikartePage() {
               cols={4}
               isReadOnly={state.istSchreibgeschuetzt}
               value={state.patient.strasse ?? ""}
-              onChange={(e) => dispatch(feldAktualisiert({ feld: "strasse", wert: e.target.value }))}
+              onChange={(e) => handleFeldAktualisiert("strasse", e.target.value)}
             />
             <Input
               name="postleitzahl"
@@ -169,7 +141,7 @@ export default function PatientenkarteikartePage() {
               cols={2}
               isReadOnly={state.istSchreibgeschuetzt}
               value={state.patient.postleitzahl ?? ""}
-              onChange={(e) => dispatch(feldAktualisiert({ feld: "postleitzahl", wert: e.target.value }))}
+              onChange={(e) => handleFeldAktualisiert("postleitzahl", e.target.value)}
             />
             <Input
               name="wohnort"
@@ -177,7 +149,7 @@ export default function PatientenkarteikartePage() {
               cols={3}
               isReadOnly={state.istSchreibgeschuetzt}
               value={state.patient.wohnort ?? ""}
-              onChange={(e) => dispatch(feldAktualisiert({ feld: "wohnort", wert: e.target.value }))}
+              onChange={(e) => handleFeldAktualisiert("wohnort", e.target.value)}
             />
             <Input
               name="staat"
@@ -185,7 +157,7 @@ export default function PatientenkarteikartePage() {
               cols={3}
               isReadOnly={state.istSchreibgeschuetzt}
               value={state.patient.staat ?? ""}
-              onChange={(e) => dispatch(feldAktualisiert({ feld: "staat", wert: e.target.value }))}
+              onChange={(e) => handleFeldAktualisiert("staat", e.target.value)}
             />
             <Input
               name="telefon"
@@ -193,7 +165,7 @@ export default function PatientenkarteikartePage() {
               cols={3}
               isReadOnly={state.istSchreibgeschuetzt}
               value={state.patient.telefon ?? ""}
-              onChange={(e) => dispatch(feldAktualisiert({ feld: "telefon", wert: e.target.value }))}
+              onChange={(e) => handleFeldAktualisiert("telefon", e.target.value)}
             />
             <Input
               name="mobil"
@@ -201,7 +173,7 @@ export default function PatientenkarteikartePage() {
               cols={3}
               isReadOnly={state.istSchreibgeschuetzt}
               value={state.patient.mobil ?? ""}
-              onChange={(e) => dispatch(feldAktualisiert({ feld: "mobil", wert: e.target.value }))}
+              onChange={(e) => handleFeldAktualisiert("mobil", e.target.value)}
             />
             <Input
               name="eMail"
@@ -209,7 +181,7 @@ export default function PatientenkarteikartePage() {
               cols={6}
               isReadOnly={state.istSchreibgeschuetzt}
               value={state.patient.eMail ?? ""}
-              onChange={(e) => dispatch(feldAktualisiert({ feld: "eMail", wert: e.target.value }))}
+              onChange={(e) => handleFeldAktualisiert("eMail", e.target.value)}
             />
             <Select
               name="familienstand"
@@ -218,7 +190,7 @@ export default function PatientenkarteikartePage() {
               isReadOnly={state.istSchreibgeschuetzt}
               options={state.familienstand}
               value={state.patient.familienstand ?? ""}
-              onChange={(e) => dispatch(feldAktualisiert({ feld: "familienstand", wert: e.target.value }))}
+              onChange={(e) => handleFeldAktualisiert("familienstand", e.target.value)}
             />
             <Input
               name="partnerVon"
@@ -226,7 +198,7 @@ export default function PatientenkarteikartePage() {
               cols={5}
               isReadOnly={state.istSchreibgeschuetzt}
               value={state.patient.partnerVon ?? ""}
-              onChange={(e) => dispatch(feldAktualisiert({ feld: "partnerVon", wert: e.target.value }))}
+              onChange={(e) => handleFeldAktualisiert("partnerVon", e.target.value)}
             />
             <Input
               name="kindVon"
@@ -234,7 +206,7 @@ export default function PatientenkarteikartePage() {
               cols={5}
               isReadOnly={state.istSchreibgeschuetzt}
               value={state.patient.kindVon ?? ""}
-              onChange={(e) => dispatch(feldAktualisiert({ feld: "kindVon", wert: e.target.value }))}
+              onChange={(e) => handleFeldAktualisiert("kindVon", e.target.value)}
             />
             <Input
               name="staatsangehoeringkeit"
@@ -242,7 +214,7 @@ export default function PatientenkarteikartePage() {
               cols={6}
               isReadOnly={state.istSchreibgeschuetzt}
               value={state.patient.staatsangehoerigkeit ?? ""}
-              onChange={(e) => dispatch(feldAktualisiert({ feld: "staatsangehoerigkeit", wert: e.target.value }))}
+              onChange={(e) => handleFeldAktualisiert("staatsangehoerigkeit", e.target.value)}
             />
             <Input
               name="beruf"
@@ -250,7 +222,7 @@ export default function PatientenkarteikartePage() {
               cols={6}
               isReadOnly={state.istSchreibgeschuetzt}
               value={state.patient.beruf ?? ""}
-              onChange={(e) => dispatch(feldAktualisiert({ feld: "beruf", wert: e.target.value }))}
+              onChange={(e) => handleFeldAktualisiert("beruf", e.target.value)}
             />
             <TextArea
               name="memo"
@@ -258,7 +230,7 @@ export default function PatientenkarteikartePage() {
               cols={12}
               isReadOnly={state.istSchreibgeschuetzt}
               value={state.patient.memo ?? ""}
-              onChange={(e) => dispatch(feldAktualisiert({ feld: "memo", wert: e.target.value }))}
+              onChange={(e) => handleFeldAktualisiert("memo", e.target.value)}
             />
           </div>
         </div>
