@@ -1,10 +1,10 @@
 # see also https://gitignore.io
 
-/coverage/
-/data/
-/build/
+coverage/
+data/
+build/
 dist/
-/testdata/
+testdata/
 tmp/
 vendor/
 .env.local
