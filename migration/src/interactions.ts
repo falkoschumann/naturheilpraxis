@@ -1,18 +1,20 @@
 // Copyright (c) 2025 Falko Schumann. All rights reserved. MIT license.
 
-import { DatabaseProvider } from "./database_provider.ts";
-import { FileProvider } from "./file_provider.ts";
+import { EinstellungenGateway } from "../../src/main/infrastructure/einstellungen_gateway";
+import { DatabaseProvider } from "./database_provider";
 
 export class Interactions {
   #legacyDatabase: DatabaseProvider;
-  #configurationFile: FileProvider;
+  #einstellungenGateway: EinstellungenGateway;
 
   constructor(legacyDatabaseFile: string, configurationFile: string) {
     this.#legacyDatabase = new DatabaseProvider(legacyDatabaseFile);
-    this.#configurationFile = new FileProvider(configurationFile);
+    this.#einstellungenGateway = EinstellungenGateway.create({
+      fileName: configurationFile,
+    });
   }
 
-  createConfiguration() {
+  async createConfiguration() {
     const praxis = this.#legacyDatabase.queryAgencies();
     const anrede = this.#legacyDatabase.queryTitles();
     const familienstand = this.#legacyDatabase.queryFamilyStatus();
@@ -26,8 +28,10 @@ export class Interactions {
       schluesselworte,
       standardSchluesselworte,
     };
-    this.#configurationFile.writeJson(einstellungen);
+    await this.#einstellungenGateway.sichere(einstellungen);
   }
+
+  createEventLog() {}
 
   close() {
     this.#legacyDatabase.close();

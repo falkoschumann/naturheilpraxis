@@ -1,10 +1,16 @@
+ENTRY_POINT=src/program.ts
+RUN_ARGS=--allow-read --allow-write --sloppy-imports
+
 all: check
 
+clean:
+	rm -rf data/output
+
 start:
-	deno run --allow-read --allow-write main.ts
+	deno run $(RUN_ARGS) $(ENTRY_POINT)
 
 dev:
-	deno run --allow-read --allow-write --watch main.ts
+	deno run $(RUN_ARGS) --watch $(ENTRY_POINT)
 
 check:
 	deno lint
@@ -14,4 +20,4 @@ format:
 	deno fmt
 	deno lint --fix
 
-.PHONY: all dev check format
+.PHONY: all clean start dev check format
