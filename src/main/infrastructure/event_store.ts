@@ -32,8 +32,12 @@ export class MemoryEventStore implements EventStore {
 }
 
 export class NdjsonEventStore implements EventStore {
-  static create(): NdjsonEventStore {
-    return new NdjsonEventStore("data/events.ndjson");
+  static create({
+    fileName = "data/event-log.ndjson",
+  }: {
+    fileName?: string;
+  }): NdjsonEventStore {
+    return new NdjsonEventStore(fileName);
   }
 
   readonly #fileName: string;
