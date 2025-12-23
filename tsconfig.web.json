@@ -33,10 +33,5 @@
     // Completeness
     "skipLibCheck": true
   },
-  "include": [
-    "src/renderer/env.d.ts",
-    "src/renderer/**/*",
-    "src/renderer/**/*.tsx",
-    "src/preload/*.d.ts"
-  ]
+  "include": ["src/preload/*.d.ts", "src/renderer/**/*"]
 }

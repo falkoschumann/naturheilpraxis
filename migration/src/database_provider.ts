@@ -11,42 +11,75 @@ export class DatabaseProvider {
 
   queryAgencies(): string[] {
     // language=SQLite
-    const records = this.executeQuery<AgencyListDto>(
-      "SELECT * FROM agencylist ORDER BY ordernumber;",
+    const records = this.executeQuery<AgencyDto>(
+      "SELECT agency as agency FROM agencylist ORDER BY ordernumber;",
     );
-    return records.map((record) => record.Agency);
+    return records.map((record) => record.agency);
   }
 
   queryTitles(): string[] {
     // language=SQLite
-    const records = this.executeQuery<TitleListDto>(
-      "SELECT * FROM titlelist ORDER BY title;",
+    const records = this.executeQuery<TitleDto>(
+      "SELECT title as title FROM titlelist ORDER BY title;",
     );
-    return records.map((record) => record.Title);
+    return records.map((record) => record.title);
   }
 
   queryFamilyStatus(): string[] {
     // language=SQLite
-    const records = this.executeQuery<FamilyStatusListDto>(
-      "SELECT * FROM familystatuslist ORDER BY familystatus;",
+    const records = this.executeQuery<FamilyStatusDto>(
+      "SELECT familystatus as familyStatus FROM familystatuslist ORDER BY familystatus;",
     );
-    return records.map((record) => record.FamilyStatus);
+    return records.map((record) => record.familyStatus);
   }
 
   queryHandling(): string[] {
     // language=SQLite
-    const records = this.executeQuery<HandlingListDto>(
-      "SELECT * FROM handlinglist ORDER BY handling;",
+    const records = this.executeQuery<HandlingDto>(
+      "SELECT handling as handling FROM handlinglist ORDER BY handling;",
     );
-    return records.map((record) => record.Handling);
+    return records.map((record) => record.handling);
   }
 
   queryStandardHandling(): string[] {
     // language=SQLite
-    const records = this.executeQuery<HandlingListDto>(
-      "SELECT * FROM handlinglist WHERE standard=1 ORDER BY handling;",
+    const records = this.executeQuery<HandlingDto>(
+      "SELECT handling as handling FROM handlinglist WHERE standard=1 ORDER BY handling;",
     );
-    return records.map((record) => record.Handling);
+    return records.map((record) => record.handling);
+  }
+
+  queryCustomers(): CustomerDto[] {
+    // language=SQLite
+    return this.executeQuery<CustomerDto>(`
+      SELECT customerlist.id,
+             acceptance,
+             agencylist.agency,
+             title,
+             surname,
+             forename,
+             street || ' ' || streetnumber as street,
+             city,
+             postalcode,
+             country,
+             callnumber,
+             mobilephone,
+             email,
+             memorandum,
+             academictitle,
+             dayofbirth,
+             occupation,
+             familystatus,
+             citizenship,
+             partnerfrom,
+             childfrom,
+             (SELECT GROUP_CONCAT(handlinglist.handling, ', ')
+                FROM handlinglist
+                       INNER JOIN handlingdata ON handlinglist.id=handlingdata.handlingid
+               WHERE handlingdata.customerid=customerlist.id) AS Handlings
+        FROM customerlist
+               INNER JOIN agencylist ON customerlist.agencyid=agencylist.id;
+    `);
   }
 
   executeQuery<T>(sql: string): T[] {
@@ -60,24 +93,49 @@ export class DatabaseProvider {
   }
 }
 
-export interface AgencyListDto {
-  ID: number;
-  Agency: string;
-  OrderNumber: number;
+export interface AgencyDto {
+  id: number;
+  agency: string;
+  orderNumber: number;
 }
 
-export interface FamilyStatusListDto {
-  Id: number;
-  FamilyStatus: string;
+export interface FamilyStatusDto {
+  id: number;
+  familyStatus: string;
 }
 
-export interface HandlingListDto {
-  Id: number;
-  Handling: string;
-  Standard: number;
+export interface HandlingDto {
+  id: number;
+  handling: string;
+  standard?: number;
 }
 
-export interface TitleListDto {
-  Id: number;
-  Title: string;
+export interface TitleDto {
+  id: number;
+  title: string;
+}
+
+export interface CustomerDto {
+  id: number;
+  acceptance?: number;
+  agency?: string;
+  title?: string;
+  familyStatus?: string;
+  surname?: string;
+  forename?: string;
+  street?: string;
+  postalCode?: string;
+  city?: string;
+  country?: string;
+  callNumber?: string;
+  mobilePhone?: string;
+  email?: string;
+  memorandum?: string;
+  academicTitle?: string;
+  dayOfBirth: string;
+  occupation?: string;
+  citizenship?: string;
+  partnerFrom?: string;
+  childFrom?: string;
+  handlings?: string;
 }
