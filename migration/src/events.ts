@@ -43,6 +43,7 @@ export function createEventsForCustomers(
       console.error("Skip invalid customer:", error, customer);
     }
   }
+  console.log("Total customers processed:", customers.length);
   console.log("Skipped customers with issues:", noOfIssues);
   return events;
 }
