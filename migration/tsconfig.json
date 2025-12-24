@@ -1,7 +1,0 @@
-{
-  "compilerOptions": {
-    "allowImportingTsExtensions": true,
-    "module": "ESNext",
-    "target": "ES2024"
-  }
-}
