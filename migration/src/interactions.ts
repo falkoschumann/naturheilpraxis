@@ -2,13 +2,14 @@
 
 import { EinstellungenGateway } from "../../src/main/infrastructure/einstellungen_gateway";
 import {
-  EventStore,
+  type EventStore,
   NdjsonEventStore,
-} from "../../src/main/infrastructure/event_store.ts";
-import { PatientAufgenommenV1Event } from "../../src/main/infrastructure/events.ts";
-import { EinstellungenDto } from "../../src/shared/infrastructure/einstellungen.ts";
+} from "../../src/main/infrastructure/event_store";
+import { EinstellungenDto } from "../../src/shared/infrastructure/einstellungen";
 
 import { DatabaseProvider } from "./database_provider";
+import { createEinstellungen } from "./einstellungen";
+import { createEventsForCustomers } from "./events";
 
 export class Interactions {
   #legacyDatabase: DatabaseProvider;
@@ -28,22 +29,20 @@ export class Interactions {
   }
 
   async createEinstellungen() {
-    let einstellungen: EinstellungenDto;
+    let einstellungen: EinstellungenDto | undefined;
     try {
-      const praxis = this.#legacyDatabase.queryAgencies();
-      const anrede = this.#legacyDatabase.queryTitles();
-      const familienstand = this.#legacyDatabase.queryFamilyStatus();
-      const schluesselworte = this.#legacyDatabase.queryHandling();
-      const standardSchluesselworte =
-        this.#legacyDatabase.queryStandardHandling();
-      einstellungen = EinstellungenDto.create({
-        praxis,
-        anrede,
-        familienstand,
-        schluesselworte,
-        standardSchluesselworte,
-      });
-      EinstellungenDto.fromJson(einstellungen);
+      const agencies = this.#legacyDatabase.queryAgencies();
+      const titles = this.#legacyDatabase.queryTitles();
+      const familyStatus = this.#legacyDatabase.queryFamilyStatus();
+      const handling = this.#legacyDatabase.queryHandling();
+      const standardHandling = this.#legacyDatabase.queryStandardHandling();
+      const einstellungen = createEinstellungen(
+        agencies,
+        titles,
+        familyStatus,
+        handling,
+        standardHandling,
+      );
       await this.#einstellungenGateway.sichere(einstellungen);
     } catch (error) {
       console.error(error, einstellungen);
@@ -52,33 +51,8 @@ export class Interactions {
 
   async createEventLog() {
     const customers = this.#legacyDatabase.queryCustomers();
-    for (const customer of customers) {
-      const event = PatientAufgenommenV1Event.create({
-        nummer: customer.id,
-        nachname: customer.surname,
-        vorname: customer.forename,
-        geburtsdatum: customer.dayOfBirth,
-        annahmejahr: customer.acceptance,
-        praxis: customer.agency,
-        anrede: customer.title,
-        strasse: customer.street,
-        wohnort: customer.city,
-        postleitzahl: customer.postalCode,
-        staat: customer.country,
-        staatsangehoerigkeit: customer.citizenship,
-        titel: customer.academicTitle,
-        beruf: customer.occupation,
-        telefon: customer.callNumber,
-        mobil: customer.mobilePhone,
-        eMail: customer.email,
-        familienstand: customer.familyStatus,
-        partner: customer.partnerFrom,
-        eltern: customer.childFrom,
-        // TODO kinder: customer.,
-        // TODO geschwister: customer.,
-        notizen: customer.memorandum,
-        schluesselworte: customer.handlings?.split(",").map((s) => s.trim()),
-      });
+    const events = createEventsForCustomers(customers);
+    for (const event of events) {
       await this.#eventStore.record(event);
     }
   }

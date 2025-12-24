@@ -52,27 +52,27 @@ export class DatabaseProvider {
   queryCustomers(): CustomerDto[] {
     // language=SQLite
     return this.executeQuery<CustomerDto>(`
-      SELECT customerlist.id,
-             acceptance,
-             agencylist.agency,
-             title,
-             surname,
-             forename,
-             street || ' ' || streetnumber as street,
-             city,
-             postalcode,
-             country,
-             callnumber,
-             mobilephone,
-             email,
-             memorandum,
-             academictitle,
-             dayofbirth,
-             occupation,
-             familystatus,
-             citizenship,
-             partnerfrom,
-             childfrom,
+      SELECT customerlist.id AS id,
+             acceptance AS acceptance,
+             agencylist.agency AS agency,
+             title AS title,
+             surname AS surname,
+             forename AS forename,
+             trim(street || ' ' || streetnumber) as street,
+             city AS city,
+             postalcode AS postalCode,
+             country AS country,
+             callnumber AS callNumber,
+             mobilephone AS mobilePhone,
+             email AS email,
+             memorandum AS memorandum,
+             academictitle AS academicTitle,
+             dayofbirth AS dayOfBirth,
+             occupation AS occupation,
+             familystatus AS familyStatus,
+             citizenship AS citizenship,
+             partnerfrom AS partnerFrom,
+             childfrom AS childFrom,
              (SELECT GROUP_CONCAT(handlinglist.handling, ', ')
                 FROM handlinglist
                        INNER JOIN handlingdata ON handlinglist.id=handlingdata.handlingid
@@ -132,7 +132,7 @@ export interface CustomerDto {
   email?: string;
   memorandum?: string;
   academicTitle?: string;
-  dayOfBirth: string;
+  dayOfBirth?: string;
   occupation?: string;
   citizenship?: string;
   partnerFrom?: string;
