@@ -1,6 +1,6 @@
 // Copyright (c) 2025 Falko Schumann. All rights reserved. MIT license.
 
-import { Configuration } from "electron-builder";
+import type { Configuration } from "electron-builder";
 
 const options: Configuration = {
   appId: "de.muspellheim.naturheilpraxis",
