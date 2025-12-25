@@ -9,7 +9,7 @@ clean:
 
 start:
 	mkdir -p $(OUTPUT_DIR)
-	deno run $(RUN_ARGS) $(ENTRY_POINT) > $(OUTPUT_DIR)/error.log 2>&1
+	deno run $(RUN_ARGS) $(ENTRY_POINT) 2> $(OUTPUT_DIR)/error.log
 
 dev:
 	deno run $(RUN_ARGS) --watch $(ENTRY_POINT)
