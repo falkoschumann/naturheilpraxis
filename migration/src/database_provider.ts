@@ -53,32 +53,32 @@ export class DatabaseProvider {
     // language=SQLite
     return this.executeQuery<CustomerDto>(`
       SELECT customerlist.id AS id,
+             surname AS surname,
+             forename AS forename,
+             dayofbirth AS dayOfBirth,
              acceptance AS acceptance,
              agencylist.agency AS agency,
              title AS title,
-             surname AS surname,
-             forename AS forename,
              trim(street || ' ' || streetnumber) as street,
              city AS city,
              postalcode AS postalCode,
              country AS country,
+             citizenship AS citizenship,
+             academictitle AS academicTitle,
+             occupation AS occupation,
              callnumber AS callNumber,
              mobilephone AS mobilePhone,
              email AS email,
-             memorandum AS memorandum,
-             academictitle AS academicTitle,
-             dayofbirth AS dayOfBirth,
-             occupation AS occupation,
              familystatus AS familyStatus,
-             citizenship AS citizenship,
              partnerfrom AS partnerFrom,
              childfrom AS childFrom,
+             memorandum AS memorandum,
              (SELECT GROUP_CONCAT(handlinglist.handling, ', ')
                 FROM handlinglist
                        INNER JOIN handlingdata ON handlinglist.id=handlingdata.handlingid
-               WHERE handlingdata.customerid=customerlist.id) AS Handlings
+               WHERE handlingdata.customerid=customerlist.id) AS handlings
         FROM customerlist
-               INNER JOIN agencylist ON customerlist.agencyid=agencylist.id;
+        LEFT JOIN agencylist ON customerlist.agencyid=agencylist.id;
     `);
   }
 
@@ -117,25 +117,25 @@ export interface TitleDto {
 
 export interface CustomerDto {
   id: number;
+  surname?: string;
+  forename?: string;
+  dayOfBirth?: string;
   acceptance?: number;
   agency?: string;
   title?: string;
-  familyStatus?: string;
-  surname?: string;
-  forename?: string;
   street?: string;
-  postalCode?: string;
   city?: string;
+  postalCode?: string;
   country?: string;
+  citizenship?: string;
+  academicTitle?: string;
+  occupation?: string;
   callNumber?: string;
   mobilePhone?: string;
   email?: string;
-  memorandum?: string;
-  academicTitle?: string;
-  dayOfBirth?: string;
-  occupation?: string;
-  citizenship?: string;
+  familyStatus?: string;
   partnerFrom?: string;
   childFrom?: string;
+  memorandum?: string;
   handlings?: string;
 }

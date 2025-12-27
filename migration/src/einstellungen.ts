@@ -2,19 +2,19 @@
 
 import { EinstellungenDto } from "../../src/shared/infrastructure/einstellungen";
 
-export function createEinstellungen(
-  agencies: string[],
-  titles: string[],
-  familyStatus: string[],
-  handling: string[],
-  standardHandling: string[],
-): EinstellungenDto {
+export function createEinstellungen(configuration: {
+  agencies: string[];
+  titles: string[];
+  familyStatus: string[];
+  handling: string[];
+  standardHandling: string[];
+}): EinstellungenDto {
   const einstellungen = EinstellungenDto.create({
-    praxis: agencies,
-    anrede: titles,
-    familienstand: familyStatus,
-    schluesselworte: handling,
-    standardSchluesselworte: standardHandling,
+    praxis: configuration.agencies,
+    anrede: configuration.titles,
+    familienstand: configuration.familyStatus,
+    schluesselworte: configuration.handling,
+    standardSchluesselworte: configuration.standardHandling,
   });
   return EinstellungenDto.fromJson(einstellungen);
 }

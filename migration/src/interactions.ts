@@ -1,15 +1,15 @@
 // Copyright (c) 2025 Falko Schumann. All rights reserved. MIT license.
 
+import type { Einstellungen } from "../../src/shared/domain/einstellungen";
 import { EinstellungenGateway } from "../../src/main/infrastructure/einstellungen_gateway";
 import {
   type EventStore,
   NdjsonEventStore,
 } from "../../src/main/infrastructure/event_store";
-import { EinstellungenDto } from "../../src/shared/infrastructure/einstellungen";
 
 import { DatabaseProvider } from "./database_provider";
 import { createEinstellungen } from "./einstellungen";
-import { createEventsForCustomers } from "./events";
+import { erzeugeEventsFuerPatienten } from "./events";
 
 export class Interactions {
   #legacyDatabase: DatabaseProvider;
@@ -28,36 +28,52 @@ export class Interactions {
     this.#eventStore = NdjsonEventStore.create({ fileName: eventLogFile });
   }
 
-  async createEinstellungen() {
-    let einstellungen: EinstellungenDto | undefined;
+  async erstelleEinstellungen(): Promise<Einstellungen> {
+    let agencies;
+    let titles;
+    let familyStatus;
+    let handling;
+    let standardHandling;
     try {
-      const agencies = this.#legacyDatabase.queryAgencies();
-      const titles = this.#legacyDatabase.queryTitles();
-      const familyStatus = this.#legacyDatabase.queryFamilyStatus();
-      const handling = this.#legacyDatabase.queryHandling();
-      const standardHandling = this.#legacyDatabase.queryStandardHandling();
-      const einstellungen = createEinstellungen(
+      agencies = this.#legacyDatabase.queryAgencies();
+      titles = this.#legacyDatabase.queryTitles();
+      familyStatus = this.#legacyDatabase.queryFamilyStatus();
+      handling = this.#legacyDatabase.queryHandling();
+      standardHandling = this.#legacyDatabase.queryStandardHandling();
+      const einstellungen = createEinstellungen({
         agencies,
         titles,
         familyStatus,
         handling,
         standardHandling,
-      );
+      });
       await this.#einstellungenGateway.sichere(einstellungen);
+      return einstellungen;
     } catch (error) {
-      console.error(error, einstellungen);
+      console.error(
+        "Fehler beim Migrieren der Einstellungen.",
+        {
+          agencies,
+          titles,
+          familyStatus,
+          handling,
+          standardHandling,
+        },
+        error,
+      );
+      throw Error("Fehler beim Migrieren der Einstellungen.", { cause: error });
     }
   }
 
-  async createEventLog() {
+  async erstelleEventLog(einstellungen: Einstellungen): Promise<void> {
     const customers = this.#legacyDatabase.queryCustomers();
-    const events = createEventsForCustomers(customers);
+    const events = erzeugeEventsFuerPatienten(customers, einstellungen);
     for (const event of events) {
       await this.#eventStore.record(event);
     }
   }
 
-  close() {
+  dispose() {
     this.#legacyDatabase.close();
   }
 }
