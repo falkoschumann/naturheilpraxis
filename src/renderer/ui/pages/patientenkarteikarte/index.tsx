@@ -193,20 +193,20 @@ export default function PatientenkarteikartePage() {
               onChange={(e) => handleFeldAktualisiert("familienstand", e.target.value)}
             />
             <Input
-              name="partnerVon"
-              label="Partner von"
+              name="partner"
+              label="Partner"
               cols={5}
               isReadOnly={state.istSchreibgeschuetzt}
-              value={state.patient.partnerVon ?? ""}
-              onChange={(e) => handleFeldAktualisiert("partnerVon", e.target.value)}
+              value={state.patient.partner ?? ""}
+              onChange={(e) => handleFeldAktualisiert("partner", e.target.value)}
             />
             <Input
-              name="kindVon"
-              label="Kind von"
+              name="kinder"
+              label="Kinder"
               cols={5}
               isReadOnly={state.istSchreibgeschuetzt}
-              value={state.patient.kindVon ?? ""}
-              onChange={(e) => handleFeldAktualisiert("kindVon", e.target.value)}
+              value={state.patient.kinder ?? ""}
+              onChange={(e) => handleFeldAktualisiert("kinder", e.target.value)}
             />
             <Input
               name="staatsangehoeringkeit"
@@ -225,12 +225,12 @@ export default function PatientenkarteikartePage() {
               onChange={(e) => handleFeldAktualisiert("beruf", e.target.value)}
             />
             <TextArea
-              name="memo"
-              label="Memo"
+              name="notizen"
+              label="Notizen"
               cols={12}
               isReadOnly={state.istSchreibgeschuetzt}
-              value={state.patient.memo ?? ""}
-              onChange={(e) => handleFeldAktualisiert("memo", e.target.value)}
+              value={state.patient.notizen ?? ""}
+              onChange={(e) => handleFeldAktualisiert("notizen", e.target.value)}
             />
           </div>
         </div>

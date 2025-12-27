@@ -32,9 +32,9 @@ export class NimmPatientAufCommandDto {
     mobil,
     eMail,
     familienstand,
-    partnerVon,
-    kindVon,
-    memo,
+    partner,
+    kinder,
+    notizen,
     schluesselworte,
   }: {
     nachname: string;
@@ -54,9 +54,9 @@ export class NimmPatientAufCommandDto {
     mobil?: string;
     eMail?: string;
     familienstand?: string;
-    partnerVon?: string;
-    kindVon?: string;
-    memo?: string;
+    partner?: string;
+    kinder?: string;
+    notizen?: string;
     schluesselworte?: string[];
   }): NimmPatientAufCommandDto {
     return new NimmPatientAufCommandDto(
@@ -77,9 +77,9 @@ export class NimmPatientAufCommandDto {
       mobil,
       eMail,
       familienstand,
-      partnerVon,
-      kindVon,
-      memo,
+      partner,
+      kinder,
+      notizen,
       schluesselworte,
     );
   }
@@ -108,9 +108,9 @@ export class NimmPatientAufCommandDto {
   readonly mobil?: string;
   readonly eMail?: string;
   readonly familienstand?: string;
-  readonly partnerVon?: string;
-  readonly kindVon?: string;
-  readonly memo?: string;
+  readonly partner?: string;
+  readonly kinder?: string;
+  readonly notizen?: string;
   readonly schluesselworte?: string[];
 
   private constructor(
@@ -131,9 +131,9 @@ export class NimmPatientAufCommandDto {
     mobil?: string,
     eMail?: string,
     familienstand?: string,
-    partnerVon?: string,
-    kindVon?: string,
-    memo?: string,
+    partner?: string,
+    kinder?: string,
+    notizen?: string,
     schluesselworte?: string[],
   ) {
     this.nachname = nachname;
@@ -153,9 +153,9 @@ export class NimmPatientAufCommandDto {
     this.mobil = mobil;
     this.eMail = eMail;
     this.familienstand = familienstand;
-    this.partnerVon = partnerVon;
-    this.kindVon = kindVon;
-    this.memo = memo;
+    this.partner = partner;
+    this.kinder = kinder;
+    this.notizen = notizen;
     this.schluesselworte = schluesselworte;
   }
 
@@ -286,9 +286,9 @@ export class PatientDto {
     mobil,
     eMail,
     familienstand,
-    partnerVon,
-    kindVon,
-    memo,
+    partner,
+    kinder,
+    notizen,
     schluesselworte,
   }: {
     nummer: number;
@@ -309,9 +309,9 @@ export class PatientDto {
     mobil?: string;
     eMail?: string;
     familienstand?: string;
-    partnerVon?: string;
-    kindVon?: string;
-    memo?: string;
+    partner?: string;
+    kinder?: string;
+    notizen?: string;
     schluesselworte?: string[];
   }): PatientDto {
     return new PatientDto(
@@ -333,9 +333,9 @@ export class PatientDto {
       mobil,
       eMail,
       familienstand,
-      partnerVon,
-      kindVon,
-      memo,
+      partner,
+      kinder,
+      notizen,
       schluesselworte,
     );
   }
@@ -358,9 +358,9 @@ export class PatientDto {
   readonly mobil?: string;
   readonly eMail?: string;
   readonly familienstand?: string;
-  readonly partnerVon?: string;
-  readonly kindVon?: string;
-  readonly memo?: string;
+  readonly partner?: string;
+  readonly kinder?: string;
+  readonly notizen?: string;
   readonly schluesselworte?: string[];
 
   private constructor(
@@ -382,9 +382,9 @@ export class PatientDto {
     mobil?: string,
     eMail?: string,
     familienstand?: string,
-    partnerVon?: string,
-    kindVon?: string,
-    memo?: string,
+    partner?: string,
+    kinder?: string,
+    notizen?: string,
     schluesselworte?: string[],
   ) {
     this.nummer = nummer;
@@ -405,9 +405,9 @@ export class PatientDto {
     this.mobil = mobil;
     this.eMail = eMail;
     this.familienstand = familienstand;
-    this.partnerVon = partnerVon;
-    this.kindVon = kindVon;
-    this.memo = memo;
+    this.partner = partner;
+    this.kinder = kinder;
+    this.notizen = notizen;
     this.schluesselworte = schluesselworte;
   }
 

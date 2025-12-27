@@ -24,9 +24,9 @@ export class NimmPatientAufCommand {
     mobil,
     eMail,
     familienstand,
-    partnerVon,
-    kindVon,
-    memo,
+    partner,
+    kinder,
+    notizen,
     schluesselworte,
   }: {
     nachname: string;
@@ -46,9 +46,9 @@ export class NimmPatientAufCommand {
     mobil?: string;
     eMail?: string;
     familienstand?: string;
-    partnerVon?: string;
-    kindVon?: string;
-    memo?: string;
+    partner?: string;
+    kinder?: string;
+    notizen?: string;
     schluesselworte?: string[];
   }): NimmPatientAufCommand {
     return new NimmPatientAufCommand(
@@ -69,9 +69,9 @@ export class NimmPatientAufCommand {
       mobil,
       eMail,
       familienstand,
-      partnerVon,
-      kindVon,
-      memo,
+      partner,
+      kinder,
+      notizen,
       schluesselworte,
     );
   }
@@ -94,9 +94,9 @@ export class NimmPatientAufCommand {
     mobil,
     eMail,
     familienstand,
-    partnerVon,
-    kindVon,
-    memo,
+    partner,
+    kinder,
+    notizen,
     schluesselworte,
   }: {
     nachname?: string;
@@ -116,9 +116,9 @@ export class NimmPatientAufCommand {
     mobil?: string;
     eMail?: string;
     familienstand?: string;
-    partnerVon?: string;
-    kindVon?: string;
-    memo?: string;
+    partner?: string;
+    kinder?: string;
+    notizen?: string;
     schluesselworte?: string[];
   } = {}): NimmPatientAufCommand {
     return NimmPatientAufCommand.create({
@@ -139,9 +139,9 @@ export class NimmPatientAufCommand {
       mobil,
       eMail,
       familienstand,
-      partnerVon,
-      kindVon,
-      memo,
+      partner,
+      kinder,
+      notizen,
       schluesselworte,
     });
   }
@@ -163,9 +163,9 @@ export class NimmPatientAufCommand {
   readonly mobil?: string;
   readonly eMail?: string;
   readonly familienstand?: string;
-  readonly partnerVon?: string;
-  readonly kindVon?: string;
-  readonly memo?: string;
+  readonly partner?: string;
+  readonly kinder?: string;
+  readonly notizen?: string;
   readonly schluesselworte?: string[];
 
   private constructor(
@@ -186,9 +186,9 @@ export class NimmPatientAufCommand {
     mobil?: string,
     eMail?: string,
     familienstand?: string,
-    partnerVon?: string,
-    kindVon?: string,
-    memo?: string,
+    partner?: string,
+    kinder?: string,
+    notizen?: string,
     schluesselworte?: string[],
   ) {
     this.nachname = nachname;
@@ -208,9 +208,9 @@ export class NimmPatientAufCommand {
     this.mobil = mobil;
     this.eMail = eMail;
     this.familienstand = familienstand;
-    this.partnerVon = partnerVon;
-    this.kindVon = kindVon;
-    this.memo = memo;
+    this.partner = partner;
+    this.kinder = kinder;
+    this.notizen = notizen;
     this.schluesselworte = schluesselworte;
   }
 }
@@ -281,9 +281,9 @@ export class Patient {
     mobil,
     eMail,
     familienstand,
-    partnerVon,
-    kindVon,
-    memo,
+    partner,
+    kinder,
+    notizen,
     schluesselworte,
   }: {
     nummer: number;
@@ -304,9 +304,9 @@ export class Patient {
     mobil?: string;
     eMail?: string;
     familienstand?: string;
-    partnerVon?: string;
-    kindVon?: string;
-    memo?: string;
+    partner?: string;
+    kinder?: string;
+    notizen?: string;
     schluesselworte?: string[];
   }): Patient {
     return new Patient(
@@ -328,9 +328,9 @@ export class Patient {
       mobil,
       eMail,
       familienstand,
-      partnerVon,
-      kindVon,
-      memo,
+      partner,
+      kinder,
+      notizen,
       schluesselworte,
     );
   }
@@ -354,9 +354,9 @@ export class Patient {
     mobil,
     eMail,
     familienstand,
-    partnerVon,
-    kindVon,
-    memo,
+    partner,
+    kinder,
+    notizen,
     schluesselworte,
   }: {
     nummer?: number;
@@ -377,9 +377,9 @@ export class Patient {
     mobil?: string;
     eMail?: string;
     familienstand?: string;
-    partnerVon?: string;
-    kindVon?: string;
-    memo?: string;
+    partner?: string;
+    kinder?: string;
+    notizen?: string;
     schluesselworte?: string[];
   } = {}): Patient {
     return Patient.create({
@@ -401,9 +401,9 @@ export class Patient {
       mobil,
       eMail,
       familienstand,
-      partnerVon,
-      kindVon,
-      memo,
+      partner,
+      kinder,
+      notizen,
       schluesselworte,
     });
   }
@@ -426,9 +426,9 @@ export class Patient {
   readonly mobil?: string;
   readonly eMail?: string;
   readonly familienstand?: string;
-  readonly partnerVon?: string;
-  readonly kindVon?: string;
-  readonly memo?: string;
+  readonly partner?: string;
+  readonly kinder?: string;
+  readonly notizen?: string;
   readonly schluesselworte?: string[];
 
   private constructor(
@@ -450,9 +450,9 @@ export class Patient {
     mobil?: string,
     eMail?: string,
     familienstand?: string,
-    partnerVon?: string,
-    kindVon?: string,
-    memo?: string,
+    partner?: string,
+    kinder?: string,
+    notizen?: string,
     schluesselworte?: string[],
   ) {
     this.nummer = nummer;
@@ -473,9 +473,9 @@ export class Patient {
     this.mobil = mobil;
     this.eMail = eMail;
     this.familienstand = familienstand;
-    this.partnerVon = partnerVon;
-    this.kindVon = kindVon;
-    this.memo = memo;
+    this.partner = partner;
+    this.kinder = kinder;
+    this.notizen = notizen;
     this.schluesselworte = schluesselworte;
   }
 }

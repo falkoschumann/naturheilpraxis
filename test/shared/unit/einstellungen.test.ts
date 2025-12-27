@@ -6,6 +6,24 @@ import { EinstellungenDto } from "../../../src/shared/infrastructure/einstellung
 
 describe("Einstellungen", () => {
   describe("Validate", () => {
+    it("sollte keinen Typfehler werfen, wenn Attribute fehlen", () => {
+      const dto = {
+        praxis: [],
+      };
+
+      const result = EinstellungenDto.fromJson(dto);
+
+      expect(result).toEqual(
+        EinstellungenDto.create({
+          praxis: [],
+          anrede: [],
+          familienstand: [],
+          schluesselworte: [],
+          standardSchluesselworte: [],
+        }),
+      );
+    });
+
     it("sollte einen Typfehler werfen, wenn ein DTO nicht gültig ist", () => {
       const dto = {
         praxis: [],
@@ -15,7 +33,9 @@ describe("Einstellungen", () => {
         standardSchluesselworte: [],
       };
 
-      expect(() => EinstellungenDto.fromJson(dto)).toThrow(TypeError);
+      const action = () => EinstellungenDto.fromJson(dto);
+
+      expect(action).toThrow(TypeError);
     });
   });
 });

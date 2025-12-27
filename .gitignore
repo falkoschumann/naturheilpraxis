@@ -1,6 +1,5 @@
 # see also https://gitignore.io
 
-coverage/
 data/
 build/
 dist/
@@ -17,6 +16,7 @@ junit.xml
 
 # Python
 __pycache__/
+.venv/
 
 # Eclipse
 .settings/

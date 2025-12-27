@@ -13,10 +13,7 @@ import {
   MemoryEventStore,
   NdjsonEventStore,
 } from "../infrastructure/event_store";
-import {
-  PATIENT_SOURCE,
-  PatientAufgenommenV1Event,
-} from "../infrastructure/events";
+import { PatientAufgenommenV1Event } from "../infrastructure/events"; // TODO handle technical errors, e.g. when the event store is not available
 
 // TODO handle technical errors, e.g. when the event store is not available
 //   That is not a failure as command status
@@ -67,9 +64,9 @@ export class NaturheilpraxisService {
       mobil: command.mobil || undefined,
       eMail: command.eMail || undefined,
       familienstand: command.familienstand || undefined,
-      partnerVon: command.partnerVon || undefined,
-      kindVon: command.kindVon || undefined,
-      memo: command.memo || undefined,
+      partner: command.partner || undefined,
+      kinder: command.kinder || undefined,
+      notizen: command.notizen || undefined,
       schluesselworte: command.schluesselworte || undefined,
     });
     await this.#eventStore.record(event);
@@ -98,7 +95,7 @@ export class NaturheilpraxisService {
     const patienten: Patient[] = [];
     const events = this.#eventStore.replay();
     for await (const event of events) {
-      if (event.source !== PATIENT_SOURCE) {
+      if (event.source !== PatientAufgenommenV1Event.SOURCE) {
         continue;
       }
 

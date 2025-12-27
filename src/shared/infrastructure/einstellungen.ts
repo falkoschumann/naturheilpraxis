@@ -6,7 +6,7 @@ import { Einstellungen } from "../domain/einstellungen";
 
 const ajv = new Ajv();
 
-const schema = {
+const EINSTELLUNGEN_SCHEMA = {
   type: "object",
   properties: {
     praxis: { type: "array", items: { type: "string" } },
@@ -15,21 +15,22 @@ const schema = {
     schluesselworte: { type: "array", items: { type: "string" } },
     standardSchluesselworte: { type: "array", items: { type: "string" } },
   },
+  additionalProperties: false,
 };
 
 export class EinstellungenDto {
   static create({
-    praxis,
-    anrede,
-    familienstand,
-    schluesselworte,
-    standardSchluesselworte,
+    praxis = [],
+    anrede = [],
+    familienstand = [],
+    schluesselworte = [],
+    standardSchluesselworte = [],
   }: {
-    praxis: string[];
-    anrede: string[];
-    familienstand: string[];
-    schluesselworte: string[];
-    standardSchluesselworte: string[];
+    praxis?: string[];
+    anrede?: string[];
+    familienstand?: string[];
+    schluesselworte?: string[];
+    standardSchluesselworte?: string[];
   }): EinstellungenDto {
     return new EinstellungenDto(
       praxis,
@@ -45,7 +46,7 @@ export class EinstellungenDto {
   }
 
   static fromJson(json: unknown): EinstellungenDto {
-    const valid = ajv.validate(schema, json);
+    const valid = ajv.validate(EINSTELLUNGEN_SCHEMA, json);
     if (valid) {
       return EinstellungenDto.create(json as EinstellungenDto);
     }
