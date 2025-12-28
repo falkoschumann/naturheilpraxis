@@ -25,7 +25,9 @@ export class NimmPatientAufCommand {
     eMail,
     familienstand,
     partner,
+    eltern,
     kinder,
+    geschwister,
     notizen,
     schluesselworte,
   }: {
@@ -47,7 +49,9 @@ export class NimmPatientAufCommand {
     eMail?: string;
     familienstand?: string;
     partner?: string;
+    eltern?: string;
     kinder?: string;
+    geschwister?: string;
     notizen?: string;
     schluesselworte?: string[];
   }): NimmPatientAufCommand {
@@ -70,7 +74,9 @@ export class NimmPatientAufCommand {
       eMail,
       familienstand,
       partner,
+      eltern,
       kinder,
+      geschwister,
       notizen,
       schluesselworte,
     );
@@ -83,19 +89,21 @@ export class NimmPatientAufCommand {
     annahmejahr = 2025,
     praxis = "Naturheilpraxis",
     anrede,
-    strasse,
-    wohnort,
-    postleitzahl,
+    strasse = "Musterstraße 1",
+    wohnort = "Musterstadt",
+    postleitzahl = "12345",
     staat,
     staatsangehoerigkeit,
     titel,
     beruf,
     telefon,
-    mobil,
-    eMail,
+    mobil = "0123 4567890",
+    eMail = "mail@example.com",
     familienstand,
     partner,
+    eltern,
     kinder,
+    geschwister,
     notizen,
     schluesselworte,
   }: {
@@ -117,7 +125,9 @@ export class NimmPatientAufCommand {
     eMail?: string;
     familienstand?: string;
     partner?: string;
+    eltern?: string;
     kinder?: string;
+    geschwister?: string;
     notizen?: string;
     schluesselworte?: string[];
   } = {}): NimmPatientAufCommand {
@@ -140,7 +150,9 @@ export class NimmPatientAufCommand {
       eMail,
       familienstand,
       partner,
+      eltern,
       kinder,
+      geschwister,
       notizen,
       schluesselworte,
     });
@@ -164,7 +176,9 @@ export class NimmPatientAufCommand {
   readonly eMail?: string;
   readonly familienstand?: string;
   readonly partner?: string;
+  readonly eltern?: string;
   readonly kinder?: string;
+  readonly geschwister?: string;
   readonly notizen?: string;
   readonly schluesselworte?: string[];
 
@@ -187,7 +201,9 @@ export class NimmPatientAufCommand {
     eMail?: string,
     familienstand?: string,
     partner?: string,
+    eltern?: string,
     kinder?: string,
+    geschwister?: string,
     notizen?: string,
     schluesselworte?: string[],
   ) {
@@ -209,7 +225,9 @@ export class NimmPatientAufCommand {
     this.eMail = eMail;
     this.familienstand = familienstand;
     this.partner = partner;
+    this.eltern = eltern;
     this.kinder = kinder;
+    this.geschwister = geschwister;
     this.notizen = notizen;
     this.schluesselworte = schluesselworte;
   }
@@ -281,51 +299,6 @@ export class PatientenkarteiQueryResult {
 
   private constructor(patienten: Patient[]) {
     this.patienten = patienten;
-  }
-}
-
-export class PatientenkarteikarteQuery {
-  static create({ nummer }: PatientenkarteikarteQuery) {
-    return new PatientenkarteikarteQuery(nummer);
-  }
-
-  static createTestInstance({
-    nummer = 42,
-  }: { nummer?: number } = {}): PatientenkarteikarteQuery {
-    return PatientenkarteikarteQuery.create({ nummer });
-  }
-
-  readonly nummer: number;
-
-  private constructor(nummer: number) {
-    this.nummer = nummer;
-  }
-}
-
-export class PatientenkarteikarteQueryResult {
-  static create({ patient }: PatientenkarteikarteQueryResult) {
-    return new PatientenkarteikarteQueryResult(patient);
-  }
-
-  static createEmpty() {
-    return PatientenkarteikarteQueryResult.create({});
-  }
-
-  static createTestInstance({
-    patient = Patient.createTestInstance({
-      nummer: 1,
-      vorname: "Max",
-    }),
-  }: {
-    patient?: Patient;
-  } = {}): PatientenkarteikarteQueryResult {
-    return PatientenkarteikarteQueryResult.create({ patient });
-  }
-
-  readonly patient?: Patient;
-
-  private constructor(patient?: Patient) {
-    this.patient = patient;
   }
 }
 
@@ -414,16 +387,16 @@ export class Patient {
     annahmejahr = 2025,
     praxis = "Naturheilpraxis",
     anrede,
-    strasse,
-    wohnort,
-    postleitzahl,
+    strasse = "Musterstraße 1",
+    wohnort = "Musterstadt",
+    postleitzahl = "12345",
     staat,
     staatsangehoerigkeit,
     titel,
     beruf,
     telefon,
-    mobil,
-    eMail,
+    mobil = "0123 4567890",
+    eMail = "mail@example.com",
     familienstand,
     partner,
     kinder,

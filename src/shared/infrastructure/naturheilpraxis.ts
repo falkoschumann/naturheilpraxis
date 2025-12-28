@@ -7,8 +7,6 @@ import {
   type NimmPatientAufCommandStatus,
   NimmPatientAufSuccess,
   Patient,
-  PatientenkarteikarteQuery,
-  PatientenkarteikarteQueryResult,
   PatientenkarteiQuery,
   PatientenkarteiQueryResult,
 } from "../domain/naturheilpraxis";
@@ -35,7 +33,9 @@ export class NimmPatientAufCommandDto {
     eMail,
     familienstand,
     partner,
+    eltern,
     kinder,
+    geschwister,
     notizen,
     schluesselworte,
   }: {
@@ -57,7 +57,9 @@ export class NimmPatientAufCommandDto {
     eMail?: string;
     familienstand?: string;
     partner?: string;
+    eltern?: string;
     kinder?: string;
+    geschwister?: string;
     notizen?: string;
     schluesselworte?: string[];
   }): NimmPatientAufCommandDto {
@@ -80,7 +82,9 @@ export class NimmPatientAufCommandDto {
       eMail,
       familienstand,
       partner,
+      eltern,
       kinder,
+      geschwister,
       notizen,
       schluesselworte,
     );
@@ -93,19 +97,21 @@ export class NimmPatientAufCommandDto {
     annahmejahr = 2025,
     praxis = "Naturheilpraxis",
     anrede,
-    strasse,
-    wohnort,
-    postleitzahl,
+    strasse = "Musterstraße 1",
+    wohnort = "Musterstadt",
+    postleitzahl = "12345",
     staat,
     staatsangehoerigkeit,
     titel,
     beruf,
     telefon,
-    mobil,
-    eMail,
+    mobil = "0123 4567890",
+    eMail = "mail@example.com",
     familienstand,
     partner,
+    eltern,
     kinder,
+    geschwister,
     notizen,
     schluesselworte,
   }: {
@@ -127,7 +133,9 @@ export class NimmPatientAufCommandDto {
     eMail?: string;
     familienstand?: string;
     partner?: string;
+    eltern?: string;
     kinder?: string;
+    geschwister?: string;
     notizen?: string;
     schluesselworte?: string[];
   } = {}): NimmPatientAufCommandDto {
@@ -150,7 +158,9 @@ export class NimmPatientAufCommandDto {
       eMail,
       familienstand,
       partner,
+      eltern,
       kinder,
+      geschwister,
       notizen,
       schluesselworte,
     });
@@ -181,7 +191,9 @@ export class NimmPatientAufCommandDto {
   readonly eMail?: string;
   readonly familienstand?: string;
   readonly partner?: string;
+  readonly eltern?: string;
   readonly kinder?: string;
+  readonly geschwister?: string;
   readonly notizen?: string;
   readonly schluesselworte?: string[];
 
@@ -204,7 +216,9 @@ export class NimmPatientAufCommandDto {
     eMail?: string,
     familienstand?: string,
     partner?: string,
+    eltern?: string,
     kinder?: string,
+    geschwister?: string,
     notizen?: string,
     schluesselworte?: string[],
   ) {
@@ -226,7 +240,9 @@ export class NimmPatientAufCommandDto {
     this.eMail = eMail;
     this.familienstand = familienstand;
     this.partner = partner;
+    this.eltern = eltern;
     this.kinder = kinder;
+    this.geschwister = geschwister;
     this.notizen = notizen;
     this.schluesselworte = schluesselworte;
   }
@@ -361,76 +377,6 @@ export class PatientenkarteiQueryResultDto {
   }
 }
 
-export class PatientenkarteikarteQueryDto {
-  static create({ nummer }: { nummer: number }) {
-    return new PatientenkarteikarteQueryDto(nummer);
-  }
-
-  static createTestInstance({
-    nummer = 42,
-  }: { nummer?: number } = {}): PatientenkarteikarteQueryDto {
-    return PatientenkarteikarteQueryDto.create({ nummer });
-  }
-
-  static fromModel(
-    model: PatientenkarteikarteQuery,
-  ): PatientenkarteikarteQueryDto {
-    return PatientenkarteikarteQueryDto.create(model);
-  }
-
-  readonly nummer: number;
-
-  private constructor(nummer: number) {
-    this.nummer = nummer;
-  }
-
-  validate(): PatientenkarteikarteQuery {
-    return PatientenkarteikarteQuery.create(this);
-  }
-}
-
-export class PatientenkarteikarteQueryResultDto {
-  static create({ patient }: { patient?: PatientDto }) {
-    return new PatientenkarteikarteQueryResultDto(patient);
-  }
-
-  static createTestInstance({
-    patient = PatientDto.createTestInstance({
-      nummer: 1,
-      vorname: "Max",
-    }),
-  }: {
-    patient?: PatientDto;
-  } = {}): PatientenkarteikarteQueryResultDto {
-    return PatientenkarteikarteQueryResultDto.create({ patient });
-  }
-
-  static fromModel(
-    result: PatientenkarteikarteQueryResult,
-  ): PatientenkarteikarteQueryResultDto {
-    const patient = result.patient
-      ? PatientDto.create({
-          ...result.patient,
-          geburtsdatum: result.patient.geburtsdatum.toString(),
-        })
-      : undefined;
-    return PatientenkarteikarteQueryResultDto.create({ patient });
-  }
-
-  readonly patient?: PatientDto;
-
-  private constructor(patient?: PatientDto) {
-    this.patient = patient;
-  }
-
-  validate(): PatientenkarteikarteQueryResult {
-    const patient = this.patient
-      ? PatientDto.create(this.patient).validate()
-      : undefined;
-    return PatientenkarteikarteQueryResult.create({ patient });
-  }
-}
-
 // endregion
 // region Models
 
@@ -516,16 +462,16 @@ export class PatientDto {
     annahmejahr = 2025,
     praxis = "Naturheilpraxis",
     anrede,
-    strasse,
-    wohnort,
-    postleitzahl,
+    strasse = "Musterstraße 1",
+    wohnort = "Musterstadt",
+    postleitzahl = "12345",
     staat,
     staatsangehoerigkeit,
     titel,
     beruf,
     telefon,
-    mobil,
-    eMail,
+    mobil = "0123 4567890",
+    eMail = "mail@example.com",
     familienstand,
     partner,
     kinder,

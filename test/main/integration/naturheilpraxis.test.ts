@@ -7,16 +7,12 @@ import { Failure } from "@muspellheim/shared";
 import {
   NimmPatientAufCommand,
   NimmPatientAufSuccess,
-  PatientenkarteikarteQuery,
-  PatientenkarteikarteQueryResult,
   PatientenkarteiQuery,
   PatientenkarteiQueryResult,
 } from "../../../src/shared/domain/naturheilpraxis";
 import {
   NimmPatientAufCommandDto,
   NimmPatientAufCommandStatusDto,
-  PatientenkarteikarteQueryDto,
-  PatientenkarteikarteQueryResultDto,
   PatientenkarteiQueryDto,
   PatientenkarteiQueryResultDto,
 } from "../../../src/shared/infrastructure/naturheilpraxis";
@@ -141,58 +137,6 @@ describe("Naturheilpraxis", () => {
 
       expect(model).toEqual<PatientenkarteiQueryResult>(
         PatientenkarteiQueryResult.createTestInstance(),
-      );
-    });
-  });
-
-  describe("Patientenkarteikarte Query", () => {
-    it("sollte leeres Result erstellen", () => {
-      const dto = PatientenkarteikarteQueryResult.createEmpty();
-
-      expect(dto).toEqual<PatientenkarteikarteQueryResult>(
-        PatientenkarteikarteQueryResult.create({}),
-      );
-    });
-
-    it("sollte DTO aus Model erstellen", () => {
-      const model = PatientenkarteikarteQuery.createTestInstance();
-
-      const dto = PatientenkarteikarteQueryDto.fromModel(model);
-
-      expect(dto).toEqual<PatientenkarteikarteQueryDto>(
-        PatientenkarteikarteQueryDto.createTestInstance(),
-      );
-    });
-
-    it("sollte Model aus DTO erstellen", () => {
-      const dto = PatientenkarteikarteQueryDto.createTestInstance();
-
-      const model = dto.validate();
-
-      expect(model).toEqual<PatientenkarteikarteQuery>(
-        PatientenkarteikarteQuery.createTestInstance(),
-      );
-    });
-  });
-
-  describe("Patientenkarteikarte Query Result", () => {
-    it("sollte DTO aus Model erstellen", () => {
-      const model = PatientenkarteikarteQueryResult.createTestInstance();
-
-      const dto = PatientenkarteikarteQueryResultDto.fromModel(model);
-
-      expect(dto).toEqual<PatientenkarteikarteQueryResultDto>(
-        PatientenkarteikarteQueryResultDto.createTestInstance(),
-      );
-    });
-
-    it("sollte Model aus DTO erstellen", () => {
-      const dto = PatientenkarteikarteQueryResultDto.createTestInstance();
-
-      const model = dto.validate();
-
-      expect(model).toEqual<PatientenkarteikarteQueryResult>(
-        PatientenkarteikarteQueryResult.createTestInstance(),
       );
     });
   });

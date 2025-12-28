@@ -13,7 +13,7 @@ import {
   MemoryEventStore,
   NdjsonEventStore,
 } from "../infrastructure/event_store";
-import { PatientAufgenommenV1Event } from "../infrastructure/events"; // TODO handle technical errors, e.g. when the event store is not available
+import { PatientAufgenommenV1Event } from "../infrastructure/events";
 
 // TODO handle technical errors, e.g. when the event store is not available
 //   That is not a failure as command status
@@ -65,9 +65,14 @@ export class NaturheilpraxisService {
       eMail: command.eMail || undefined,
       familienstand: command.familienstand || undefined,
       partner: command.partner || undefined,
+      eltern: command.eltern || undefined,
       kinder: command.kinder || undefined,
+      geschwister: command.geschwister || undefined,
       notizen: command.notizen || undefined,
-      schluesselworte: command.schluesselworte || undefined,
+      schluesselworte:
+        command.schluesselworte && command.schluesselworte.length > 0
+          ? command.schluesselworte
+          : undefined,
     });
     await this.#eventStore.record(event);
     return NimmPatientAufSuccess.create({ nummer });
