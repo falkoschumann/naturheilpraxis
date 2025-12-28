@@ -6,7 +6,6 @@ import path from "node:path";
 import { CloudEvent, type CloudEventV1 } from "cloudevents";
 import { describe, expect, it } from "vitest";
 
-import { arrayFromAsync } from "../../../src/shared/common/polyfills";
 import {
   MemoryEventStore,
   NdjsonEventStore,
@@ -37,7 +36,7 @@ describe("Event store", () => {
 
       const event = createTestCloudEvent();
       await store.record(event);
-      const events = await arrayFromAsync(store.replay());
+      const events = await Array.fromAsync(store.replay());
 
       expect(events).toEqual<CloudEventV1<unknown>[]>([event]);
     });
@@ -50,7 +49,7 @@ describe("Event store", () => {
 
       const event = createTestCloudEvent();
       await store.record(event);
-      const events = await arrayFromAsync(store.replay());
+      const events = await Array.fromAsync(store.replay());
 
       expect(events).toEqual<CloudEventV1<unknown>[]>([event]);
     });
@@ -58,7 +57,7 @@ describe("Event store", () => {
     it("Replays no events from non existing file", async () => {
       const store = new NdjsonEventStore(NON_EXISTING_FILE);
 
-      const events = await arrayFromAsync(store.replay());
+      const events = await Array.fromAsync(store.replay());
 
       expect(events).toEqual<CloudEventV1<unknown>[]>([]);
     });
@@ -66,7 +65,7 @@ describe("Event store", () => {
     it("Replays events from example file", async () => {
       const store = new NdjsonEventStore(EXAMPLE_FILE);
 
-      const events = await arrayFromAsync(store.replay());
+      const events = await Array.fromAsync(store.replay());
 
       expect(events).toEqual<CloudEventV1<unknown>[]>([
         {
@@ -89,7 +88,7 @@ describe("Event store", () => {
     it("Fails when file is corrupt", async () => {
       const store = new NdjsonEventStore(CORRUPTED_FILE);
 
-      const result = arrayFromAsync(store.replay());
+      const result = Array.fromAsync(store.replay());
 
       await expect(result).rejects.toThrow(NdjsonError);
     });

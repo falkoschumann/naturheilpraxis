@@ -3,7 +3,6 @@
 import { type CloudEventV1 } from "cloudevents";
 import { describe, expect, it } from "vitest";
 
-import { arrayFromAsync } from "../../../src/shared/common/polyfills";
 import { NaturheilpraxisService } from "../../../src/main/application/naturheilpraxis_service";
 import {
   NimmPatientAufCommand,
@@ -31,7 +30,7 @@ describe("Naturheilpraxis Service", () => {
       expect(status).toEqual<NimmPatientAufCommandStatus>(
         NimmPatientAufSuccess.create({ nummer: 1 }),
       );
-      const events = await arrayFromAsync(eventStore.replay());
+      const events = await Array.fromAsync(eventStore.replay());
       expect(events).toEqual<CloudEventV1<PatientAufgenommenV1Data>[]>([
         {
           ...PatientAufgenommenV1Event.createTestInstance(),
@@ -56,7 +55,7 @@ describe("Naturheilpraxis Service", () => {
       expect(status).toEqual<NimmPatientAufCommandStatus>(
         NimmPatientAufSuccess.create({ nummer: 2 }),
       );
-      const events = await arrayFromAsync(eventStore.replay());
+      const events = await Array.fromAsync(eventStore.replay());
       expect(events.slice(-1)).toEqual<
         CloudEventV1<PatientAufgenommenV1Data>[]
       >([
@@ -83,7 +82,7 @@ describe("Naturheilpraxis Service", () => {
       expect(status).toEqual<NimmPatientAufCommandStatus>(
         NimmPatientAufSuccess.create({ nummer: 1 }),
       );
-      const events = await arrayFromAsync(eventStore.replay());
+      const events = await Array.fromAsync(eventStore.replay());
       expect(events).toEqual<CloudEventV1<PatientAufgenommenV1Data>[]>([
         {
           ...PatientAufgenommenV1Event.createTestInstance(),
