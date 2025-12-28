@@ -122,11 +122,11 @@ export class NimmPatientAufCommand {
     schluesselworte?: string[];
   } = {}): NimmPatientAufCommand {
     return NimmPatientAufCommand.create({
-      nachname: nachname,
-      vorname: vorname,
-      geburtsdatum: geburtsdatum,
-      annahmejahr: annahmejahr,
-      praxis: praxis,
+      nachname,
+      vorname,
+      geburtsdatum,
+      annahmejahr,
+      praxis,
       anrede,
       strasse,
       wohnort,
@@ -238,6 +238,12 @@ export class PatientenkarteiQuery {
     return new PatientenkarteiQuery(nummer);
   }
 
+  static createTestInstance({
+    nummer = 42,
+  }: { nummer?: number } = {}): PatientenkarteiQuery {
+    return PatientenkarteiQuery.create({ nummer });
+  }
+
   readonly nummer?: number;
 
   private constructor(nummer?: number) {
@@ -250,6 +256,23 @@ export class PatientenkarteiQueryResult {
     return new PatientenkarteiQueryResult(patienten);
   }
 
+  static createTestInstance({
+    patienten = [
+      Patient.createTestInstance({
+        nummer: 1,
+        vorname: "Max",
+      }),
+      Patient.createTestInstance({
+        nummer: 2,
+        vorname: "Erika",
+      }),
+    ],
+  }: {
+    patienten?: Patient[];
+  } = {}): PatientenkarteiQueryResult {
+    return PatientenkarteiQueryResult.create({ patienten });
+  }
+
   static createEmpty() {
     return PatientenkarteiQueryResult.create({ patienten: [] });
   }
@@ -260,6 +283,54 @@ export class PatientenkarteiQueryResult {
     this.patienten = patienten;
   }
 }
+
+export class PatientenkarteikarteQuery {
+  static create({ nummer }: PatientenkarteikarteQuery) {
+    return new PatientenkarteikarteQuery(nummer);
+  }
+
+  static createTestInstance({
+    nummer = 42,
+  }: { nummer?: number } = {}): PatientenkarteikarteQuery {
+    return PatientenkarteikarteQuery.create({ nummer });
+  }
+
+  readonly nummer: number;
+
+  private constructor(nummer: number) {
+    this.nummer = nummer;
+  }
+}
+
+export class PatientenkarteikarteQueryResult {
+  static create({ patient }: PatientenkarteikarteQueryResult) {
+    return new PatientenkarteikarteQueryResult(patient);
+  }
+
+  static createEmpty() {
+    return PatientenkarteikarteQueryResult.create({});
+  }
+
+  static createTestInstance({
+    patient = Patient.createTestInstance({
+      nummer: 1,
+      vorname: "Max",
+    }),
+  }: {
+    patient?: Patient;
+  } = {}): PatientenkarteikarteQueryResult {
+    return PatientenkarteikarteQueryResult.create({ patient });
+  }
+
+  readonly patient?: Patient;
+
+  private constructor(patient?: Patient) {
+    this.patient = patient;
+  }
+}
+
+// endregion
+// region Model
 
 export class Patient {
   static create({

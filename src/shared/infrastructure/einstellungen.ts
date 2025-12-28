@@ -41,6 +41,22 @@ export class EinstellungenDto {
     );
   }
 
+  static createTestInstance({
+    praxis = ["Praxis 1", "Praxis 2"],
+    anrede = ["Herr", "Frau", "Fräulein"],
+    familienstand = ["ledig", "verheiratet", "geschieden", "verwitwet"],
+    schluesselworte = ["Aktiv", "Weihnachtskarte", "Geburtstagskarte"],
+    standardSchluesselworte = ["Aktiv", "Weihnachtskarte"],
+  }: Partial<Einstellungen> = {}): EinstellungenDto {
+    return EinstellungenDto.create({
+      praxis,
+      anrede,
+      familienstand,
+      schluesselworte,
+      standardSchluesselworte,
+    });
+  }
+
   static fromModel(einstellungen: Einstellungen): EinstellungenDto {
     return EinstellungenDto.create(einstellungen);
   }
