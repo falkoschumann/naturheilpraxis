@@ -15,9 +15,9 @@ export default defineConfig({
       ],
       provider: "v8",
       thresholds: {
-        statements: 70, // TODO increase statements coverage
-        branches: 80,
-        lines: 70, // TODO increase lines coverage
+        statements: 85,
+        branches: 85,
+        lines: 85,
       },
     },
   },
