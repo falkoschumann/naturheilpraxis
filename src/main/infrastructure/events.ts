@@ -26,6 +26,7 @@ const PATIENT_AUFGENOMMEN_V1_DATA_SCHEMA = {
     beruf: { type: "string" },
     telefon: { type: "string" },
     mobil: { type: "string" },
+    // WORKAROUND should have "format": "email", but it is too restrictive
     eMail: { type: "string", pattern: "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$" },
     familienstand: { type: "string" },
     partner: { type: "string" },
