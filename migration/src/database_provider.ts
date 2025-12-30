@@ -78,7 +78,8 @@ export class DatabaseProvider {
                        INNER JOIN handlingdata ON handlinglist.id=handlingdata.handlingid
                WHERE handlingdata.customerid=customerlist.id) AS handlings
         FROM customerlist
-        LEFT JOIN agencylist ON customerlist.agencyid=agencylist.id;
+        LEFT JOIN agencylist ON customerlist.agencyid=agencylist.id
+       ORDER BY customerlist.id;
     `);
   }
 
