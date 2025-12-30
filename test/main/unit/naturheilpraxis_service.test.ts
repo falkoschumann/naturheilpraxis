@@ -11,7 +11,7 @@ import {
   Patient,
   type PatientenkarteiQueryResult,
 } from "../../../src/shared/domain/naturheilpraxis";
-import { MemoryEventStore } from "../../../src/main/infrastructure/event_store";
+import { EventStore } from "../../../src/main/infrastructure/event_store";
 import {
   type PatientAufgenommenV1Data,
   PatientAufgenommenV1Event,
@@ -21,8 +21,8 @@ describe("Naturheilpraxis Service", () => {
   describe("Nimm Patient auf", () => {
     describe("Erfasst Informationen wie Name, Geburtsdatum, Praxis, Annahmejahr, Anschrift, Kontaktmöglichkeit", async () => {
       it("sollte neuen Patienten erfassen", async () => {
-        const eventStore = new MemoryEventStore();
-        const service = new NaturheilpraxisService(eventStore);
+        const { service, eventStore } = configure();
+        const recordedEvents = eventStore.trackRecordedEvents();
 
         const status = await service.nimmPatientAuf(
           NimmPatientAufCommand.createTestInstance(),
@@ -31,8 +31,9 @@ describe("Naturheilpraxis Service", () => {
         expect(status).toEqual<NimmPatientAufCommandStatus>(
           NimmPatientAufSuccess.create({ nummer: 1 }),
         );
-        const events = await Array.fromAsync(eventStore.replay());
-        expect(events).toEqual<CloudEventV1<PatientAufgenommenV1Data>[]>([
+        expect(recordedEvents.data).toEqual<
+          CloudEventV1<PatientAufgenommenV1Data>[]
+        >([
           {
             ...PatientAufgenommenV1Event.createTestInstance(),
             id: expect.any(String),
@@ -42,11 +43,10 @@ describe("Naturheilpraxis Service", () => {
       });
 
       it("sollte Patientennummer hochzählen", async () => {
-        const eventStore = new MemoryEventStore();
-        const service = new NaturheilpraxisService(eventStore);
-        await service.nimmPatientAuf(
-          NimmPatientAufCommand.createTestInstance(),
-        );
+        const { service, eventStore } = configure({
+          eventLog: [PatientAufgenommenV1Event.createTestInstance()],
+        });
+        const recordedEvents = eventStore.trackRecordedEvents();
 
         const status = await service.nimmPatientAuf(
           Patient.createTestInstance({
@@ -58,8 +58,7 @@ describe("Naturheilpraxis Service", () => {
         expect(status).toEqual<NimmPatientAufCommandStatus>(
           NimmPatientAufSuccess.create({ nummer: 2 }),
         );
-        const events = await Array.fromAsync(eventStore.replay());
-        expect(events.slice(-1)).toEqual<
+        expect(recordedEvents.data).toEqual<
           CloudEventV1<PatientAufgenommenV1Data>[]
         >([
           {
@@ -75,8 +74,8 @@ describe("Naturheilpraxis Service", () => {
       });
 
       it("sollte keine leeren Strings schreiben, außer für Pflichtfelder", async () => {
-        const eventStore = new MemoryEventStore();
-        const service = new NaturheilpraxisService(eventStore);
+        const { service, eventStore } = configure();
+        const recordedEvents = eventStore.trackRecordedEvents();
 
         const status = await service.nimmPatientAuf(
           NimmPatientAufCommand.create({
@@ -109,8 +108,9 @@ describe("Naturheilpraxis Service", () => {
         expect(status).toEqual<NimmPatientAufCommandStatus>(
           NimmPatientAufSuccess.create({ nummer: 1 }),
         );
-        const events = await Array.fromAsync(eventStore.replay());
-        expect(events).toEqual<CloudEventV1<PatientAufgenommenV1Data>[]>([
+        expect(recordedEvents.data).toEqual<
+          CloudEventV1<PatientAufgenommenV1Data>[]
+        >([
           {
             ...PatientAufgenommenV1Event.create({
               nummer: 1,
@@ -130,15 +130,16 @@ describe("Naturheilpraxis Service", () => {
 
   describe("Patientenkartei", () => {
     it("Listet alle Patienten auf", async () => {
-      const eventStore = new MemoryEventStore(
-        PatientAufgenommenV1Event.createTestInstance(),
-        PatientAufgenommenV1Event.createTestInstance({
-          nummer: 2,
-          vorname: "Erika",
-          geburtsdatum: "1985-05-05",
-        }),
-      );
-      const service = new NaturheilpraxisService(eventStore);
+      const { service } = configure({
+        eventLog: [
+          PatientAufgenommenV1Event.createTestInstance(),
+          PatientAufgenommenV1Event.createTestInstance({
+            nummer: 2,
+            vorname: "Erika",
+            geburtsdatum: "1985-05-05",
+          }),
+        ],
+      });
 
       const result = await service.queryPatientenkartei({});
 
@@ -158,15 +159,16 @@ describe("Naturheilpraxis Service", () => {
 
   describe("Patientenkarteikarte", () => {
     it("Suche Patient nach Nummer", async () => {
-      const eventStore = new MemoryEventStore(
-        PatientAufgenommenV1Event.createTestInstance(),
-        PatientAufgenommenV1Event.createTestInstance({
-          nummer: 2,
-          vorname: "Erika",
-          geburtsdatum: "1985-05-05",
-        }),
-      );
-      const service = new NaturheilpraxisService(eventStore);
+      const { service } = configure({
+        eventLog: [
+          PatientAufgenommenV1Event.createTestInstance(),
+          PatientAufgenommenV1Event.createTestInstance({
+            nummer: 2,
+            vorname: "Erika",
+            geburtsdatum: "1985-05-05",
+          }),
+        ],
+      });
 
       const result = await service.queryPatientenkartei({ nummer: 2 });
 
@@ -182,3 +184,9 @@ describe("Naturheilpraxis Service", () => {
     });
   });
 });
+
+function configure({ eventLog }: { eventLog?: CloudEventV1<unknown>[] } = {}) {
+  const eventStore = EventStore.createNull({ events: eventLog });
+  const service = new NaturheilpraxisService(eventStore);
+  return { service, eventStore };
+}

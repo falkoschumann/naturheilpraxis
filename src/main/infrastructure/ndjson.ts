@@ -246,7 +246,7 @@ export function stringify(...args: unknown[]): Stringifier {
 }
 
 export class Stringifier extends stream.Transform {
-  #recordDelimiter: string;
+  readonly #recordDelimiter: string;
   #recordNumber = 0;
 
   constructor(options: StringifyOptions = {}) {

@@ -2,10 +2,7 @@
 
 import type { Einstellungen } from "../../src/shared/domain/einstellungen";
 import { EinstellungenGateway } from "../../src/main/infrastructure/einstellungen_gateway";
-import {
-  type EventStore,
-  NdjsonEventStore,
-} from "../../src/main/infrastructure/event_store";
+import { EventStore } from "../../src/main/infrastructure/event_store";
 
 import { DatabaseProvider } from "./database_provider";
 import { createEinstellungen } from "./einstellungen";
@@ -25,7 +22,7 @@ export class Interactions {
     this.#einstellungenGateway = EinstellungenGateway.create({
       fileName: configurationFile,
     });
-    this.#eventStore = NdjsonEventStore.create({ fileName: eventLogFile });
+    this.#eventStore = EventStore.create({ fileName: eventLogFile });
   }
 
   async erstelleEinstellungen(): Promise<Einstellungen> {

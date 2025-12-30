@@ -8,27 +8,15 @@ import {
   type PatientenkarteiQuery,
   type PatientenkarteiQueryResult,
 } from "../../shared/domain/naturheilpraxis";
-import {
-  type EventStore,
-  MemoryEventStore,
-  NdjsonEventStore,
-} from "../infrastructure/event_store";
-import { PatientAufgenommenV1Event } from "../infrastructure/events";
+import { EventStore } from "../infrastructure/event_store";
+import { PatientAufgenommenV1Event } from "../infrastructure/events"; // TODO handle technical errors, e.g. when the event store is not available
 
 // TODO handle technical errors, e.g. when the event store is not available
 //   That is not a failure as command status
 
 export class NaturheilpraxisService {
   static create({
-    eventStore = new NdjsonEventStore("data/events.ndjson"),
-  }: {
-    eventStore?: EventStore;
-  } = {}): NaturheilpraxisService {
-    return new NaturheilpraxisService(eventStore);
-  }
-
-  static createNull({
-    eventStore = new MemoryEventStore(),
+    eventStore = EventStore.create({ fileName: "data/events.ndjson" }),
   }: {
     eventStore?: EventStore;
   } = {}): NaturheilpraxisService {

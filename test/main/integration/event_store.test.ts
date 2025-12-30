@@ -6,64 +6,41 @@ import path from "node:path";
 import { CloudEvent, type CloudEventV1 } from "cloudevents";
 import { describe, expect, it } from "vitest";
 
-import {
-  MemoryEventStore,
-  NdjsonEventStore,
-} from "../../../src/main/infrastructure/event_store";
+import { EventStore } from "../../../src/main/infrastructure/event_store";
 import { NdjsonError } from "../../../src/main/infrastructure/ndjson";
 
-const TEST_FILE = path.resolve(
-  __dirname,
-  "../../../testdata/event-store.test.ndjson",
-);
-const NON_EXISTING_FILE = path.resolve(
+const NON_EXISTENT_FILE = path.resolve(
   __dirname,
   "../data/event-store/non-existent.ndjson",
 );
+
 const EXAMPLE_FILE = path.resolve(
   __dirname,
   "../data/event-store/example.ndjson",
 );
+
 const CORRUPTED_FILE = path.resolve(
   __dirname,
   "../data/event-store/corrupt.ndjson",
 );
 
+const TEST_FILE = path.resolve(
+  __dirname,
+  "../../../testdata/event-store.test.ndjson",
+);
+
 describe("Event store", () => {
-  describe("Memory event store", () => {
-    it("Replays recorded events", async () => {
-      const store = new MemoryEventStore();
-
-      const event = createTestCloudEvent();
-      await store.record(event);
-      const events = await Array.fromAsync(store.replay());
-
-      expect(events).toEqual<CloudEventV1<unknown>[]>([event]);
-    });
-  });
-
-  describe("NDJSON event store", () => {
-    it("Replays recorded events", async () => {
-      await fsPromise.rm(TEST_FILE, { force: true });
-      const store = new NdjsonEventStore(TEST_FILE);
-
-      const event = createTestCloudEvent();
-      await store.record(event);
-      const events = await Array.fromAsync(store.replay());
-
-      expect(events).toEqual<CloudEventV1<unknown>[]>([event]);
-    });
-
-    it("Replays no events from non existing file", async () => {
-      const store = new NdjsonEventStore(NON_EXISTING_FILE);
+  describe("Replay", () => {
+    it("should not replay any event from non-existent file", async () => {
+      const store = EventStore.create({ fileName: NON_EXISTENT_FILE });
 
       const events = await Array.fromAsync(store.replay());
 
       expect(events).toEqual<CloudEventV1<unknown>[]>([]);
     });
 
-    it("Replays events from example file", async () => {
-      const store = new NdjsonEventStore(EXAMPLE_FILE);
+    it("should replay events from example file", async () => {
+      const store = EventStore.create({ fileName: EXAMPLE_FILE });
 
       const events = await Array.fromAsync(store.replay());
 
@@ -85,12 +62,54 @@ describe("Event store", () => {
       ]);
     });
 
-    it("Fails when file is corrupt", async () => {
-      const store = new NdjsonEventStore(CORRUPTED_FILE);
+    it("should throw an error when file is corrupt", async () => {
+      const store = EventStore.create({ fileName: CORRUPTED_FILE });
 
       const result = Array.fromAsync(store.replay());
 
       await expect(result).rejects.toThrow(NdjsonError);
+    });
+  });
+
+  describe("Record", () => {
+    it("should replay recorded events", async () => {
+      await fsPromise.rm(TEST_FILE, { force: true });
+      const store = EventStore.create({ fileName: TEST_FILE });
+
+      const event = createTestCloudEvent();
+      await store.record(event);
+      const events = await Array.fromAsync(store.replay());
+
+      expect(events).toEqual<CloudEventV1<unknown>[]>([event]);
+    });
+  });
+
+  describe("Nullable", () => {
+    it("should record events", async () => {
+      await fsPromise.rm(TEST_FILE, { force: true });
+      const store = EventStore.createNull();
+      const recordedEvents = store.trackRecordedEvents();
+
+      const event1 = createTestCloudEvent({ id: "event-1", data: "data-1" });
+      await store.record(event1);
+      const event2 = createTestCloudEvent({ id: "event-2", data: "data-2" });
+      await store.record(event2);
+
+      expect(recordedEvents.data).toEqual<CloudEventV1<unknown>[]>([
+        event1,
+        event2,
+      ]);
+    });
+
+    it("should replay events", async () => {
+      await fsPromise.rm(TEST_FILE, { force: true });
+      const event1 = createTestCloudEvent({ id: "event-1", data: "data-1" });
+      const event2 = createTestCloudEvent({ id: "event-2", data: "data-2" });
+      const store = EventStore.createNull({ events: [event1, event2] });
+
+      const events = await Array.fromAsync(store.replay());
+
+      expect(events).toEqual<CloudEventV1<unknown>[]>([event1, event2]);
     });
   });
 });

@@ -3,7 +3,7 @@
 import { describe, it } from "vitest";
 
 import { NaturheilpraxisService } from "../../../src/main/application/naturheilpraxis_service";
-import { NdjsonEventStore } from "../../../src/main/infrastructure/event_store";
+import { EventStore } from "../../../src/main/infrastructure/event_store";
 
 describe("Performance", () => {
   /**
@@ -12,7 +12,7 @@ describe("Performance", () => {
    */
   it.skip("Queries Patientenkartei", async () => {
     const service = NaturheilpraxisService.create({
-      eventStore: new NdjsonEventStore("data/events.ndjson"),
+      eventStore: EventStore.create({ fileName: "data/events.ndjson" }),
     });
 
     const start = Date.now();
