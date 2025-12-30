@@ -5,105 +5,184 @@ diese in Rechnung stellen zu können.
 
 ## Domain
 
-![Domain](domain.png)
+Stories für den MVP sind mit ❗ markiert.
 
-Stories for the MVP are marked with ❗.
+### Patient
 
-### Nimm Patient auf
+![Patient](images/patient.png)
 
-- [x] ❗Erfasse Informationen wie Name, Geburtsdatum, Praxis, Annahmejahr,
-      Anschrift, Kontaktmöglichkeit
-- [ ] Nutze aktuelle Praxis als Standardpraxis für den Patienten
-- [ ] **Constraint:** Prüfe vor dem Anlegen, ob bereits ein Patient mit
-      demselben Namen und Geburtsdatum aufgenommen wurde
-- [ ] Aktualisiere eine Patientenkarteikarte
-- [ ] Setze einen Patienten auf inaktiv mit einem optionalen Grund
+#### Nimm Patient auf
 
-### Patientenkartei
+- [ ] ❗Erfasse Informationen wie Name, Geburtsdatum, Praxis, Annahmejahr,
+      Anschrift und Kontaktmöglichkeit
+- [ ] Nutze aktuelle Praxis als Standardpraxis
+- [ ] Nutze aktuelles Jahr als Annahmejahr
+- [ ] Unterscheide zwischen gesetzlicher und privater Krankenversicherung
+- [ ] Wenn ein Patient mit demselben Nachnamen, Vornamen und Geburtsdatum
+      existiert, muss der Nutzer die Aufnahme bestätigen
+- [ ] Wenn eines der Pflichtfelder Nachname, Vorname, Geburtsdatum, Annahmejahr
+      und Praxis nicht ausgefüllt ist, muss der Nutzer die Aufnahme bestätigen
 
-- [x] ❗Liste alle Patienten auf
-- [ ] Suche Patient
-- [ ] Filtere inaktive Patienten aus
-- [ ] Konfiguriere sichtbare Spalten
+#### Suche Patient
+
+- [ ] Suche Patient mit Nummer
+- [ ] Zeige alle Informationen eines Patienten
+
+#### Aktualisiere Patient
+
+- [ ] Sichere Änderungen eines Patienten
+- [ ] Wenn eines der Pflichtfelder Nachname, Vorname, Geburtsdatum, Annahmejahr
+      und Praxis nicht ausgefüllt ist, muss der Nutzer die Aktualisierung
+      bestätigen
+
+#### Suche Patienten
+
+- [ ] ❗Liste alle Patienten auf
+- [ ] Suche Patient(en) nach einem beliebigen Feld
+- [ ] Sortiere nach einem sichtbaren Feld
+- [ ] Konfiguriere sichtbare Felder
+- [ ] Blende inaktive Patienten aus
+
+#### Deaktiviere Patient
+
+- [ ] Setze den Status eines Patienten auf inaktiv
+
+#### Exportiere CSV-Datei
+
 - [ ] Exportiere (gefilterte) Liste von Patienten in CSV-Datei
 
-### Erstelle Diagnose
+### Diagnosen
 
-- [ ] Erfasse eine Diagnose mit Datum und Beschreibung
-- [ ] Aktualisiere eine Diagnose
-- [ ] Entferne eine Diagnose
-- [ ] **Constraint:** Prüfe vor dem Entfernen, ob die Diagnose in einer Rechnung
-      verwendet wird
+![Diagnosen](images/diagnosen.png)
 
-### Diagnose
+#### Erstelle Diagnose
 
-- [ ] Liste alle Diagnosen für einen Patienten auf
+- [ ] ❗Erfasse eine Diagnose mit Datum und Beschreibung für einen Patienten
 
-### Erbringe Leistung
+#### Suche Diagnosen
 
-- [ ] ❗Erfasse Leistungen mit Datum, einer Gebühr und optionalen Kommentar
-- [ ] Aktualisiere Leistung
-- [ ] **Constraint:** Nur nicht abgerechnete Leistungen können aktualisiert
-      werden
-- [ ] Annulliere Leistung
-- [ ] **Constraint:** Nur nicht abgerechnete Leistungen können annulliert werden
+- [ ] ❗Liste alle Diagnosen für einen Patienten auf
+- [ ] Suche Diagnose(n) mit Datum oder Beschreibung
+
+#### Aktualisiere Diagnose
+
+- [ ] Sichere Änderung einer Diagnose
+
+#### Entferne Diagnose
+
+- [ ] Lösche eine Diagnose
 
 ### Leistungen
 
+![Leistungen](images/leistungen.png)
+
+#### Erbringe Leistung
+
+- [ ] ❗Erfasse Leistung für einen Patienten mit Datum, einer Gebühr und
+      optionalen Kommentar
+
+#### Suche Leistungen
+
 - [ ] ❗Liste alle Leistungen für einen Patienten auf
-- [ ] Filtere abgerechnete Leistungen aus
+- [ ] Suche Leistung(en) nach einem beliebigen Feld
 
-### Aktualisiere Gebührenverzeichnis
+#### Aktualisiere Leistung
 
-- [ ] Lege eine Gebühr mit Ziffer und Beschreibung an
-- [ ] Aktualisiere eine Gebühr
-- [ ] Lösche eine Gebühr
+- [ ] Sichere Änderung einer Leistung
+- [ ] **Constraint:** Nur nicht abgerechnete Leistungen können aktualisiert
+      werden
 
-### Gebührenverzeichnis
+#### Annulliere Leistung
 
-- [ ] ❗Liste alle Gebühren auf
-- [ ] Suche eine Gebühr
-
-### Erstelle Rechnung
-
-- [ ] ❗Wähle Leistungen für Rechnung
-- [ ] Wähle optional eine Diagnose
-- [ ] Bestimme Rechnungsnummer aus Patientennummer und Rechnungsdatum
-- [ ] Nutze Zahlungsziel und Kontoverbindung als Default für den Rechnungstext
-- [ ] ❗Erstelle Rechnung
-- [ ] **Constraint:** Kopiere Daten der Leistungen und Diagnose in die Rechnung,
-      damit diese nicht geändert werden, wenn die ursprüngliche Gebühr oder
-      Diagnose geändert wird
-- [ ] **Constraint:** Wenn Rechnungen nacheinander angelegt werden, verwende das
-      letzte Rechnungsdatum für die nächste Rechnung als Default
-- [ ] ❗Drucke Rechnung
-- [ ] Drucke Rechnung mit oder ohne Leistungsbezeichnung
+- [ ] Lösche Leistung
+- [ ] **Constraint:** Nur nicht abgerechnete Leistungen können annulliert werden
 
 ### Rechnung
 
-- [ ] ❗Liste alle Rechnungen auf
-- [ ] Liste alle Rechnungen eines Patienten auf
-- [ ] Liste alle Rechnungen einer Praxis auf
+![Rechnung](images/rechnung.png)
 
-### Rechne Leistungen ab
+#### Erstelle Rechnung
 
-- [ ] Wird eine Rechnung fakturiert, rechne alle enthaltenen Leistungen ab
+- [ ] ❗Erstelle Rechnung für einen Patienten mit Datum, Leistungen und
+      optionaler Diagnose
+- [ ] ❗Bestimme Rechnungsnummer aus Patientennummer und Rechnungsdatum:
+      NNNN/JJMMDD
+- [ ] ❗Nutze Zahlungsziel und Kontoverbindung als Defaultwert für Rechnungstext
+- [ ] **Constraint:** Nur nicht abgerechnete Leistungen können einer Rechnung
+      hinzugefügt werden
+- [ ] **Constraint:** Patient, Diagnose und Leistungen dürfen nach Fakturierung
+      der Rechnung nicht mehr geändert werden
 
-### Storniere Rechnung
+#### Suche Rechnung
 
-- [ ] Storniere Rechnung
-- [ ] **Constraint:** Frage vor dem Stornieren beim Nutzer nach
+- [ ] Suche Rechnung mit ID
 
-### Gib Leistungen frei
+#### Aktualisiere Rechnung
 
-- [ ] Wird eine Rechnung storniert, gib alle enthaltenen Leistungen wieder frei
+- [ ] Sichere Änderung einer Rechnung
+- [ ] **Constraint:** Nur nicht fakturierte Rechnungen können aktualisiert
+      werden
+
+#### Annulliere Rechnung
+
+- [ ] Lösche eine Rechnung
+- [ ] **Constraint:** Nur nicht fakturierte Rechnungen können annulliert werden
+
+#### Drucke Rechnung
+
+- [ ] ❗Drucke Rechnung mit Leistungsbezeichnung
+- [ ] Drucke Rechnung ohne Leistungsbezeichnung
+
+#### Suche Rechnungen
+
+- [ ] Liste alle Rechnungen auf
+- [ ] Liste Rechnungen eines Patienten auf
+- [ ] Liste Rechnungen einer Praxis auf
+- [ ] Suche Rechnung(en) nach einem beliebigen Feld
+- [ ] Sortiere nach Status und Datum
+- [ ] Blende bezahlte Rechnungen aus
+
+#### Fakturiere Rechnung
+
+- [ ] Setze Rechnungsstatus auf fakturiert
+- [ ] Markiere alle enthaltenen Leistungen als abgerechnet
+
+#### Markiere Rechnung als bezahlt
+
+- [ ] Setze Rechnungsstatus auf bezahlt
+
+#### Mahne Rechnung
+
+- [ ] Setze Rechnungsstatus auf gemahnt
+
+#### Storniere Rechnung
+
+- [ ] Setze Rechnungsstatus auf storniert
+- [ ] Frage vor dem Stornieren beim Nutzer nach
+- [ ] Gib alle enthaltenen Leistungen wieder frei
+
+### Gebühren
+
+![Gebühren](images/gebuehren.png)
+
+#### Suche Gebühren
+
+- [ ] Liste alle Gebühren auf
+- [ ] Suche Gebühr(en) nach Ziffer oder Beschreibung
+
+#### Aktualisiere Gebühr
+
+- [ ] Sichere die Änderung einer Gebühr
+
+#### Füge Gebühr hinzu
+
+- [ ] Lege eine Gebühr mit Ziffer und Beschreibung an
+- [ ] **Contraint:** Die Ziffer muss eindeutig sein
+
+#### Entferne Gebühr
+
+- [ ] Lösche eine Gebühr
 
 ## Architecture
 
 [Architecture Communication Canvas](https://html-preview.github.io/?url=https://github.com/falkoschumann/naturheilpraxis/blob/main/doc/acc.html)
-
-## Behaviour
-
-### Nimm Patient auf
-
-![Nimm Patient auf](nimm-patient-auf.png)
