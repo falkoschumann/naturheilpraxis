@@ -6,7 +6,7 @@ permissions:
   contents: read
 
 jobs:
-  build-with-bun:
+  build-with-node:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout source code
@@ -20,7 +20,7 @@ jobs:
       - name: Build
         run: make
 
-  build-with-node:
+  build-with-bun:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout source code
