@@ -3,6 +3,8 @@
 import type {
   NimmPatientAufCommandDto,
   NimmPatientAufCommandStatusDto,
+} from "../shared/infrastructure/nimm_patient_auf_command_dto";
+import type {
   PatientenkarteiQueryDto,
   PatientenkarteiQueryResultDto,
 } from "../shared/infrastructure/naturheilpraxis";

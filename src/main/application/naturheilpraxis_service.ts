@@ -1,15 +1,20 @@
 // Copyright (c) 2025 Falko Schumann. All rights reserved. MIT license.
 
+import { nimmPatientAuf } from "./nimm_patient_auf_command_handler";
 import {
   type NimmPatientAufCommand,
   type NimmPatientAufCommandStatus,
-  NimmPatientAufSuccess,
-  Patient,
+} from "../../shared/domain/nimm_patient_auf_command";
+import { Patient } from "../../shared/domain/patient";
+import {
   type PatientenkarteiQuery,
   type PatientenkarteiQueryResult,
 } from "../../shared/domain/naturheilpraxis";
+import {
+  PATIENT_SOURCE,
+  PatientAufgenommenV1Event,
+} from "../domain/patient_events";
 import { EventStore } from "../infrastructure/event_store";
-import { PatientAufgenommenV1Event } from "../infrastructure/events"; // TODO handle technical errors, e.g. when the event store is not available
 
 // TODO handle technical errors, e.g. when the event store is not available
 //   That is not a failure as command status
@@ -32,38 +37,7 @@ export class NaturheilpraxisService {
   async nimmPatientAuf(
     command: NimmPatientAufCommand,
   ): Promise<NimmPatientAufCommandStatus> {
-    const nummer = await this.#nextPatientennummer();
-    const event = PatientAufgenommenV1Event.create({
-      nummer,
-      nachname: command.nachname,
-      vorname: command.vorname,
-      geburtsdatum: command.geburtsdatum.toString(),
-      annahmejahr: command.annahmejahr,
-      praxis: command.praxis,
-      anrede: command.anrede || undefined,
-      strasse: command.strasse || undefined,
-      wohnort: command.wohnort || undefined,
-      postleitzahl: command.postleitzahl || undefined,
-      staat: command.staat || undefined,
-      staatsangehoerigkeit: command.staatsangehoerigkeit || undefined,
-      titel: command.titel || undefined,
-      beruf: command.beruf || undefined,
-      telefon: command.telefon || undefined,
-      mobil: command.mobil || undefined,
-      eMail: command.eMail || undefined,
-      familienstand: command.familienstand || undefined,
-      partner: command.partner || undefined,
-      eltern: command.eltern || undefined,
-      kinder: command.kinder || undefined,
-      geschwister: command.geschwister || undefined,
-      notizen: command.notizen || undefined,
-      schluesselworte:
-        command.schluesselworte && command.schluesselworte.length > 0
-          ? command.schluesselworte
-          : undefined,
-    });
-    await this.#eventStore.record(event);
-    return NimmPatientAufSuccess.create({ nummer });
+    return nimmPatientAuf(command, this.#eventStore);
   }
 
   async queryPatientenkartei(
@@ -76,19 +50,11 @@ export class NaturheilpraxisService {
     return { patienten };
   }
 
-  async #nextPatientennummer() {
-    const patienten = await this.#projectPatienten();
-    const maxNummer = patienten
-      .map((p) => p.nummer)
-      .reduce((max, nummer) => (nummer > max ? nummer : max), 0);
-    return maxNummer + 1;
-  }
-
   async #projectPatienten(): Promise<Patient[]> {
     const patienten: Patient[] = [];
     const events = this.#eventStore.replay();
     for await (const event of events) {
-      if (event.source !== PatientAufgenommenV1Event.SOURCE) {
+      if (event.source !== PATIENT_SOURCE) {
         continue;
       }
 

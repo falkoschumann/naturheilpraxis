@@ -3,7 +3,7 @@
 import { Temporal } from "@js-temporal/polyfill";
 import type { FluxStandardActionAuto } from "flux-standard-action";
 
-import { Patient } from "../../shared/domain/naturheilpraxis";
+import { Patient } from "../../shared/domain/patient";
 import type { Einstellungen } from "../../shared/domain/einstellungen";
 
 // region Actions and Action Creators

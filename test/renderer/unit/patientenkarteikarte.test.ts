@@ -4,6 +4,7 @@ import { Temporal } from "@js-temporal/polyfill";
 import { describe, expect, it } from "vitest";
 
 import { Einstellungen } from "../../../src/shared/domain/einstellungen";
+import type { Patient } from "../../../src/shared/domain/patient";
 import {
   abgebrochen,
   feldAktualisiert,
@@ -17,7 +18,6 @@ import {
   type State,
   verarbeitungAbgeschlossen,
 } from "../../../src/renderer/domain/patientenkarteikarte";
-import type { Patient } from "../../../src/shared/domain/naturheilpraxis";
 
 const aufnahmeState: State = {
   patient: {

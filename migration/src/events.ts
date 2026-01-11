@@ -6,7 +6,7 @@ import type { Einstellungen } from "../../src/shared/domain/einstellungen";
 import {
   type PatientAufgenommenV1Data,
   PatientAufgenommenV1Event,
-} from "../../src/main/infrastructure/events";
+} from "../../src/main/domain/patient_events";
 
 import type { CustomerDto } from "./database_provider";
 

@@ -2,17 +2,21 @@
 
 import { describe, expect, it } from "vitest";
 
-import { Failure } from "@muspellheim/shared";
+import { Failure, Success } from "@muspellheim/shared";
 
 import {
   NimmPatientAufCommand,
-  NimmPatientAufSuccess,
+  type NimmPatientAufCommandStatus,
+} from "../../../src/shared/domain/nimm_patient_auf_command";
+import {
   PatientenkarteiQuery,
   PatientenkarteiQueryResult,
 } from "../../../src/shared/domain/naturheilpraxis";
 import {
   NimmPatientAufCommandDto,
   NimmPatientAufCommandStatusDto,
+} from "../../../src/shared/infrastructure/nimm_patient_auf_command_dto";
+import {
   PatientenkarteiQueryDto,
   PatientenkarteiQueryResultDto,
 } from "../../../src/shared/infrastructure/naturheilpraxis";
@@ -42,7 +46,7 @@ describe("Naturheilpraxis", () => {
 
   describe("NimmPatientAufCommandStatus", () => {
     it("sollte DTO aus Success-Model erstellen", () => {
-      const model = NimmPatientAufSuccess.create({ nummer: 42 });
+      const model = new Success({ nummer: 42 });
 
       const dto = NimmPatientAufCommandStatusDto.fromModel(model);
 
@@ -72,8 +76,8 @@ describe("Naturheilpraxis", () => {
 
       const model = dto.validate();
 
-      expect(model).toEqual<NimmPatientAufSuccess>(
-        NimmPatientAufSuccess.create({ nummer: 42 }),
+      expect(model).toEqual<NimmPatientAufCommandStatus>(
+        new Success({ nummer: 42 }),
       );
     });
 

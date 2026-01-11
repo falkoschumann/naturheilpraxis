@@ -1,15 +1,17 @@
 // Copyright (c) 2025 Falko Schumann. All rights reserved. MIT license.
 
 import { useCallback, useEffect, useReducer, useState } from "react";
+import { Patient } from "../../shared/domain/patient";
+import { NimmPatientAufCommand } from "../../shared/domain/nimm_patient_auf_command";
 import {
-  NimmPatientAufCommand,
-  Patient,
   PatientenkarteiQuery,
   PatientenkarteiQueryResult,
 } from "../../shared/domain/naturheilpraxis";
 import {
   NimmPatientAufCommandDto,
   NimmPatientAufCommandStatusDto,
+} from "../../shared/infrastructure/nimm_patient_auf_command_dto";
+import {
   PatientenkarteiQueryDto,
   PatientenkarteiQueryResultDto,
 } from "../../shared/infrastructure/naturheilpraxis";
@@ -42,9 +44,9 @@ export function usePatientenkarteikarte({ nummer }: { nummer?: number }) {
       // Cast patient from state to Patient is safe here because the form can only be sent
       // when all required fields are filled.
       const command = NimmPatientAufCommand.create(state.patient as Patient);
-      const result = await nimmPatientAuf(command);
-      if (result.isSuccess) {
-        dispatch(verarbeitungAbgeschlossen({ nummer: result.nummer }));
+      const status = await nimmPatientAuf(command);
+      if (status.isSuccess) {
+        dispatch(verarbeitungAbgeschlossen({ nummer: status.result!.nummer }));
       }
     } else if (formularZustand === FormularZustand.BEARBEITEN) {
       dispatch(verarbeitungAbgeschlossen({}));

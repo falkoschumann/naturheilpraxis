@@ -5,7 +5,7 @@ import { useVirtualizer } from "@tanstack/react-virtual";
 import { type RefObject, useRef } from "react";
 import { NavLink, useNavigate } from "react-router";
 
-import type { Patient } from "../../../../shared/domain/naturheilpraxis";
+import type { Patient } from "../../../../shared/domain/patient";
 import { PATIENT_AUFNEHMEN_PAGE, PATIENTENKARTEIKARTE_PAGE } from "../../components/pages";
 import { usePatientenkartei } from "../../../application/naturheilpraxis_service";
 
