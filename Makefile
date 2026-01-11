@@ -1,11 +1,17 @@
 export ASAR?=true
 export SIGN?=true
 
-RUNTIME=node
-PACKAGE_MANAGER=npm
-COMMAND_RUNNER=npx
 PLANTUML_FILES = $(wildcard doc/*.puml)
 DIAGRAM_FILES = $(subst .puml,.png,$(PLANTUML_FILES))
+RUNTIME=bun
+PACKAGE_MANAGER=bun
+PACKAGE_RUNNER=bunx
+ifeq ("$(shell command -v $(RUNTIME))", "")
+    $(warning "$(COMMAND) is not available. Fallback to Node.js and npm.")
+	RUNTIME=node
+	PACKAGE_MANAGER=npm --no-package-lock
+	PACKAGE_RUNNER=npx
+endif
 
 all: dist check
 
@@ -27,34 +33,34 @@ start: prepare
 doc: $(DIAGRAM_FILES)
 
 check: test
-	$(COMMAND_RUNNER) eslint .
-	$(COMMAND_RUNNER) prettier --check .
-	$(COMMAND_RUNNER) sheriff verify
+	$(PACKAGE_RUNNER) eslint .
+	$(PACKAGE_RUNNER) prettier --check .
+	$(PACKAGE_RUNNER) sheriff verify
 
 format:
-	$(COMMAND_RUNNER) eslint --fix .
-	$(COMMAND_RUNNER) prettier --write .
+	$(PACKAGE_RUNNER) eslint --fix .
+	$(PACKAGE_RUNNER) prettier --write .
 
 dev: prepare
 	$(PACKAGE_MANAGER) run dev
 
 test: prepare
-	$(COMMAND_RUNNER) vitest run
+	$(PACKAGE_RUNNER) vitest run
 
 watch: prepare
 	$(PACKAGE_MANAGER) test
 
 coverage: prepare
-	$(COMMAND_RUNNER) vitest run --coverage
+	$(PACKAGE_RUNNER) vitest run --coverage
 
 unit-tests: prepare
-	$(COMMAND_RUNNER) vitest run unit
+	$(PACKAGE_RUNNER) vitest run unit
 
 integration-tests: prepare
-	$(COMMAND_RUNNER) vitest run integration
+	$(PACKAGE_RUNNER) vitest run integration
 
 e2e-tests: prepare
-	$(COMMAND_RUNNER) vitest run e2e
+	$(PACKAGE_RUNNER) vitest run e2e
 
 build: prepare
 	$(PACKAGE_MANAGER) run build

@@ -6,15 +6,35 @@ permissions:
   contents: read
 
 jobs:
-  build:
+  build-with-bun:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout source code
         uses: actions/checkout@v6
-      - name: Use Node.js LTS
+      - name: Setup Node.js LTS
         uses: actions/setup-node@v6
         with:
-          # Use Node.js LTS
+          node-version: "lts/*"
+      - name: Build
+        run: make
+
+  build-with-node:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v6
+      - name: Setup latest Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      # WORKAROUND Setup Node.js also
+      #   Some packages like vite and vitest use node directly. We can override
+      #   that by using bunx --bun. But bun currently is missing support for
+      #   node:inspector, needed for vitest coverage reports.
+      #   See https://github.com/oven-sh/bun/issues/2445
+      - name: Setup Node.js LTS
+        uses: actions/setup-node@v6
+        with:
           node-version: "lts/*"
       - name: Build
         run: make
