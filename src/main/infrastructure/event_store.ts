@@ -43,7 +43,7 @@ export class EventStore extends EventTarget {
       await this.#fs.mkdir(dirName, { recursive: true });
 
       const stringifier = ndjson.stringify();
-      const file = await this.#fs.open(this.#fileName, "a");
+      file = await this.#fs.open(this.#fileName, "a");
       const stream = file.createWriteStream();
       stringifier.pipe(stream);
       stringifier.write(new CloudEvent(event));
