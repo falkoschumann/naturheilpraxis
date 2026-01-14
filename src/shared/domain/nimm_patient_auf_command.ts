@@ -1,7 +1,7 @@
 // Copyright (c) 2026 Falko Schumann. All rights reserved. MIT license.
 
 import { Temporal } from "@js-temporal/polyfill";
-import { Failure, Success } from "@muspellheim/shared";
+import type { Failure, Success } from "@muspellheim/shared";
 
 export class NimmPatientAufCommand {
   static create({
@@ -52,7 +52,7 @@ export class NimmPatientAufCommand {
     geschwister?: string;
     notizen?: string;
     schluesselworte?: string[];
-  }): NimmPatientAufCommand {
+  }) {
     return new NimmPatientAufCommand(
       nachname,
       vorname,
@@ -128,7 +128,7 @@ export class NimmPatientAufCommand {
     geschwister?: string;
     notizen?: string;
     schluesselworte?: string[];
-  } = {}): NimmPatientAufCommand {
+  } = {}) {
     return NimmPatientAufCommand.create({
       nachname,
       vorname,

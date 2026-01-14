@@ -1,23 +1,13 @@
 // Copyright (c) 2025 Falko Schumann. All rights reserved. MIT license.
 
-import type {
-  NimmPatientAufCommandDto,
-  NimmPatientAufCommandStatusDto,
-} from "../shared/infrastructure/nimm_patient_auf_command_dto";
-import type {
-  PatientenkarteiQueryDto,
-  PatientenkarteiQueryResultDto,
-} from "../shared/infrastructure/naturheilpraxis";
-import type { EinstellungenDto } from "../shared/infrastructure/einstellungen";
-
 export interface Naturheilpraxis {
   nimmPatientAuf(
     command: NimmPatientAufCommandDto,
   ): Promise<NimmPatientAufCommandStatusDto>;
 
-  queryPatientenkartei(
-    query: PatientenkarteiQueryDto,
-  ): Promise<PatientenkarteiQueryResultDto>;
+  suchePatient(query: PatientQueryDto): Promise<PatientQueryResultDto>;
+
+  suchePatienten(query: PatientenQueryDto): Promise<PatientenQueryResultDto>;
 
   ladeEinstellungen(): Promise<EinstellungenDto>;
 

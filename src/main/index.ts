@@ -9,29 +9,36 @@ import {
   REACT_DEVELOPER_TOOLS,
 } from "electron-devtools-installer";
 
-import { NaturheilpraxisService } from "./application/naturheilpraxis_service";
+import { suchePatienten } from "./application/suche_patienten_query_handler";
+import { suchePatient } from "./application/suche_patient_query_handler";
+import { nimmPatientAuf } from "./application/nimm_patient_auf_command_handler";
 import { EinstellungenService } from "./application/einstellungen_service";
 import {
   LADE_EINSTELLUNGEN_CHANNEL,
   NIMM_PATIENT_AUF_CHANNEL,
-  QUERY_PATIENTENKARTEI_CHANNEL,
   SICHERE_EINSTELLUNGEN_CHANNEL,
+  SUCHE_PATIENT_CHANNEL,
+  SUCHE_PATIENTEN_CHANNEL,
 } from "../shared/infrastructure/channels";
 import {
   NimmPatientAufCommandDto,
   NimmPatientAufCommandStatusDto,
 } from "../shared/infrastructure/nimm_patient_auf_command_dto";
 import {
-  PatientenkarteiQueryDto,
-  PatientenkarteiQueryResultDto,
-} from "../shared/infrastructure/naturheilpraxis";
+  SuchePatientQueryDto,
+  SuchePatientQueryResultDto,
+} from "../shared/infrastructure/suche_patient_query_dto";
+import {
+  SuchePatientenQueryDto,
+  SuchePatientenQueryResultDto,
+} from "../shared/infrastructure/suche_patienten_query_dto";
 import { EinstellungenDto } from "../shared/infrastructure/einstellungen";
+import { EventStore } from "./infrastructure/event_store";
 import icon from "../../resources/icon.png?asset";
 
 // TODO Make the file paths configurable
-// TODO wrap settings gateway with settings service
 const einstellungenService = EinstellungenService.create();
-const naturheilpraxisService = NaturheilpraxisService.create();
+const eventStore = EventStore.create();
 
 const isProduction = app.isPackaged;
 
@@ -95,16 +102,24 @@ function createRendererToMainChannels() {
     NIMM_PATIENT_AUF_CHANNEL,
     async (_event, commandDto: NimmPatientAufCommandDto) => {
       const command = NimmPatientAufCommandDto.create(commandDto).validate();
-      const status = await naturheilpraxisService.nimmPatientAuf(command);
+      const status = await nimmPatientAuf(command, eventStore);
       return NimmPatientAufCommandStatusDto.fromModel(status);
     },
   );
   ipcMain.handle(
-    QUERY_PATIENTENKARTEI_CHANNEL,
-    async (_event, queryDto: PatientenkarteiQueryDto) => {
-      const query = PatientenkarteiQueryDto.create(queryDto).validate();
-      const result = await naturheilpraxisService.queryPatientenkartei(query);
-      return PatientenkarteiQueryResultDto.fromModel(result);
+    SUCHE_PATIENT_CHANNEL,
+    async (_event, queryDto: SuchePatientQueryDto) => {
+      const query = SuchePatientQueryDto.create(queryDto).validate();
+      const result = await suchePatient(query, eventStore);
+      return SuchePatientQueryResultDto.fromModel(result);
+    },
+  );
+  ipcMain.handle(
+    SUCHE_PATIENTEN_CHANNEL,
+    async (_event, queryDto: SuchePatientenQueryDto) => {
+      const query = SuchePatientenQueryDto.create(queryDto).validate();
+      const result = await suchePatienten(query, eventStore);
+      return SuchePatientenQueryResultDto.fromModel(result);
     },
   );
   ipcMain.handle(LADE_EINSTELLUNGEN_CHANNEL, async (_event) => {

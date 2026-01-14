@@ -1,6 +1,6 @@
 // Copyright (c) 2026 Falko Schumann. All rights reserved. MIT license.
 
-import { Success } from "@muspellheim/shared";
+import { Failure, Success } from "@muspellheim/shared";
 import type { CloudEventV1 } from "cloudevents";
 import { describe, expect, it } from "vitest";
 
@@ -15,6 +15,10 @@ import {
   PatientAufgenommenV1Event,
 } from "../../../src/main/domain/patient_events";
 import { EventStore } from "../../../src/main/infrastructure/event_store";
+import {
+  NimmPatientAufCommandDto,
+  NimmPatientAufCommandStatusDto,
+} from "../../../src/shared/infrastructure/nimm_patient_auf_command_dto";
 
 describe("Nimm Patient auf", () => {
   describe("Erfasse Informationen wie Name, Geburtsdatum, Praxis, Annahmejahr, Anschrift und Kontaktmöglichkeit", () => {
@@ -27,7 +31,7 @@ describe("Nimm Patient auf", () => {
         eventStore,
       );
 
-      expect(status).toEqual<NimmPatientAufCommandStatus>(
+      expect(status).toEqual<Success<{ nummer: number }>>(
         new Success({ nummer: 1 }),
       );
       expect(recordedEvents.data).toEqual<
@@ -55,7 +59,7 @@ describe("Nimm Patient auf", () => {
         eventStore,
       );
 
-      expect(status).toEqual<NimmPatientAufCommandStatus>(
+      expect(status).toEqual<Success<{ nummer: number }>>(
         new Success({ nummer: 2 }),
       );
       expect(recordedEvents.data).toEqual<
@@ -106,7 +110,7 @@ describe("Nimm Patient auf", () => {
         eventStore,
       );
 
-      expect(status).toEqual<NimmPatientAufCommandStatus>(
+      expect(status).toEqual<Success<{ nummer: number }>>(
         new Success({ nummer: 1 }),
       );
       expect(recordedEvents.data).toEqual<
@@ -125,6 +129,80 @@ describe("Nimm Patient auf", () => {
           time: expect.any(String),
         },
       ]);
+    });
+  });
+
+  describe("Mapping nimm Patient auf Command", () => {
+    it("sollte DTO aus Model erstellen", () => {
+      const model = NimmPatientAufCommand.createTestInstance();
+
+      const dto = NimmPatientAufCommandDto.fromModel(model);
+
+      expect(dto).toEqual<NimmPatientAufCommandDto>(
+        NimmPatientAufCommandDto.createTestInstance(),
+      );
+    });
+
+    it("sollte Model aus DTO erstellen", () => {
+      const dto = NimmPatientAufCommandDto.createTestInstance();
+
+      const model = dto.validate();
+
+      expect(model).toEqual<NimmPatientAufCommand>(
+        NimmPatientAufCommand.createTestInstance(),
+      );
+    });
+  });
+
+  describe("Mapping nimm Patient auf Command Status", () => {
+    it("sollte DTO aus Success-Model erstellen", () => {
+      const model = new Success({ nummer: 42 });
+
+      const dto = NimmPatientAufCommandStatusDto.fromModel(model);
+
+      expect(dto).toEqual<NimmPatientAufCommandStatusDto>(
+        NimmPatientAufCommandStatusDto.create({
+          isSuccess: true,
+          nummer: 42,
+        }),
+      );
+    });
+
+    it("sollte DTO aus Failure-Model erstellen", () => {
+      const model = new Failure("Test Fehler");
+
+      const dto = NimmPatientAufCommandStatusDto.fromModel(model);
+
+      expect(dto).toEqual<NimmPatientAufCommandStatusDto>(
+        NimmPatientAufCommandStatusDto.create({
+          isSuccess: false,
+          errorMessage: "Test Fehler",
+        }),
+      );
+    });
+
+    it("sollte Success-Model aus DTO erstellen", () => {
+      const dto = NimmPatientAufCommandStatusDto.create({
+        isSuccess: true,
+        nummer: 42,
+      });
+
+      const model = dto.validate();
+
+      expect(model).toEqual<NimmPatientAufCommandStatus>(
+        new Success({ nummer: 42 }),
+      );
+    });
+
+    it("sollte Failure-Model aus DTO erstellen", () => {
+      const dto = NimmPatientAufCommandStatusDto.create({
+        isSuccess: false,
+        errorMessage: "Test Fehler",
+      });
+
+      const model = dto.validate();
+
+      expect(model).toEqual<Failure>(new Failure("Test Fehler"));
     });
   });
 });

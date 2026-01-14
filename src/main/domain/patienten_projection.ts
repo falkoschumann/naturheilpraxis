@@ -7,7 +7,7 @@ import { PATIENT_SOURCE, PatientAufgenommenV1Event } from "./patient_events";
 
 export async function projectPatienten(
   replay: AsyncGenerator<CloudEventV1<unknown>>,
-): Promise<Patient[]> {
+) {
   const patienten: Patient[] = [];
   for await (const event of replay) {
     if (event.source !== PATIENT_SOURCE) {

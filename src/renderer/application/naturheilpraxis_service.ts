@@ -4,17 +4,14 @@ import { useCallback, useEffect, useReducer, useState } from "react";
 import { Patient } from "../../shared/domain/patient";
 import { NimmPatientAufCommand } from "../../shared/domain/nimm_patient_auf_command";
 import {
-  PatientenkarteiQuery,
-  PatientenkarteiQueryResult,
-} from "../../shared/domain/naturheilpraxis";
-import {
   NimmPatientAufCommandDto,
   NimmPatientAufCommandStatusDto,
 } from "../../shared/infrastructure/nimm_patient_auf_command_dto";
+import { SuchePatientQuery } from "../../shared/domain/suche_patient_query";
 import {
-  PatientenkarteiQueryDto,
-  PatientenkarteiQueryResultDto,
-} from "../../shared/infrastructure/naturheilpraxis";
+  SuchePatientenQuery,
+  SuchePatientenQueryResult,
+} from "../../shared/domain/suche_patienten_query";
 import {
   abgebrochen,
   feldAktualisiert,
@@ -27,6 +24,10 @@ import {
   verarbeitungAbgeschlossen,
 } from "../domain/patientenkarteikarte";
 import { EinstellungenDto } from "../../shared/infrastructure/einstellungen";
+import {
+  SuchePatientenQueryDto,
+  SuchePatientenQueryResultDto,
+} from "../../shared/infrastructure/suche_patienten_query_dto";
 
 export function usePatientenkarteikarte({ nummer }: { nummer?: number }) {
   const [state, dispatch] = useReducer(reducer, initialState);
@@ -68,7 +69,11 @@ export function usePatientenkarteikarte({ nummer }: { nummer?: number }) {
 
   useEffect(() => {
     async function findPatient() {
-      const query = PatientenkarteiQuery.create({ nummer });
+      if (nummer == null) {
+        return;
+      }
+
+      const query = SuchePatientQuery.create({ nummer });
       const result = await queryPatientenkartei(query);
       void dispatch(patientGefunden({ patient: result.patienten[0] }));
     }
@@ -92,10 +97,8 @@ async function nimmPatientAuf(command: NimmPatientAufCommand) {
   return NimmPatientAufCommandStatusDto.create(statusDto).validate();
 }
 
-export function usePatientenkartei(query: PatientenkarteiQuery) {
-  const [results, setResults] = useState(
-    PatientenkarteiQueryResult.createEmpty(),
-  );
+export function usePatientenkartei(query: SuchePatientenQuery) {
+  const [results, setResults] = useState(SuchePatientenQueryResult.create());
 
   useEffect(() => {
     (async function () {
@@ -107,10 +110,10 @@ export function usePatientenkartei(query: PatientenkarteiQuery) {
   return results;
 }
 
-async function queryPatientenkartei(query: PatientenkarteiQuery) {
+async function queryPatientenkartei(query: SuchePatientenQuery) {
   console.log("queryPatientenkartei:", query);
-  const resultDto = await window.naturheilpraxis.queryPatientenkartei(
-    PatientenkarteiQueryDto.fromModel(query),
+  const resultDto = await window.naturheilpraxis.suchePatienten(
+    SuchePatientenQueryDto.fromModel(query),
   );
-  return PatientenkarteiQueryResultDto.create(resultDto).validate();
+  return SuchePatientenQueryResultDto.create(resultDto).validate();
 }

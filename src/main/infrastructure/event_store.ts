@@ -14,7 +14,7 @@ export class EventStore extends EventTarget {
     fileName = "data/event-log.ndjson",
   }: {
     fileName?: string;
-  }): EventStore {
+  } = {}): EventStore {
     return new EventStore(fileName, fs);
   }
 

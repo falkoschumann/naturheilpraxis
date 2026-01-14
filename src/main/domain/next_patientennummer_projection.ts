@@ -6,7 +6,7 @@ import { projectPatienten } from "./patienten_projection";
 
 export async function projectNextPatientennummer(
   replay: AsyncGenerator<CloudEventV1<unknown>>,
-): Promise<number> {
+) {
   const patienten = await projectPatienten(replay);
   const maxNummer = patienten
     .map((p) => p.nummer)
