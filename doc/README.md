@@ -5,15 +5,18 @@ diese in Rechnung stellen zu können.
 
 ## Domain
 
+- TODO Create 1 e2e test for epic
+- TODO Test all stories with unit tests
+
 Stories für den MVP sind mit ❗ markiert.
 
-### Patient
+### Patienten
 
-![Patient](images/patient.png)
+![Patienten](images/patienten.png)
 
 #### Nimm Patient auf
 
-- [ ] ❗Erfasse Informationen wie Name, Geburtsdatum, Praxis, Annahmejahr,
+- [x] ❗Erfasse Informationen wie Name, Geburtsdatum, Praxis, Annahmejahr,
       Anschrift und Kontaktmöglichkeit
 - [ ] Nutze aktuelle Praxis als Standardpraxis
 - [ ] Nutze aktuelles Jahr als Annahmejahr
@@ -25,8 +28,7 @@ Stories für den MVP sind mit ❗ markiert.
 
 #### Suche Patient
 
-- [ ] Suche Patient mit Nummer
-- [ ] Zeige alle Informationen eines Patienten
+- [x] ❗Suche Patient mit Nummer
 
 #### Aktualisiere Patient
 
@@ -37,7 +39,7 @@ Stories für den MVP sind mit ❗ markiert.
 
 #### Suche Patienten
 
-- [ ] ❗Liste alle Patienten auf
+- [x] ❗Liste alle Patienten auf
 - [ ] Suche Patient(en) nach einem beliebigen Feld
 - [ ] Sortiere nach einem sichtbaren Feld
 - [ ] Konfiguriere sichtbare Felder
@@ -97,9 +99,9 @@ Stories für den MVP sind mit ❗ markiert.
 - [ ] Lösche Leistung
 - [ ] **Constraint:** Nur nicht abgerechnete Leistungen können annulliert werden
 
-### Rechnung
+### Rechnungen
 
-![Rechnung](images/rechnung.png)
+![Rechnungen](images/rechnungen.png)
 
 #### Erstelle Rechnung
 
