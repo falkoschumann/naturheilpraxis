@@ -3,15 +3,15 @@
 // TODO configure data folder
 // TODO split configuration: Mandant, Patient, ...
 
-export class Einstellungen {
+export class Settings {
   static create({
     praxis,
     anrede,
     familienstand,
     schluesselworte,
     standardSchluesselworte,
-  }: Einstellungen): Einstellungen {
-    return new Einstellungen(
+  }: Settings): Settings {
+    return new Settings(
       praxis,
       anrede,
       familienstand,
@@ -20,8 +20,8 @@ export class Einstellungen {
     );
   }
 
-  static createDefault(): Einstellungen {
-    return new Einstellungen(
+  static createDefault(): Settings {
+    return new Settings(
       ["Naturheilpraxis"],
       ["Herr", "Frau"],
       ["ledig", "verheiratet", "getrennt", "geschieden", "verwitwet"],
@@ -36,8 +36,8 @@ export class Einstellungen {
     familienstand = ["ledig", "verheiratet", "geschieden", "verwitwet"],
     schluesselworte = ["Aktiv", "Weihnachtskarte", "Geburtstagskarte"],
     standardSchluesselworte = ["Aktiv", "Weihnachtskarte"],
-  }: Partial<Einstellungen> = {}): Einstellungen {
-    return Einstellungen.create({
+  }: Partial<Settings> = {}): Settings {
+    return Settings.create({
       praxis,
       anrede,
       familienstand,

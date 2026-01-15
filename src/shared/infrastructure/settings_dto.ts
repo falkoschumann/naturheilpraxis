@@ -2,11 +2,11 @@
 
 import Ajv from "ajv";
 
-import { Einstellungen } from "../domain/einstellungen";
+import { Settings } from "../domain/settings";
 
 const ajv = new Ajv();
 
-const EINSTELLUNGEN_SCHEMA = {
+const SETTINGS_SCHEMA = {
   type: "object",
   properties: {
     praxis: { type: "array", items: { type: "string" } },
@@ -18,7 +18,7 @@ const EINSTELLUNGEN_SCHEMA = {
   additionalProperties: false,
 };
 
-export class EinstellungenDto {
+export class SettingsDto {
   static create({
     praxis = [],
     anrede = [],
@@ -31,8 +31,8 @@ export class EinstellungenDto {
     familienstand?: string[];
     schluesselworte?: string[];
     standardSchluesselworte?: string[];
-  }): EinstellungenDto {
-    return new EinstellungenDto(
+  }): SettingsDto {
+    return new SettingsDto(
       praxis,
       anrede,
       familienstand,
@@ -47,8 +47,8 @@ export class EinstellungenDto {
     familienstand = ["ledig", "verheiratet", "geschieden", "verwitwet"],
     schluesselworte = ["Aktiv", "Weihnachtskarte", "Geburtstagskarte"],
     standardSchluesselworte = ["Aktiv", "Weihnachtskarte"],
-  }: Partial<Einstellungen> = {}): EinstellungenDto {
-    return EinstellungenDto.create({
+  }: Partial<Settings> = {}): SettingsDto {
+    return SettingsDto.create({
       praxis,
       anrede,
       familienstand,
@@ -57,17 +57,17 @@ export class EinstellungenDto {
     });
   }
 
-  static fromModel(einstellungen: Einstellungen): EinstellungenDto {
-    return EinstellungenDto.create(einstellungen);
+  static fromModel(settings: Settings): SettingsDto {
+    return SettingsDto.create(settings);
   }
 
-  static fromJson(json: unknown): EinstellungenDto {
-    const valid = ajv.validate(EINSTELLUNGEN_SCHEMA, json);
+  static fromJson(json: unknown): SettingsDto {
+    const valid = ajv.validate(SETTINGS_SCHEMA, json);
     if (valid) {
-      return EinstellungenDto.create(json as EinstellungenDto);
+      return SettingsDto.create(json as SettingsDto);
     }
 
-    throw new TypeError("Ungültige Einstellungen-Daten.", {
+    throw new TypeError("Invalid settings file.", {
       cause: ajv.errors,
     });
   }
@@ -92,7 +92,7 @@ export class EinstellungenDto {
     this.standardSchluesselworte = standardSchluesselworte;
   }
 
-  validate(): Einstellungen {
-    return Einstellungen.create(this);
+  validate(): Settings {
+    return Settings.create(this);
   }
 }

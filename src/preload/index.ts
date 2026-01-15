@@ -3,9 +3,9 @@
 import { contextBridge, ipcRenderer } from "electron/renderer";
 
 import {
-  LADE_EINSTELLUNGEN_CHANNEL,
+  LOAD_SETTINGS_CHANNEL,
   NIMM_PATIENT_AUF_CHANNEL,
-  SICHERE_EINSTELLUNGEN_CHANNEL,
+  STORE_SETTINGS_CHANNEL,
   SUCHE_PATIENT_CHANNEL,
   SUCHE_PATIENTEN_CHANNEL,
 } from "../shared/infrastructure/channels";
@@ -21,7 +21,7 @@ import {
   type SuchePatientenQueryDto,
   SuchePatientenQueryResultDto,
 } from "../shared/infrastructure/suche_patienten_query_dto";
-import type { EinstellungenDto } from "../shared/infrastructure/einstellungen";
+import type { SettingsDto } from "../shared/infrastructure/settings_dto";
 
 contextBridge.exposeInMainWorld("naturheilpraxis", {
   nimmPatientAuf: (
@@ -39,9 +39,9 @@ contextBridge.exposeInMainWorld("naturheilpraxis", {
   ): Promise<SuchePatientenQueryResultDto> =>
     ipcRenderer.invoke(SUCHE_PATIENTEN_CHANNEL, query),
 
-  ladeEinstellungen: (): Promise<EinstellungenDto> =>
-    ipcRenderer.invoke(LADE_EINSTELLUNGEN_CHANNEL),
+  loadSettings: (): Promise<SettingsDto> =>
+    ipcRenderer.invoke(LOAD_SETTINGS_CHANNEL),
 
-  sichereEinstellungen: (einstellungen: EinstellungenDto) =>
-    ipcRenderer.invoke(SICHERE_EINSTELLUNGEN_CHANNEL, einstellungen),
+  storeSettings: (settings: SettingsDto) =>
+    ipcRenderer.invoke(STORE_SETTINGS_CHANNEL, settings),
 });

@@ -4,14 +4,14 @@ import { Temporal } from "@js-temporal/polyfill";
 import type { FluxStandardActionAuto } from "flux-standard-action";
 
 import { Patient } from "../../shared/domain/patient";
-import type { Einstellungen } from "../../shared/domain/einstellungen";
+import type { Settings } from "../../shared/domain/settings";
 
 // region Actions and Action Creators
 
 const INITIALISIERE_FORMULAR_ACTION = "initialisiereFormular";
 
 type InitialisiereFormularPayload = {
-  einstellungen: Einstellungen;
+  settings: Settings;
 };
 
 export function initialisiereFormular(
@@ -149,20 +149,20 @@ export function reducer(state: State, action: Action): State {
       return {
         patient: {
           annahmejahr: Temporal.Now.plainDateISO().year,
-          praxis: action.payload.einstellungen.praxis[0],
-          schluesselworte: action.payload.einstellungen.standardSchluesselworte,
+          praxis: action.payload.settings.praxis[0],
+          schluesselworte: action.payload.settings.standardSchluesselworte,
         },
         formularZustand: FormularZustand.AUFNEHMEN,
         kannAbschicken: false,
         kannAbbrechen: false,
         istSchreibgeschuetzt: false,
         sendenText: "Aufnehmen",
-        praxis: action.payload.einstellungen.praxis,
-        anrede: action.payload.einstellungen.anrede,
-        familienstand: action.payload.einstellungen.familienstand,
-        schluesselworte: action.payload.einstellungen.schluesselworte,
+        praxis: action.payload.settings.praxis,
+        anrede: action.payload.settings.anrede,
+        familienstand: action.payload.settings.familienstand,
+        schluesselworte: action.payload.settings.schluesselworte,
         standardSchluesselworte:
-          action.payload.einstellungen.standardSchluesselworte,
+          action.payload.settings.standardSchluesselworte,
       };
     case FELD_AKTUALISIERT_ACTION: {
       const patient = {

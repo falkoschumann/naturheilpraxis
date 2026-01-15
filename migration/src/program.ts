@@ -4,9 +4,9 @@ import { Interactions } from "./interactions";
 
 const interactions = new Interactions(
   "data/input/legacy.sqlite",
-  "data/output/einstellungen.json",
+  "data/output/settings.json",
   "data/output/event-log.ndjson",
 );
-const einstellungen = await interactions.erstelleEinstellungen();
-await interactions.erstelleEventLog(einstellungen);
+const settings = await interactions.createSettings();
+await interactions.erstelleEventLog(settings);
 interactions.dispose();

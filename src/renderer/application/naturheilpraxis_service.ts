@@ -23,7 +23,7 @@ import {
   sendeFormular,
   verarbeitungAbgeschlossen,
 } from "../domain/patientenkarteikarte";
-import { EinstellungenDto } from "../../shared/infrastructure/einstellungen";
+import { SettingsDto } from "../../shared/infrastructure/settings_dto";
 import {
   SuchePatientenQueryDto,
   SuchePatientenQueryResultDto,
@@ -60,10 +60,9 @@ export function usePatientenkarteikarte({ nummer }: { nummer?: number }) {
 
   useEffect(() => {
     (async function () {
-      const einstellungenDto = await window.naturheilpraxis.ladeEinstellungen();
-      const einstellungen =
-        EinstellungenDto.create(einstellungenDto).validate();
-      dispatch(initialisiereFormular({ einstellungen }));
+      const settingsDto = await window.naturheilpraxis.loadSettings();
+      const settings = SettingsDto.create(settingsDto).validate();
+      dispatch(initialisiereFormular({ settings }));
     })();
   }, []);
 

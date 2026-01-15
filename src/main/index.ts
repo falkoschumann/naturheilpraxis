@@ -12,11 +12,11 @@ import {
 import { suchePatienten } from "./application/suche_patienten_query_handler";
 import { suchePatient } from "./application/suche_patient_query_handler";
 import { nimmPatientAuf } from "./application/nimm_patient_auf_command_handler";
-import { EinstellungenService } from "./application/einstellungen_service";
+import { SettingsService } from "./application/settings_service";
 import {
-  LADE_EINSTELLUNGEN_CHANNEL,
+  LOAD_SETTINGS_CHANNEL,
   NIMM_PATIENT_AUF_CHANNEL,
-  SICHERE_EINSTELLUNGEN_CHANNEL,
+  STORE_SETTINGS_CHANNEL,
   SUCHE_PATIENT_CHANNEL,
   SUCHE_PATIENTEN_CHANNEL,
 } from "../shared/infrastructure/channels";
@@ -32,12 +32,12 @@ import {
   SuchePatientenQueryDto,
   SuchePatientenQueryResultDto,
 } from "../shared/infrastructure/suche_patienten_query_dto";
-import { EinstellungenDto } from "../shared/infrastructure/einstellungen";
+import { SettingsDto } from "../shared/infrastructure/settings_dto";
 import { EventStore } from "./infrastructure/event_store";
 import icon from "../../resources/icon.png?asset";
 
 // TODO Make the file paths configurable
-const einstellungenService = EinstellungenService.create();
+const settingsService = SettingsService.create();
 const eventStore = EventStore.create();
 
 const isProduction = app.isPackaged;
@@ -122,16 +122,15 @@ function createRendererToMainChannels() {
       return SuchePatientenQueryResultDto.fromModel(result);
     },
   );
-  ipcMain.handle(LADE_EINSTELLUNGEN_CHANNEL, async (_event) => {
-    const einstellungen = await einstellungenService.ladeEinstellungen();
-    return EinstellungenDto.fromModel(einstellungen);
+  ipcMain.handle(LOAD_SETTINGS_CHANNEL, async (_event) => {
+    const settings = await settingsService.loadSettings();
+    return SettingsDto.fromModel(settings);
   });
   ipcMain.handle(
-    SICHERE_EINSTELLUNGEN_CHANNEL,
-    async (_event, einstellungenDto: EinstellungenDto) => {
-      const einstellungen =
-        EinstellungenDto.create(einstellungenDto).validate();
-      await einstellungenService.sichereEinstellungen(einstellungen);
+    STORE_SETTINGS_CHANNEL,
+    async (_event, settingsDto: SettingsDto) => {
+      const settings = SettingsDto.create(settingsDto).validate();
+      await settingsService.storeSettings(settings);
     },
   );
 }

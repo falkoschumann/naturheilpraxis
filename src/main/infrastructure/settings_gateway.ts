@@ -5,25 +5,25 @@ import path from "node:path";
 
 import { ConfigurableResponses, OutputTracker } from "@muspellheim/shared";
 
-import { Einstellungen } from "../../shared/domain/einstellungen";
-import { EinstellungenDto } from "../../shared/infrastructure/einstellungen";
+import { Settings } from "../../shared/domain/settings";
+import { SettingsDto } from "../../shared/infrastructure/settings_dto";
 
 const STORED_EVENT = "stored";
 
-export class EinstellungenGateway extends EventTarget {
+export class SettingsGateway extends EventTarget {
   static create({
-    fileName = "./data/einstellungen.json",
-  }: { fileName?: string } = {}): EinstellungenGateway {
-    return new EinstellungenGateway(fileName, fsPromise);
+    fileName = "./data/settings.json",
+  }: { fileName?: string } = {}): SettingsGateway {
+    return new SettingsGateway(fileName, fsPromise);
   }
 
   static createNull({
     readFileResponses = [],
   }: {
-    readFileResponses?: (EinstellungenDto | null | Error)[];
-  } = {}): EinstellungenGateway {
-    return new EinstellungenGateway(
-      "null-einstellungen.json",
+    readFileResponses?: (SettingsDto | null | Error)[];
+  } = {}): SettingsGateway {
+    return new SettingsGateway(
+      "null-settings.json",
       new FsPromiseStub(readFileResponses) as unknown as typeof fsPromise,
     );
   }
@@ -37,11 +37,11 @@ export class EinstellungenGateway extends EventTarget {
     this.#fs = fs;
   }
 
-  async lade(): Promise<Einstellungen | undefined> {
+  async load(): Promise<Settings | undefined> {
     try {
       const fileContent = await this.#fs.readFile(this.#fileName, "utf8");
       const json = JSON.parse(fileContent);
-      return EinstellungenDto.fromJson(json).validate();
+      return SettingsDto.fromJson(json).validate();
     } catch (error) {
       if ((error as NodeJS.ErrnoException).code === "ENOENT") {
         // No such file or directory
@@ -52,28 +52,26 @@ export class EinstellungenGateway extends EventTarget {
     }
   }
 
-  async sichere(einstellungen: Einstellungen): Promise<void> {
+  async store(settings: Settings): Promise<void> {
     const dirName = path.dirname(this.#fileName);
     await this.#fs.mkdir(dirName, { recursive: true });
 
-    const json = JSON.stringify(einstellungen, null, 2);
+    const json = JSON.stringify(settings, null, 2);
     await this.#fs.writeFile(this.#fileName, json, "utf8");
-    this.dispatchEvent(
-      new CustomEvent(STORED_EVENT, { detail: einstellungen }),
-    );
+    this.dispatchEvent(new CustomEvent(STORED_EVENT, { detail: settings }));
   }
 
-  trackStored(): OutputTracker<Einstellungen> {
+  trackStored(): OutputTracker<Settings> {
     return OutputTracker.create(this, STORED_EVENT);
   }
 }
 
 class FsPromiseStub {
   readonly #readFileResponses: ConfigurableResponses<
-    EinstellungenDto | null | Error
+    SettingsDto | null | Error
   >;
 
-  constructor(readFileResponses: (EinstellungenDto | null | Error)[]) {
+  constructor(readFileResponses: (SettingsDto | null | Error)[]) {
     this.#readFileResponses = ConfigurableResponses.create(
       readFileResponses,
       "read file",

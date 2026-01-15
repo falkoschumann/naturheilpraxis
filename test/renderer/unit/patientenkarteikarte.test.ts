@@ -3,7 +3,7 @@
 import { Temporal } from "@js-temporal/polyfill";
 import { describe, expect, it } from "vitest";
 
-import { Einstellungen } from "../../../src/shared/domain/einstellungen";
+import { Settings } from "../../../src/shared/domain/settings";
 import type { Patient } from "../../../src/shared/domain/patient";
 import {
   abgebrochen,
@@ -103,7 +103,7 @@ describe("Patientenkarteikarte", () => {
       state = reducer(
         state,
         initialisiereFormular({
-          einstellungen: Einstellungen.createTestInstance(),
+          settings: Settings.createTestInstance(),
         }),
       );
 

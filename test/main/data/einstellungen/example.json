@@ -1,7 +1,0 @@
-{
-  "praxis": ["Praxis 1", "Praxis 2"],
-  "anrede": ["Herr", "Frau", "Fräulein"],
-  "familienstand": ["ledig", "verheiratet", "geschieden", "verwitwet"],
-  "schluesselworte": ["Aktiv", "Weihnachtskarte", "Geburtstagskarte"],
-  "standardSchluesselworte": ["Aktiv", "Weihnachtskarte"]
-}

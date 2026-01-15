@@ -1,16 +1,16 @@
 // Copyright (c) 2025 Falko Schumann. All rights reserved. MIT license.
 
-import type { Einstellungen } from "../../src/shared/domain/einstellungen";
-import { EinstellungenGateway } from "../../src/main/infrastructure/einstellungen_gateway";
+import type { Settings } from "../../src/shared/domain/settings";
+import { SettingsGateway } from "../../src/main/infrastructure/settings_gateway";
 import { EventStore } from "../../src/main/infrastructure/event_store";
 
 import { DatabaseProvider } from "./database_provider";
-import { createEinstellungen } from "./einstellungen";
+import { createSettings } from "./settings";
 import { erzeugeEventsFuerPatienten } from "./events";
 
 export class Interactions {
   #legacyDatabase: DatabaseProvider;
-  #einstellungenGateway: EinstellungenGateway;
+  #settingsGateway: SettingsGateway;
   #eventStore: EventStore;
 
   constructor(
@@ -19,13 +19,13 @@ export class Interactions {
     eventLogFile: string,
   ) {
     this.#legacyDatabase = new DatabaseProvider(legacyDatabaseFile);
-    this.#einstellungenGateway = EinstellungenGateway.create({
+    this.#settingsGateway = SettingsGateway.create({
       fileName: configurationFile,
     });
     this.#eventStore = EventStore.create({ fileName: eventLogFile });
   }
 
-  async erstelleEinstellungen(): Promise<Einstellungen> {
+  async createSettings(): Promise<Settings> {
     let agencies;
     let titles;
     let familyStatus;
@@ -37,18 +37,18 @@ export class Interactions {
       familyStatus = this.#legacyDatabase.queryFamilyStatus();
       handling = this.#legacyDatabase.queryHandling();
       standardHandling = this.#legacyDatabase.queryStandardHandling();
-      const einstellungen = createEinstellungen({
+      const settings = createSettings({
         agencies,
         titles,
         familyStatus,
         handling,
         standardHandling,
       });
-      await this.#einstellungenGateway.sichere(einstellungen);
-      return einstellungen;
+      await this.#settingsGateway.store(settings);
+      return settings;
     } catch (error) {
       console.error(
-        "Fehler beim Migrieren der Einstellungen.",
+        "Migration of settings failed.",
         {
           agencies,
           titles,
@@ -58,13 +58,13 @@ export class Interactions {
         },
         error,
       );
-      throw Error("Fehler beim Migrieren der Einstellungen.", { cause: error });
+      throw Error("Migration of settings failed.", { cause: error });
     }
   }
 
-  async erstelleEventLog(einstellungen: Einstellungen): Promise<void> {
+  async erstelleEventLog(settings: Settings): Promise<void> {
     const customers = this.#legacyDatabase.queryCustomers();
-    const events = erzeugeEventsFuerPatienten(customers, einstellungen);
+    const events = erzeugeEventsFuerPatienten(customers, settings);
     for (const event of events) {
       await this.#eventStore.record(event);
     }

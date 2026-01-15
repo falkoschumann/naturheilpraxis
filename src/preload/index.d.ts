@@ -9,9 +9,9 @@ export interface Naturheilpraxis {
 
   suchePatienten(query: PatientenQueryDto): Promise<PatientenQueryResultDto>;
 
-  ladeEinstellungen(): Promise<EinstellungenDto>;
+  loadSettings(): Promise<SettingsDto>;
 
-  sichereEinstellungen(einstellungen: EinstellungenDto): Promise<void>;
+  storeSettings(Settings: SettingsDto): Promise<void>;
 }
 
 declare global {

@@ -2,7 +2,7 @@
 
 import type { ErrorObject } from "ajv";
 
-import type { Einstellungen } from "../../src/shared/domain/einstellungen";
+import type { Settings } from "../../src/shared/domain/settings";
 import {
   type PatientAufgenommenV1Data,
   PatientAufgenommenV1Event,
@@ -16,10 +16,10 @@ const UNGUELTIGER_WERT = "Ungültiger Wert";
 
 export function erzeugeEventsFuerPatienten(
   customers: CustomerDto[],
-  einstellungen: Einstellungen,
+  settings: Settings,
 ): PatientAufgenommenV1Event[] {
   const events = customers.map((customer) =>
-    erzeugeEventFuerPatient(customer, einstellungen),
+    erzeugeEventFuerPatient(customer, settings),
   );
   const noOfIssues = events.filter((event) =>
     event.data?.schluesselworte?.includes(PRUEFUNG_ERFORDERLICH),
@@ -31,13 +31,13 @@ export function erzeugeEventsFuerPatienten(
 
 export function erzeugeEventFuerPatient(
   customer: CustomerDto,
-  einstellungen: Einstellungen,
+  settings: Settings,
 ): PatientAufgenommenV1Event {
   let data = createPatientAufgenommenV1Data(customer);
   try {
     return PatientAufgenommenV1Event.create(data);
   } catch (error) {
-    data = handleError(error, data, einstellungen);
+    data = handleError(error, data, settings);
     return PatientAufgenommenV1Event.create(data);
   }
 }
@@ -77,10 +77,10 @@ function createPatientAufgenommenV1Data(
 function handleError(
   error: unknown,
   data: PatientAufgenommenV1Data,
-  einstellungen: Einstellungen,
+  settings: Settings,
 ): PatientAufgenommenV1Data {
   if (error instanceof TypeError) {
-    return handleTypeError(error, data, einstellungen);
+    return handleTypeError(error, data, settings);
   } else {
     throw new Error(`Patient ${data.nummer} kann nicht migriert werden.`, {
       cause: error,
@@ -120,7 +120,7 @@ function createArrayFromString(value?: string): string[] | undefined {
 function handleTypeError(
   error: TypeError,
   data: PatientAufgenommenV1Data,
-  einstellungen: Einstellungen,
+  settings: Settings,
 ): PatientAufgenommenV1Data {
   // TODO entferne ungültiges Attribut
 
@@ -157,7 +157,7 @@ function handleTypeError(
           cause: error,
         });
     }
-    const value = defaultFuertFeld(key, einstellungen);
+    const value = defaultFuertFeld(key, settings);
     console.error("  - " + message + ` Setze Standardwert: "${value}".`);
     data = {
       ...data,
@@ -174,7 +174,7 @@ const DEFAULT_YEAR = 1900;
 
 function defaultFuertFeld(
   key: keyof PatientAufgenommenV1Data,
-  einstellungen: Einstellungen,
+  settings: Settings,
 ) {
   switch (key) {
     case "nachname":
@@ -185,7 +185,7 @@ function defaultFuertFeld(
     case "annahmejahr":
       return DEFAULT_YEAR;
     case "praxis":
-      return einstellungen.praxis[0];
+      return settings.praxis[0];
     default:
       return undefined;
   }
