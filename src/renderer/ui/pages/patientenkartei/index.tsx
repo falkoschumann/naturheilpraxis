@@ -2,11 +2,12 @@
 
 import { createColumnHelper, flexRender, getCoreRowModel, type Table, useReactTable } from "@tanstack/react-table";
 import { useVirtualizer } from "@tanstack/react-virtual";
-import { type RefObject, useRef } from "react";
+import { type RefObject, useRef, useState } from "react";
 import { NavLink, useNavigate } from "react-router";
 
 import type { Patient } from "../../../../shared/domain/patient";
 import { PATIENT_AUFNEHMEN_PAGE, PATIENTENKARTEIKARTE_PAGE } from "../../components/pages";
+import { SuchePatientenQuery } from "../../../../shared/domain/suche_patienten_query";
 import { usePatientenkartei } from "../../../application/naturheilpraxis_service";
 
 // TODO use sorting
@@ -52,7 +53,8 @@ const columns = [
 ];
 
 export default function PatientenkarteiPage() {
-  const patientenkartei = usePatientenkartei({});
+  const [query] = useState(SuchePatientenQuery.create());
+  const patientenkartei = usePatientenkartei(query);
   const navigate = useNavigate();
 
   function handlePatientClick(nummer: number) {

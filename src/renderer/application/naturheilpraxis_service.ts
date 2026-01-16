@@ -104,13 +104,12 @@ export function usePatientenkartei(query: SuchePatientenQuery) {
       const result = await queryPatientenkartei(query);
       setResults(result);
     })();
-  });
+  }, [query]);
 
   return results;
 }
 
 async function queryPatientenkartei(query: SuchePatientenQuery) {
-  console.log("queryPatientenkartei:", query);
   const resultDto = await window.naturheilpraxis.suchePatienten(
     SuchePatientenQueryDto.fromModel(query),
   );
