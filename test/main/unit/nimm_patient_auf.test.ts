@@ -205,4 +205,15 @@ describe("Nimm Patient auf", () => {
       expect(model).toEqual<Failure>(new Failure("Test Fehler"));
     });
   });
+
+  describe("Validierung", () => {
+    it("sollte kein ungültiges Event erzeugen", async () => {
+      const result = () =>
+        PatientAufgenommenV1Event.createTestInstance({
+          geburtsdatum: "2000-13-01",
+        });
+
+      expect(result).toThrow(TypeError);
+    });
+  });
 });

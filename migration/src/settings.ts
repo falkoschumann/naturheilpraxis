@@ -8,7 +8,7 @@ export function createSettings(configuration: {
   familyStatus: string[];
   handling: string[];
   standardHandling: string[];
-}): SettingsDto {
+}) {
   const settings = SettingsDto.create({
     praxis: configuration.agencies,
     anrede: configuration.titles,
@@ -16,5 +16,5 @@ export function createSettings(configuration: {
     schluesselworte: configuration.handling,
     standardSchluesselworte: configuration.standardHandling,
   });
-  return SettingsDto.fromJson(settings);
+  return SettingsDto.fromJson(settings).validate();
 }

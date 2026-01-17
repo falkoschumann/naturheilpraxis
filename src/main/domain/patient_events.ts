@@ -1,5 +1,7 @@
 // Copyright (c) 2025 Falko Schumann. All rights reserved. MIT license.
 
+import Ajv from "ajv";
+import addFormats from "ajv-formats";
 import { CloudEvent, type CloudEventV1, V1 } from "cloudevents";
 
 export interface PatientAufgenommenV1Data {
@@ -140,5 +142,56 @@ export class PatientAufgenommenV1Event extends CloudEvent<PatientAufgenommenV1Da
     strict?: boolean,
   ) {
     super(event, strict);
+
+    const valid = ajv.validate(PATIENT_AUFGENOMMEN_V1_DATA_SCHEMA, event.data);
+    if (!valid) {
+      throw new TypeError(
+        'Ungültige Daten für Ereignis "Patient aufgenommen" in Version 1.',
+        { cause: ajv.errors },
+      );
+    }
   }
 }
+
+const ajv = new Ajv({ allErrors: true });
+addFormats(ajv);
+
+const PATIENT_AUFGENOMMEN_V1_DATA_SCHEMA = {
+  type: "object",
+  properties: {
+    nummer: { type: "number" },
+    nachname: { type: "string" },
+    vorname: { type: "string" },
+    geburtsdatum: { type: "string", format: "date" },
+    annahmejahr: { type: "integer" },
+    praxis: { type: "string" },
+    anrede: { type: "string" },
+    strasse: { type: "string" },
+    wohnort: { type: "string" },
+    postleitzahl: { type: "string" },
+    staat: { type: "string" },
+    staatsangehoerigkeit: { type: "string" },
+    titel: { type: "string" },
+    beruf: { type: "string" },
+    telefon: { type: "string" },
+    mobil: { type: "string" },
+    // WORKAROUND should have "format": "email", but it is too restrictive
+    eMail: { type: "string", pattern: "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$" },
+    familienstand: { type: "string" },
+    partner: { type: "string" },
+    eltern: { type: "string" },
+    kinder: { type: "string" },
+    geschwister: { type: "string" },
+    notizen: { type: "string" },
+    schluesselworte: { type: "array", items: { type: "string" } },
+  },
+  required: [
+    "nummer",
+    "nachname",
+    "vorname",
+    "geburtsdatum",
+    "annahmejahr",
+    "praxis",
+  ],
+  additionalProperties: false,
+};

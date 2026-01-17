@@ -9,7 +9,7 @@ export class DatabaseProvider {
     this.#db = new sqlite.DatabaseSync(filename);
   }
 
-  queryAgencies(): string[] {
+  queryAgencies() {
     // language=SQLite
     const records = this.executeQuery<AgencyDto>(
       "SELECT agency as agency FROM agencylist ORDER BY ordernumber;",
@@ -17,7 +17,7 @@ export class DatabaseProvider {
     return records.map((record) => record.agency);
   }
 
-  queryTitles(): string[] {
+  queryTitles() {
     // language=SQLite
     const records = this.executeQuery<TitleDto>(
       "SELECT title as title FROM titlelist ORDER BY title;",
@@ -25,7 +25,7 @@ export class DatabaseProvider {
     return records.map((record) => record.title);
   }
 
-  queryFamilyStatus(): string[] {
+  queryFamilyStatus() {
     // language=SQLite
     const records = this.executeQuery<FamilyStatusDto>(
       "SELECT familystatus as familyStatus FROM familystatuslist ORDER BY familystatus;",
@@ -33,7 +33,7 @@ export class DatabaseProvider {
     return records.map((record) => record.familyStatus);
   }
 
-  queryHandling(): string[] {
+  queryHandling() {
     // language=SQLite
     const records = this.executeQuery<HandlingDto>(
       "SELECT handling as handling FROM handlinglist ORDER BY handling;",
@@ -41,7 +41,7 @@ export class DatabaseProvider {
     return records.map((record) => record.handling);
   }
 
-  queryStandardHandling(): string[] {
+  queryStandardHandling() {
     // language=SQLite
     const records = this.executeQuery<HandlingDto>(
       "SELECT handling as handling FROM handlinglist WHERE standard=1 ORDER BY handling;",
@@ -49,7 +49,7 @@ export class DatabaseProvider {
     return records.map((record) => record.handling);
   }
 
-  queryCustomers(): CustomerDto[] {
+  queryCustomers() {
     // language=SQLite
     return this.executeQuery<CustomerDto>(`
       SELECT customerlist.id AS id,
@@ -59,7 +59,7 @@ export class DatabaseProvider {
              acceptance AS acceptance,
              agencylist.agency AS agency,
              title AS title,
-             trim(street || ' ' || streetnumber) as street,
+             trim(trim(street) || ' ' || trim(streetnumber)) as street,
              city AS city,
              postalcode AS postalCode,
              country AS country,

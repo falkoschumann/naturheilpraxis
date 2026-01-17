@@ -1,12 +1,12 @@
 // Copyright (c) 2025 Falko Schumann. All rights reserved. MIT license.
 
 import type { Settings } from "../../src/shared/domain/settings";
-import { SettingsGateway } from "../../src/main/infrastructure/settings_gateway";
 import { EventStore } from "../../src/main/infrastructure/event_store";
+import { SettingsGateway } from "../../src/main/infrastructure/settings_gateway";
 
 import { DatabaseProvider } from "./database_provider";
+import { createEventsFromCustomers } from "./events";
 import { createSettings } from "./settings";
-import { erzeugeEventsFuerPatienten } from "./events";
 
 export class Interactions {
   #legacyDatabase: DatabaseProvider;
@@ -25,7 +25,7 @@ export class Interactions {
     this.#eventStore = EventStore.create({ fileName: eventLogFile });
   }
 
-  async createSettings(): Promise<Settings> {
+  async createSettings() {
     let agencies;
     let titles;
     let familyStatus;
@@ -62,9 +62,9 @@ export class Interactions {
     }
   }
 
-  async erstelleEventLog(settings: Settings): Promise<void> {
+  async createEventLog(settings: Settings) {
     const customers = this.#legacyDatabase.queryCustomers();
-    const events = erzeugeEventsFuerPatienten(customers, settings);
+    const events = createEventsFromCustomers(customers, settings);
     for (const event of events) {
       await this.#eventStore.record(event);
     }

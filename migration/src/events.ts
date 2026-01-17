@@ -14,12 +14,12 @@ const PRUEFUNG_ERFORDERLICH = "Prüfung erforderlich";
 const FELD_NICHT_AUSGEFUELLT = "Feld nicht ausgefüllt";
 const UNGUELTIGER_WERT = "Ungültiger Wert";
 
-export function erzeugeEventsFuerPatienten(
+export function createEventsFromCustomers(
   customers: CustomerDto[],
   settings: Settings,
-): PatientAufgenommenV1Event[] {
+) {
   const events = customers.map((customer) =>
-    erzeugeEventFuerPatient(customer, settings),
+    createEventFromCustomer(customer, settings),
   );
   const noOfIssues = events.filter((event) =>
     event.data?.schluesselworte?.includes(PRUEFUNG_ERFORDERLICH),
@@ -29,10 +29,10 @@ export function erzeugeEventsFuerPatienten(
   return events;
 }
 
-export function erzeugeEventFuerPatient(
+export function createEventFromCustomer(
   customer: CustomerDto,
   settings: Settings,
-): PatientAufgenommenV1Event {
+) {
   let data = createPatientAufgenommenV1Data(customer);
   try {
     return PatientAufgenommenV1Event.create(data);
@@ -78,7 +78,7 @@ function handleError(
   error: unknown,
   data: PatientAufgenommenV1Data,
   settings: Settings,
-): PatientAufgenommenV1Data {
+) {
   if (error instanceof TypeError) {
     return handleTypeError(error, data, settings);
   } else {
@@ -88,7 +88,7 @@ function handleError(
   }
 }
 
-function tidyUpNumber(value?: number | null): number | undefined {
+function tidyUpNumber(value?: number | null) {
   if (value == null) {
     return undefined;
   }
@@ -96,7 +96,7 @@ function tidyUpNumber(value?: number | null): number | undefined {
   return Number(value);
 }
 
-function tidyUpString(value?: string | null): string | undefined {
+function tidyUpString(value?: string | null) {
   if (value == null) {
     return undefined;
   }
@@ -109,7 +109,7 @@ function tidyUpString(value?: string | null): string | undefined {
   return trimmed;
 }
 
-function createArrayFromString(value?: string): string[] | undefined {
+function createArrayFromString(value?: string) {
   if (value == null) {
     return undefined;
   }
@@ -121,7 +121,7 @@ function handleTypeError(
   error: TypeError,
   data: PatientAufgenommenV1Data,
   settings: Settings,
-): PatientAufgenommenV1Data {
+) {
   // TODO entferne ungültiges Attribut
 
   if (data.schluesselworte == null) {
@@ -157,7 +157,7 @@ function handleTypeError(
           cause: error,
         });
     }
-    const value = defaultFuertFeld(key, settings);
+    const value = defaultForField(key, settings);
     console.error("  - " + message + ` Setze Standardwert: "${value}".`);
     data = {
       ...data,
@@ -172,7 +172,7 @@ const DEFAULT_STRING = "N/A";
 const DEFAULT_DATE = "1900-01-01";
 const DEFAULT_YEAR = 1900;
 
-function defaultFuertFeld(
+function defaultForField(
   key: keyof PatientAufgenommenV1Data,
   settings: Settings,
 ) {

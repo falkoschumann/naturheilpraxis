@@ -7,6 +7,7 @@ const interactions = new Interactions(
   "data/output/settings.json",
   "data/output/event-log.ndjson",
 );
+
 const settings = await interactions.createSettings();
-await interactions.erstelleEventLog(settings);
+await interactions.createEventLog(settings);
 interactions.dispose();
