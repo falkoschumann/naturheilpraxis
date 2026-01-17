@@ -14,7 +14,7 @@ export class EventStore extends EventTarget {
     fileName = "data/event-log.ndjson",
   }: {
     fileName?: string;
-  } = {}): EventStore {
+  } = {}) {
     return new EventStore(fileName, fs);
   }
 
@@ -36,30 +36,31 @@ export class EventStore extends EventTarget {
     this.#fs = fsModule;
   }
 
-  async record(event: CloudEventV1<unknown>): Promise<void> {
-    let file: fs.FileHandle | undefined;
-    try {
-      const dirName = path.dirname(this.#fileName);
-      await this.#fs.mkdir(dirName, { recursive: true });
+  async record(event: CloudEventV1<unknown>) {
+    const dirName = path.dirname(this.#fileName);
+    await this.#fs.mkdir(dirName, { recursive: true });
 
+    const file = await this.#fs.open(this.#fileName, "a");
+    const stream = file.createWriteStream();
+    await new Promise<void>((resolve, reject) => {
       const stringifier = ndjson.stringify();
-      file = await this.#fs.open(this.#fileName, "a");
-      const stream = file.createWriteStream();
       stringifier.pipe(stream);
+
+      stream.on("close", () => resolve());
+      stream.on("error", (error) => reject(error));
+
       stringifier.write(new CloudEvent(event));
       stringifier.end();
-      this.dispatchEvent(new CustomEvent("eventRecorded", { detail: event }));
-    } finally {
-      await file?.close();
-    }
+    });
+    this.dispatchEvent(new CustomEvent("eventRecorded", { detail: event }));
   }
 
-  trackRecordedEvents(): OutputTracker<CloudEventV1<unknown>> {
-    return OutputTracker.create(this, "eventRecorded");
+  trackRecordedEvents() {
+    return OutputTracker.create<CloudEventV1<unknown>>(this, "eventRecorded");
   }
 
-  async *replay(): AsyncGenerator<CloudEventV1<unknown>> {
-    let file: fs.FileHandle | undefined;
+  async *replay() {
+    let file;
     try {
       file = await this.#fs.open(this.#fileName);
       const parser = file.createReadStream().pipe(ndjson.parse());
@@ -74,13 +75,13 @@ export class EventStore extends EventTarget {
 
       throw error;
     } finally {
-      file?.close();
+      await file?.close();
     }
   }
 }
 
 class FileSystemStub {
-  #events: CloudEventV1<unknown>[];
+  #events;
 
   constructor(events: CloudEventV1<unknown>[]) {
     this.#events = events;
@@ -95,7 +96,7 @@ class FileSystemStub {
 }
 
 class FileHandleStub {
-  #chunks: string[];
+  #chunks;
 
   constructor(chunks: string[]) {
     this.#chunks = chunks;
@@ -117,7 +118,7 @@ class FileHandleStub {
 }
 
 class ArrayReadableStream extends stream.Readable {
-  #chunks: unknown[];
+  #chunks;
   #currentIndex = 0;
 
   constructor(chunks: unknown[]) {
