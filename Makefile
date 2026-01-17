@@ -1,5 +1,5 @@
 export ASAR?=true
-export SIGN?=true
+export SIGN?=false
 
 PLANTUML_FILES = $(wildcard doc/*.puml)
 DIAGRAM_FILES = $(subst .puml,.png,$(PLANTUML_FILES))
