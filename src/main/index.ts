@@ -33,12 +33,12 @@ import {
   SuchePatientenQueryResultDto,
 } from "../shared/infrastructure/suche_patienten_query_dto";
 import { SettingsDto } from "../shared/infrastructure/settings_dto";
-import { EventStore } from "./infrastructure/event_store";
+import { NdjsonEventStore } from "./infrastructure/ndjson_event_store";
 import icon from "../../resources/icon.png?asset";
 
 // TODO Make the file paths configurable
 const settingsService = SettingsService.create();
-const eventStore = EventStore.create();
+const eventStore = NdjsonEventStore.create();
 
 const isProduction = app.isPackaged;
 
