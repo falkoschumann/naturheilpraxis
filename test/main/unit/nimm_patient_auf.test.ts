@@ -8,12 +8,15 @@ import { nimmPatientAuf } from "../../../src/main/application/nimm_patient_auf_c
 import { Patient } from "../../../src/shared/domain/patient";
 import {
   NimmPatientAufCommand,
-  type NimmPatientAufCommandStatus
+  type NimmPatientAufCommandStatus,
 } from "../../../src/shared/domain/nimm_patient_auf_command";
-import { type PatientAufgenommenV1Data, PatientAufgenommenV1Event } from "../../../src/main/domain/patient_events";
+import {
+  type PatientAufgenommenV1Data,
+  PatientAufgenommenV1Event,
+} from "../../../src/main/domain/patient_events";
 import {
   NimmPatientAufCommandDto,
-  NimmPatientAufCommandStatusDto
+  NimmPatientAufCommandStatusDto,
 } from "../../../src/shared/infrastructure/nimm_patient_auf_command_dto";
 import { NdjsonEventStore } from "../../../src/main/infrastructure/ndjson_event_store";
 
@@ -21,7 +24,7 @@ describe("Nimm Patient auf", () => {
   describe("Erfasse Informationen wie Name, Geburtsdatum, Praxis, Annahmejahr, Anschrift und Kontaktmöglichkeit", () => {
     it("sollte neuen Patienten erfassen", async () => {
       const eventStore = NdjsonEventStore.createNull();
-      const recordedEvents = eventStore.trackRecordedEvents();
+      const appendedEvents = eventStore.trackAppendedEvents();
 
       const status = await nimmPatientAuf(
         NimmPatientAufCommand.createTestInstance(),
@@ -31,7 +34,7 @@ describe("Nimm Patient auf", () => {
       expect(status).toEqual<Success<{ nummer: number }>>(
         new Success({ nummer: 1 }),
       );
-      expect(recordedEvents.data).toEqual<
+      expect(appendedEvents.data).toEqual<
         CloudEventV1<PatientAufgenommenV1Data>[]
       >([
         {
@@ -46,7 +49,7 @@ describe("Nimm Patient auf", () => {
       const eventStore = NdjsonEventStore.createNull({
         events: [PatientAufgenommenV1Event.createTestInstance()],
       });
-      const recordedEvents = eventStore.trackRecordedEvents();
+      const appendedEvents = eventStore.trackAppendedEvents();
 
       const status = await nimmPatientAuf(
         Patient.createTestInstance({
@@ -59,7 +62,7 @@ describe("Nimm Patient auf", () => {
       expect(status).toEqual<Success<{ nummer: number }>>(
         new Success({ nummer: 2 }),
       );
-      expect(recordedEvents.data).toEqual<
+      expect(appendedEvents.data).toEqual<
         CloudEventV1<PatientAufgenommenV1Data>[]
       >([
         {
@@ -76,7 +79,7 @@ describe("Nimm Patient auf", () => {
 
     it("sollte keine leeren Strings schreiben, außer für Pflichtfelder", async () => {
       const eventStore = NdjsonEventStore.createNull();
-      const recordedEvents = eventStore.trackRecordedEvents();
+      const appendedEvents = eventStore.trackAppendedEvents();
 
       const status = await nimmPatientAuf(
         NimmPatientAufCommand.create({
@@ -110,7 +113,7 @@ describe("Nimm Patient auf", () => {
       expect(status).toEqual<Success<{ nummer: number }>>(
         new Success({ nummer: 1 }),
       );
-      expect(recordedEvents.data).toEqual<
+      expect(appendedEvents.data).toEqual<
         CloudEventV1<PatientAufgenommenV1Data>[]
       >([
         {

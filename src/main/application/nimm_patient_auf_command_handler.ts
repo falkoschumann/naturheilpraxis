@@ -8,19 +8,20 @@ import {
 } from "../../shared/domain/nimm_patient_auf_command";
 import { projectNextPatientennummer } from "../domain/next_patientennummer_projection";
 import { PatientAufgenommenV1Event } from "../domain/patient_events";
-import type { NdjsonEventStore } from "../infrastructure/ndjson_event_store";
+import { Query } from "../infrastructure/event_store";
+import type { CloudEventStore } from "../infrastructure/cloud_event_store";
 
 export async function nimmPatientAuf(
   command: NimmPatientAufCommand,
-  eventStore: NdjsonEventStore,
+  eventStore: CloudEventStore,
 ): Promise<NimmPatientAufCommandStatus> {
-  const replay = eventStore.replay();
-  const nummer = await projectNextPatientennummer(replay);
+  const events = eventStore.read(Query.all());
+  const nummer = await projectNextPatientennummer(events);
   const event = PatientAufgenommenV1Event.create({
     ...command,
     nummer,
     geburtsdatum: command.geburtsdatum.toString(),
   });
-  await eventStore.record(event);
+  await eventStore.append(event);
   return new Success({ nummer });
 }

@@ -1,19 +1,18 @@
 // Copyright (c) 2025 Falko Schumann. All rights reserved. MIT license.
 
 import type { Settings } from "../../src/shared/domain/settings";
+import type { CloudEventStore } from "../../src/main/infrastructure/cloud_event_store";
 import { NdjsonEventStore } from "../../src/main/infrastructure/ndjson_event_store";
 import { SettingsGateway } from "../../src/main/infrastructure/settings_gateway";
 
 import { DatabaseProvider } from "./database_provider";
 import { createEventsFromCustomers } from "./events";
 import { createSettings } from "./settings";
-import type { EventStore } from "../../src/main/infrastructure/event_store";
-import type { CloudEventV1 } from "cloudevents";
 
 export class Interactions {
   #legacyDatabase: DatabaseProvider;
   #settingsGateway: SettingsGateway;
-  #eventStore: EventStore<CloudEventV1<unknown>>;
+  #eventStore: CloudEventStore;
 
   constructor(
     legacyDatabaseFile: string,

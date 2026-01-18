@@ -5,12 +5,14 @@ import {
   SuchePatientenQueryResult,
 } from "../../shared/domain/suche_patienten_query";
 import { projectPatienten } from "../domain/patienten_projection";
-import type { NdjsonEventStore } from "../infrastructure/ndjson_event_store";
+import { Query } from "../infrastructure/event_store";
+import type { CloudEventStore } from "../infrastructure/cloud_event_store";
 
 export async function suchePatienten(
   _query: SuchePatientenQuery,
-  eventStore: NdjsonEventStore,
+  eventStore: CloudEventStore,
 ) {
-  const patienten = await projectPatienten(eventStore.replay());
+  const events = eventStore.read(Query.all());
+  const patienten = await projectPatienten(events);
   return SuchePatientenQueryResult.create({ patienten });
 }

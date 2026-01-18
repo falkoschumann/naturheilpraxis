@@ -5,11 +5,21 @@ import path from "node:path";
 import stream from "node:stream";
 
 import { OutputTracker } from "@muspellheim/shared";
-import { CloudEvent, type CloudEventV1 } from "cloudevents";
 
+import {
+  type AppendCondition,
+  type Event,
+  type EventStore,
+  type Query,
+  type ReadOptions,
+  SequencedEvent,
+} from "./event_store";
 import * as ndjson from "./ndjson";
 
-export class NdjsonEventStore extends EventTarget {
+export class NdjsonEventStore<E extends Event>
+  extends EventTarget
+  implements EventStore<E>
+{
   static create({
     fileName = "data/event-log.ndjson",
   }: {
@@ -18,9 +28,7 @@ export class NdjsonEventStore extends EventTarget {
     return new NdjsonEventStore(fileName, fs);
   }
 
-  static createNull({
-    events = [],
-  }: { events?: CloudEventV1<unknown>[] } = {}) {
+  static createNull<E extends Event>({ events = [] }: { events?: E[] } = {}) {
     return new NdjsonEventStore(
       "null/event-log.ndjson",
       new FileSystemStub(events) as unknown as typeof fs,
@@ -36,36 +44,17 @@ export class NdjsonEventStore extends EventTarget {
     this.#fs = fsModule;
   }
 
-  async record(event: CloudEventV1<unknown>) {
-    const dirName = path.dirname(this.#fileName);
-    await this.#fs.mkdir(dirName, { recursive: true });
-
-    const file = await this.#fs.open(this.#fileName, "a");
-    const stream = file.createWriteStream();
-    await new Promise<void>((resolve, reject) => {
-      const stringifier = ndjson.stringify();
-      stringifier.pipe(stream);
-
-      stream.on("close", () => resolve());
-      stream.on("error", (error) => reject(error));
-
-      stringifier.write(new CloudEvent(event));
-      stringifier.end();
-    });
-    this.dispatchEvent(new CustomEvent("eventRecorded", { detail: event }));
-  }
-
-  trackRecordedEvents() {
-    return OutputTracker.create<CloudEventV1<unknown>>(this, "eventRecorded");
-  }
-
-  async *replay() {
+  async *read(_query: Query, _options?: ReadOptions) {
+    // TODO apply query
     let file;
     try {
       file = await this.#fs.open(this.#fileName);
       const parser = file.createReadStream().pipe(ndjson.parse());
+      // TODO get position from file
+      let position = 0;
       for await (const record of parser) {
-        yield new CloudEvent(record);
+        yield new SequencedEvent(record, position);
+        position++;
       }
     } catch (error) {
       if ((error as NodeJS.ErrnoException).code === "ENOENT") {
@@ -78,12 +67,41 @@ export class NdjsonEventStore extends EventTarget {
       await file?.close();
     }
   }
+
+  async append(events: Iterable<E> | E, _condition?: AppendCondition) {
+    const dirName = path.dirname(this.#fileName);
+    await this.#fs.mkdir(dirName, { recursive: true });
+
+    const file = await this.#fs.open(this.#fileName, "a");
+    const stream = file.createWriteStream();
+    await new Promise<void>((resolve, reject) => {
+      const stringifier = ndjson.stringify();
+      stringifier.pipe(stream);
+
+      stream.on("close", () => resolve());
+      stream.on("error", (error) => reject(error));
+
+      const iterable =
+        Symbol.iterator in Object(events)
+          ? (events as Iterable<E>)
+          : [events as E];
+      for (const event of iterable) {
+        stringifier.write(event);
+      }
+      stringifier.end();
+    });
+    this.dispatchEvent(new CustomEvent("eventsAppended", { detail: events }));
+  }
+
+  trackAppendedEvents() {
+    return OutputTracker.create<E>(this, "eventsAppended");
+  }
 }
 
-class FileSystemStub {
+class FileSystemStub<E extends Event> {
   #events;
 
-  constructor(events: CloudEventV1<unknown>[]) {
+  constructor(events: E[]) {
     this.#events = events;
   }
 
