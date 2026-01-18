@@ -4,12 +4,12 @@ import {
   type SuchePatientQuery,
   SuchePatientQueryResult,
 } from "../../shared/domain/suche_patient_query";
-import type { EventStore } from "../infrastructure/event_store";
 import { projectPatienten } from "../domain/patienten_projection";
+import type { NdjsonEventStore } from "../infrastructure/ndjson_event_store";
 
 export async function suchePatient(
   query: SuchePatientQuery,
-  eventStore: EventStore,
+  eventStore: NdjsonEventStore,
 ) {
   const patienten = await projectPatienten(eventStore.replay());
   for await (const patient of patienten) {

@@ -9,19 +9,19 @@ import { CloudEvent, type CloudEventV1 } from "cloudevents";
 
 import * as ndjson from "./ndjson";
 
-export class EventStore extends EventTarget {
+export class NdjsonEventStore extends EventTarget {
   static create({
     fileName = "data/event-log.ndjson",
   }: {
     fileName?: string;
   } = {}) {
-    return new EventStore(fileName, fs);
+    return new NdjsonEventStore(fileName, fs);
   }
 
   static createNull({
     events = [],
   }: { events?: CloudEventV1<unknown>[] } = {}) {
-    return new EventStore(
+    return new NdjsonEventStore(
       "null/event-log.ndjson",
       new FileSystemStub(events) as unknown as typeof fs,
     );

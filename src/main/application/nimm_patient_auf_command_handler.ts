@@ -8,11 +8,11 @@ import {
 } from "../../shared/domain/nimm_patient_auf_command";
 import { projectNextPatientennummer } from "../domain/next_patientennummer_projection";
 import { PatientAufgenommenV1Event } from "../domain/patient_events";
-import type { EventStore } from "../infrastructure/event_store";
+import type { NdjsonEventStore } from "../infrastructure/ndjson_event_store";
 
 export async function nimmPatientAuf(
   command: NimmPatientAufCommand,
-  eventStore: EventStore,
+  eventStore: NdjsonEventStore,
 ): Promise<NimmPatientAufCommandStatus> {
   const replay = eventStore.replay();
   const nummer = await projectNextPatientennummer(replay);

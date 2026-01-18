@@ -13,12 +13,12 @@ import {
   SuchePatientQueryDto,
   SuchePatientQueryResultDto,
 } from "../../../src/shared/infrastructure/suche_patient_query_dto";
-import { EventStore } from "../../../src/main/infrastructure/event_store";
+import { NdjsonEventStore } from "../../../src/main/infrastructure/ndjson_event_store";
 
 describe("Suche Patient", () => {
   describe("Suche Patient mit Nummer", () => {
     it("sollte nichts zurückgeben, wenn der Patient nicht existiert", async () => {
-      const eventStore = EventStore.createNull({
+      const eventStore = NdjsonEventStore.createNull({
         events: [PatientAufgenommenV1Event.createTestInstance()],
       });
 
@@ -33,7 +33,7 @@ describe("Suche Patient", () => {
     });
 
     it("sollte Patient finden", async () => {
-      const eventStore = EventStore.createNull({
+      const eventStore = NdjsonEventStore.createNull({
         events: [
           PatientAufgenommenV1Event.createTestInstance({
             nummer: 1,

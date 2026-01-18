@@ -9,16 +9,16 @@ import {
   SuchePatientenQueryResult,
 } from "../../../src/shared/domain/suche_patienten_query";
 import { PatientAufgenommenV1Event } from "../../../src/main/domain/patient_events";
-import { EventStore } from "../../../src/main/infrastructure/event_store";
 import {
   SuchePatientenQueryDto,
   SuchePatientenQueryResultDto,
 } from "../../../src/shared/infrastructure/suche_patienten_query_dto";
+import { NdjsonEventStore } from "../../../src/main/infrastructure/ndjson_event_store";
 
 describe("Suche Patienten", () => {
   describe("Liste alle Patienten auf", () => {
     it("Sollte eine leere Liste zurückgeben, wenn es keinen Patienten gibt", async () => {
-      const eventStore = EventStore.createNull();
+      const eventStore = NdjsonEventStore.createNull();
 
       const result = await suchePatienten(
         SuchePatientenQuery.create(),
@@ -29,7 +29,7 @@ describe("Suche Patienten", () => {
     });
 
     it("Sollte alle Patienten absteigend sortiert nach Nummer zurückgeben", async () => {
-      const eventStore = EventStore.createNull({
+      const eventStore = NdjsonEventStore.createNull({
         events: [
           PatientAufgenommenV1Event.createTestInstance({
             nummer: 1,
