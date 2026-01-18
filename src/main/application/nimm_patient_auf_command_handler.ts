@@ -2,14 +2,14 @@
 
 import { Success } from "@muspellheim/shared";
 
+import { Query } from "../domain/event_store";
+import type { CloudEventStore } from "../domain/cloud_event_store";
 import {
   type NimmPatientAufCommand,
   type NimmPatientAufCommandStatus,
 } from "../../shared/domain/nimm_patient_auf_command";
 import { projectNextPatientennummer } from "../domain/next_patientennummer_projection";
 import { PatientAufgenommenV1Event } from "../domain/patient_events";
-import { Query } from "../infrastructure/event_store";
-import type { CloudEventStore } from "../infrastructure/cloud_event_store";
 
 export async function nimmPatientAuf(
   command: NimmPatientAufCommand,

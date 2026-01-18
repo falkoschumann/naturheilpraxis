@@ -6,13 +6,10 @@ import path from "node:path";
 import { CloudEvent, type CloudEventV1 } from "cloudevents";
 import { describe, expect, it } from "vitest";
 
+import type { CloudEventV1WithData } from "../../../src/main/domain/cloud_event_store";
 import { NdjsonEventStore } from "../../../src/main/infrastructure/ndjson_event_store";
 import { NdjsonError } from "../../../src/main/infrastructure/ndjson";
-import {
-  Query,
-  SequencedEvent,
-} from "../../../src/main/infrastructure/event_store";
-import type { CloudEventV1WithData } from "../../../src/main/infrastructure/cloud_event_store";
+import { Query, SequencedEvent } from "../../../src/main/domain/event_store";
 
 const NON_EXISTENT_FILE = path.resolve(
   __dirname,

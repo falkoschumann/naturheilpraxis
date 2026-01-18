@@ -1,12 +1,12 @@
 // Copyright (c) 2026 Falko Schumann. All rights reserved. MIT license.
 
+import { Query } from "../domain/event_store";
+import type { CloudEventStore } from "../domain/cloud_event_store";
 import {
   type SuchePatientenQuery,
   SuchePatientenQueryResult,
 } from "../../shared/domain/suche_patienten_query";
 import { projectPatienten } from "../domain/patienten_projection";
-import { Query } from "../infrastructure/event_store";
-import type { CloudEventStore } from "../infrastructure/cloud_event_store";
 
 export async function suchePatienten(
   _query: SuchePatientenQuery,

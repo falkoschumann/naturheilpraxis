@@ -1,8 +1,8 @@
 // Copyright (c) 2026 Falko Schumann. All rights reserved. MIT license.
 
+import type { SequencedEvent } from "./event_store";
+import type { CloudEventV1WithData } from "./cloud_event_store";
 import { projectPatienten } from "./patienten_projection";
-import type { SequencedEvent } from "../infrastructure/event_store";
-import type { CloudEventV1WithData } from "../infrastructure/cloud_event_store";
 
 export async function projectNextPatientennummer(
   events: AsyncGenerator<SequencedEvent<CloudEventV1WithData>>,

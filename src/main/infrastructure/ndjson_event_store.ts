@@ -13,7 +13,7 @@ import {
   type Query,
   type ReadOptions,
   SequencedEvent,
-} from "./event_store";
+} from "../domain/event_store";
 import * as ndjson from "./ndjson";
 
 export class NdjsonEventStore<E extends Event>
