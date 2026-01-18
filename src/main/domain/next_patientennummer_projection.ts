@@ -8,8 +8,6 @@ export async function projectNextPatientennummer(
   replay: AsyncGenerator<CloudEventV1<unknown>>,
 ) {
   const patienten = await projectPatienten(replay);
-  const maxNummer = patienten
-    .map((p) => p.nummer)
-    .reduce((max, nummer) => (nummer > max ? nummer : max), 0);
+  const maxNummer = patienten[patienten.length - 1]?.nummer ?? 0;
   return maxNummer + 1;
 }

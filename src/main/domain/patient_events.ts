@@ -42,9 +42,9 @@ export class PatientAufgenommenV1Event extends CloudEvent<PatientAufgenommenV1Da
   static create(data: PatientAufgenommenV1Data): PatientAufgenommenV1Event {
     return new PatientAufgenommenV1Event({
       id: crypto.randomUUID(),
+      specversion: V1,
       source: PATIENT_SOURCE,
       type: PatientAufgenommenV1Event.TYPE,
-      specversion: V1,
       data: {
         nummer: data.nummer,
         nachname: data.nachname,
