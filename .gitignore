@@ -4,6 +4,7 @@ data/
 build/
 dist/
 testdata/
+!test/**/data
 tmp/
 vendor/
 .env.local
