@@ -137,8 +137,6 @@ export class PatientAufgenommenV1Event extends CloudEvent<PatientAufgenommenV1Da
     return event.type === PatientAufgenommenV1Event.TYPE;
   }
 
-  declare data: PatientAufgenommenV1Data;
-
   private constructor(
     event: Partial<CloudEventV1<PatientAufgenommenV1Data>>,
     strict?: boolean,

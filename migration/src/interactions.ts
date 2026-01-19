@@ -1,7 +1,7 @@
 // Copyright (c) 2025 Falko Schumann. All rights reserved. MIT license.
 
 import type { Settings } from "../../src/shared/domain/settings";
-import type { CloudEventStore } from "../../src/main/domain/cloud_event_store";
+import type { EventStore } from "../../src/main/domain/event_store";
 import { NdjsonEventStore } from "../../src/main/infrastructure/ndjson_event_store";
 import { SettingsGateway } from "../../src/main/infrastructure/settings_gateway";
 
@@ -12,7 +12,7 @@ import { createSettings } from "./settings";
 export class Interactions {
   #legacyDatabase: DatabaseProvider;
   #settingsGateway: SettingsGateway;
-  #eventStore: CloudEventStore;
+  #eventStore: EventStore;
 
   constructor(
     legacyDatabaseFile: string,
@@ -66,7 +66,7 @@ export class Interactions {
   async createEventLog(settings: Settings) {
     const customers = this.#legacyDatabase.queryCustomers();
     const events = createEventsFromCustomers(customers, settings);
-    await this.#eventStore.append(events);
+    await this.#eventStore.record(events);
   }
 
   dispose() {

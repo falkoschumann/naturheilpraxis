@@ -1,14 +1,24 @@
 // Copyright (c) 2026 Falko Schumann. All rights reserved. MIT license.
 
+import type { CloudEventV1 } from "cloudevents";
+
+export type Event<T = unknown> = CloudEventV1<T> & { tags?: string[] };
+
 /**
  * Event Store Interface
  *
  * @see https://dcb.events/specification/
  */
-export interface EventStore<E extends Event> {
-  read(query: Query, options?: ReadOptions): AsyncGenerator<SequencedEvent<E>>;
+export interface EventStore<T = unknown> {
+  replay(
+    query: Query,
+    options?: ReadOptions,
+  ): AsyncGenerator<SequencedEvent<T>>;
 
-  append(events: Iterable<E> | E, condition?: AppendCondition): Promise<void>;
+  record(
+    events: Iterable<Event<T>> | Event<T>,
+    condition?: AppendCondition,
+  ): Promise<void>;
 }
 
 export class Query {
@@ -37,23 +47,17 @@ export interface ReadOptions {
   readonly limit?: number;
 }
 
-export class SequencedEvent<E extends Event> {
-  readonly event: E;
+export class SequencedEvent<T = unknown> {
+  readonly event: Event<T>;
   readonly position: SequencePosition;
 
-  constructor(event: E, position: SequencePosition) {
+  constructor(event: Event<T>, position: SequencePosition) {
     this.event = event;
     this.position = position;
   }
 }
 
 export type SequencePosition = number;
-
-export interface Event<T = unknown> {
-  readonly type: string;
-  readonly data: T;
-  readonly tags?: string[];
-}
 
 export interface AppendCondition {
   readonly failIfEventsMatch: Query;

@@ -16,10 +16,7 @@ import {
 } from "../domain/event_store";
 import * as ndjson from "./ndjson";
 
-export class NdjsonEventStore<E extends Event>
-  extends EventTarget
-  implements EventStore<E>
-{
+export class NdjsonEventStore<T> extends EventTarget implements EventStore<T> {
   static create({
     fileName = "data/event-log.ndjson",
   }: {
@@ -44,7 +41,7 @@ export class NdjsonEventStore<E extends Event>
     this.#fs = fsModule;
   }
 
-  async *read(_query: Query, _options?: ReadOptions) {
+  async *replay(_query: Query, _options?: ReadOptions) {
     // TODO apply query
     let file;
     try {
@@ -53,7 +50,7 @@ export class NdjsonEventStore<E extends Event>
       // TODO get position from file
       let position = 0;
       for await (const record of parser) {
-        yield new SequencedEvent(record, position);
+        yield new SequencedEvent<T>(record, position);
         position++;
       }
     } catch (error) {
@@ -68,7 +65,10 @@ export class NdjsonEventStore<E extends Event>
     }
   }
 
-  async append(events: Iterable<E> | E, _condition?: AppendCondition) {
+  async record(
+    events: Iterable<Event<T>> | Event<T>,
+    _condition?: AppendCondition,
+  ) {
     const dirName = path.dirname(this.#fileName);
     await this.#fs.mkdir(dirName, { recursive: true });
 
@@ -83,18 +83,18 @@ export class NdjsonEventStore<E extends Event>
 
       const iterable =
         Symbol.iterator in Object(events)
-          ? (events as Iterable<E>)
-          : [events as E];
+          ? (events as Iterable<Event<T>>)
+          : [events as Event<T>];
       for (const event of iterable) {
         stringifier.write(event);
       }
       stringifier.end();
     });
-    this.dispatchEvent(new CustomEvent("eventsAppended", { detail: events }));
+    this.dispatchEvent(new CustomEvent("eventsRecorded", { detail: events }));
   }
 
-  trackAppendedEvents() {
-    return OutputTracker.create<E>(this, "eventsAppended");
+  trackRecordedEvents() {
+    return OutputTracker.create<Event<T> | Event<T>[]>(this, "eventsRecorded");
   }
 }
 

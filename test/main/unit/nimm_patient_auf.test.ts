@@ -24,7 +24,7 @@ describe("Nimm Patient auf", () => {
   describe("Erfasse Informationen wie Name, Geburtsdatum, Praxis, Annahmejahr, Anschrift und Kontaktmöglichkeit", () => {
     it("sollte neuen Patienten erfassen", async () => {
       const eventStore = NdjsonEventStore.createNull();
-      const appendedEvents = eventStore.trackAppendedEvents();
+      const recordedEvents = eventStore.trackRecordedEvents();
 
       const status = await nimmPatientAuf(
         NimmPatientAufCommand.createTestInstance(),
@@ -34,7 +34,7 @@ describe("Nimm Patient auf", () => {
       expect(status).toEqual<Success<{ nummer: number }>>(
         new Success({ nummer: 1 }),
       );
-      expect(appendedEvents.data).toEqual<
+      expect(recordedEvents.data).toEqual<
         CloudEventV1<PatientAufgenommenV1Data>[]
       >([
         {
@@ -49,7 +49,7 @@ describe("Nimm Patient auf", () => {
       const eventStore = NdjsonEventStore.createNull({
         events: [PatientAufgenommenV1Event.createTestInstance()],
       });
-      const appendedEvents = eventStore.trackAppendedEvents();
+      const recordedEvents = eventStore.trackRecordedEvents();
 
       const status = await nimmPatientAuf(
         Patient.createTestInstance({
@@ -62,7 +62,7 @@ describe("Nimm Patient auf", () => {
       expect(status).toEqual<Success<{ nummer: number }>>(
         new Success({ nummer: 2 }),
       );
-      expect(appendedEvents.data).toEqual<
+      expect(recordedEvents.data).toEqual<
         CloudEventV1<PatientAufgenommenV1Data>[]
       >([
         {
@@ -79,7 +79,7 @@ describe("Nimm Patient auf", () => {
 
     it("sollte keine leeren Strings schreiben, außer für Pflichtfelder", async () => {
       const eventStore = NdjsonEventStore.createNull();
-      const appendedEvents = eventStore.trackAppendedEvents();
+      const recordedEvents = eventStore.trackRecordedEvents();
 
       const status = await nimmPatientAuf(
         NimmPatientAufCommand.create({
@@ -113,7 +113,7 @@ describe("Nimm Patient auf", () => {
       expect(status).toEqual<Success<{ nummer: number }>>(
         new Success({ nummer: 1 }),
       );
-      expect(appendedEvents.data).toEqual<
+      expect(recordedEvents.data).toEqual<
         CloudEventV1<PatientAufgenommenV1Data>[]
       >([
         {

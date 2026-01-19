@@ -6,10 +6,13 @@ import path from "node:path";
 import { CloudEvent, type CloudEventV1 } from "cloudevents";
 import { describe, expect, it } from "vitest";
 
-import type { CloudEventV1WithData } from "../../../src/main/domain/cloud_event_store";
 import { NdjsonEventStore } from "../../../src/main/infrastructure/ndjson_event_store";
 import { NdjsonError } from "../../../src/main/infrastructure/ndjson";
-import { Query, SequencedEvent } from "../../../src/main/domain/event_store";
+import {
+  type Event,
+  Query,
+  SequencedEvent,
+} from "../../../src/main/domain/event_store";
 
 const NON_EXISTENT_FILE = path.resolve(
   __dirname,
@@ -36,7 +39,7 @@ describe("Event store", () => {
     it("should not read any event from non-existent file", async () => {
       const store = NdjsonEventStore.create({ fileName: NON_EXISTENT_FILE });
 
-      const events = await Array.fromAsync(store.read(Query.all()));
+      const events = await Array.fromAsync(store.replay(Query.all()));
 
       expect(events).toEqual<CloudEventV1<unknown>[]>([]);
     });
@@ -44,9 +47,9 @@ describe("Event store", () => {
     it("should read events from example file", async () => {
       const store = NdjsonEventStore.create({ fileName: EXAMPLE_FILE });
 
-      const events = await Array.fromAsync(store.read(Query.all()));
+      const events = await Array.fromAsync(store.replay(Query.all()));
 
-      expect(events).toEqual<SequencedEvent<CloudEventV1WithData>[]>([
+      expect(events).toEqual<SequencedEvent[]>([
         new SequencedEvent(
           {
             id: "id-1",
@@ -75,7 +78,7 @@ describe("Event store", () => {
     it("should throw an error when file is corrupt", async () => {
       const store = NdjsonEventStore.create({ fileName: CORRUPTED_FILE });
 
-      const result = Array.fromAsync(store.read(Query.all()));
+      const result = Array.fromAsync(store.replay(Query.all()));
 
       await expect(result).rejects.toThrow(NdjsonError);
     });
@@ -87,12 +90,10 @@ describe("Event store", () => {
       const store = NdjsonEventStore.create({ fileName: TEST_FILE });
 
       const event = createTestCloudEvent();
-      await store.append(event);
-      const events = await Array.fromAsync(store.read(Query.all()));
+      await store.record(event);
+      const events = await Array.fromAsync(store.replay(Query.all()));
 
-      expect(events).toEqual<SequencedEvent<CloudEventV1WithData>[]>([
-        new SequencedEvent(event, 0),
-      ]);
+      expect(events).toEqual<SequencedEvent[]>([new SequencedEvent(event, 0)]);
     });
   });
 
@@ -100,13 +101,13 @@ describe("Event store", () => {
     it("should append events", async () => {
       await fsPromise.rm(TEST_FILE, { force: true });
       const store = NdjsonEventStore.createNull();
-      const appendedEvents = store.trackAppendedEvents();
+      const recordedEvents = store.trackRecordedEvents();
 
       const event1 = createTestCloudEvent({ id: "event-1", data: "data-1" });
       const event2 = createTestCloudEvent({ id: "event-2", data: "data-2" });
-      await store.append([event1, event2]);
+      await store.record([event1, event2]);
 
-      expect(appendedEvents.data).toEqual<CloudEventV1<unknown>[][]>([
+      expect(recordedEvents.data).toEqual<CloudEventV1<unknown>[][]>([
         [event1, event2],
       ]);
     });
@@ -117,9 +118,9 @@ describe("Event store", () => {
       const event2 = createTestCloudEvent({ id: "event-2", data: "data-2" });
       const store = NdjsonEventStore.createNull({ events: [event1, event2] });
 
-      const events = await Array.fromAsync(store.read(Query.all()));
+      const events = await Array.fromAsync(store.replay(Query.all()));
 
-      expect(events).toEqual<SequencedEvent<CloudEventV1WithData>[]>([
+      expect(events).toEqual<SequencedEvent[]>([
         new SequencedEvent(event1, 0),
         new SequencedEvent(event2, 1),
       ]);
@@ -134,7 +135,7 @@ function createTestCloudEvent({
   type = "test-type",
   time = new Date().toISOString(),
   data = "test-data",
-}: Partial<CloudEventV1WithData<string>> = {}): CloudEventV1WithData {
+}: Partial<Event> = {}): Event {
   return new CloudEvent({
     id,
     specversion,
@@ -142,5 +143,5 @@ function createTestCloudEvent({
     type,
     time,
     data,
-  }) as CloudEventV1WithData;
+  }) as Event;
 }

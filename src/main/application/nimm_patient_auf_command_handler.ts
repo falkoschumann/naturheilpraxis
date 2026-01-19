@@ -2,8 +2,8 @@
 
 import { Success } from "@muspellheim/shared";
 
+import type { EventStore } from "../domain/event_store";
 import { Query } from "../domain/event_store";
-import type { CloudEventStore } from "../domain/cloud_event_store";
 import {
   type NimmPatientAufCommand,
   type NimmPatientAufCommandStatus,
@@ -13,15 +13,15 @@ import { PatientAufgenommenV1Event } from "../domain/patient_events";
 
 export async function nimmPatientAuf(
   command: NimmPatientAufCommand,
-  eventStore: CloudEventStore,
+  eventStore: EventStore,
 ): Promise<NimmPatientAufCommandStatus> {
-  const events = eventStore.read(Query.all());
+  const events = eventStore.replay(Query.all());
   const nummer = await projectNextPatientennummer(events);
   const event = PatientAufgenommenV1Event.create({
     ...command,
     nummer,
     geburtsdatum: command.geburtsdatum.toString(),
   });
-  await eventStore.append(event);
+  await eventStore.record(event);
   return new Success({ nummer });
 }
