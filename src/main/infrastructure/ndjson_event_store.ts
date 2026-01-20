@@ -12,7 +12,6 @@ import {
   type EventStore,
   type Query,
   type ReadOptions,
-  SequencedEvent,
 } from "../domain/event_store";
 import * as ndjson from "./ndjson";
 
@@ -50,7 +49,7 @@ export class NdjsonEventStore<T> extends EventTarget implements EventStore<T> {
       // TODO get position from file
       let position = 0;
       for await (const record of parser) {
-        yield new SequencedEvent<T>(record, position);
+        yield { ...record, position };
         position++;
       }
     } catch (error) {

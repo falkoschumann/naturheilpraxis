@@ -2,7 +2,12 @@
 
 import type { CloudEventV1 } from "cloudevents";
 
-export type Event<T = unknown> = CloudEventV1<T> & { tags?: string[] };
+export type Event<T = unknown> = CloudEventV1<T> & {
+  position?: SequencePosition;
+  tags?: string[];
+};
+
+export type SequencePosition = number;
 
 /**
  * Event Store Interface
@@ -10,10 +15,7 @@ export type Event<T = unknown> = CloudEventV1<T> & { tags?: string[] };
  * @see https://dcb.events/specification/
  */
 export interface EventStore<T = unknown> {
-  replay(
-    query: Query,
-    options?: ReadOptions,
-  ): AsyncGenerator<SequencedEvent<T>>;
+  replay(query: Query, options?: ReadOptions): AsyncGenerator<Event<T>>;
 
   record(
     events: Iterable<Event<T>> | Event<T>,
@@ -46,18 +48,6 @@ export interface ReadOptions {
   readonly start: SequencePosition;
   readonly limit?: number;
 }
-
-export class SequencedEvent<T = unknown> {
-  readonly event: Event<T>;
-  readonly position: SequencePosition;
-
-  constructor(event: Event<T>, position: SequencePosition) {
-    this.event = event;
-    this.position = position;
-  }
-}
-
-export type SequencePosition = number;
 
 export interface AppendCondition {
   readonly failIfEventsMatch: Query;

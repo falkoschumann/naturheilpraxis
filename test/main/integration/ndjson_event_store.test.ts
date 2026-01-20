@@ -8,11 +8,7 @@ import { describe, expect, it } from "vitest";
 
 import { NdjsonEventStore } from "../../../src/main/infrastructure/ndjson_event_store";
 import { NdjsonError } from "../../../src/main/infrastructure/ndjson";
-import {
-  type Event,
-  Query,
-  SequencedEvent,
-} from "../../../src/main/domain/event_store";
+import { type Event, Query } from "../../../src/main/domain/event_store";
 
 const NON_EXISTENT_FILE = path.resolve(
   __dirname,
@@ -49,29 +45,25 @@ describe("Event store", () => {
 
       const events = await Array.fromAsync(store.replay(Query.all()));
 
-      expect(events).toEqual<SequencedEvent[]>([
-        new SequencedEvent(
-          {
-            id: "id-1",
-            specversion: "1.0",
-            source: "/test-source",
-            type: "type-1",
-            time: "2025-07-09T06:17:11Z",
-            data: "test-data-1",
-          },
-          0,
-        ),
-        new SequencedEvent(
-          {
-            id: "id-2",
-            specversion: "1.0",
-            source: "/test-source",
-            type: "type-2",
-            time: "2025-07-09T06:17:17Z",
-            data: "test-data-2",
-          },
-          1,
-        ),
+      expect(events).toEqual<Event[]>([
+        {
+          id: "id-1",
+          specversion: "1.0",
+          source: "/test-source",
+          type: "type-1",
+          time: "2025-07-09T06:17:11Z",
+          position: 0,
+          data: "test-data-1",
+        },
+        {
+          id: "id-2",
+          specversion: "1.0",
+          source: "/test-source",
+          type: "type-2",
+          time: "2025-07-09T06:17:17Z",
+          position: 1,
+          data: "test-data-2",
+        },
       ]);
     });
 
@@ -93,7 +85,7 @@ describe("Event store", () => {
       await store.record(event);
       const events = await Array.fromAsync(store.replay(Query.all()));
 
-      expect(events).toEqual<SequencedEvent[]>([new SequencedEvent(event, 0)]);
+      expect(events).toEqual<Event[]>([{ ...event, position: 0 }]);
     });
   });
 
@@ -120,9 +112,9 @@ describe("Event store", () => {
 
       const events = await Array.fromAsync(store.replay(Query.all()));
 
-      expect(events).toEqual<SequencedEvent[]>([
-        new SequencedEvent(event1, 0),
-        new SequencedEvent(event2, 1),
+      expect(events).toEqual<Event[]>([
+        { ...event1, position: 0 },
+        { ...event2, position: 1 },
       ]);
     });
   });
