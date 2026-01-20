@@ -6,7 +6,13 @@ import stream from "node:stream";
 
 import { OutputTracker } from "@muspellheim/shared";
 
-import { type AppendCondition, type Event, type EventStore, type Query, type ReadOptions } from "../domain/event_store";
+import {
+  type AppendCondition,
+  type Event,
+  type EventStore,
+  type Query,
+  type ReadOptions,
+} from "../domain/event_store";
 import * as ndjson from "./ndjson";
 
 // TODO Write to folder instead of single file
