@@ -1,2 +1,2 @@
-{"id":"id-1","specversion":"1.0","source":"/test-source","type":"type-1","time":"2025-07-09T06:17:11Z","data":"test-data-1"}
-{"id":"id-2","specversion":"1.0","source":"/test-source","type":"type-2","time":"2025-07-09T06:17:17Z","data":"test-data-2"}
+{"id":"id-1","specversion":"1.0","source":"/test-source","type":"type-1","position":0,"time":"2025-07-09T06:17:11Z","tags":["foo"],"data":"test-data-1"}
+{"id":"id-2","specversion":"1.0","source":"/test-source","type":"type-2","position":1,"time":"2025-07-09T06:17:17Z","tags":["foo", "bar"],"data":"test-data-2"}

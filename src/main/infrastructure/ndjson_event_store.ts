@@ -10,10 +10,11 @@ import {
   type AppendCondition,
   type Event,
   type EventStore,
-  type Query,
+  Query,
   type ReadOptions,
 } from "../domain/event_store";
 import * as ndjson from "./ndjson";
+import { CloudEvent } from "cloudevents";
 
 // TODO Write to folder instead of single file
 // TODO Write segments named by start position
@@ -35,7 +36,7 @@ export class NdjsonEventStore<T> extends EventTarget implements EventStore<T> {
     return new NdjsonEventStore(fileName, fs);
   }
 
-  static createNull<E extends Event>({ events = [] }: { events?: E[] } = {}) {
+  static createNull<T>({ events = [] }: { events?: Event<T>[] } = {}) {
     return new NdjsonEventStore(
       "null/event-log.ndjson",
       new FileSystemStub(events) as unknown as typeof fs,
@@ -57,11 +58,8 @@ export class NdjsonEventStore<T> extends EventTarget implements EventStore<T> {
     try {
       file = await this.#fs.open(this.#fileName);
       const parser = file.createReadStream().pipe(ndjson.parse());
-      // TODO get position from file
-      let position = 0;
       for await (const record of parser) {
-        yield { ...record, position };
-        position++;
+        yield new CloudEvent(record);
       }
     } catch (error) {
       if ((error as NodeJS.ErrnoException).code === "ENOENT") {
@@ -82,7 +80,14 @@ export class NdjsonEventStore<T> extends EventTarget implements EventStore<T> {
     const dirName = path.dirname(this.#fileName);
     await this.#fs.mkdir(dirName, { recursive: true });
 
-    // TODO write position
+    let position = -1;
+    const replay = this.replay(Query.all());
+    for await (const event of replay) {
+      if (typeof event.position === "number") {
+        position = event.position;
+      }
+    }
+
     const file = await this.#fs.open(this.#fileName, "a");
     const stream = file.createWriteStream();
     await new Promise<void>((resolve, reject) => {
@@ -97,7 +102,9 @@ export class NdjsonEventStore<T> extends EventTarget implements EventStore<T> {
           ? (events as Iterable<Event<T>>)
           : [events as Event<T>];
       for (const event of iterable) {
-        stringifier.write(event);
+        position += 1;
+        const sequencedEvent = new CloudEvent(event).cloneWith({ position });
+        stringifier.write(sequencedEvent);
       }
       stringifier.end();
     });

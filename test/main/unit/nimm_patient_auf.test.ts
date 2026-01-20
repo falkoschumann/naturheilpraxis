@@ -47,7 +47,11 @@ describe("Nimm Patient auf", () => {
 
     it("sollte Patientennummer hochzählen", async () => {
       const eventStore = NdjsonEventStore.createNull({
-        events: [PatientAufgenommenV1Event.createTestInstance()],
+        events: [
+          PatientAufgenommenV1Event.createTestInstance().cloneWith({
+            position: 1,
+          }),
+        ],
       });
       const recordedEvents = eventStore.trackRecordedEvents();
 
