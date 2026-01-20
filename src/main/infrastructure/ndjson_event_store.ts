@@ -6,13 +6,7 @@ import stream from "node:stream";
 
 import { OutputTracker } from "@muspellheim/shared";
 
-import {
-  type AppendCondition,
-  type Event,
-  type EventStore,
-  type Query,
-  type ReadOptions,
-} from "../domain/event_store";
+import { type AppendCondition, type Event, type EventStore, type Query, type ReadOptions } from "../domain/event_store";
 import * as ndjson from "./ndjson";
 
 // TODO Write to folder instead of single file
@@ -82,6 +76,7 @@ export class NdjsonEventStore<T> extends EventTarget implements EventStore<T> {
     const dirName = path.dirname(this.#fileName);
     await this.#fs.mkdir(dirName, { recursive: true });
 
+    // TODO write position
     const file = await this.#fs.open(this.#fileName, "a");
     const stream = file.createWriteStream();
     await new Promise<void>((resolve, reject) => {
