@@ -15,6 +15,17 @@ import {
 } from "../domain/event_store";
 import * as ndjson from "./ndjson";
 
+// TODO Write to folder instead of single file
+// TODO Write segments named by start position
+// TODO Write metadata files per segment
+// - 00000000000000000000.log -> event log
+// - 00000000000000000000.index -> mapping event position to offset in event log
+// - 00000000000000000000.timeindex -> mapping event time to offset in event log
+
+// TODO Configure event store segmentation
+// - segment.ms=604800000 (7 days in milliseconds)
+// - segment.bytes	1073741824 (1 GB)
+
 export class NdjsonEventStore<T> extends EventTarget implements EventStore<T> {
   static create({
     fileName = "data/event-log.ndjson",
