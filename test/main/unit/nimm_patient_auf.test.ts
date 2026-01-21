@@ -14,6 +14,7 @@ import {
   type PatientAufgenommenV1Data,
   PatientAufgenommenV1Event,
 } from "../../../src/main/domain/patient_events";
+import type { Event } from "../../../src/main/domain/event_store";
 import {
   NimmPatientAufCommandDto,
   NimmPatientAufCommandStatusDto,
@@ -50,7 +51,7 @@ describe("Nimm Patient auf", () => {
         events: [
           PatientAufgenommenV1Event.createTestInstance().cloneWith({
             position: 1,
-          }),
+          }) as Event,
         ],
       });
       const recordedEvents = eventStore.trackRecordedEvents();

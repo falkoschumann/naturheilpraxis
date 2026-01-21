@@ -4,6 +4,8 @@ import Ajv from "ajv";
 import addFormats from "ajv-formats";
 import { CloudEvent, type CloudEventV1, V1 } from "cloudevents";
 
+import type { Event } from "./event_store";
+
 export interface PatientAufgenommenV1Data {
   readonly nummer: number;
   readonly nachname: string;
@@ -31,11 +33,12 @@ export interface PatientAufgenommenV1Data {
   readonly schluesselworte?: string[];
 }
 
-export const PATIENT_SOURCE = "/naturheilpraxis/patient";
+export const SOURCE = "/naturheilpraxis";
 
-// TODO add to CloudEvent tags=[patient:nummer]
-
-export class PatientAufgenommenV1Event extends CloudEvent<PatientAufgenommenV1Data> {
+export class PatientAufgenommenV1Event
+  extends CloudEvent<PatientAufgenommenV1Data>
+  implements Event<PatientAufgenommenV1Data>
+{
   static readonly TYPE =
     "de.muspellheim.naturheilpraxis.patient-aufgenommen.v1";
 
@@ -43,8 +46,9 @@ export class PatientAufgenommenV1Event extends CloudEvent<PatientAufgenommenV1Da
     return new PatientAufgenommenV1Event({
       id: crypto.randomUUID(),
       specversion: V1,
-      source: PATIENT_SOURCE,
+      source: SOURCE,
       type: PatientAufgenommenV1Event.TYPE,
+      tags: [`patient:${data.nummer}`],
       data: {
         nummer: data.nummer,
         nachname: data.nachname,
@@ -136,6 +140,8 @@ export class PatientAufgenommenV1Event extends CloudEvent<PatientAufgenommenV1Da
   ): event is PatientAufgenommenV1Event {
     return event.type === PatientAufgenommenV1Event.TYPE;
   }
+
+  declare data: PatientAufgenommenV1Data;
 
   private constructor(
     event: Partial<CloudEventV1<PatientAufgenommenV1Data>>,

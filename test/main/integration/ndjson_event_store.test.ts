@@ -69,6 +69,92 @@ describe("Event store", () => {
       ]);
     });
 
+    it("should return events that match any type", async () => {
+      const event1 = createTestEvent({ id: "id-1", type: "EventType1" });
+      const event2 = createTestEvent({ id: "id-2", type: "EventType2" });
+      const event3 = createTestEvent({ id: "id-3", type: "EventType1" });
+      const event4 = createTestEvent({ id: "id-4", type: "EventType3" });
+      const store = NdjsonEventStore.createNull({
+        events: [event1, event2, event3, event4],
+      });
+
+      const events = await Array.fromAsync(
+        store.replay(
+          Query.fromItems([{ types: ["EventType1", "EventType2"] }]),
+        ),
+      );
+
+      expect(events).toEqual<Event[]>([event1, event2, event3]);
+    });
+
+    it("should return events that match all tags", async () => {
+      const event1 = createTestEvent({ id: "id-1", tags: ["tag1"] });
+      const event2 = createTestEvent({ id: "id-2" });
+      const event3 = createTestEvent({ id: "id-3", tags: ["tag2"] });
+      const event4 = createTestEvent({ id: "id-4", tags: ["tag1", "tag2"] });
+      const event5 = createTestEvent({ id: "id-5", tags: ["tag2", "tag3"] });
+      const event6 = createTestEvent({
+        id: "id-6",
+        tags: ["tag1", "tag2", "tag3"],
+      });
+      const store = NdjsonEventStore.createNull({
+        events: [event1, event2, event3, event4, event5, event6],
+      });
+
+      const events = await Array.fromAsync(
+        store.replay(Query.fromItems([{ tags: ["tag1", "tag2"] }])),
+      );
+
+      expect(events).toEqual<Event[]>([event4, event6]);
+    });
+
+    it("should return events that match any type and all tags", async () => {
+      const event1 = createTestEvent({
+        id: "id-1",
+        type: "EventType1",
+        tags: ["tag1", "tag2", "tag3"],
+      });
+      const event2 = createTestEvent({
+        id: "id-2",
+        type: "EventType2",
+        tags: ["tag1", "tag2", "tag3"],
+      });
+      const event3 = createTestEvent({
+        id: "id-3",
+        type: "EventType3",
+        tags: ["tag1", "tag2"],
+      });
+      const event4 = createTestEvent({
+        id: "id-4",
+        type: "EventType1",
+        tags: ["tag1", "tag3"],
+      });
+      const event5 = createTestEvent({
+        id: "id-5",
+        type: "EventType2",
+      });
+      const store = NdjsonEventStore.createNull({
+        events: [event1, event2, event3, event4, event5],
+      });
+
+      const events = await Array.fromAsync(
+        store.replay(
+          Query.fromItems([
+            { types: ["EventType2", "EventType3"], tags: ["tag1", "tag3"] },
+          ]),
+        ),
+      );
+
+      expect(events).toEqual<Event[]>([event2]);
+    });
+
+    // { "items": [
+    //   { "types": ["EventType1", "EventType2"] },
+    //   { "tags": ["tag1", "tag2"] },
+    //   { "types": ["EventType2", "EventType3"], "tags": ["tag1", "tag3"] }
+    // ] }
+    it.todo("should return events that match any query item");
+
     it("should throw an error when file is corrupt", async () => {
       const store = NdjsonEventStore.create({ fileName: CORRUPTED_FILE });
 
@@ -83,7 +169,7 @@ describe("Event store", () => {
       await fsPromise.rm(TEST_FILE, { force: true });
       const store = NdjsonEventStore.create({ fileName: TEST_FILE });
 
-      const event = createTestCloudEvent();
+      const event = createTestEvent();
       await store.record(event);
       const events = await Array.fromAsync(store.replay(Query.all()));
 
@@ -97,8 +183,8 @@ describe("Event store", () => {
       const store = NdjsonEventStore.createNull();
       const recordedEvents = store.trackRecordedEvents();
 
-      const event1 = createTestCloudEvent({ id: "event-1", data: "data-1" });
-      const event2 = createTestCloudEvent({ id: "event-2", data: "data-2" });
+      const event1 = createTestEvent({ id: "event-1", data: "data-1" });
+      const event2 = createTestEvent({ id: "event-2", data: "data-2" });
       await store.record([event1, event2]);
 
       expect(recordedEvents.data).toEqual<CloudEventV1<unknown>[][]>([
@@ -108,12 +194,12 @@ describe("Event store", () => {
 
     it("should replay events", async () => {
       await fsPromise.rm(TEST_FILE, { force: true });
-      const event1 = createTestCloudEvent({
+      const event1 = createTestEvent({
         id: "event-1",
         position: 0,
         data: "data-1",
       });
-      const event2 = createTestCloudEvent({
+      const event2 = createTestEvent({
         id: "event-2",
         position: 1,
         data: "data-2",
@@ -127,15 +213,17 @@ describe("Event store", () => {
   });
 });
 
-function createTestCloudEvent({
+function createTestEvent({
   id = "test-id",
   specversion = "1.0",
   source = "/test-source",
   type = "test-type",
   time = new Date().toISOString(),
   data = "test-data",
+  ...rest
 }: Partial<Event> = {}): Event {
   return new CloudEvent({
+    ...rest,
     id,
     specversion,
     source,

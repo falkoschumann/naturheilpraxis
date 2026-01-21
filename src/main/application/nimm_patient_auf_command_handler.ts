@@ -15,7 +15,9 @@ export async function nimmPatientAuf(
   command: NimmPatientAufCommand,
   eventStore: EventStore,
 ): Promise<NimmPatientAufCommandStatus> {
-  const events = eventStore.replay(Query.all());
+  const events = eventStore.replay<PatientAufgenommenV1Event>(
+    Query.fromItems([{ types: [PatientAufgenommenV1Event.TYPE] }]),
+  );
   const nummer = await projectNextPatientennummer(events);
   const event = PatientAufgenommenV1Event.create({
     ...command,

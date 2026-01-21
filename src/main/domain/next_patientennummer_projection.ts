@@ -1,12 +1,15 @@
 // Copyright (c) 2026 Falko Schumann. All rights reserved. MIT license.
 
-import type { Event } from "./event_store";
-import { projectPatienten } from "./patienten_projection";
+import type { PatientAufgenommenV1Event } from "./patient_events";
 
 export async function projectNextPatientennummer(
-  events: AsyncGenerator<Event>,
+  events: AsyncGenerator<PatientAufgenommenV1Event>,
 ) {
-  const patienten = await projectPatienten(events);
-  const maxNummer = patienten[patienten.length - 1]?.nummer ?? 0;
-  return maxNummer + 1;
+  let letzteNummer = 0;
+  for await (const event of events) {
+    if (event.data.nummer > letzteNummer) {
+      letzteNummer = event.data.nummer;
+    }
+  }
+  return letzteNummer + 1;
 }

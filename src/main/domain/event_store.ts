@@ -3,6 +3,7 @@
 import type { CloudEventV1 } from "cloudevents";
 
 export type Event<T = unknown> = CloudEventV1<T> & {
+  data: T;
   position?: SequencePosition;
   tags?: string[];
 };
@@ -15,7 +16,10 @@ export type SequencePosition = number;
  * @see https://dcb.events/specification/
  */
 export interface EventStore<T = unknown> {
-  replay(query: Query, options?: ReadOptions): AsyncGenerator<Event<T>>;
+  replay<E extends Event<T>>(
+    query: Query,
+    options?: ReadOptions,
+  ): AsyncGenerator<E>;
 
   record(
     events: Iterable<Event<T>> | Event<T>,

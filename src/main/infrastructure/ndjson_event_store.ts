@@ -52,14 +52,16 @@ export class NdjsonEventStore<T> extends EventTarget implements EventStore<T> {
     this.#fs = fsModule;
   }
 
-  async *replay(_query: Query, _options?: ReadOptions) {
-    // TODO apply query
+  async *replay<E extends Event<T>>(query: Query, _options?: ReadOptions) {
     let file;
     try {
       file = await this.#fs.open(this.#fileName);
       const parser = file.createReadStream().pipe(ndjson.parse());
       for await (const record of parser) {
-        yield new CloudEvent(record);
+        const event = new CloudEvent(record) as unknown as E;
+        if (matchQuery(query, event)) {
+          yield event;
+        }
       }
     } catch (error) {
       if ((error as NodeJS.ErrnoException).code === "ENOENT") {
@@ -114,6 +116,26 @@ export class NdjsonEventStore<T> extends EventTarget implements EventStore<T> {
   trackRecordedEvents() {
     return OutputTracker.create<Event<T> | Event<T>[]>(this, "eventsRecorded");
   }
+}
+
+function matchQuery(query: Query, event: Event) {
+  if (query.items.length === 0) {
+    return true;
+  }
+
+  for (const item of query.items) {
+    const matchType = item.types == null || item.types.includes(event.type);
+
+    const eventTags = event.tags ?? [];
+    const matchTags =
+      item.tags == null || item.tags.every((tag) => eventTags.includes(tag));
+
+    if (matchType && matchTags) {
+      return true;
+    }
+  }
+
+  return false;
 }
 
 class FileSystemStub<E extends Event> {
