@@ -85,7 +85,11 @@ export default function PatientenkarteiPage() {
 }
 
 function Table({ data, onPatientSelect }: { data: Patient[]; onPatientSelect: (nummer: number) => void }) {
+  // WORKAROUND see https://github.com/TanStack/table/issues/6137
+  "use no memo";
+
   const tableContainerRef = useRef<HTMLDivElement>(null);
+  // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({ data, columns, getCoreRowModel: getCoreRowModel() });
 
   return (
@@ -121,7 +125,11 @@ function TableBody({
   tableContainerRef: RefObject<HTMLDivElement | null>;
   onPatientSelect: (nummer: number) => void;
 }) {
+  // WORKAROUND for eslint issue with useVirtualizer
+  "use no memo";
+
   const { rows } = table.getRowModel();
+  // eslint-disable-next-line react-hooks/incompatible-library
   const virtualizer = useVirtualizer<HTMLDivElement, HTMLTableRowElement>({
     count: rows.length,
     estimateSize: () => 41,
