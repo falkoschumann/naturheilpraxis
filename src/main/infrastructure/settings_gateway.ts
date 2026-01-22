@@ -37,7 +37,7 @@ export class SettingsGateway extends EventTarget {
     this.#fs = fs;
   }
 
-  async load(): Promise<Settings | undefined> {
+  async load(): Promise<Settings> {
     try {
       const fileContent = await this.#fs.readFile(this.#fileName, "utf8");
       const json = JSON.parse(fileContent);
@@ -45,7 +45,7 @@ export class SettingsGateway extends EventTarget {
     } catch (error) {
       if ((error as NodeJS.ErrnoException).code === "ENOENT") {
         // No such file or directory
-        return;
+        return Settings.create();
       }
 
       throw error;

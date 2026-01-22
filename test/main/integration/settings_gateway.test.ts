@@ -24,14 +24,14 @@ const TEST_FILE = path.resolve(
 
 describe("Settings Gateway", () => {
   describe("Load", () => {
-    it("should return nothing when the file does not exist", async () => {
+    it("should return defaults when the file does not exist", async () => {
       const gateway = SettingsGateway.create({
         fileName: NON_EXISTING_FILE,
       });
 
       const settings = await gateway.load();
 
-      expect(settings).toBeUndefined();
+      expect(settings).toEqual(Settings.create());
     });
 
     it("should load example file", async () => {
@@ -66,14 +66,14 @@ describe("Settings Gateway", () => {
 
   describe("Nullable", () => {
     describe("Load", () => {
-      it("should return nothing when the configurable response is null", async () => {
+      it("should return defaults when the configurable response is null", async () => {
         const gateway = SettingsGateway.createNull({
           readFileResponses: [null],
         });
 
         const settings = await gateway.load();
 
-        expect(settings).toBeUndefined();
+        expect(settings).toEqual(Settings.create());
       });
 
       it("should return a configurable response", async () => {

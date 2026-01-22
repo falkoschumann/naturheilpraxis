@@ -14,15 +14,16 @@ describe("Settings", () => {
 
   it("should create DTO from JSON", () => {
     const dto = {
-      praxis: [],
+      praxis: ["Praxis A", "Praxis B"],
+      anrede: ["Herr", "Frau"],
     };
 
     const result = SettingsDto.fromJson(dto);
 
     expect(result).toEqual<SettingsDto>(
       SettingsDto.create({
-        praxis: [],
-        anrede: [],
+        praxis: ["Praxis A", "Praxis B"],
+        anrede: ["Herr", "Frau"],
         familienstand: [],
         schluesselworte: [],
         standardSchluesselworte: [],

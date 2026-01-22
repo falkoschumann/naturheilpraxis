@@ -1,32 +1,34 @@
 // Copyright (c) 2025 Falko Schumann. All rights reserved. MIT license.
 
 // TODO configure data folder
-// TODO split configuration: Mandant, Patient, ...
+// TODO split settings: Mandant, Patient, ...
 
 export class Settings {
   static create({
-    praxis,
-    anrede,
-    familienstand,
-    schluesselworte,
-    standardSchluesselworte,
-  }: Settings): Settings {
+    praxis = ["Naturheilpraxis"],
+    anrede = ["Herr", "Frau"],
+    familienstand = [
+      "ledig",
+      "verheiratet",
+      "getrennt",
+      "geschieden",
+      "verwitwet",
+    ],
+    schluesselworte = [],
+    standardSchluesselworte = [],
+  }: {
+    praxis?: string[];
+    anrede?: string[];
+    familienstand?: string[];
+    schluesselworte?: string[];
+    standardSchluesselworte?: string[];
+  } = {}): Settings {
     return new Settings(
       praxis,
       anrede,
       familienstand,
       schluesselworte,
       standardSchluesselworte,
-    );
-  }
-
-  static createDefault(): Settings {
-    return new Settings(
-      ["Naturheilpraxis"],
-      ["Herr", "Frau"],
-      ["ledig", "verheiratet", "getrennt", "geschieden", "verwitwet"],
-      [],
-      [],
     );
   }
 

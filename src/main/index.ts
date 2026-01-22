@@ -12,7 +12,6 @@ import {
 import { suchePatienten } from "./application/suche_patienten_query_handler";
 import { suchePatient } from "./application/suche_patient_query_handler";
 import { nimmPatientAuf } from "./application/nimm_patient_auf_command_handler";
-import { SettingsService } from "./application/settings_service";
 import {
   LOAD_SETTINGS_CHANNEL,
   NIMM_PATIENT_AUF_CHANNEL,
@@ -32,12 +31,13 @@ import {
   SuchePatientenQueryDto,
   SuchePatientenQueryResultDto,
 } from "../shared/infrastructure/suche_patienten_query_dto";
+import { SettingsGateway } from "./infrastructure/settings_gateway";
 import { SettingsDto } from "../shared/infrastructure/settings_dto";
 import { NdjsonEventStore } from "./infrastructure/ndjson_event_store";
 import icon from "../../resources/icon.png?asset";
 
 // TODO Make the file paths configurable
-const settingsService = SettingsService.create();
+const settingsGateway = SettingsGateway.create();
 const eventStore = NdjsonEventStore.create();
 
 const isProduction = app.isPackaged;
@@ -123,14 +123,14 @@ function createRendererToMainChannels() {
     },
   );
   ipcMain.handle(LOAD_SETTINGS_CHANNEL, async (_event) => {
-    const settings = await settingsService.loadSettings();
+    const settings = await settingsGateway.load();
     return SettingsDto.fromModel(settings);
   });
   ipcMain.handle(
     STORE_SETTINGS_CHANNEL,
     async (_event, settingsDto: SettingsDto) => {
       const settings = SettingsDto.create(settingsDto).validate();
-      await settingsService.storeSettings(settings);
+      await settingsGateway.store(settings);
     },
   );
 }
