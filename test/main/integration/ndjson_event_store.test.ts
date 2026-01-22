@@ -148,12 +148,47 @@ describe("Event store", () => {
       expect(events).toEqual<Event[]>([event2]);
     });
 
-    // { "items": [
-    //   { "types": ["EventType1", "EventType2"] },
-    //   { "tags": ["tag1", "tag2"] },
-    //   { "types": ["EventType2", "EventType3"], "tags": ["tag1", "tag3"] }
-    // ] }
-    it.todo("should return events that match any query item");
+    it("should return events that match any query item", async () => {
+      // match by type
+      const event1 = createTestEvent({
+        id: "id-1",
+        type: "EventType1",
+        tags: ["tag3", "tag4"],
+      });
+      // match by tags
+      const event2 = createTestEvent({
+        id: "id-2",
+        type: "EventType4",
+        tags: ["tag1", "tag2"],
+      });
+      // match by type and tags
+      const event3 = createTestEvent({
+        id: "id-3",
+        type: "EventType2",
+        tags: ["tag1", "tag3"],
+      });
+      // no match
+      const event4 = createTestEvent({
+        id: "id-4",
+        type: "EventType3",
+        tags: ["tag1"],
+      });
+      const store = NdjsonEventStore.createNull({
+        events: [event1, event2, event3, event4],
+      });
+
+      const events = await Array.fromAsync(
+        store.replay(
+          Query.fromItems([
+            { types: ["EventType1", "EventType2"] },
+            { tags: ["tag1", "tag2"] },
+            { types: ["EventType2", "EventType3"], tags: ["tag1", "tag3"] },
+          ]),
+        ),
+      );
+
+      expect(events).toEqual<Event[]>([event1, event2, event3]);
+    });
 
     it("should throw an error when file is corrupt", async () => {
       const store = NdjsonEventStore.create({ fileName: CORRUPTED_FILE });
