@@ -99,26 +99,26 @@ export const FormularZustand = Object.freeze({
   ANZEIGEN: "Anzeigen",
   BEARBEITEN: "Bearbeiten",
   VERARBEITEN: "Verarbeiten",
-});
+} as const);
 
-export type FormularZustandType =
+export type FormularZustand =
   (typeof FormularZustand)[keyof typeof FormularZustand];
 
 export const SendenText = Object.freeze({
   AUFNEHMEN: "Aufnehmen",
   BEARBEITEN: "Bearbeiten",
   SPEICHERN: "Speichern",
-});
+} as const);
 
-export type SendenTextType = (typeof SendenText)[keyof typeof SendenText];
+export type SendenText = (typeof SendenText)[keyof typeof SendenText];
 
 export interface State {
   patient: Partial<Patient>;
-  formularZustand: FormularZustandType;
+  formularZustand: FormularZustand;
   kannAbschicken: boolean;
   kannAbbrechen: boolean;
   istSchreibgeschuetzt: boolean;
-  sendenText: SendenTextType;
+  sendenText: SendenText;
   praxis: string[];
   anrede: string[];
   familienstand: string[];
