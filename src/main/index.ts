@@ -135,10 +135,10 @@ function createRendererToMainChannels() {
   );
 }
 
-export const createWindow = () => {
+function createWindow() {
   const mainWindow = new BrowserWindow({
-    width: 1024,
-    height: 2048,
+    width: 1440,
+    height: 960,
     ...(process.platform === "linux" ? { icon } : {}),
     webPreferences: {
       preload: path.join(__dirname, "../preload/index.js"),
@@ -150,4 +150,4 @@ export const createWindow = () => {
   } else {
     void mainWindow.loadFile(path.join(__dirname, "../renderer/index.html"));
   }
-};
+}
