@@ -1,7 +1,7 @@
 // Copyright (c) 2026 Falko Schumann. All rights reserved. MIT license.
 
-import type { EventStore } from "../domain/event_store";
-import { Query } from "../domain/event_store";
+import type { EventStore } from "../infrastructure/event_store";
+import { Query } from "../infrastructure/event_store";
 import {
   type SuchePatientQuery,
   SuchePatientQueryResult,

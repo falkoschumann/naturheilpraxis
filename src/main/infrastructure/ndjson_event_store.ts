@@ -5,16 +5,16 @@ import path from "node:path";
 import stream from "node:stream";
 
 import { OutputTracker } from "@muspellheim/shared";
+import { CloudEvent } from "cloudevents";
 
+import type { Event } from "../domain/event";
 import {
   type AppendCondition,
-  type Event,
   type EventStore,
   Query,
   type ReadOptions,
-} from "../domain/event_store";
+} from "./event_store";
 import * as ndjson from "./ndjson";
-import { CloudEvent } from "cloudevents";
 
 // TODO Write to folder instead of single file
 // TODO Write segments named by start position

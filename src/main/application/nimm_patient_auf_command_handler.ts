@@ -2,8 +2,8 @@
 
 import { Success } from "@muspellheim/shared";
 
-import type { EventStore } from "../domain/event_store";
-import { Query } from "../domain/event_store";
+import type { EventStore } from "../infrastructure/event_store";
+import { Query } from "../infrastructure/event_store";
 import {
   type NimmPatientAufCommand,
   type NimmPatientAufCommandStatus,

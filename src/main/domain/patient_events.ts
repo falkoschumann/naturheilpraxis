@@ -4,7 +4,7 @@ import Ajv from "ajv";
 import addFormats from "ajv-formats";
 import { CloudEvent, type CloudEventV1, V1 } from "cloudevents";
 
-import type { Event } from "./event_store";
+import type { Event } from "./event";
 
 export interface PatientAufgenommenV1Data {
   readonly nummer: number;

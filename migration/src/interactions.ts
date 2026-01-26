@@ -1,7 +1,7 @@
 // Copyright (c) 2025 Falko Schumann. All rights reserved. MIT license.
 
 import type { Settings } from "../../src/shared/domain/settings";
-import type { EventStore } from "../../src/main/domain/event_store";
+import type { EventStore } from "../../src/main/infrastructure/event_store";
 import { NdjsonEventStore } from "../../src/main/infrastructure/ndjson_event_store";
 import { SettingsGateway } from "../../src/main/infrastructure/settings_gateway";
 

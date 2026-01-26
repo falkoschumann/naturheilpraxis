@@ -10,11 +10,11 @@ import {
   NimmPatientAufCommand,
   type NimmPatientAufCommandStatus,
 } from "../../../src/shared/domain/nimm_patient_auf_command";
+import type { Event } from "../../../src/main/domain/event";
 import {
   type PatientAufgenommenV1Data,
   PatientAufgenommenV1Event,
 } from "../../../src/main/domain/patient_events";
-import type { Event } from "../../../src/main/domain/event_store";
 import {
   NimmPatientAufCommandDto,
   NimmPatientAufCommandStatusDto,
