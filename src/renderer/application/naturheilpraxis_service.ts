@@ -1,12 +1,9 @@
 // Copyright (c) 2025 Falko Schumann. All rights reserved. MIT license.
 
 import { useCallback, useEffect, useReducer, useState } from "react";
+
 import { Patient } from "../../shared/domain/patient";
 import { NimmPatientAufCommand } from "../../shared/domain/nimm_patient_auf_command";
-import {
-  NimmPatientAufCommandDto,
-  NimmPatientAufCommandStatusDto,
-} from "../../shared/infrastructure/nimm_patient_auf_command_dto";
 import { SuchePatientQuery } from "../../shared/domain/suche_patient_query";
 import {
   SuchePatientenQuery,
@@ -24,6 +21,10 @@ import {
   verarbeitungAbgeschlossen,
 } from "../domain/patientenkarteikarte";
 import { SettingsDto } from "../../shared/infrastructure/settings_dto";
+import {
+  NimmPatientAufCommandDto,
+  NimmPatientAufCommandStatusDto,
+} from "../../shared/infrastructure/nimm_patient_auf_command_dto";
 import {
   SuchePatientenQueryDto,
   SuchePatientenQueryResultDto,
