@@ -102,7 +102,7 @@ function createRendererToMainChannels() {
     NIMM_PATIENT_AUF_CHANNEL,
     async (_event, commandDto: NimmPatientAufCommandDto) => {
       const command = NimmPatientAufCommandDto.create(commandDto).validate();
-      const status = await nimmPatientAuf(command, eventStore);
+      const status = await nimmPatientAuf(command, { eventStore });
       return NimmPatientAufCommandStatusDto.fromModel(status);
     },
   );
@@ -110,7 +110,7 @@ function createRendererToMainChannels() {
     SUCHE_PATIENT_CHANNEL,
     async (_event, queryDto: SuchePatientQueryDto) => {
       const query = SuchePatientQueryDto.create(queryDto).validate();
-      const result = await suchePatient(query, eventStore);
+      const result = await suchePatient(query, { eventStore });
       return SuchePatientQueryResultDto.fromModel(result);
     },
   );
@@ -118,7 +118,7 @@ function createRendererToMainChannels() {
     SUCHE_PATIENTEN_CHANNEL,
     async (_event, queryDto: SuchePatientenQueryDto) => {
       const query = SuchePatientenQueryDto.create(queryDto).validate();
-      const result = await suchePatienten(query, eventStore);
+      const result = await suchePatienten(query, { eventStore });
       return SuchePatientenQueryResultDto.fromModel(result);
     },
   );

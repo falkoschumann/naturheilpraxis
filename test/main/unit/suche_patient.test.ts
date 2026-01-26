@@ -24,7 +24,7 @@ describe("Suche Patient", () => {
 
       const result = await suchePatient(
         SuchePatientQuery.create({ nummer: 9999 }),
-        eventStore,
+        { eventStore },
       );
 
       expect(result).toEqual<SuchePatientQueryResult>(
@@ -48,7 +48,7 @@ describe("Suche Patient", () => {
 
       const result = await suchePatient(
         SuchePatientQuery.create({ nummer: 2 }),
-        eventStore,
+        { eventStore },
       );
 
       expect(result).toEqual<SuchePatientQueryResult>(

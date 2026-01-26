@@ -11,9 +11,13 @@ import {
 import { projectNextPatientennummer } from "../domain/next_patientennummer_projection";
 import { PatientAufgenommenV1Event } from "../domain/patient_events";
 
+export type NimmPatientAufCommandHandlerOptions = {
+  eventStore: EventStore;
+};
+
 export async function nimmPatientAuf(
   command: NimmPatientAufCommand,
-  eventStore: EventStore,
+  { eventStore }: NimmPatientAufCommandHandlerOptions,
 ): Promise<NimmPatientAufCommandStatus> {
   const events = eventStore.replay<PatientAufgenommenV1Event>(
     Query.fromItems([{ types: [PatientAufgenommenV1Event.TYPE] }]),

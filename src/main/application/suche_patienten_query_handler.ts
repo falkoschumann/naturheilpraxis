@@ -9,9 +9,13 @@ import {
 import { projectPatienten } from "../domain/patienten_projection";
 import { PatientAufgenommenV1Event } from "../domain/patient_events";
 
+export type SuchePatientenQueryHandlerOptions = {
+  eventStore: EventStore;
+};
+
 export async function suchePatienten(
   _query: SuchePatientenQuery,
-  eventStore: EventStore,
+  { eventStore }: SuchePatientenQueryHandlerOptions,
 ) {
   const events = eventStore.replay<PatientAufgenommenV1Event>(
     Query.fromItems([{ types: [PatientAufgenommenV1Event.TYPE] }]),

@@ -29,7 +29,7 @@ describe("Nimm Patient auf", () => {
 
       const status = await nimmPatientAuf(
         NimmPatientAufCommand.createTestInstance(),
-        eventStore,
+        { eventStore },
       );
 
       expect(status).toEqual<Success<{ nummer: number }>>(
@@ -61,7 +61,7 @@ describe("Nimm Patient auf", () => {
           vorname: "Erika",
           geburtsdatum: "1985-05-05",
         }),
-        eventStore,
+        { eventStore },
       );
 
       expect(status).toEqual<Success<{ nummer: number }>>(
@@ -112,7 +112,7 @@ describe("Nimm Patient auf", () => {
           notizen: "",
           schluesselworte: [],
         }),
-        eventStore,
+        { eventStore },
       );
 
       expect(status).toEqual<Success<{ nummer: number }>>(

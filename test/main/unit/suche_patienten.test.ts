@@ -20,10 +20,9 @@ describe("Suche Patienten", () => {
     it("Sollte eine leere Liste zurückgeben, wenn es keinen Patienten gibt", async () => {
       const eventStore = NdjsonEventStore.createNull();
 
-      const result = await suchePatienten(
-        SuchePatientenQuery.create(),
+      const result = await suchePatienten(SuchePatientenQuery.create(), {
         eventStore,
-      );
+      });
 
       expect(result).toEqual<SuchePatientenQueryResult>({ patienten: [] });
     });
@@ -42,10 +41,9 @@ describe("Suche Patienten", () => {
         ],
       });
 
-      const result = await suchePatienten(
-        SuchePatientenQuery.create(),
+      const result = await suchePatienten(SuchePatientenQuery.create(), {
         eventStore,
-      );
+      });
 
       expect(result).toEqual<SuchePatientenQueryResult>({
         patienten: [
