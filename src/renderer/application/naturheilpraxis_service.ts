@@ -20,15 +20,8 @@ import {
   sendeFormular,
   verarbeitungAbgeschlossen,
 } from "../domain/patientenkarteikarte";
-import { SettingsDto } from "../../shared/infrastructure/settings_dto";
-import {
-  NimmPatientAufCommandDto,
-  NimmPatientAufCommandStatusDto,
-} from "../../shared/infrastructure/nimm_patient_auf_command_dto";
-import {
-  SuchePatientenQueryDto,
-  SuchePatientenQueryResultDto,
-} from "../../shared/infrastructure/suche_patienten_query_dto";
+
+// TODO extract slices
 
 export function usePatientenkarteikarte({ nummer }: { nummer?: number }) {
   const [state, dispatch] = useReducer(reducer, initialState);
@@ -46,7 +39,7 @@ export function usePatientenkarteikarte({ nummer }: { nummer?: number }) {
       // Cast patient from state to Patient is safe here because the form can only be sent
       // when all required fields are filled.
       const command = NimmPatientAufCommand.create(state.patient as Patient);
-      const status = await nimmPatientAuf(command);
+      const status = await window.naturheilpraxis.nimmPatientAuf(command);
       if (status.isSuccess) {
         dispatch(verarbeitungAbgeschlossen({ nummer: status.result!.nummer }));
       }
@@ -61,8 +54,7 @@ export function usePatientenkarteikarte({ nummer }: { nummer?: number }) {
 
   useEffect(() => {
     (async function () {
-      const settingsDto = await window.naturheilpraxis.loadSettings();
-      const settings = SettingsDto.create(settingsDto).validate();
+      const settings = await window.naturheilpraxis.loadSettings();
       dispatch(initialisiereFormular({ settings }));
     })();
   }, []);
@@ -74,7 +66,7 @@ export function usePatientenkarteikarte({ nummer }: { nummer?: number }) {
       }
 
       const query = SuchePatientQuery.create({ nummer });
-      const result = await queryPatientenkartei(query);
+      const result = await window.naturheilpraxis.suchePatienten(query);
       void dispatch(patientGefunden({ patient: result.patienten[0] }));
     }
 
@@ -90,29 +82,15 @@ export function usePatientenkarteikarte({ nummer }: { nummer?: number }) {
   };
 }
 
-async function nimmPatientAuf(command: NimmPatientAufCommand) {
-  const statusDto = await window.naturheilpraxis.nimmPatientAuf(
-    NimmPatientAufCommandDto.fromModel(command),
-  );
-  return NimmPatientAufCommandStatusDto.create(statusDto).validate();
-}
-
 export function usePatientenkartei(query: SuchePatientenQuery) {
   const [results, setResults] = useState(SuchePatientenQueryResult.create());
 
   useEffect(() => {
     (async function () {
-      const result = await queryPatientenkartei(query);
+      const result = await window.naturheilpraxis.suchePatienten(query);
       setResults(result);
     })();
   }, [query]);
 
   return results;
-}
-
-async function queryPatientenkartei(query: SuchePatientenQuery) {
-  const resultDto = await window.naturheilpraxis.suchePatienten(
-    SuchePatientenQueryDto.fromModel(query),
-  );
-  return SuchePatientenQueryResultDto.create(resultDto).validate();
 }

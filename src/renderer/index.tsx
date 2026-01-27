@@ -7,6 +7,7 @@ import "bootstrap";
 
 import "./ui/assets/style.scss";
 import App from "./ui/app";
+import "./naturheilpraxis";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>

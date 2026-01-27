@@ -2,6 +2,8 @@
 
 import { Patient } from "./patient";
 
+// TODO remove prefix 'Suche' from class names
+
 export class SuchePatientQuery {
   static create({ nummer }: { nummer: number }) {
     return new SuchePatientQuery(nummer);
