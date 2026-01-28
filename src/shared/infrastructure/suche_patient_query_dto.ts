@@ -31,7 +31,7 @@ export class PatientQueryDto {
 }
 
 export class PatientQueryResultDto {
-  static create({ patient }: { patient?: PatientDto }) {
+  static create({ patient }: { patient?: PatientDto } = {}) {
     return new PatientQueryResultDto(patient);
   }
 

@@ -36,6 +36,8 @@ import { SettingsDto } from "../shared/infrastructure/settings_dto";
 import { NdjsonEventStore } from "./infrastructure/ndjson_event_store";
 import icon from "../../resources/icon.png?asset";
 
+// TODO build, bind, run in program or main: index.ts at root level
+
 // TODO Make the file paths configurable
 const settingsGateway = SettingsGateway.create();
 const eventStore = NdjsonEventStore.create();
@@ -43,6 +45,7 @@ const eventStore = NdjsonEventStore.create();
 const isProduction = app.isPackaged;
 
 app.whenReady().then(async () => {
+  // TODO await initializeApplication();
   await installDevTools();
   createRendererToMainChannels();
   createWindow();

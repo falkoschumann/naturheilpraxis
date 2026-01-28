@@ -2,13 +2,12 @@
 
 import { createColumnHelper, flexRender, getCoreRowModel, type Table, useReactTable } from "@tanstack/react-table";
 import { useVirtualizer } from "@tanstack/react-virtual";
-import { type RefObject, useRef, useState } from "react";
+import { type RefObject, useRef } from "react";
 import { NavLink, useNavigate } from "react-router";
-
 import type { Patient } from "../../../../shared/domain/patient";
-import { PATIENT_AUFNEHMEN_PAGE, PATIENTENKARTEIKARTE_PAGE } from "../../components/pages";
-import { PatientenQuery } from "../../../../shared/domain/suche_patienten_query";
-import { usePatientenkartei } from "../../../application/naturheilpraxis_service";
+import { PATIENTENKARTEIKARTE_PAGE } from "../../components/pages";
+import DefaultPageLayout from "../../layouts/default_page_layout";
+import { usePatientenQueryHandler } from "../../../application/patienten_query_handler";
 
 // TODO use sorting
 
@@ -53,8 +52,8 @@ const columns = [
 ];
 
 export default function PatientenkarteiPage() {
-  const [query] = useState(PatientenQuery.create());
-  const patientenkartei = usePatientenkartei(query);
+  const [patienten] = usePatientenQueryHandler();
+
   const navigate = useNavigate();
 
   function handlePatientClick(nummer: number) {
@@ -62,25 +61,27 @@ export default function PatientenkarteiPage() {
   }
 
   return (
-    <main className="container-fluid my-4">
-      <div className="d-flex">
-        <h2 className="mb-3">Patienten</h2>
-        <div className="ms-auto">
-          <form className="d-flex" role="search">
-            <input className="form-control me-2" type="search" placeholder="Suche" aria-label="Suche" />
-            <button className="btn btn-outline-primary" type="submit">
-              Suche
-            </button>
-          </form>
+    <DefaultPageLayout>
+      <main className="container-fluid my-4">
+        <div className="d-flex">
+          <h2 className="mb-3">Patienten</h2>
+          <div className="ms-auto">
+            <form className="d-flex" role="search">
+              <input className="form-control me-2" type="search" placeholder="Suche" aria-label="Suche" />
+              <button className="btn btn-outline-primary" type="submit">
+                Suche
+              </button>
+            </form>
+          </div>
         </div>
-      </div>
-      <Table data={patientenkartei.patienten} onPatientSelect={handlePatientClick} />
-      <div className="btn-toolbar mt-3" role="toolbar" aria-label="Aktionen für Patienten">
-        <NavLink to={PATIENT_AUFNEHMEN_PAGE} type="button" className="btn btn-primary">
-          Nimm Patient auf
-        </NavLink>
-      </div>
-    </main>
+        <Table data={patienten.patienten} onPatientSelect={handlePatientClick} />
+        <div className="btn-toolbar mt-3" role="toolbar" aria-label="Aktionen für Patienten">
+          <NavLink to={PATIENTENKARTEIKARTE_PAGE} type="button" className="btn btn-primary">
+            Nimm Patient auf
+          </NavLink>
+        </div>
+      </main>
+    </DefaultPageLayout>
   );
 }
 

@@ -1,14 +1,10 @@
 // Copyright (c) 2025 Falko Schumann. All rights reserved. MIT license.
 
-import { useCallback, useEffect, useReducer, useState } from "react";
+import { useCallback, useEffect, useReducer } from "react";
 
 import { Patient } from "../../shared/domain/patient";
 import { NimmPatientAufCommand } from "../../shared/domain/nimm_patient_auf_command";
 import { PatientQuery } from "../../shared/domain/suche_patient_query";
-import {
-  PatientenQuery,
-  PatientenQueryResult,
-} from "../../shared/domain/suche_patienten_query";
 import {
   abgebrochen,
   feldAktualisiert,
@@ -85,18 +81,4 @@ export function usePatientenkarteikarte({ nummer }: { nummer?: number }) {
     handleSendeFormular,
     handleAbbrechen,
   };
-}
-
-export function usePatientenkartei(query: PatientenQuery) {
-  const [results, setResults] = useState(PatientenQueryResult.create());
-
-  useEffect(() => {
-    (async function () {
-      const gateway = MessageGateway.create();
-      const result = await gateway.suchePatienten(query);
-      setResults(result);
-    })();
-  }, [query]);
-
-  return results;
 }

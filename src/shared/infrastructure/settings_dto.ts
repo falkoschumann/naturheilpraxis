@@ -31,7 +31,7 @@ export class SettingsDto {
     familienstand?: string[];
     schluesselworte?: string[];
     standardSchluesselworte?: string[];
-  }): SettingsDto {
+  } = {}): SettingsDto {
     return new SettingsDto(
       praxis,
       anrede,

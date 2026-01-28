@@ -20,40 +20,71 @@ import { SettingsDto } from "../../shared/infrastructure/settings_dto";
 
 export class MessageGateway {
   static create() {
-    return new MessageGateway();
+    return new MessageGateway(window.naturheilpraxisIpc);
   }
 
-  private constructor() {}
+  static createNull() {
+    return new MessageGateway(new NaturheilpraxisIpcStub());
+  }
+
+  #naturheilpraxisIpc: typeof window.naturheilpraxisIpc;
+
+  private constructor(naturheilpraxisIpc: typeof window.naturheilpraxisIpc) {
+    this.#naturheilpraxisIpc = naturheilpraxisIpc;
+  }
 
   async nimmPatientAuf(command: NimmPatientAufCommand) {
-    const statusDto = await window.naturheilpraxisIpc.nimmPatientAuf(
+    const statusDto = await this.#naturheilpraxisIpc.nimmPatientAuf(
       NimmPatientAufCommandDto.fromModel(command),
     );
     return NimmPatientAufCommandStatusDto.create(statusDto).validate();
   }
 
   async suchePatient(query: PatientQuery) {
-    const resultDto = await window.naturheilpraxisIpc.suchePatient(
+    const resultDto = await this.#naturheilpraxisIpc.suchePatient(
       PatientQueryDto.fromModel(query),
     );
     return PatientQueryResultDto.create(resultDto).validate();
   }
 
   async suchePatienten(query: PatientenQuery) {
-    const resultDto = await window.naturheilpraxisIpc.suchePatienten(
+    const resultDto = await this.#naturheilpraxisIpc.suchePatienten(
       PatientenQueryDto.fromModel(query),
     );
     return PatientenQueryResultDto.create(resultDto).validate();
   }
 
   async loadSettings() {
-    const settingsDto = await window.naturheilpraxisIpc.loadSettings();
+    const settingsDto = await this.#naturheilpraxisIpc.loadSettings();
     return SettingsDto.create(settingsDto).validate();
   }
 
   async storeSettings(Settings: Settings) {
-    await window.naturheilpraxisIpc.storeSettings(
+    await this.#naturheilpraxisIpc.storeSettings(
       SettingsDto.fromModel(Settings),
     );
   }
+}
+
+class NaturheilpraxisIpcStub {
+  async nimmPatientAuf() {
+    return NimmPatientAufCommandStatusDto.create({
+      isSuccess: false,
+      errorMessage: "Called nulled command handler.",
+    });
+  }
+
+  async suchePatient() {
+    return PatientQueryResultDto.create();
+  }
+
+  async suchePatienten() {
+    return PatientenQueryResultDto.create();
+  }
+
+  async loadSettings() {
+    return SettingsDto.create();
+  }
+
+  async storeSettings() {}
 }

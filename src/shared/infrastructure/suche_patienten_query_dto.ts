@@ -27,7 +27,7 @@ export class PatientenQueryDto {
 }
 
 export class PatientenQueryResultDto {
-  static create({ patienten }: { patienten: PatientDto[] }) {
+  static create({ patienten = [] }: { patienten?: PatientDto[] } = {}) {
     return new PatientenQueryResultDto(patienten);
   }
 
