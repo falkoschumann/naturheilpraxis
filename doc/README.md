@@ -5,9 +5,6 @@ diese in Rechnung stellen zu können.
 
 ## Domain
 
-- TODO Create 1 e2e test for epic
-- TODO Test all stories with unit tests
-
 Stories für den MVP sind mit ❗ markiert.
 
 ### Patienten
