@@ -20,7 +20,7 @@ import {
   sendeFormular,
   verarbeitungAbgeschlossen,
 } from "../domain/patientenkarteikarte";
-import { MessageGateway } from "../integration/message_gateway";
+import { MessageGateway } from "../infrastructure/message_gateway";
 
 // TODO extract slices
 // TODO move UI logic to UI layer
