@@ -2,15 +2,13 @@
 
 import { Patient } from "./patient";
 
-// TODO remove prefix 'Suche' from class names
-
-export class SuchePatientQuery {
+export class PatientQuery {
   static create({ nummer }: { nummer: number }) {
-    return new SuchePatientQuery(nummer);
+    return new PatientQuery(nummer);
   }
 
   static createTestInstance({ nummer = 1 }: { nummer?: number } = {}) {
-    return SuchePatientQuery.create({ nummer });
+    return PatientQuery.create({ nummer });
   }
 
   readonly nummer: number;
@@ -20,9 +18,9 @@ export class SuchePatientQuery {
   }
 }
 
-export class SuchePatientQueryResult {
+export class PatientQueryResult {
   static create({ patient }: { patient?: Patient } = {}) {
-    return new SuchePatientQueryResult(patient);
+    return new PatientQueryResult(patient);
   }
 
   static createTestInstance({
@@ -30,7 +28,7 @@ export class SuchePatientQueryResult {
   }: {
     patient?: Patient;
   } = {}) {
-    return SuchePatientQueryResult.create({ patient });
+    return PatientQueryResult.create({ patient });
   }
 
   readonly patient?: Patient;

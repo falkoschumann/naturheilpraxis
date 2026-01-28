@@ -1,20 +1,20 @@
 // Copyright (c) 2026 Falko Schumann. All rights reserved. MIT license.
 
 import { NimmPatientAufCommand } from "../../shared/domain/nimm_patient_auf_command";
-import type { SuchePatientQuery } from "../../shared/domain/suche_patient_query";
-import type { SuchePatientenQuery } from "../../shared/domain/suche_patienten_query";
+import type { PatientQuery } from "../../shared/domain/suche_patient_query";
+import type { PatientenQuery } from "../../shared/domain/suche_patienten_query";
 import { Settings } from "../../shared/domain/settings";
 import {
   NimmPatientAufCommandDto,
   NimmPatientAufCommandStatusDto,
 } from "../../shared/infrastructure/nimm_patient_auf_command_dto";
 import {
-  SuchePatientQueryDto,
-  SuchePatientQueryResultDto,
+  PatientQueryDto,
+  PatientQueryResultDto,
 } from "../../shared/infrastructure/suche_patient_query_dto";
 import {
-  SuchePatientenQueryDto,
-  SuchePatientenQueryResultDto,
+  PatientenQueryDto,
+  PatientenQueryResultDto,
 } from "../../shared/infrastructure/suche_patienten_query_dto";
 import { SettingsDto } from "../../shared/infrastructure/settings_dto";
 
@@ -32,18 +32,18 @@ export class MessageGateway {
     return NimmPatientAufCommandStatusDto.create(statusDto).validate();
   }
 
-  async suchePatient(query: SuchePatientQuery) {
+  async suchePatient(query: PatientQuery) {
     const resultDto = await window.naturheilpraxisIpc.suchePatient(
-      SuchePatientQueryDto.fromModel(query),
+      PatientQueryDto.fromModel(query),
     );
-    return SuchePatientQueryResultDto.create(resultDto).validate();
+    return PatientQueryResultDto.create(resultDto).validate();
   }
 
-  async suchePatienten(query: SuchePatientenQuery) {
+  async suchePatienten(query: PatientenQuery) {
     const resultDto = await window.naturheilpraxisIpc.suchePatienten(
-      SuchePatientenQueryDto.fromModel(query),
+      PatientenQueryDto.fromModel(query),
     );
-    return SuchePatientenQueryResultDto.create(resultDto).validate();
+    return PatientenQueryResultDto.create(resultDto).validate();
   }
 
   async loadSettings() {

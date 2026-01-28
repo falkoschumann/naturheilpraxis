@@ -5,13 +5,13 @@ import { describe, expect, it } from "vitest";
 import { suchePatient } from "../../../src/main/application/suche_patient_query_handler";
 import { Patient } from "../../../src/shared/domain/patient";
 import {
-  SuchePatientQuery,
-  SuchePatientQueryResult,
+  PatientQuery,
+  PatientQueryResult,
 } from "../../../src/shared/domain/suche_patient_query";
 import { PatientAufgenommenV1Event } from "../../../src/main/domain/patient_events";
 import {
-  SuchePatientQueryDto,
-  SuchePatientQueryResultDto,
+  PatientQueryDto,
+  PatientQueryResultDto,
 } from "../../../src/shared/infrastructure/suche_patient_query_dto";
 import { NdjsonEventStore } from "../../../src/main/infrastructure/ndjson_event_store";
 
@@ -22,14 +22,11 @@ describe("Suche Patient", () => {
         events: [PatientAufgenommenV1Event.createTestInstance()],
       });
 
-      const result = await suchePatient(
-        SuchePatientQuery.create({ nummer: 9999 }),
-        { eventStore },
-      );
+      const result = await suchePatient(PatientQuery.create({ nummer: 9999 }), {
+        eventStore,
+      });
 
-      expect(result).toEqual<SuchePatientQueryResult>(
-        SuchePatientQueryResult.create(),
-      );
+      expect(result).toEqual<PatientQueryResult>(PatientQueryResult.create());
     });
 
     it("sollte Patient finden", async () => {
@@ -46,13 +43,12 @@ describe("Suche Patient", () => {
         ],
       });
 
-      const result = await suchePatient(
-        SuchePatientQuery.create({ nummer: 2 }),
-        { eventStore },
-      );
+      const result = await suchePatient(PatientQuery.create({ nummer: 2 }), {
+        eventStore,
+      });
 
-      expect(result).toEqual<SuchePatientQueryResult>(
-        SuchePatientQueryResult.create({
+      expect(result).toEqual<PatientQueryResult>(
+        PatientQueryResult.create({
           patient: Patient.createTestInstance({
             nummer: 2,
             vorname: "Erika",
@@ -64,52 +60,48 @@ describe("Suche Patient", () => {
 
   describe("Mapping suche Patient Query", () => {
     it("sollte DTO aus Model erstellen", () => {
-      const model = SuchePatientQuery.createTestInstance();
+      const model = PatientQuery.createTestInstance();
 
-      const dto = SuchePatientQueryDto.fromModel(model);
+      const dto = PatientQueryDto.fromModel(model);
 
-      expect(dto).toEqual<SuchePatientQueryDto>(
-        SuchePatientQueryDto.createTestInstance(),
+      expect(dto).toEqual<PatientQueryDto>(
+        PatientQueryDto.createTestInstance(),
       );
     });
 
     it("sollte Model aus DTO erstellen", () => {
-      const dto = SuchePatientQueryDto.createTestInstance();
+      const dto = PatientQueryDto.createTestInstance();
 
       const model = dto.validate();
 
-      expect(model).toEqual<SuchePatientQuery>(
-        SuchePatientQuery.createTestInstance(),
-      );
+      expect(model).toEqual<PatientQuery>(PatientQuery.createTestInstance());
     });
   });
 
   describe("Mapping suche Patient Query Result", () => {
     it("sollte leeres Result erstellen", () => {
-      const dto = SuchePatientQueryResult.create();
+      const dto = PatientQueryResult.create();
 
-      expect(dto).toEqual<SuchePatientQueryResult>(
-        SuchePatientQueryResult.create(),
-      );
+      expect(dto).toEqual<PatientQueryResult>(PatientQueryResult.create());
     });
 
     it("sollte DTO aus Model erstellen", () => {
-      const model = SuchePatientQueryResult.createTestInstance();
+      const model = PatientQueryResult.createTestInstance();
 
-      const dto = SuchePatientQueryResultDto.fromModel(model);
+      const dto = PatientQueryResultDto.fromModel(model);
 
-      expect(dto).toEqual<SuchePatientQueryResultDto>(
-        SuchePatientQueryResultDto.createTestInstance(),
+      expect(dto).toEqual<PatientQueryResultDto>(
+        PatientQueryResultDto.createTestInstance(),
       );
     });
 
     it("sollte Model aus DTO erstellen", () => {
-      const dto = SuchePatientQueryResultDto.createTestInstance();
+      const dto = PatientQueryResultDto.createTestInstance();
 
       const model = dto.validate();
 
-      expect(model).toEqual<SuchePatientQueryResult>(
-        SuchePatientQueryResult.createTestInstance(),
+      expect(model).toEqual<PatientQueryResult>(
+        PatientQueryResult.createTestInstance(),
       );
     });
   });

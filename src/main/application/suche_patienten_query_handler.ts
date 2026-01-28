@@ -3,8 +3,8 @@
 import type { EventStore } from "../infrastructure/event_store";
 import { Query } from "../infrastructure/event_store";
 import {
-  type SuchePatientenQuery,
-  SuchePatientenQueryResult,
+  type PatientenQuery,
+  PatientenQueryResult,
 } from "../../shared/domain/suche_patienten_query";
 import { projectPatienten } from "../domain/patienten_projection";
 import { PatientAufgenommenV1Event } from "../domain/patient_events";
@@ -14,12 +14,12 @@ export type SuchePatientenQueryHandlerOptions = {
 };
 
 export async function suchePatienten(
-  _query: SuchePatientenQuery,
+  _query: PatientenQuery,
   { eventStore }: SuchePatientenQueryHandlerOptions,
 ) {
   const events = eventStore.replay<PatientAufgenommenV1Event>(
     Query.fromItems([{ types: [PatientAufgenommenV1Event.TYPE] }]),
   );
   const patienten = await projectPatienten(events);
-  return SuchePatientenQueryResult.create({ patienten });
+  return PatientenQueryResult.create({ patienten });
 }

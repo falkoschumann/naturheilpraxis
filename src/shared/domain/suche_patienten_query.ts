@@ -2,21 +2,21 @@
 
 import { Patient } from "./patient";
 
-export class SuchePatientenQuery {
+export class PatientenQuery {
   static create() {
-    return new SuchePatientenQuery();
+    return new PatientenQuery();
   }
 
   static createTestInstance() {
-    return SuchePatientenQuery.create();
+    return PatientenQuery.create();
   }
 
   private constructor() {}
 }
 
-export class SuchePatientenQueryResult {
+export class PatientenQueryResult {
   static create({ patienten = [] }: { patienten?: Patient[] } = {}) {
-    return new SuchePatientenQueryResult(patienten);
+    return new PatientenQueryResult(patienten);
   }
 
   static createTestInstance({
@@ -33,7 +33,7 @@ export class SuchePatientenQueryResult {
   }: {
     patienten?: Patient[];
   } = {}) {
-    return SuchePatientenQueryResult.create({ patienten });
+    return PatientenQueryResult.create({ patienten });
   }
 
   readonly patienten: Patient[];

@@ -7,7 +7,7 @@ import { NavLink, useNavigate } from "react-router";
 
 import type { Patient } from "../../../../shared/domain/patient";
 import { PATIENT_AUFNEHMEN_PAGE, PATIENTENKARTEIKARTE_PAGE } from "../../components/pages";
-import { SuchePatientenQuery } from "../../../../shared/domain/suche_patienten_query";
+import { PatientenQuery } from "../../../../shared/domain/suche_patienten_query";
 import { usePatientenkartei } from "../../../application/naturheilpraxis_service";
 
 // TODO use sorting
@@ -53,7 +53,7 @@ const columns = [
 ];
 
 export default function PatientenkarteiPage() {
-  const [query] = useState(SuchePatientenQuery.create());
+  const [query] = useState(PatientenQuery.create());
   const patientenkartei = usePatientenkartei(query);
   const navigate = useNavigate();
 

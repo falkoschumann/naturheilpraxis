@@ -4,10 +4,10 @@ import { useCallback, useEffect, useReducer, useState } from "react";
 
 import { Patient } from "../../shared/domain/patient";
 import { NimmPatientAufCommand } from "../../shared/domain/nimm_patient_auf_command";
-import { SuchePatientQuery } from "../../shared/domain/suche_patient_query";
+import { PatientQuery } from "../../shared/domain/suche_patient_query";
 import {
-  SuchePatientenQuery,
-  SuchePatientenQueryResult,
+  PatientenQuery,
+  PatientenQueryResult,
 } from "../../shared/domain/suche_patienten_query";
 import {
   abgebrochen,
@@ -69,7 +69,7 @@ export function usePatientenkarteikarte({ nummer }: { nummer?: number }) {
         return;
       }
 
-      const query = SuchePatientQuery.create({ nummer });
+      const query = PatientQuery.create({ nummer });
       const gateway = MessageGateway.create();
       const result = await gateway.suchePatienten(query);
       void dispatch(patientGefunden({ patient: result.patienten[0] }));
@@ -87,8 +87,8 @@ export function usePatientenkarteikarte({ nummer }: { nummer?: number }) {
   };
 }
 
-export function usePatientenkartei(query: SuchePatientenQuery) {
-  const [results, setResults] = useState(SuchePatientenQueryResult.create());
+export function usePatientenkartei(query: PatientenQuery) {
+  const [results, setResults] = useState(PatientenQueryResult.create());
 
   useEffect(() => {
     (async function () {

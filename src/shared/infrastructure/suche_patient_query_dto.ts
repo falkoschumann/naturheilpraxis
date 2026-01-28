@@ -1,22 +1,22 @@
 // Copyright (c) 2025 Falko Schumann. All rights reserved. MIT license.
 
 import {
-  SuchePatientQuery,
-  SuchePatientQueryResult,
+  PatientQuery,
+  PatientQueryResult,
 } from "../domain/suche_patient_query";
 import { PatientDto } from "./patient_dto";
 
-export class SuchePatientQueryDto {
+export class PatientQueryDto {
   static create({ nummer }: { nummer: number }) {
-    return new SuchePatientQueryDto(nummer);
+    return new PatientQueryDto(nummer);
   }
 
   static createTestInstance({ nummer = 1 }: { nummer?: number } = {}) {
-    return SuchePatientQueryDto.create({ nummer });
+    return PatientQueryDto.create({ nummer });
   }
 
-  static fromModel(model: SuchePatientQuery): SuchePatientQueryDto {
-    return SuchePatientQueryDto.create(model);
+  static fromModel(model: PatientQuery): PatientQueryDto {
+    return PatientQueryDto.create(model);
   }
 
   readonly nummer: number;
@@ -25,14 +25,14 @@ export class SuchePatientQueryDto {
     this.nummer = nummer;
   }
 
-  validate(): SuchePatientQuery {
-    return SuchePatientQuery.create(this);
+  validate(): PatientQuery {
+    return PatientQuery.create(this);
   }
 }
 
-export class SuchePatientQueryResultDto {
+export class PatientQueryResultDto {
   static create({ patient }: { patient?: PatientDto }) {
-    return new SuchePatientQueryResultDto(patient);
+    return new PatientQueryResultDto(patient);
   }
 
   static createTestInstance({
@@ -42,20 +42,18 @@ export class SuchePatientQueryResultDto {
     }),
   }: {
     patient?: PatientDto;
-  } = {}): SuchePatientQueryResultDto {
-    return SuchePatientQueryResultDto.create({ patient });
+  } = {}): PatientQueryResultDto {
+    return PatientQueryResultDto.create({ patient });
   }
 
-  static fromModel(
-    result: SuchePatientQueryResult,
-  ): SuchePatientQueryResultDto {
+  static fromModel(result: PatientQueryResult): PatientQueryResultDto {
     const patient = result.patient
       ? PatientDto.create({
           ...result.patient,
           geburtsdatum: result.patient.geburtsdatum.toString(),
         })
       : undefined;
-    return SuchePatientQueryResultDto.create({ patient });
+    return PatientQueryResultDto.create({ patient });
   }
 
   readonly patient?: PatientDto;
@@ -64,10 +62,10 @@ export class SuchePatientQueryResultDto {
     this.patient = patient;
   }
 
-  validate(): SuchePatientQueryResult {
+  validate(): PatientQueryResult {
     const patient = this.patient
       ? PatientDto.create(this.patient).validate()
       : undefined;
-    return SuchePatientQueryResult.create({ patient });
+    return PatientQueryResult.create({ patient });
   }
 }

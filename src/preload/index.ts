@@ -14,12 +14,12 @@ import type {
   NimmPatientAufCommandStatusDto,
 } from "../shared/infrastructure/nimm_patient_auf_command_dto";
 import {
-  SuchePatientQueryDto,
-  type SuchePatientQueryResultDto,
+  PatientQueryDto,
+  type PatientQueryResultDto,
 } from "../shared/infrastructure/suche_patient_query_dto";
 import {
-  type SuchePatientenQueryDto,
-  SuchePatientenQueryResultDto,
+  type PatientenQueryDto,
+  PatientenQueryResultDto,
 } from "../shared/infrastructure/suche_patienten_query_dto";
 import type { SettingsDto } from "../shared/infrastructure/settings_dto";
 
@@ -29,14 +29,12 @@ contextBridge.exposeInMainWorld("naturheilpraxisIpc", {
   ): Promise<NimmPatientAufCommandStatusDto> =>
     ipcRenderer.invoke(NIMM_PATIENT_AUF_CHANNEL, command),
 
-  suchePatient: (
-    query: SuchePatientQueryDto,
-  ): Promise<SuchePatientQueryResultDto> =>
+  suchePatient: (query: PatientQueryDto): Promise<PatientQueryResultDto> =>
     ipcRenderer.invoke(SUCHE_PATIENT_CHANNEL, query),
 
   suchePatienten: (
-    query: SuchePatientenQueryDto,
-  ): Promise<SuchePatientenQueryResultDto> =>
+    query: PatientenQueryDto,
+  ): Promise<PatientenQueryResultDto> =>
     ipcRenderer.invoke(SUCHE_PATIENTEN_CHANNEL, query),
 
   loadSettings: (): Promise<SettingsDto> =>

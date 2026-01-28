@@ -24,12 +24,12 @@ import {
   NimmPatientAufCommandStatusDto,
 } from "../shared/infrastructure/nimm_patient_auf_command_dto";
 import {
-  SuchePatientQueryDto,
-  SuchePatientQueryResultDto,
+  PatientQueryDto,
+  PatientQueryResultDto,
 } from "../shared/infrastructure/suche_patient_query_dto";
 import {
-  SuchePatientenQueryDto,
-  SuchePatientenQueryResultDto,
+  PatientenQueryDto,
+  PatientenQueryResultDto,
 } from "../shared/infrastructure/suche_patienten_query_dto";
 import { SettingsGateway } from "./infrastructure/settings_gateway";
 import { SettingsDto } from "../shared/infrastructure/settings_dto";
@@ -108,18 +108,18 @@ function createRendererToMainChannels() {
   );
   ipcMain.handle(
     SUCHE_PATIENT_CHANNEL,
-    async (_event, queryDto: SuchePatientQueryDto) => {
-      const query = SuchePatientQueryDto.create(queryDto).validate();
+    async (_event, queryDto: PatientQueryDto) => {
+      const query = PatientQueryDto.create(queryDto).validate();
       const result = await suchePatient(query, { eventStore });
-      return SuchePatientQueryResultDto.fromModel(result);
+      return PatientQueryResultDto.fromModel(result);
     },
   );
   ipcMain.handle(
     SUCHE_PATIENTEN_CHANNEL,
-    async (_event, queryDto: SuchePatientenQueryDto) => {
-      const query = SuchePatientenQueryDto.create(queryDto).validate();
+    async (_event, queryDto: PatientenQueryDto) => {
+      const query = PatientenQueryDto.create(queryDto).validate();
       const result = await suchePatienten(query, { eventStore });
-      return SuchePatientenQueryResultDto.fromModel(result);
+      return PatientenQueryResultDto.fromModel(result);
     },
   );
   ipcMain.handle(LOAD_SETTINGS_CHANNEL, async (_event) => {
