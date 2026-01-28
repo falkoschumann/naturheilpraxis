@@ -20,8 +20,10 @@ import {
   sendeFormular,
   verarbeitungAbgeschlossen,
 } from "../domain/patientenkarteikarte";
+import { MessageGateway } from "../integration/message_gateway";
 
 // TODO extract slices
+// TODO move UI logic to UI layer
 
 export function usePatientenkarteikarte({ nummer }: { nummer?: number }) {
   const [state, dispatch] = useReducer(reducer, initialState);
@@ -39,7 +41,8 @@ export function usePatientenkarteikarte({ nummer }: { nummer?: number }) {
       // Cast patient from state to Patient is safe here because the form can only be sent
       // when all required fields are filled.
       const command = NimmPatientAufCommand.create(state.patient as Patient);
-      const status = await window.naturheilpraxis.nimmPatientAuf(command);
+      const gateway = MessageGateway.create();
+      const status = await gateway.nimmPatientAuf(command);
       if (status.isSuccess) {
         dispatch(verarbeitungAbgeschlossen({ nummer: status.result!.nummer }));
       }
@@ -54,7 +57,8 @@ export function usePatientenkarteikarte({ nummer }: { nummer?: number }) {
 
   useEffect(() => {
     (async function () {
-      const settings = await window.naturheilpraxis.loadSettings();
+      const gateway = MessageGateway.create();
+      const settings = await gateway.loadSettings();
       dispatch(initialisiereFormular({ settings }));
     })();
   }, []);
@@ -66,7 +70,8 @@ export function usePatientenkarteikarte({ nummer }: { nummer?: number }) {
       }
 
       const query = SuchePatientQuery.create({ nummer });
-      const result = await window.naturheilpraxis.suchePatienten(query);
+      const gateway = MessageGateway.create();
+      const result = await gateway.suchePatienten(query);
       void dispatch(patientGefunden({ patient: result.patienten[0] }));
     }
 
@@ -87,7 +92,8 @@ export function usePatientenkartei(query: SuchePatientenQuery) {
 
   useEffect(() => {
     (async function () {
-      const result = await window.naturheilpraxis.suchePatienten(query);
+      const gateway = MessageGateway.create();
+      const result = await gateway.suchePatienten(query);
       setResults(result);
     })();
   }, [query]);
