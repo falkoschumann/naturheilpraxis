@@ -29,14 +29,5 @@ jobs:
         uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
-      # WORKAROUND Setup Node.js also
-      #   Some packages like vite and vitest use node directly. We can override
-      #   that by using bunx --bun. But bun currently is missing support for
-      #   node:inspector, needed for vitest coverage reports.
-      #   See https://github.com/oven-sh/bun/issues/2445
-      - name: Setup Node.js LTS
-        uses: actions/setup-node@v6
-        with:
-          node-version: "lts/*"
       - name: Build
         run: make
