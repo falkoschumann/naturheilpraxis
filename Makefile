@@ -5,7 +5,7 @@ PLANTUML_FILES = $(wildcard doc/*.puml)
 DIAGRAM_FILES = $(subst .puml,.png,$(PLANTUML_FILES))
 RUNTIME=bun
 PACKAGE_MANAGER=bun
-PACKAGE_RUNNER=bunx
+PACKAGE_RUNNER=bunx --bun
 ifeq ("$(shell command -v $(RUNTIME))", "")
     $(warning "$(COMMAND) is not available. Fallback to Node.js and npm.")
 	RUNTIME=node
