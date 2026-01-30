@@ -23,7 +23,7 @@ import {
 } from "../shared/infrastructure/suche_patienten_query_dto";
 import type { SettingsDto } from "../shared/infrastructure/settings_dto";
 
-contextBridge.exposeInMainWorld("naturheilpraxisIpc", {
+contextBridge.exposeInMainWorld("naturheilpraxis", {
   nimmPatientAuf: (
     command: NimmPatientAufCommandDto,
   ): Promise<NimmPatientAufCommandStatusDto> =>

@@ -20,53 +20,51 @@ import { SettingsDto } from "../../shared/infrastructure/settings_dto";
 
 export class MessageGateway {
   static create() {
-    return new MessageGateway(window.naturheilpraxisIpc);
+    return new MessageGateway(window.naturheilpraxis);
   }
 
   static createNull() {
-    return new MessageGateway(new NaturheilpraxisIpcStub());
+    return new MessageGateway(new naturheilpraxisStub());
   }
 
-  #naturheilpraxisIpc: typeof window.naturheilpraxisIpc;
+  #naturheilpraxis: typeof window.naturheilpraxis;
 
-  private constructor(naturheilpraxisIpc: typeof window.naturheilpraxisIpc) {
-    this.#naturheilpraxisIpc = naturheilpraxisIpc;
+  private constructor(naturheilpraxis: typeof window.naturheilpraxis) {
+    this.#naturheilpraxis = naturheilpraxis;
   }
 
   async nimmPatientAuf(command: NimmPatientAufCommand) {
-    const statusDto = await this.#naturheilpraxisIpc.nimmPatientAuf(
+    const statusDto = await this.#naturheilpraxis.nimmPatientAuf(
       NimmPatientAufCommandDto.fromModel(command),
     );
     return NimmPatientAufCommandStatusDto.create(statusDto).validate();
   }
 
   async suchePatient(query: PatientQuery) {
-    const resultDto = await this.#naturheilpraxisIpc.suchePatient(
+    const resultDto = await this.#naturheilpraxis.suchePatient(
       PatientQueryDto.fromModel(query),
     );
     return PatientQueryResultDto.create(resultDto).validate();
   }
 
   async suchePatienten(query: PatientenQuery) {
-    const resultDto = await this.#naturheilpraxisIpc.suchePatienten(
+    const resultDto = await this.#naturheilpraxis.suchePatienten(
       PatientenQueryDto.fromModel(query),
     );
     return PatientenQueryResultDto.create(resultDto).validate();
   }
 
   async loadSettings() {
-    const settingsDto = await this.#naturheilpraxisIpc.loadSettings();
+    const settingsDto = await this.#naturheilpraxis.loadSettings();
     return SettingsDto.create(settingsDto).validate();
   }
 
-  async storeSettings(Settings: Settings) {
-    await this.#naturheilpraxisIpc.storeSettings(
-      SettingsDto.fromModel(Settings),
-    );
+  async storeSettings(settings: Settings) {
+    await this.#naturheilpraxis.storeSettings(SettingsDto.fromModel(settings));
   }
 }
 
-class NaturheilpraxisIpcStub {
+class naturheilpraxisStub {
   async nimmPatientAuf() {
     return NimmPatientAufCommandStatusDto.create({
       isSuccess: false,

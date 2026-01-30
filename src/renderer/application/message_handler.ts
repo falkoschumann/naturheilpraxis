@@ -1,5 +1,6 @@
 // Copyright (c) 2026 Falko Schumann. All rights reserved. MIT license.
 
+import type { Settings } from "../../shared/domain/settings";
 import type { NimmPatientAufCommand } from "../../shared/domain/nimm_patient_auf_command";
 import type { PatientQuery } from "../../shared/domain/suche_patient_query";
 import type { PatientenQuery } from "../../shared/domain/suche_patienten_query";
@@ -20,15 +21,23 @@ export class MessageHandler {
     this.#messageGateway = message;
   }
 
-  nimmPatientAuf(command: NimmPatientAufCommand) {
+  async nimmPatientAuf(command: NimmPatientAufCommand) {
     return this.#messageGateway.nimmPatientAuf(command);
   }
 
-  suchePatient(query: PatientQuery) {
+  async suchePatient(query: PatientQuery) {
     return this.#messageGateway.suchePatient(query);
   }
 
-  suchePatienten(query: PatientenQuery) {
+  async suchePatienten(query: PatientenQuery) {
     return this.#messageGateway.suchePatienten(query);
+  }
+
+  async loadSettings() {
+    return this.#messageGateway.loadSettings();
+  }
+
+  async storeSettings(settings: Settings) {
+    await this.#messageGateway.storeSettings(settings);
   }
 }

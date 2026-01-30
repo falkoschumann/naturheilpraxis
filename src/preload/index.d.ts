@@ -1,6 +1,6 @@
 // Copyright (c) 2025 Falko Schumann. All rights reserved. MIT license.
 
-export interface NaturheilpraxisIpc {
+export interface Naturheilpraxis {
   nimmPatientAuf(
     command: NimmPatientAufCommandDto,
   ): Promise<NimmPatientAufCommandStatusDto>;
@@ -16,6 +16,6 @@ export interface NaturheilpraxisIpc {
 
 declare global {
   interface Window {
-    naturheilpraxisIpc: NaturheilpraxisIpc;
+    naturheilpraxis: Naturheilpraxis;
   }
 }
