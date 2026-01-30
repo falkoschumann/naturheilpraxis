@@ -3,8 +3,8 @@
 import { Temporal } from "@js-temporal/polyfill";
 import type { FluxStandardActionAuto } from "flux-standard-action";
 
-import { Patient } from "../../shared/domain/patient";
-import type { Settings } from "../../shared/domain/settings";
+import { Patient } from "../../../../shared/domain/patient";
+import type { Settings } from "../../../../shared/domain/settings";
 
 // region Actions and Action Creators
 
@@ -146,6 +146,7 @@ export const initialState: State = {
 export function reducer(state: State, action: Action): State {
   switch (action.type) {
     case INITIALISIERE_FORMULAR_ACTION:
+      // TODO split apply settings and Patient aufnehmen
       return {
         patient: {
           annahmejahr: Temporal.Now.plainDateISO().year,

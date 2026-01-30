@@ -4,55 +4,16 @@ import { createColumnHelper, flexRender, getCoreRowModel, type Table, useReactTa
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { type RefObject, useRef } from "react";
 import { NavLink, useNavigate } from "react-router";
+
+import { usePatienten } from "../../../application/patienten_query_handler";
 import type { Patient } from "../../../../shared/domain/patient";
 import { PATIENTENKARTEIKARTE_PAGE } from "../../components/pages";
 import DefaultPageLayout from "../../layouts/default_page_layout";
-import { usePatientenQueryHandler } from "../../../application/patienten_query_handler";
 
 // TODO use sorting
 
-const columnHelper = createColumnHelper<Patient>();
-const columns = [
-  columnHelper.accessor("nummer", { header: "#", size: 80 }),
-  columnHelper.accessor("anrede", { header: "Anrede", size: 80 }),
-  columnHelper.accessor("nachname", { header: "Nachname" }),
-  columnHelper.accessor("vorname", { header: "Vorname" }),
-  columnHelper.accessor("geburtsdatum", {
-    header: "Geburtsdatum",
-    cell: (info) => info.getValue().toLocaleString(undefined, { dateStyle: "medium" }),
-  }),
-  columnHelper.accessor("strasse", { header: "Straße", size: 200 }),
-  columnHelper.accessor("postleitzahl", { header: "PLZ", size: 80 }),
-  columnHelper.accessor("wohnort", { header: "Wohnort" }),
-  columnHelper.accessor("telefon", {
-    header: "Telefon",
-    cell: (info) => (
-      <a href={`tel:${info.getValue()}`} onClick={(event) => event.stopPropagation()}>
-        {info.getValue()}
-      </a>
-    ),
-  }),
-  columnHelper.accessor("mobil", {
-    header: "Mobil",
-    cell: (info) => (
-      <a href={`tel:${info.getValue()}`} onClick={(event) => event.stopPropagation()}>
-        {info.getValue()}
-      </a>
-    ),
-  }),
-  columnHelper.accessor("eMail", {
-    header: "E-Mail",
-    size: 250,
-    cell: (info) => (
-      <a href={`mailto:${info.getValue()}`} onClick={(event) => event.stopPropagation()}>
-        {info.getValue()}
-      </a>
-    ),
-  }),
-];
-
 export default function PatientenkarteiPage() {
-  const [patienten] = usePatientenQueryHandler();
+  const [patienten] = usePatienten();
 
   const navigate = useNavigate();
 
@@ -166,3 +127,43 @@ function TableBody({
     </tbody>
   );
 }
+
+const columnHelper = createColumnHelper<Patient>();
+const columns = [
+  columnHelper.accessor("nummer", { header: "#", size: 80 }),
+  columnHelper.accessor("anrede", { header: "Anrede", size: 80 }),
+  columnHelper.accessor("nachname", { header: "Nachname" }),
+  columnHelper.accessor("vorname", { header: "Vorname" }),
+  columnHelper.accessor("geburtsdatum", {
+    header: "Geburtsdatum",
+    cell: (info) => info.getValue().toLocaleString(undefined, { dateStyle: "medium" }),
+  }),
+  columnHelper.accessor("strasse", { header: "Straße", size: 200 }),
+  columnHelper.accessor("postleitzahl", { header: "PLZ", size: 80 }),
+  columnHelper.accessor("wohnort", { header: "Wohnort" }),
+  columnHelper.accessor("telefon", {
+    header: "Telefon",
+    cell: (info) => (
+      <a href={`tel:${info.getValue()}`} onClick={(event) => event.stopPropagation()}>
+        {info.getValue()}
+      </a>
+    ),
+  }),
+  columnHelper.accessor("mobil", {
+    header: "Mobil",
+    cell: (info) => (
+      <a href={`tel:${info.getValue()}`} onClick={(event) => event.stopPropagation()}>
+        {info.getValue()}
+      </a>
+    ),
+  }),
+  columnHelper.accessor("eMail", {
+    header: "E-Mail",
+    size: 250,
+    cell: (info) => (
+      <a href={`mailto:${info.getValue()}`} onClick={(event) => event.stopPropagation()}>
+        {info.getValue()}
+      </a>
+    ),
+  }),
+];

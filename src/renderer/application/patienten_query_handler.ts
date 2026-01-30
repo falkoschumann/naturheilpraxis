@@ -8,10 +8,7 @@ import {
 } from "../../shared/domain/suche_patienten_query";
 import { useMessageHandler } from "./message_handler_context";
 
-export function usePatientenQueryHandler(): [
-  PatientenQueryResult,
-  (query: PatientenQuery) => Promise<void>,
-] {
+export function usePatienten() {
   const [patienten, setPatienten] = useState(PatientenQueryResult.create());
   const messageHandler = useMessageHandler();
 
@@ -23,10 +20,13 @@ export function usePatientenQueryHandler(): [
     [messageHandler],
   );
 
-  useEffect(
-    () => (() => void suchePatienten(PatientenQuery.create()))(),
-    [suchePatienten],
-  );
+  useEffect(() => {
+    async function runAsync() {
+      void suchePatienten(PatientenQuery.create());
+    }
 
-  return [patienten, suchePatienten];
+    void runAsync();
+  }, [suchePatienten]);
+
+  return [patienten, suchePatienten] as const;
 }

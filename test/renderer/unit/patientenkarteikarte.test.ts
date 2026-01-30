@@ -17,7 +17,7 @@ import {
   SendenText,
   type State,
   verarbeitungAbgeschlossen,
-} from "../../../src/renderer/domain/patientenkarteikarte";
+} from "../../../src/renderer/ui/pages/patientenkarteikarte/reducer";
 
 const aufnahmeState: State = {
   patient: {
