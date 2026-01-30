@@ -6,14 +6,7 @@ export default defineConfig({
   test: {
     coverage: {
       enabled: true,
-      include: [
-        "src/**/application/**/*",
-        "src/**/common/**/*",
-        "src/**/domain/**/*",
-        "src/**/infrastructure/**/*",
-        // exclude layers UI and root
-      ],
-      provider: "v8",
+      provider: "istanbul",
       thresholds: {
         statements: 85,
         branches: 85,
