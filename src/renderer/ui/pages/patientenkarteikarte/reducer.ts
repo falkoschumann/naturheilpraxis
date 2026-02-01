@@ -1,42 +1,35 @@
 // Copyright (c) 2025 Falko Schumann. All rights reserved. MIT license.
 
-import { Temporal } from "@js-temporal/polyfill";
 import type { FluxStandardActionAuto } from "flux-standard-action";
 
 import { Patient } from "../../../../shared/domain/patient";
-import type { Settings } from "../../../../shared/domain/settings";
 
 // region Actions and Action Creators
 
-const INITIALISIERE_FORMULAR_ACTION = "initialisiereFormular";
+const INITIALISIERE_PATIENTENDATEN_ACTION = "initialisierePatientendaten";
 
-type InitialisiereFormularPayload = {
-  settings: Settings;
-};
+type InitialisierePatientendatenPayload = Partial<Patient>;
 
-export function initialisiereFormular(
-  payload: InitialisiereFormularPayload,
+export function initialisierePatientendaten(
+  payload: InitialisierePatientendatenPayload = {},
 ): FluxStandardActionAuto<
-  typeof INITIALISIERE_FORMULAR_ACTION,
-  InitialisiereFormularPayload
+  typeof INITIALISIERE_PATIENTENDATEN_ACTION,
+  InitialisierePatientendatenPayload
 > {
-  return { type: INITIALISIERE_FORMULAR_ACTION, payload };
+  return { type: INITIALISIERE_PATIENTENDATEN_ACTION, payload };
 }
 
-const FELD_AKTUALISIERT_ACTION = "feldAktualisiert";
+const AKTUALISIERE_FELD_ACTION = "aktualisiereFeld";
 
-type FeldAktualisiertPayload = {
-  feld: keyof Patient;
-  wert?: unknown;
-};
+type AktualisiereFeldPayload = Partial<Patient>;
 
-export function feldAktualisiert(
-  payload: FeldAktualisiertPayload,
+export function aktualisiereFeld(
+  payload: AktualisiereFeldPayload,
 ): FluxStandardActionAuto<
-  typeof FELD_AKTUALISIERT_ACTION,
-  FeldAktualisiertPayload
+  typeof AKTUALISIERE_FELD_ACTION,
+  AktualisiereFeldPayload
 > {
-  return { type: FELD_AKTUALISIERT_ACTION, payload };
+  return { type: AKTUALISIERE_FELD_ACTION, payload };
 }
 
 const SENDE_FORMULAR_ACTION = "sendeFormular";
@@ -47,97 +40,89 @@ export function sendeFormular(): FluxStandardActionAuto<
   return { type: SENDE_FORMULAR_ACTION, payload: undefined };
 }
 
+const BRICH_BEARBEITUNG_AB_ACTION = "brichBearbeitungAb";
+
+export function brichBearbeitungAb(): FluxStandardActionAuto<
+  typeof BRICH_BEARBEITUNG_AB_ACTION
+> {
+  return { type: BRICH_BEARBEITUNG_AB_ACTION, payload: undefined };
+}
+
 const VERARBEITUNG_ABGESCHLOSSEN_ACTION = "verarbeitungAbgeschlossen";
 
-type VerarbeitungAbgeschlossenPayload = {
-  nummer?: number;
-};
+type VerarbeitungAbgeschlossenPayload = { nummer?: number };
 
-export function verarbeitungAbgeschlossen({
-  nummer,
-}: VerarbeitungAbgeschlossenPayload): FluxStandardActionAuto<
+export function verarbeitungAbgeschlossen(
+  payload: VerarbeitungAbgeschlossenPayload = {},
+): FluxStandardActionAuto<
   typeof VERARBEITUNG_ABGESCHLOSSEN_ACTION,
   VerarbeitungAbgeschlossenPayload
 > {
-  return { type: VERARBEITUNG_ABGESCHLOSSEN_ACTION, payload: { nummer } };
+  return { type: VERARBEITUNG_ABGESCHLOSSEN_ACTION, payload };
 }
 
-const ABGEBROCHEN_ACTION = "abgebrochen";
+const ZEIGE_PATIENTENDATEN_AN_ACTION = "zeigePatientendatenAn";
 
-export function abgebrochen(): FluxStandardActionAuto<
-  typeof ABGEBROCHEN_ACTION
-> {
-  return { type: ABGEBROCHEN_ACTION, payload: undefined };
-}
+type ZeigePatientendatenAnPayload = Patient;
 
-const PATIENT_GEFUNDEN_ACTION = "patientGefunden";
-
-type PatientGefundenPayload = { patient?: Patient };
-
-export function patientGefunden(
-  payload: PatientGefundenPayload,
+export function zeigePatientendatenAn(
+  payload: ZeigePatientendatenAnPayload,
 ): FluxStandardActionAuto<
-  typeof PATIENT_GEFUNDEN_ACTION,
-  PatientGefundenPayload
+  typeof ZEIGE_PATIENTENDATEN_AN_ACTION,
+  ZeigePatientendatenAnPayload
 > {
-  return { type: PATIENT_GEFUNDEN_ACTION, payload };
+  return { type: ZEIGE_PATIENTENDATEN_AN_ACTION, payload };
+}
+
+const BEARBEITE_PATIENTENDATEN_ACTION = "bearbeitePatientendaten";
+
+export function bearbeitePatientendaten(): FluxStandardActionAuto<
+  typeof BEARBEITE_PATIENTENDATEN_ACTION
+> {
+  return { type: BEARBEITE_PATIENTENDATEN_ACTION, payload: undefined };
 }
 
 export type Action =
-  | ReturnType<typeof initialisiereFormular>
-  | ReturnType<typeof feldAktualisiert>
+  | ReturnType<typeof initialisierePatientendaten>
+  | ReturnType<typeof aktualisiereFeld>
   | ReturnType<typeof sendeFormular>
+  | ReturnType<typeof brichBearbeitungAb>
   | ReturnType<typeof verarbeitungAbgeschlossen>
-  | ReturnType<typeof abgebrochen>
-  | ReturnType<typeof patientGefunden>;
+  | ReturnType<typeof zeigePatientendatenAn>
+  | ReturnType<typeof bearbeitePatientendaten>;
 
 // endregion
 // region State
 
 export const FormularZustand = Object.freeze({
-  AUFNEHMEN: "Aufnehmen",
-  ANZEIGEN: "Anzeigen",
-  BEARBEITEN: "Bearbeiten",
-  VERARBEITEN: "Verarbeiten",
+  START: "Start",
+  AUFNAHME: "Aufnahme",
+  VERARBEITUNG: "Verarbeitung",
+  ANZEIGE: "Anzeige",
+  BEARBEITUNG: "Bearbeitung",
 } as const);
 
 export type FormularZustand =
   (typeof FormularZustand)[keyof typeof FormularZustand];
 
-export const SendenText = Object.freeze({
-  AUFNEHMEN: "Aufnehmen",
-  BEARBEITEN: "Bearbeiten",
-  SPEICHERN: "Speichern",
-} as const);
-
-export type SendenText = (typeof SendenText)[keyof typeof SendenText];
-
 export interface State {
   patient: Partial<Patient>;
-  formularZustand: FormularZustand;
-  kannAbschicken: boolean;
-  kannAbbrechen: boolean;
-  istSchreibgeschuetzt: boolean;
-  sendenText: SendenText;
-  praxis: string[];
-  anrede: string[];
-  familienstand: string[];
-  schluesselworte: string[];
-  standardSchluesselworte: string[];
+  prevPatient: Partial<Patient>;
+  zustand: FormularZustand;
+  nurLesen: boolean;
+  sendenText: "Aufnehmen" | "Bearbeiten" | "Speichern";
+  sendenDeaktiviert: boolean;
+  abbrechenDeaktiviert: boolean;
 }
 
 export const initialState: State = {
   patient: {},
-  formularZustand: FormularZustand.AUFNEHMEN,
-  kannAbschicken: false,
-  kannAbbrechen: false,
-  istSchreibgeschuetzt: false,
-  sendenText: SendenText.AUFNEHMEN,
-  praxis: [],
-  anrede: [],
-  familienstand: [],
-  schluesselworte: [],
-  standardSchluesselworte: [],
+  prevPatient: {},
+  zustand: FormularZustand.START,
+  nurLesen: true,
+  sendenText: "Bearbeiten",
+  sendenDeaktiviert: true,
+  abbrechenDeaktiviert: true,
 };
 
 // endregion
@@ -145,139 +130,105 @@ export const initialState: State = {
 
 export function reducer(state: State, action: Action): State {
   switch (action.type) {
-    case INITIALISIERE_FORMULAR_ACTION:
-      // TODO split apply settings and Patient aufnehmen
+    case INITIALISIERE_PATIENTENDATEN_ACTION:
       return {
-        patient: {
-          annahmejahr: Temporal.Now.plainDateISO().year,
-          praxis: action.payload.settings.praxis[0],
-          schluesselworte: action.payload.settings.standardSchluesselworte,
-        },
-        formularZustand: FormularZustand.AUFNEHMEN,
-        kannAbschicken: false,
-        kannAbbrechen: false,
-        istSchreibgeschuetzt: false,
+        ...state,
+        patient: { ...action.payload },
+        prevPatient: { ...action.payload },
+        zustand: FormularZustand.AUFNAHME,
+        nurLesen: false,
         sendenText: "Aufnehmen",
-        praxis: action.payload.settings.praxis,
-        anrede: action.payload.settings.anrede,
-        familienstand: action.payload.settings.familienstand,
-        schluesselworte: action.payload.settings.schluesselworte,
-        standardSchluesselworte:
-          action.payload.settings.standardSchluesselworte,
+        sendenDeaktiviert: true,
+        abbrechenDeaktiviert: true,
       };
-    case FELD_AKTUALISIERT_ACTION: {
+    case AKTUALISIERE_FELD_ACTION: {
       const patient = {
         ...state.patient,
-        [action.payload.feld]: action.payload.wert,
+        ...action.payload,
       };
-      const canSubmit =
-        patient.nachname != null &&
-        patient.nachname.trim().length > 0 &&
-        patient.vorname != null &&
-        patient.vorname.trim().length > 0 &&
-        patient.geburtsdatum != null &&
-        Temporal.PlainDate.compare(patient.geburtsdatum, "0001-01-01") >= 0 &&
-        Number.isInteger(patient.annahmejahr) &&
-        patient.praxis != null &&
-        patient.praxis.trim().length > 0;
-      const canCancel = true;
       return {
         ...state,
         patient,
-        kannAbschicken: canSubmit,
-        kannAbbrechen: canCancel,
+        sendenDeaktiviert: !validiereFormular(patient),
+        abbrechenDeaktiviert: false,
       };
     }
     case SENDE_FORMULAR_ACTION:
-      switch (state.formularZustand) {
-        case FormularZustand.AUFNEHMEN:
-        case FormularZustand.BEARBEITEN:
-          return {
-            ...state,
-            formularZustand: FormularZustand.VERARBEITEN,
-            kannAbschicken: false,
-            kannAbbrechen: false,
-            istSchreibgeschuetzt: true,
-          };
-        case FormularZustand.ANZEIGEN:
-          return {
-            ...state,
-            formularZustand: FormularZustand.BEARBEITEN,
-            kannAbschicken: false,
-            kannAbbrechen: true,
-            istSchreibgeschuetzt: false,
-            sendenText: "Speichern",
-          };
-        default:
-          throw new Error(
-            `Unexpected status in patientenkarteikarte reducer: ${state.formularZustand}`,
-          );
-      }
+      return {
+        ...state,
+        zustand: FormularZustand.VERARBEITUNG,
+        nurLesen: true,
+        sendenDeaktiviert: true,
+        abbrechenDeaktiviert: true,
+      };
+    case BRICH_BEARBEITUNG_AB_ACTION:
+      return {
+        ...state,
+        patient: { ...state.prevPatient },
+        zustand:
+          state.zustand === FormularZustand.AUFNAHME
+            ? FormularZustand.AUFNAHME
+            : FormularZustand.ANZEIGE,
+        nurLesen: state.zustand !== FormularZustand.AUFNAHME,
+        sendenText:
+          state.zustand === FormularZustand.AUFNAHME
+            ? "Aufnehmen"
+            : "Bearbeiten",
+        sendenDeaktiviert: true,
+        abbrechenDeaktiviert: true,
+      };
     case VERARBEITUNG_ABGESCHLOSSEN_ACTION:
       return {
         ...state,
         patient: {
           ...state.patient,
-          nummer: action.payload?.nummer || state.patient.nummer,
+          nummer: state.patient.nummer ?? action.payload.nummer,
         },
-        formularZustand: FormularZustand.ANZEIGEN,
-        kannAbschicken: true,
-        istSchreibgeschuetzt: true,
-        sendenText: SendenText.BEARBEITEN,
+        prevPatient: {
+          ...state.patient,
+          nummer: state.patient.nummer ?? action.payload.nummer,
+        },
+        zustand: FormularZustand.ANZEIGE,
+        nurLesen: true,
+        sendenText: "Bearbeiten",
+        sendenDeaktiviert: false,
       };
-    case ABGEBROCHEN_ACTION:
-      if (state.formularZustand === FormularZustand.AUFNEHMEN) {
-        return {
-          ...state,
-          patient: {
-            annahmejahr: new Date().getFullYear(),
-            praxis: state.praxis[0],
-            schluesselworte: state.standardSchluesselworte,
-          },
-          kannAbschicken: false,
-          kannAbbrechen: false,
-        };
-      } else {
-        return {
-          ...state,
-          formularZustand: FormularZustand.ANZEIGEN,
-          kannAbschicken: true,
-          kannAbbrechen: false,
-          istSchreibgeschuetzt: true,
-          sendenText: SendenText.BEARBEITEN,
-        };
-      }
-    case PATIENT_GEFUNDEN_ACTION:
-      if (action.payload.patient != null) {
-        return {
-          ...state,
-          patient: action.payload.patient,
-          formularZustand: FormularZustand.ANZEIGEN,
-          kannAbschicken: true,
-          kannAbbrechen: false,
-          istSchreibgeschuetzt: true,
-          sendenText: SendenText.BEARBEITEN,
-        };
-      } else {
-        return {
-          ...state,
-          patient: {
-            annahmejahr: Temporal.Now.plainDateISO().year,
-            praxis: state.praxis[0],
-            schluesselworte: state.standardSchluesselworte,
-          },
-          formularZustand: FormularZustand.AUFNEHMEN,
-          kannAbschicken: false,
-          kannAbbrechen: false,
-          istSchreibgeschuetzt: false,
-          sendenText: SendenText.AUFNEHMEN,
-        };
-      }
+    case ZEIGE_PATIENTENDATEN_AN_ACTION:
+      return {
+        ...state,
+        patient: { ...action.payload },
+        prevPatient: { ...action.payload },
+        zustand: FormularZustand.ANZEIGE,
+        nurLesen: true,
+        sendenText: "Bearbeiten",
+        sendenDeaktiviert: false,
+        abbrechenDeaktiviert: true,
+      };
+    case BEARBEITE_PATIENTENDATEN_ACTION:
+      return {
+        ...state,
+        zustand: FormularZustand.BEARBEITUNG,
+        nurLesen: false,
+        sendenText: "Speichern",
+        abbrechenDeaktiviert: false,
+      };
     default:
-      throw new Error(
-        `Unhandled action in patientenkarteikarte reducer: ${JSON.stringify(action)}.`,
-      );
+      return state;
   }
+}
+
+function validiereFormular(patient: Partial<Patient>): boolean {
+  return (
+    patient.geburtsdatum != null &&
+    patient.annahmejahr != null &&
+    Number.isInteger(patient.annahmejahr) &&
+    patient.praxis != null &&
+    patient.praxis.trim().length > 0 &&
+    patient.vorname != null &&
+    patient.vorname.trim().length > 0 &&
+    patient.nachname != null &&
+    patient.nachname.trim().length > 0
+  );
 }
 
 // endregion

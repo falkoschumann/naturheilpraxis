@@ -13,7 +13,7 @@ import DefaultPageLayout from "../../layouts/default_page_layout";
 // TODO use sorting
 
 export default function PatientenkarteiPage() {
-  const [patienten] = usePatienten();
+  const [result] = usePatienten();
 
   const navigate = useNavigate();
 
@@ -35,7 +35,7 @@ export default function PatientenkarteiPage() {
             </form>
           </div>
         </div>
-        <Table data={patienten.patienten} onPatientSelect={handlePatientClick} />
+        <Table data={result.patienten} onPatientSelect={handlePatientClick} />
         <div className="btn-toolbar mt-3" role="toolbar" aria-label="Aktionen für Patienten">
           <NavLink to={PATIENTENKARTEIKARTE_PAGE} type="button" className="btn btn-primary">
             Nimm Patient auf

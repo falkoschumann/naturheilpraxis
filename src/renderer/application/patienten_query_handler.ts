@@ -9,13 +9,13 @@ import {
 import { useMessageHandler } from "./message_handler_context";
 
 export function usePatienten() {
-  const [patienten, setPatienten] = useState(PatientenQueryResult.create());
+  const [result, setResult] = useState(PatientenQueryResult.create());
   const messageHandler = useMessageHandler();
 
   const suchePatienten = useCallback(
     async (query: PatientenQuery) => {
       const result = await messageHandler.suchePatienten(query);
-      setPatienten(result);
+      setResult(result);
     },
     [messageHandler],
   );
@@ -28,5 +28,5 @@ export function usePatienten() {
     void runAsync();
   }, [suchePatienten]);
 
-  return [patienten, suchePatienten] as const;
+  return [result, suchePatienten] as const;
 }

@@ -1,252 +1,557 @@
 // Copyright (c) 2025 Falko Schumann. All rights reserved. MIT license.
 
-import { Temporal } from "@js-temporal/polyfill";
 import { describe, expect, it } from "vitest";
 
-import { Settings } from "../../../src/shared/domain/settings";
-import type { Patient } from "../../../src/shared/domain/patient";
+import { Patient } from "../../../src/shared/domain/patient";
 import {
-  abgebrochen,
-  feldAktualisiert,
+  aktualisiereFeld,
+  bearbeitePatientendaten,
+  brichBearbeitungAb,
   FormularZustand,
-  initialisiereFormular,
+  initialisierePatientendaten,
   initialState,
-  patientGefunden,
   reducer,
   sendeFormular,
-  SendenText,
   type State,
   verarbeitungAbgeschlossen,
+  zeigePatientendatenAn,
 } from "../../../src/renderer/ui/pages/patientenkarteikarte/reducer";
-
-const aufnahmeState: State = {
-  patient: {
-    annahmejahr: Temporal.Now.plainDateISO().year,
-    praxis: "Praxis 1",
-    schluesselworte: ["Aktiv", "Weihnachtskarte"],
-  },
-  formularZustand: FormularZustand.AUFNEHMEN,
-  kannAbschicken: false,
-  kannAbbrechen: false,
-  istSchreibgeschuetzt: false,
-  sendenText: SendenText.AUFNEHMEN,
-  praxis: ["Praxis 1", "Praxis 2"],
-  anrede: ["Herr", "Frau", "Fräulein"],
-  familienstand: ["ledig", "verheiratet", "geschieden", "verwitwet"],
-  schluesselworte: ["Aktiv", "Weihnachtskarte", "Geburtstagskarte"],
-  standardSchluesselworte: ["Aktiv", "Weihnachtskarte"],
-};
-
-const aufnahmeAusgefuelltState: State = {
-  ...aufnahmeState,
-  patient: {
-    ...aufnahmeState.patient,
-    geburtsdatum: Temporal.PlainDate.from("1980-01-01"),
-    vorname: "Max",
-    nachname: "Mustermann",
-  },
-  formularZustand: FormularZustand.AUFNEHMEN,
-  kannAbschicken: true,
-  kannAbbrechen: true,
-  istSchreibgeschuetzt: false,
-  sendenText: "Aufnehmen",
-};
-
-const aufnahmeVerarbeitenState: State = {
-  ...aufnahmeAusgefuelltState,
-  formularZustand: FormularZustand.VERARBEITEN,
-  kannAbschicken: false,
-  kannAbbrechen: false,
-  istSchreibgeschuetzt: true,
-  sendenText: SendenText.AUFNEHMEN,
-};
-
-const anzeigenState: State = {
-  ...aufnahmeState,
-  patient: {
-    ...aufnahmeState.patient,
-    nummer: 1,
-    geburtsdatum: Temporal.PlainDate.from("1980-01-01"),
-    vorname: "Max",
-    nachname: "Mustermann",
-  },
-  formularZustand: FormularZustand.ANZEIGEN,
-  kannAbschicken: true,
-  kannAbbrechen: false,
-  istSchreibgeschuetzt: true,
-  sendenText: SendenText.BEARBEITEN,
-};
-
-const bearbeitungState: State = {
-  ...anzeigenState,
-  formularZustand: FormularZustand.BEARBEITEN,
-  kannAbschicken: false,
-  kannAbbrechen: true,
-  istSchreibgeschuetzt: false,
-  sendenText: SendenText.SPEICHERN,
-};
-
-const bearbeitungVerarbeitenState: State = {
-  ...bearbeitungState,
-  formularZustand: FormularZustand.VERARBEITEN,
-  kannAbschicken: false,
-  kannAbbrechen: false,
-  istSchreibgeschuetzt: true,
-  sendenText: SendenText.SPEICHERN,
-};
+import { Temporal } from "@js-temporal/polyfill";
 
 describe("Patientenkarteikarte", () => {
-  describe("Initialisiere Formular", () => {
-    it("sollte initialisieren", () => {
+  it("should return state for unknown action", () => {
+    let state = initialState;
+
+    // @ts-expect-error invalid action
+    state = reducer(state, { type: "UNKNOWN_ACTION", payload: undefined });
+
+    expect(state).toBe(initialState);
+  });
+
+  describe("Start", () => {
+    it("sollte Patientendaten initialisieren", () => {
       let state = initialState;
 
       state = reducer(
         state,
-        initialisiereFormular({
-          settings: Settings.createTestInstance(),
+        initialisierePatientendaten({
+          annahmejahr: 2026,
+          praxis: "Test-Praxis",
+          schluesselworte: ["Test-Schlüsselwort"],
         }),
       );
 
-      expect(state).toEqual<State>(aufnahmeState);
+      expect(state).toEqual<State>({
+        patient: {
+          annahmejahr: 2026,
+          praxis: "Test-Praxis",
+          schluesselworte: ["Test-Schlüsselwort"],
+        },
+        prevPatient: {
+          annahmejahr: 2026,
+          praxis: "Test-Praxis",
+          schluesselworte: ["Test-Schlüsselwort"],
+        },
+        zustand: FormularZustand.AUFNAHME,
+        nurLesen: false,
+        sendenText: "Aufnehmen",
+        sendenDeaktiviert: true,
+        abbrechenDeaktiviert: true,
+      });
     });
-  });
 
-  describe("Feld aktualisiert", () => {
-    it("sollte Formular als gültig markieren, wenn alle erforderlichen Felder ausgefüllt sind", () => {
-      const log: State[] = [];
-      let state = aufnahmeState;
+    it("sollte Patientendaten anzeigen", () => {
+      let state = initialState;
 
       state = reducer(
         state,
-        feldAktualisiert({
-          feld: "geburtsdatum",
-          wert: Temporal.PlainDate.from("1980-01-01"),
+        zeigePatientendatenAn(Patient.createTestInstance()),
+      );
+
+      expect(state).toEqual<State>({
+        patient: Patient.createTestInstance(),
+        prevPatient: Patient.createTestInstance(),
+        zustand: FormularZustand.ANZEIGE,
+        nurLesen: true,
+        sendenText: "Bearbeiten",
+        sendenDeaktiviert: false,
+        abbrechenDeaktiviert: true,
+      });
+    });
+  });
+
+  describe("Aufnahme", () => {
+    it("sollte Feld aktualisieren wenn Formular ist ungültig", () => {
+      let state: State = {
+        patient: {
+          annahmejahr: 2026,
+          praxis: "Test-Praxis",
+        },
+        prevPatient: {
+          annahmejahr: 2026,
+          praxis: "Test-Praxis",
+        },
+        zustand: FormularZustand.AUFNAHME,
+        nurLesen: false,
+        sendenText: "Aufnehmen",
+        sendenDeaktiviert: true,
+        abbrechenDeaktiviert: true,
+      };
+
+      state = reducer(state, aktualisiereFeld({ annahmejahr: 2016 }));
+      state = reducer(state, aktualisiereFeld({ nachname: "Mustermann" }));
+      state = reducer(state, aktualisiereFeld({ annahmejahr: 2016 }));
+
+      expect(state).toEqual<State>({
+        patient: {
+          annahmejahr: 2016,
+          praxis: "Test-Praxis",
+          nachname: "Mustermann",
+        },
+        prevPatient: {
+          annahmejahr: 2026,
+          praxis: "Test-Praxis",
+        },
+        zustand: FormularZustand.AUFNAHME,
+        nurLesen: false,
+        sendenText: "Aufnehmen",
+        sendenDeaktiviert: true,
+        abbrechenDeaktiviert: false,
+      });
+    });
+
+    it("sollte Feld aktualisieren wenn Formular ist gültig", () => {
+      let state: State = {
+        patient: {
+          annahmejahr: 2026,
+          praxis: "Test-Praxis",
+        },
+        prevPatient: {
+          annahmejahr: 2026,
+          praxis: "Test-Praxis",
+        },
+        zustand: FormularZustand.AUFNAHME,
+        nurLesen: false,
+        sendenText: "Aufnehmen",
+        sendenDeaktiviert: true,
+        abbrechenDeaktiviert: true,
+      };
+
+      state = reducer(state, aktualisiereFeld({ annahmejahr: 2016 }));
+      state = reducer(state, aktualisiereFeld({ nachname: "Mustermann" }));
+      state = reducer(state, aktualisiereFeld({ annahmejahr: 2016 }));
+      state = reducer(state, aktualisiereFeld({ vorname: "Max" }));
+      state = reducer(state, aktualisiereFeld({ nachname: "Mustermann" }));
+      state = reducer(
+        state,
+        aktualisiereFeld({
+          geburtsdatum: Temporal.PlainDate.from("1990-01-01"),
         }),
       );
-      log.push(state);
-      state = reducer(
-        state,
-        feldAktualisiert({ feld: "vorname", wert: "Max" }),
-      );
-      log.push(state);
-      state = reducer(
-        state,
-        feldAktualisiert({ feld: "nachname", wert: "Mustermann" }),
-      );
-      log.push(state);
 
-      expect(log).toEqual<State[]>([
-        {
-          ...aufnahmeState,
-          patient: {
-            ...aufnahmeState.patient,
-            geburtsdatum: Temporal.PlainDate.from("1980-01-01"),
-          },
-          kannAbschicken: false,
-          kannAbbrechen: true,
+      expect(state).toEqual<State>({
+        patient: {
+          annahmejahr: 2016,
+          praxis: "Test-Praxis",
+          vorname: "Max",
+          nachname: "Mustermann",
+          geburtsdatum: Temporal.PlainDate.from("1990-01-01"),
         },
-        {
-          ...aufnahmeState,
-          patient: {
-            ...aufnahmeState.patient,
-            geburtsdatum: Temporal.PlainDate.from("1980-01-01"),
-            vorname: "Max",
-          },
-          kannAbschicken: false,
-          kannAbbrechen: true,
+        prevPatient: {
+          annahmejahr: 2026,
+          praxis: "Test-Praxis",
         },
-        aufnahmeAusgefuelltState,
-      ]);
+        zustand: FormularZustand.AUFNAHME,
+        nurLesen: false,
+        sendenText: "Aufnehmen",
+        sendenDeaktiviert: false,
+        abbrechenDeaktiviert: false,
+      });
+    });
+
+    it("sollte Formular senden", () => {
+      let state: State = {
+        patient: {
+          annahmejahr: 2016,
+          praxis: "Test-Praxis",
+          nachname: "Mustermann",
+        },
+        prevPatient: {
+          annahmejahr: 2026,
+          praxis: "Test-Praxis",
+        },
+        zustand: FormularZustand.AUFNAHME,
+        nurLesen: false,
+        sendenText: "Aufnehmen",
+        sendenDeaktiviert: false,
+        abbrechenDeaktiviert: false,
+      };
+
+      state = reducer(state, sendeFormular());
+
+      expect(state).toEqual<State>({
+        patient: {
+          annahmejahr: 2016,
+          praxis: "Test-Praxis",
+          nachname: "Mustermann",
+        },
+        prevPatient: {
+          annahmejahr: 2026,
+          praxis: "Test-Praxis",
+        },
+        zustand: FormularZustand.VERARBEITUNG,
+        nurLesen: true,
+        sendenText: "Aufnehmen",
+        sendenDeaktiviert: true,
+        abbrechenDeaktiviert: true,
+      });
+    });
+
+    it("sollte Aufnahme abbrechen", () => {
+      let state: State = {
+        patient: {
+          annahmejahr: 2016,
+          praxis: "Test-Praxis",
+          nachname: "Mustermann",
+        },
+        prevPatient: {
+          annahmejahr: 2026,
+          praxis: "Test-Praxis",
+        },
+        zustand: FormularZustand.AUFNAHME,
+        nurLesen: false,
+        sendenText: "Aufnehmen",
+        sendenDeaktiviert: false,
+        abbrechenDeaktiviert: false,
+      };
+
+      state = reducer(state, brichBearbeitungAb());
+
+      expect(state).toEqual<State>({
+        patient: {
+          annahmejahr: 2026,
+          praxis: "Test-Praxis",
+        },
+        prevPatient: {
+          annahmejahr: 2026,
+          praxis: "Test-Praxis",
+        },
+        zustand: FormularZustand.AUFNAHME,
+        nurLesen: false,
+        sendenText: "Aufnehmen",
+        sendenDeaktiviert: true,
+        abbrechenDeaktiviert: true,
+      });
     });
   });
 
-  describe("Sende Formular", () => {
-    it("sollte ausgefülltes Aufnahmeformular verarbeiten", () => {
-      let state = aufnahmeAusgefuelltState;
-
-      state = reducer(state, sendeFormular());
-
-      expect(state).toEqual<State>(aufnahmeVerarbeitenState);
-    });
-
-    it("sollte Bearbeiten aktivieren", () => {
-      let state = anzeigenState;
-
-      state = reducer(state, sendeFormular());
-
-      expect(state).toEqual<State>(bearbeitungState);
-    });
-
-    it("sollte bearbeitetes Formular verarbeiten", () => {
-      let state = bearbeitungState;
-
-      state = reducer(state, sendeFormular());
-
-      expect(state).toEqual<State>(bearbeitungVerarbeitenState);
-    });
-  });
-
-  describe("Verarbeitung abgeschlossen", () => {
-    it("sollte Aufnehmen abschließen", () => {
-      let state = aufnahmeVerarbeitenState;
+  describe("Verarbeitung", () => {
+    it("sollte Verarbeitung abschließen, wenn Patient aufgenommen wird", () => {
+      let state: State = {
+        patient: {
+          annahmejahr: 2016,
+          praxis: "Test-Praxis",
+          nachname: "Mustermann",
+        },
+        prevPatient: {
+          annahmejahr: 2026,
+          praxis: "Test-Praxis",
+        },
+        zustand: FormularZustand.VERARBEITUNG,
+        nurLesen: true,
+        sendenText: "Aufnehmen",
+        sendenDeaktiviert: true,
+        abbrechenDeaktiviert: true,
+      };
 
       state = reducer(state, verarbeitungAbgeschlossen({ nummer: 1 }));
 
-      expect(state).toEqual<State>(anzeigenState);
+      expect(state).toEqual<State>({
+        patient: {
+          annahmejahr: 2016,
+          praxis: "Test-Praxis",
+          nachname: "Mustermann",
+          nummer: 1,
+        },
+        prevPatient: {
+          annahmejahr: 2016,
+          praxis: "Test-Praxis",
+          nachname: "Mustermann",
+          nummer: 1,
+        },
+        zustand: FormularZustand.ANZEIGE,
+        nurLesen: true,
+        sendenText: "Bearbeiten",
+        sendenDeaktiviert: false,
+        abbrechenDeaktiviert: true,
+      });
     });
 
-    it("sollte Bearbeiten abschließen", () => {
-      let state: State = bearbeitungVerarbeitenState;
+    it("sollte Verarbeitung abschließen, wenn Patient bearbeitet wird", () => {
+      let state: State = {
+        patient: {
+          annahmejahr: 2016,
+          praxis: "Test-Praxis",
+          nachname: "Mustermann",
+          nummer: 2,
+        },
+        prevPatient: {
+          annahmejahr: 2026,
+          praxis: "Test-Praxis",
+          nummer: 2,
+        },
+        zustand: FormularZustand.VERARBEITUNG,
+        nurLesen: false,
+        sendenText: "Speichern",
+        sendenDeaktiviert: true,
+        abbrechenDeaktiviert: true,
+      };
 
-      state = reducer(state, verarbeitungAbgeschlossen({}));
+      state = reducer(state, verarbeitungAbgeschlossen({ nummer: 1 }));
 
-      expect(state).toEqual<State>(anzeigenState);
+      expect(state).toEqual<State>({
+        patient: {
+          annahmejahr: 2016,
+          praxis: "Test-Praxis",
+          nachname: "Mustermann",
+          nummer: 2,
+        },
+        prevPatient: {
+          annahmejahr: 2016,
+          praxis: "Test-Praxis",
+          nachname: "Mustermann",
+          nummer: 2,
+        },
+        zustand: FormularZustand.ANZEIGE,
+        nurLesen: true,
+        sendenText: "Bearbeiten",
+        sendenDeaktiviert: false,
+        abbrechenDeaktiviert: true,
+      });
     });
   });
 
-  describe("Eingabe abgebrochen", () => {
-    it("sollte Aufnahme abbrechen", () => {
-      let state = aufnahmeAusgefuelltState;
+  describe("Anzeige", () => {
+    it("sollte Patientendaten bearbeiten", () => {
+      let state: State = {
+        patient: {
+          annahmejahr: 2016,
+          praxis: "Test-Praxis",
+          nachname: "Mustermann",
+          nummer: 2,
+        },
+        prevPatient: {
+          annahmejahr: 2016,
+          praxis: "Test-Praxis",
+          nachname: "Mustermann",
+          nummer: 2,
+        },
+        zustand: FormularZustand.ANZEIGE,
+        nurLesen: true,
+        sendenText: "Bearbeiten",
+        sendenDeaktiviert: true,
+        abbrechenDeaktiviert: true,
+      };
+
+      state = reducer(state, bearbeitePatientendaten());
+
+      expect(state).toEqual<State>({
+        patient: {
+          annahmejahr: 2016,
+          praxis: "Test-Praxis",
+          nachname: "Mustermann",
+          nummer: 2,
+        },
+        prevPatient: {
+          annahmejahr: 2016,
+          praxis: "Test-Praxis",
+          nachname: "Mustermann",
+          nummer: 2,
+        },
+        zustand: FormularZustand.BEARBEITUNG,
+        nurLesen: false,
+        sendenText: "Speichern",
+        sendenDeaktiviert: true,
+        abbrechenDeaktiviert: false,
+      });
+    });
+  });
+
+  describe("Bearbeiten", () => {
+    it("sollte Feld aktualisieren und Formular ist nicht gültig", () => {
+      let state: State = {
+        patient: {
+          annahmejahr: 2026,
+          praxis: "Test-Praxis",
+          nummer: 2,
+        },
+        prevPatient: {
+          annahmejahr: 2026,
+          praxis: "Test-Praxis",
+          nummer: 2,
+        },
+        zustand: FormularZustand.BEARBEITUNG,
+        nurLesen: false,
+        sendenText: "Speichern",
+        sendenDeaktiviert: true,
+        abbrechenDeaktiviert: false,
+      };
+
+      state = reducer(state, aktualisiereFeld({ annahmejahr: 2016 }));
+      state = reducer(state, aktualisiereFeld({ nachname: "Mustermann" }));
+
+      expect(state).toEqual<State>({
+        patient: {
+          annahmejahr: 2016,
+          praxis: "Test-Praxis",
+          nachname: "Mustermann",
+          nummer: 2,
+        },
+        prevPatient: {
+          annahmejahr: 2026,
+          praxis: "Test-Praxis",
+          nummer: 2,
+        },
+        zustand: FormularZustand.BEARBEITUNG,
+        nurLesen: false,
+        sendenText: "Speichern",
+        sendenDeaktiviert: true,
+        abbrechenDeaktiviert: false,
+      });
+    });
+
+    it("sollte Feld aktualisieren und Formular ist gültig", () => {
+      let state: State = {
+        patient: {
+          annahmejahr: 2026,
+          praxis: "Test-Praxis",
+          nummer: 2,
+        },
+        prevPatient: {
+          annahmejahr: 2026,
+          praxis: "Test-Praxis",
+          nummer: 2,
+        },
+        zustand: FormularZustand.BEARBEITUNG,
+        nurLesen: false,
+        sendenText: "Speichern",
+        sendenDeaktiviert: true,
+        abbrechenDeaktiviert: false,
+      };
+
+      state = reducer(state, aktualisiereFeld({ annahmejahr: 2016 }));
+      state = reducer(state, aktualisiereFeld({ vorname: "Max" }));
+      state = reducer(state, aktualisiereFeld({ nachname: "Mustermann" }));
       state = reducer(
         state,
-        feldAktualisiert({ feld: "vorname", wert: "Erika" }),
+        aktualisiereFeld({
+          geburtsdatum: Temporal.PlainDate.from("1990-01-01"),
+        }),
       );
 
-      state = reducer(state, abgebrochen());
-
-      expect(state).toEqual<State>(aufnahmeState);
+      expect(state).toEqual<State>({
+        patient: {
+          annahmejahr: 2016,
+          praxis: "Test-Praxis",
+          vorname: "Max",
+          nachname: "Mustermann",
+          geburtsdatum: Temporal.PlainDate.from("1990-01-01"),
+          nummer: 2,
+        },
+        prevPatient: {
+          annahmejahr: 2026,
+          praxis: "Test-Praxis",
+          nummer: 2,
+        },
+        zustand: FormularZustand.BEARBEITUNG,
+        nurLesen: false,
+        sendenText: "Speichern",
+        sendenDeaktiviert: false,
+        abbrechenDeaktiviert: false,
+      });
     });
 
-    it("sollte Bearbeiten abbrechen", () => {
-      let state = bearbeitungState;
-      // TODO discard changes
-      //state = reducer(
-      //  state,
-      //  feldAktualisiert({ feld: "vorname", wert: "Erika" }),
-      //);
+    it("sollte Formular senden", () => {
+      let state: State = {
+        patient: {
+          nummer: 2,
+          annahmejahr: 2016,
+          praxis: "Test-Praxis",
+          nachname: "Mustermann",
+        },
+        prevPatient: {
+          annahmejahr: 2026,
+          praxis: "Test-Praxis",
+          nummer: 2,
+        },
+        zustand: FormularZustand.BEARBEITUNG,
+        nurLesen: false,
+        sendenText: "Speichern",
+        sendenDeaktiviert: false,
+        abbrechenDeaktiviert: false,
+      };
 
-      state = reducer(state, abgebrochen());
+      state = reducer(state, sendeFormular());
 
-      expect(state).toEqual<State>(anzeigenState);
+      expect(state).toEqual<State>({
+        patient: {
+          nummer: 2,
+          annahmejahr: 2016,
+          praxis: "Test-Praxis",
+          nachname: "Mustermann",
+        },
+        prevPatient: {
+          annahmejahr: 2026,
+          praxis: "Test-Praxis",
+          nummer: 2,
+        },
+        zustand: FormularZustand.VERARBEITUNG,
+        nurLesen: true,
+        sendenText: "Speichern",
+        sendenDeaktiviert: true,
+        abbrechenDeaktiviert: true,
+      });
     });
-  });
 
-  describe("Patient gefunden", () => {
-    it("sollte Patient finden", () => {
-      let state = aufnahmeState;
-      const patient = anzeigenState.patient as Patient;
+    it("sollte Bearbeitung abbrechen", () => {
+      let state: State = {
+        patient: {
+          nummer: 2,
+          annahmejahr: 2016,
+          praxis: "Test-Praxis",
+          nachname: "Mustermann",
+        },
+        prevPatient: {
+          annahmejahr: 2026,
+          praxis: "Test-Praxis",
+          nummer: 2,
+        },
+        zustand: FormularZustand.BEARBEITUNG,
+        nurLesen: false,
+        sendenText: "Speichern",
+        sendenDeaktiviert: false,
+        abbrechenDeaktiviert: false,
+      };
 
-      state = reducer(state, patientGefunden({ patient }));
+      state = reducer(state, brichBearbeitungAb());
 
-      expect(state).toEqual<State>(anzeigenState);
-    });
-
-    it("sollte Patient nicht finden", () => {
-      let state = aufnahmeState;
-
-      state = reducer(state, patientGefunden({ patient: undefined }));
-
-      expect(state).toEqual<State>(aufnahmeState);
+      expect(state).toEqual<State>({
+        patient: {
+          annahmejahr: 2026,
+          praxis: "Test-Praxis",
+          nummer: 2,
+        },
+        prevPatient: {
+          annahmejahr: 2026,
+          praxis: "Test-Praxis",
+          nummer: 2,
+        },
+        zustand: FormularZustand.ANZEIGE,
+        nurLesen: true,
+        sendenText: "Bearbeiten",
+        sendenDeaktiviert: true,
+        abbrechenDeaktiviert: true,
+      });
     });
   });
 });

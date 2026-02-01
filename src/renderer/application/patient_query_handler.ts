@@ -9,13 +9,13 @@ import {
 import { useMessageHandler } from "./message_handler_context";
 
 export function usePatient(query: Partial<PatientQuery>) {
-  const [patient, setPatient] = useState(PatientQueryResult.create());
+  const [result, setResult] = useState(PatientQueryResult.create());
   const messageHandler = useMessageHandler();
 
   const suchePatient = useCallback(
     async (query: PatientQuery) => {
       const result = await messageHandler.suchePatient(query);
-      setPatient(result);
+      setResult(result);
     },
     [messageHandler],
   );
@@ -30,5 +30,5 @@ export function usePatient(query: Partial<PatientQuery>) {
     void runAsync();
   }, [query.nummer, suchePatient]);
 
-  return [patient, suchePatient] as const;
+  return [result, suchePatient] as const;
 }

@@ -185,3 +185,21 @@ Stories für den MVP sind mit ❗ markiert.
 ## Architecture
 
 [Architecture Communication Canvas](https://html-preview.github.io/?url=https://github.com/falkoschumann/naturheilpraxis/blob/main/doc/acc.html)
+
+## Flow
+
+### Patientenkarteikarte
+
+```mermaid
+stateDiagram
+    [*] --> Aufnahme: initialisiere Patientendaten
+    [*] --> Anzeige: zeige Patientendaten an
+    Anzeige --> Bearbeitung: bearbeite Patientendaten
+    Bearbeitung --> Bearbeitung: aktualisiere Feld
+    Aufnahme --> Aufnahme: aktualisiere Feld
+    Aufnahme --> Verarbeitung: sende Formular
+    Aufnahme --> Aufnahme: brich Aufnahme ab
+    Bearbeitung --> Verarbeitung: sende Formular
+    Bearbeitung --> Anzeige: brich Bearbeitung ab
+    Verarbeitung --> Anzeige: Verarbeitung abgeschlossen
+```
