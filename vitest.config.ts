@@ -6,6 +6,13 @@ export default defineConfig({
   test: {
     coverage: {
       enabled: true,
+      include: [
+        "src/**/application/**/*",
+        "src/**/common/**/*",
+        "src/**/domain/**/*",
+        "src/**/infrastructure/**/*",
+        // exclude layers UI and root
+      ],
       provider: "istanbul",
       thresholds: {
         statements: 85,
@@ -13,5 +20,6 @@ export default defineConfig({
         lines: 85,
       },
     },
+    reporters: ["tree"],
   },
 });
