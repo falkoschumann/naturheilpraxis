@@ -70,6 +70,8 @@ Stories für den MVP sind mit ❗ markiert.
 #### Entferne Diagnose
 
 - [ ] Lösche eine Diagnose
+- [ ] **Constraint:** Nur Diagnosen, die nicht in einer Rechnung verwendet
+      werden, können entfernt werden
 
 ### Leistungen
 
@@ -194,12 +196,12 @@ Stories für den MVP sind mit ❗ markiert.
 stateDiagram
     [*] --> Aufnahme: initialisiere Patientendaten
     [*] --> Anzeige: zeige Patientendaten an
+    Aufnahme --> Aufnahme: aktualisiere Feld
+    Aufnahme --> Aufnahme: brich Aufnahme ab
+    Aufnahme --> Verarbeitung: sende Formular
+    Verarbeitung --> Anzeige: Verarbeitung abgeschlossen
     Anzeige --> Bearbeitung: bearbeite Patientendaten
     Bearbeitung --> Bearbeitung: aktualisiere Feld
-    Aufnahme --> Aufnahme: aktualisiere Feld
-    Aufnahme --> Verarbeitung: sende Formular
-    Aufnahme --> Aufnahme: brich Aufnahme ab
     Bearbeitung --> Verarbeitung: sende Formular
     Bearbeitung --> Anzeige: brich Bearbeitung ab
-    Verarbeitung --> Anzeige: Verarbeitung abgeschlossen
 ```
