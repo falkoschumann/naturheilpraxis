@@ -1,5 +1,5 @@
 export ASAR?=true
-export SIGN?=false
+export MAC_SIGN?=false
 
 PLANTUML_FILES = $(wildcard doc/*.puml)
 DIAGRAM_FILES = $(subst .puml,.png,$(PLANTUML_FILES))
@@ -16,7 +16,7 @@ endif
 all: dist check
 
 clean:
-	rm -rf build coverage testdata
+	rm -rf coverage out testdata
 
 distclean: clean
 	rm -rf dist

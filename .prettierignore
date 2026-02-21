@@ -1,12 +1,1 @@
-# Project
-/data/
-
-# Build and test
-.venv/
-build/
-coverage/
-dist/
-out/
-testdata/
-vendor/
 corrupt.*

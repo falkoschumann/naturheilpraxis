@@ -34,7 +34,7 @@ import {
 import { SettingsGateway } from "./infrastructure/settings_gateway";
 import { SettingsDto } from "../shared/infrastructure/settings_dto";
 import { NdjsonEventStore } from "./infrastructure/ndjson_event_store";
-import icon from "../../resources/icon.png?asset";
+import icon from "../../build/icon.png?asset";
 
 // TODO build, bind, run in program or main: index.ts at root level
 
