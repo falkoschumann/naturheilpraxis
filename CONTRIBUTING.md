@@ -2,7 +2,7 @@
 
 Requirements:
 
-- [Node.js](https://nodejs.org/en/download) >= 22 LTS
+- [Node.js](https://nodejs.org/en/download) >= 24 LTS
 - Make
 - [PlantUML](https://plantuml.com/en/starting)
 
@@ -22,3 +22,7 @@ APPLE_ID=<your-apple-id>
 APPLE_APP_SPECIFIC_PASSWORD=<your-app-specific-password>
 APPLE_TEAM_ID=<your-team-id>
 ```
+
+References:
+
+- https://www.sqlstyle.guide
