@@ -1,6 +1,8 @@
 // Copyright (c) 2026 Falko Schumann. All rights reserved. MIT license.
 
 import { Temporal } from "@js-temporal/polyfill";
+import Ajv from "ajv";
+import addFormats from "ajv-formats";
 
 export class Patient {
   static create({
@@ -23,7 +25,9 @@ export class Patient {
     eMail,
     familienstand,
     partner,
+    eltern,
     kinder,
+    geschwister,
     notizen,
     schluesselworte,
   }: {
@@ -46,7 +50,9 @@ export class Patient {
     eMail?: string;
     familienstand?: string;
     partner?: string;
+    eltern?: string;
     kinder?: string;
+    geschwister?: string;
     notizen?: string;
     schluesselworte?: string[];
   }): Patient {
@@ -70,7 +76,9 @@ export class Patient {
       eMail,
       familienstand,
       partner,
+      eltern,
       kinder,
+      geschwister,
       notizen,
       schluesselworte,
     );
@@ -96,9 +104,11 @@ export class Patient {
     eMail = "mail@example.com",
     familienstand,
     partner,
+    eltern,
     kinder,
+    geschwister,
     notizen,
-    schluesselworte,
+    schluesselworte = ["Schlüsselwort1", "Schlüsselwort2"],
   }: {
     nummer?: number;
     nachname?: string;
@@ -119,7 +129,9 @@ export class Patient {
     eMail?: string;
     familienstand?: string;
     partner?: string;
+    eltern?: string;
     kinder?: string;
+    geschwister?: string;
     notizen?: string;
     schluesselworte?: string[];
   } = {}): Patient {
@@ -143,7 +155,9 @@ export class Patient {
       eMail,
       familienstand,
       partner,
+      eltern,
       kinder,
+      geschwister,
       notizen,
       schluesselworte,
     });
@@ -167,10 +181,12 @@ export class Patient {
   readonly mobil?: string;
   readonly eMail?: string;
   readonly familienstand?: string;
-  readonly partner?: string;
-  readonly kinder?: string;
+  readonly partner?: string; // TODO link to patient ID
+  readonly eltern?: string; // TODO link to patient ID
+  readonly kinder?: string; // TODO link to patient ID
+  readonly geschwister?: string; // TODO link to patient ID
   readonly notizen?: string;
-  readonly schluesselworte?: string[];
+  readonly schluesselworte?: string[]; // TODO should be undefined if empty
 
   private constructor(
     nummer: number,
@@ -192,7 +208,9 @@ export class Patient {
     eMail?: string,
     familienstand?: string,
     partner?: string,
+    eltern?: string,
     kinder?: string,
+    geschwister?: string,
     notizen?: string,
     schluesselworte?: string[],
   ) {
@@ -215,8 +233,64 @@ export class Patient {
     this.eMail = eMail;
     this.familienstand = familienstand;
     this.partner = partner;
+    this.eltern = eltern;
     this.kinder = kinder;
+    this.geschwister = geschwister;
     this.notizen = notizen;
     this.schluesselworte = schluesselworte;
   }
+
+  validate() {
+    const valid = ajv.validate(PATIENT_SCHEMA, this);
+    if (!valid) {
+      throw new TypeError("Ungültige Daten für Patient.", {
+        cause: ajv.errors,
+      });
+    }
+
+    return this;
+  }
 }
+
+const ajv = new Ajv({ allErrors: true });
+addFormats(ajv);
+
+const PATIENT_SCHEMA = {
+  type: "object",
+  properties: {
+    nummer: { type: "number" },
+    nachname: { type: "string" },
+    vorname: { type: "string" },
+    geburtsdatum: { type: "string", format: "date" },
+    annahmejahr: { type: "integer" },
+    praxis: { type: "string" },
+    anrede: { type: "string" },
+    strasse: { type: "string" },
+    wohnort: { type: "string" },
+    postleitzahl: { type: "string" },
+    staat: { type: "string" },
+    staatsangehoerigkeit: { type: "string" },
+    titel: { type: "string" },
+    beruf: { type: "string" },
+    telefon: { type: "string" },
+    mobil: { type: "string" },
+    // WORKAROUND should have "format": "email", but it is too restrictive
+    eMail: { type: "string", pattern: "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$" },
+    familienstand: { type: "string" },
+    partner: { type: "string" },
+    eltern: { type: "string" },
+    kinder: { type: "string" },
+    geschwister: { type: "string" },
+    notizen: { type: "string" },
+    schluesselworte: { type: "array", items: { type: "string" } },
+  },
+  required: [
+    "nummer",
+    "nachname",
+    "vorname",
+    "geburtsdatum",
+    "annahmejahr",
+    "praxis",
+  ],
+  additionalProperties: false,
+};

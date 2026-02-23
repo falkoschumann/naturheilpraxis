@@ -9,9 +9,9 @@ import {
   REACT_DEVELOPER_TOOLS,
 } from "electron-devtools-installer";
 
-import { suchePatienten } from "./application/suche_patienten_query_handler";
-import { suchePatient } from "./application/suche_patient_query_handler";
-import { nimmPatientAuf } from "./application/nimm_patient_auf_command_handler";
+import { NimmPatientAufCommandHandler } from "./application/nimm_patient_auf_command_handler";
+import { SuchePatientenQueryHandler } from "./application/suche_patienten_query_handler";
+import { SuchePatientQueryHandler } from "./application/suche_patient_query_handler";
 import {
   LOAD_SETTINGS_CHANNEL,
   NIMM_PATIENT_AUF_CHANNEL,
@@ -31,16 +31,27 @@ import {
   PatientenQueryDto,
   PatientenQueryResultDto,
 } from "../shared/infrastructure/suche_patienten_query_dto";
-import { SettingsGateway } from "./infrastructure/settings_gateway";
 import { SettingsDto } from "../shared/infrastructure/settings_dto";
-import { NdjsonEventStore } from "./infrastructure/ndjson_event_store";
+import { SettingsGateway } from "./infrastructure/settings_gateway";
+import { DatabaseProvider } from "./infrastructure/database_provider";
+import { PatientenRepository } from "./infrastructure/patienten_repository";
 import icon from "../../build/icon.png?asset";
 
 // TODO build, bind, run in program or main: index.ts at root level
 
 // TODO Make the file paths configurable
 const settingsGateway = SettingsGateway.create();
-const eventStore = NdjsonEventStore.create();
+const databaseProvider = DatabaseProvider.create();
+const patientenRepository = PatientenRepository.create({ databaseProvider });
+const nimmPatientAufCommandHandler = NimmPatientAufCommandHandler.create({
+  patientenRepository,
+});
+const suchePatientQueryHandler = SuchePatientQueryHandler.create({
+  patientenRepository,
+});
+const suchePatientenQueryHandler = SuchePatientenQueryHandler.create({
+  patientenRepository,
+});
 
 const isProduction = app.isPackaged;
 
@@ -105,7 +116,7 @@ function createRendererToMainChannels() {
     NIMM_PATIENT_AUF_CHANNEL,
     async (_event, commandDto: NimmPatientAufCommandDto) => {
       const command = NimmPatientAufCommandDto.create(commandDto).validate();
-      const status = await nimmPatientAuf(command, { eventStore });
+      const status = await nimmPatientAufCommandHandler.handle(command);
       return NimmPatientAufCommandStatusDto.fromModel(status);
     },
   );
@@ -113,7 +124,7 @@ function createRendererToMainChannels() {
     SUCHE_PATIENT_CHANNEL,
     async (_event, queryDto: PatientQueryDto) => {
       const query = PatientQueryDto.create(queryDto).validate();
-      const result = await suchePatient(query, { eventStore });
+      const result = await suchePatientQueryHandler.handle(query);
       return PatientQueryResultDto.fromModel(result);
     },
   );
@@ -121,7 +132,7 @@ function createRendererToMainChannels() {
     SUCHE_PATIENTEN_CHANNEL,
     async (_event, queryDto: PatientenQueryDto) => {
       const query = PatientenQueryDto.create(queryDto).validate();
-      const result = await suchePatienten(query, { eventStore });
+      const result = await suchePatientenQueryHandler.handle(query);
       return PatientenQueryResultDto.fromModel(result);
     },
   );

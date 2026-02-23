@@ -107,7 +107,7 @@ export class NimmPatientAufCommandDto {
     kinder,
     geschwister,
     notizen,
-    schluesselworte,
+    schluesselworte = ["Schlüsselwort1", "Schlüsselwort2"],
   }: {
     nachname?: string;
     vorname?: string;

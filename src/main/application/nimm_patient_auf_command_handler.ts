@@ -2,32 +2,31 @@
 
 import { Success } from "@muspellheim/shared";
 
-import type { EventStore } from "../infrastructure/event_store";
-import { Query } from "../infrastructure/event_store";
 import {
   type NimmPatientAufCommand,
   type NimmPatientAufCommandStatus,
 } from "../../shared/domain/nimm_patient_auf_command";
-import { projectNextPatientennummer } from "../domain/next_patientennummer_projection";
-import { PatientAufgenommenV1Event } from "../domain/patient_events";
+import type { PatientenRepository } from "../infrastructure/patienten_repository";
 
-export type NimmPatientAufCommandHandlerOptions = {
-  eventStore: EventStore;
-};
+export class NimmPatientAufCommandHandler {
+  static create({
+    patientenRepository,
+  }: {
+    patientenRepository: PatientenRepository;
+  }) {
+    return new NimmPatientAufCommandHandler(patientenRepository);
+  }
 
-export async function nimmPatientAuf(
-  command: NimmPatientAufCommand,
-  { eventStore }: NimmPatientAufCommandHandlerOptions,
-): Promise<NimmPatientAufCommandStatus> {
-  const events = eventStore.replay<PatientAufgenommenV1Event>(
-    Query.fromItems([{ types: [PatientAufgenommenV1Event.TYPE] }]),
-  );
-  const nummer = await projectNextPatientennummer(events);
-  const event = PatientAufgenommenV1Event.create({
-    ...command,
-    nummer,
-    geburtsdatum: command.geburtsdatum.toString(),
-  });
-  await eventStore.record(event);
-  return new Success({ nummer });
+  #patientenRepository: PatientenRepository;
+
+  private constructor(patientenRepository: PatientenRepository) {
+    this.#patientenRepository = patientenRepository;
+  }
+
+  async handle(
+    command: NimmPatientAufCommand,
+  ): Promise<NimmPatientAufCommandStatus> {
+    const nummer = this.#patientenRepository.create(command);
+    return new Success({ nummer });
+  }
 }

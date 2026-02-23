@@ -1,29 +1,41 @@
 // Copyright (c) 2025 Falko Schumann. All rights reserved. MIT license.
 
-import type { Settings } from "../../src/shared/domain/settings";
-import type { EventStore } from "../../src/main/infrastructure/event_store";
-import { NdjsonEventStore } from "../../src/main/infrastructure/ndjson_event_store";
-import { SettingsGateway } from "../../src/main/infrastructure/settings_gateway";
+import path from "node:path";
 
-import { DatabaseProvider } from "./database_provider";
-import { createEventsFromCustomers } from "./events";
+import type { Settings } from "../../src/shared/domain/settings";
+import { SettingsGateway } from "../../src/main/infrastructure/settings_gateway";
+import { PatientenRepository } from "../../src/main/infrastructure/patienten_repository";
+import { DatabaseProvider } from "../../src/main/infrastructure/database_provider";
+
+import { LegacyDatabaseGateway } from "./legacy_database_gateway";
+import { createPatientenFromCustomers } from "./patienten";
 import { createSettings } from "./settings";
 
+// TODO integrate migration into main process
+// TODO move settings into database
+
 export class Interactions {
-  #legacyDatabase: DatabaseProvider;
+  #legacyDatabase: LegacyDatabaseGateway;
   #settingsGateway: SettingsGateway;
-  #eventStore: EventStore;
+  #patientenRepository: PatientenRepository;
 
   constructor(
     legacyDatabaseFile: string,
     configurationFile: string,
-    eventLogFile: string,
+    dbPath: string,
   ) {
-    this.#legacyDatabase = new DatabaseProvider(legacyDatabaseFile);
+    this.#legacyDatabase = new LegacyDatabaseGateway(legacyDatabaseFile);
     this.#settingsGateway = SettingsGateway.create({
       fileName: configurationFile,
     });
-    this.#eventStore = NdjsonEventStore.create({ fileName: eventLogFile });
+    const schemaPath = path.resolve(
+      import.meta.dirname,
+      "../../resources/db/schema.sql",
+    );
+    const databaseProvider = DatabaseProvider.create({ dbPath, schemaPath });
+    this.#patientenRepository = PatientenRepository.create({
+      databaseProvider,
+    });
   }
 
   async createSettings() {
@@ -63,10 +75,12 @@ export class Interactions {
     }
   }
 
-  async createEventLog(settings: Settings) {
+  createDatabase(settings: Settings) {
     const customers = this.#legacyDatabase.queryCustomers();
-    const events = createEventsFromCustomers(customers, settings);
-    await this.#eventStore.record(events);
+    const patienten = createPatientenFromCustomers(customers, settings);
+    for (const event of patienten) {
+      this.#patientenRepository.create(event);
+    }
   }
 
   dispose() {

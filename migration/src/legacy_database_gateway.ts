@@ -2,7 +2,7 @@
 
 import * as sqlite from "node:sqlite";
 
-export class DatabaseProvider {
+export class LegacyDatabaseGateway {
   #db: sqlite.DatabaseSync;
 
   constructor(filename: string) {

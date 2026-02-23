@@ -2,51 +2,46 @@
 
 import type { ErrorObject } from "ajv";
 
+import { Patient } from "../../src/shared/domain/patient";
 import type { Settings } from "../../src/shared/domain/settings";
-import {
-  type PatientAufgenommenV1Data,
-  PatientAufgenommenV1Event,
-} from "../../src/main/domain/patient_events";
 
-import type { CustomerDto } from "./database_provider";
+import type { CustomerDto } from "./legacy_database_gateway";
 
 const PRUEFUNG_ERFORDERLICH = "Prüfung erforderlich";
 const FELD_NICHT_AUSGEFUELLT = "Feld nicht ausgefüllt";
 const UNGUELTIGER_WERT = "Ungültiger Wert";
 
-export function createEventsFromCustomers(
+export function createPatientenFromCustomers(
   customers: CustomerDto[],
   settings: Settings,
 ) {
-  const events = customers.map((customer) =>
-    createEventFromCustomer(customer, settings),
+  const patienten = customers.map((customer) =>
+    createPatientFromCustomer(customer, settings),
   );
-  const noOfIssues = events.filter((event) =>
-    event.data?.schluesselworte?.includes(PRUEFUNG_ERFORDERLICH),
+  const noOfIssues = patienten.filter((p) =>
+    p.schluesselworte?.includes(PRUEFUNG_ERFORDERLICH),
   ).length;
   console.log("Anzahl migrierter Patienten:", customers.length);
   console.log("Anzahl Patienten mit Fehler:", noOfIssues);
-  return events;
+  return patienten;
 }
 
-export function createEventFromCustomer(
+export function createPatientFromCustomer(
   customer: CustomerDto,
   settings: Settings,
 ) {
-  let data = createPatientAufgenommenV1Data(customer);
+  let data = createPatient(customer);
   try {
-    return PatientAufgenommenV1Event.create(data);
+    return Patient.create(data).validate();
   } catch (error) {
     data = handleError(error, data, settings);
-    return PatientAufgenommenV1Event.create(data);
+    return Patient.create(data);
   }
 }
 
-function createPatientAufgenommenV1Data(
-  customer: CustomerDto,
-): PatientAufgenommenV1Data {
+function createPatient(customer: CustomerDto): Patient {
   // using ! because validation is done later
-  return {
+  return Patient.create({
     nummer: tidyUpNumber(customer.id)!,
     nachname: tidyUpString(customer.surname)!,
     vorname: tidyUpString(customer.forename)!,
@@ -71,18 +66,14 @@ function createPatientAufgenommenV1Data(
     // TODO geschwister: customer.xxx,
     notizen: tidyUpString(customer.memorandum ?? undefined),
     schluesselworte: createArrayFromString(tidyUpString(customer.handlings)),
-  };
+  });
 }
 
-function handleError(
-  error: unknown,
-  data: PatientAufgenommenV1Data,
-  settings: Settings,
-) {
+function handleError(error: unknown, patient: Patient, settings: Settings) {
   if (error instanceof TypeError) {
-    return handleTypeError(error, data, settings);
+    return handleTypeError(error, patient, settings);
   } else {
-    throw new Error(`Patient ${data.nummer} kann nicht migriert werden.`, {
+    throw new Error(`Patient ${patient.nummer} kann nicht migriert werden.`, {
       cause: error,
     });
   }
@@ -119,63 +110,63 @@ function createArrayFromString(value?: string) {
 
 function handleTypeError(
   error: TypeError,
-  data: PatientAufgenommenV1Data,
+  patient: Patient,
   settings: Settings,
 ) {
   // TODO entferne ungültiges Attribut
 
-  if (data.schluesselworte == null) {
-    data = { ...data, schluesselworte: [] };
+  if (patient.schluesselworte == null) {
+    patient = Patient.create({ ...patient, schluesselworte: [] });
   }
-  data.schluesselworte!.push(PRUEFUNG_ERFORDERLICH);
+  patient.schluesselworte!.push(PRUEFUNG_ERFORDERLICH);
 
   const errors = error.cause as ErrorObject[];
   console.error(
-    `Der Patient ${data.nachname}, ${data.vorname} (${data.nummer}), geboren am ${data.geburtsdatum} enthält ${errors.length} Fehler:`,
+    `Der Patient ${patient.nachname}, ${patient.vorname} (${patient.nummer}), geboren am ${patient.geburtsdatum} enthält ${errors.length} Fehler:`,
   );
   for (const err of errors) {
-    let key: keyof PatientAufgenommenV1Data;
+    let key: keyof Patient;
     let message;
     switch (err.keyword) {
       case "format":
-        key = err.instancePath.substring(1) as keyof PatientAufgenommenV1Data;
-        message = `Das Feld "${err.instancePath}" hat einen ungültigen Wert: "${data[key]}" passt nicht zum Format "${err.params.format}".`;
-        data.schluesselworte!.push(UNGUELTIGER_WERT);
+        key = err.instancePath.substring(1) as keyof Patient;
+        message = `Das Feld "${err.instancePath}" hat einen ungültigen Wert: "${patient[key]}" passt nicht zum Format "${err.params.format}".`;
+        patient.schluesselworte!.push(UNGUELTIGER_WERT);
         break;
       case "pattern":
-        key = err.instancePath.substring(1) as keyof PatientAufgenommenV1Data;
-        message = `Das Feld "${err.instancePath}" hat einen ungültigen Wert: "${data[key]}" passt nicht zum regulären Ausdruck "${err.params.pattern}".`;
-        data.schluesselworte!.push(UNGUELTIGER_WERT);
+        key = err.instancePath.substring(1) as keyof Patient;
+        message = `Das Feld "${err.instancePath}" hat einen ungültigen Wert: "${patient[key]}" passt nicht zum regulären Ausdruck "${err.params.pattern}".`;
+        patient.schluesselworte!.push(UNGUELTIGER_WERT);
         break;
       case "required":
         key = err.params.missingProperty;
         message = `Ein erforderliches Feld ist nicht ausgefüllt: "${key}".`;
-        data.schluesselworte!.push(FELD_NICHT_AUSGEFUELLT);
+        patient.schluesselworte!.push(FELD_NICHT_AUSGEFUELLT);
         break;
       default:
-        throw new Error(`Patient ${data.nummer} kann nicht migriert werden.`, {
-          cause: error,
-        });
+        throw new Error(
+          `Patient ${patient.nummer} kann nicht migriert werden.`,
+          {
+            cause: error,
+          },
+        );
     }
     const value = defaultForField(key, settings);
     console.error("  - " + message + ` Setze Standardwert: "${value}".`);
-    data = {
-      ...data,
+    patient = Patient.create({
+      ...patient,
       [key]: value,
-      notizen: (data.notizen == null ? "" : "\n") + message,
-    };
+      notizen: (patient.notizen == null ? "" : "\n") + message,
+    });
   }
-  return data;
+  return patient;
 }
 
 const DEFAULT_STRING = "N/A";
 const DEFAULT_DATE = "1900-01-01";
 const DEFAULT_YEAR = 1900;
 
-function defaultForField(
-  key: keyof PatientAufgenommenV1Data,
-  settings: Settings,
-) {
+function defaultForField(key: keyof Patient, settings: Settings) {
   switch (key) {
     case "nachname":
     case "vorname":

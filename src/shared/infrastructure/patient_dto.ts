@@ -98,7 +98,7 @@ export class PatientDto {
     partner,
     kinder,
     notizen,
-    schluesselworte,
+    schluesselworte = ["Schlüsselwort1", "Schlüsselwort2"],
   }: {
     nummer?: number;
     nachname?: string;

@@ -9,5 +9,5 @@ const interactions = new Interactions(
 );
 
 const settings = await interactions.createSettings();
-await interactions.createEventLog(settings);
+interactions.createDatabase(settings);
 interactions.dispose();
