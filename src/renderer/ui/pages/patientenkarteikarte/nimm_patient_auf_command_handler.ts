@@ -1,8 +1,9 @@
 // Copyright (c) 2026 Falko Schumann. All rights reserved. MIT license.
 
-import { useMessageHandler } from "./message_handler_context";
 import { useCallback } from "react";
-import type { NimmPatientAufCommand } from "../../shared/domain/nimm_patient_auf_command";
+
+import type { NimmPatientAufCommand } from "../../../../shared/domain/nimm_patient_auf_command";
+import { useMessageHandler } from "../../components/message_handler_context";
 
 export function useNimmPatientAuf() {
   const messageHandler = useMessageHandler();

@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 
-import { Settings } from "../../shared/domain/settings";
-import { useMessageHandler } from "./message_handler_context";
+import { Settings } from "../../../../shared/domain/settings";
+import { useMessageHandler } from "../../components/message_handler_context";
 
 export function useSettings() {
   const [settings, setSettings] = useState(Settings.create());

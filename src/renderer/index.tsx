@@ -5,14 +5,39 @@ import { createRoot } from "react-dom/client";
 import { BrowserRouter } from "react-router";
 import "bootstrap";
 
-import { MessageHandler } from "./application/message_handler";
-import { MessageHandlerContext } from "./application/message_handler_context";
+import type { NimmPatientAufCommand } from "../shared/domain/nimm_patient_auf_command";
+import type { PatientQuery } from "../shared/domain/suche_patient_query";
+import type { PatientenQuery } from "../shared/domain/suche_patienten_query";
+import type { Settings } from "../shared/domain/settings";
+import { MessageGateway } from "./infrastructure/message_gateway";
 import "./ui/assets/style.scss";
+import type { MessageHandler } from "./ui/components/message_handler";
+import { MessageHandlerContext } from "./ui/components/message_handler_context";
 import App from "./ui/app";
 
-// TODO build, bind, run in program or main: index.tsx at root level
+const messageGateway = MessageGateway.create();
 
-const messageHandler = MessageHandler.create();
+const messageHandler: MessageHandler = {
+  async nimmPatientAuf(command: NimmPatientAufCommand) {
+    return messageGateway.nimmPatientAuf(command);
+  },
+
+  async suchePatient(query: PatientQuery) {
+    return messageGateway.suchePatient(query);
+  },
+
+  async suchePatienten(query: PatientenQuery) {
+    return messageGateway.suchePatienten(query);
+  },
+
+  async loadSettings() {
+    return messageGateway.loadSettings();
+  },
+
+  async storeSettings(settings: Settings) {
+    await messageGateway.storeSettings(settings);
+  },
+};
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>

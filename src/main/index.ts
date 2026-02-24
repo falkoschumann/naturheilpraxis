@@ -37,8 +37,6 @@ import { DatabaseProvider } from "./infrastructure/database_provider";
 import { PatientenRepository } from "./infrastructure/patienten_repository";
 import icon from "../../build/icon.png?asset";
 
-// TODO build, bind, run in program or main: index.ts at root level
-
 // TODO Make the file paths configurable
 const settingsGateway = SettingsGateway.create();
 const databaseProvider = DatabaseProvider.create();

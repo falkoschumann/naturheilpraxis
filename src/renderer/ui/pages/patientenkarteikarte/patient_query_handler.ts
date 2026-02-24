@@ -5,8 +5,8 @@ import { useCallback, useEffect, useState } from "react";
 import {
   PatientQuery,
   PatientQueryResult,
-} from "../../shared/domain/suche_patient_query";
-import { useMessageHandler } from "./message_handler_context";
+} from "../../../../shared/domain/suche_patient_query";
+import { useMessageHandler } from "../../components/message_handler_context";
 
 export function usePatient(query: Partial<PatientQuery>) {
   const [result, setResult] = useState(PatientQueryResult.create());

@@ -6,9 +6,9 @@ import Tags from "bootstrap5-tags";
 import { type ChangeEvent, type FormEvent, type MouseEvent, useEffect, useReducer } from "react";
 import { NavLink, useParams } from "react-router";
 
-import { useNimmPatientAuf } from "../../../application/nimm_patient_auf_command_handler";
-import { usePatient } from "../../../application/patient_query_handler";
-import { useSettings } from "../../../application/settings_service";
+import { useNimmPatientAuf } from "./nimm_patient_auf_command_handler";
+import { usePatient } from "./patient_query_handler";
+import { useSettings } from "./settings_service";
 import { PATIENTENKARTEIKARTE_PAGE } from "../../components/pages";
 import DefaultPageLayout from "../../layouts/default_page_layout";
 import {
@@ -24,7 +24,7 @@ import {
   zeigePatientendatenAn,
 } from "./reducer";
 import type { Patient } from "../../../../shared/domain/patient";
-import { NimmPatientAufCommand } from "../../../../shared/domain/nimm_patient_auf_command"; // TODO link spouse and parent
+import { NimmPatientAufCommand } from "../../../../shared/domain/nimm_patient_auf_command";
 
 // TODO link spouse and parent
 // TODO add back link or link to Patientenkartei
