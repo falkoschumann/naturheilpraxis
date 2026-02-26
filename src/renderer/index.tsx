@@ -2,7 +2,6 @@
 
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import { BrowserRouter } from "react-router";
 import "bootstrap";
 
 import type { NimmPatientAufCommand } from "../shared/domain/nimm_patient_auf_command";
@@ -13,7 +12,7 @@ import { MessageGateway } from "./infrastructure/message_gateway";
 import "./ui/assets/style.scss";
 import type { MessageHandler } from "./ui/components/message_handler";
 import { MessageHandlerContext } from "./ui/components/message_handler_context";
-import App from "./ui/app";
+import App from "./ui";
 
 const messageGateway = MessageGateway.create();
 
@@ -41,10 +40,8 @@ const messageHandler: MessageHandler = {
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <BrowserRouter>
-      <MessageHandlerContext value={messageHandler}>
-        <App />
-      </MessageHandlerContext>
-    </BrowserRouter>
+    <MessageHandlerContext value={messageHandler}>
+      <App />
+    </MessageHandlerContext>
   </StrictMode>,
 );

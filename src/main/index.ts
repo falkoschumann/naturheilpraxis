@@ -18,7 +18,7 @@ import {
   STORE_SETTINGS_CHANNEL,
   SUCHE_PATIENT_CHANNEL,
   SUCHE_PATIENTEN_CHANNEL,
-} from "../shared/infrastructure/channels";
+} from "../shared/channels";
 import {
   NimmPatientAufCommandDto,
   NimmPatientAufCommandStatusDto,
