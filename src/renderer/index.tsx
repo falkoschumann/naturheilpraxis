@@ -8,33 +8,40 @@ import type { NimmPatientAufCommand } from "../shared/domain/nimm_patient_auf_co
 import type { PatientQuery } from "../shared/domain/suche_patient_query";
 import type { PatientenQuery } from "../shared/domain/suche_patienten_query";
 import type { Settings } from "../shared/domain/settings";
-import { MessageGateway } from "./infrastructure/message_gateway";
+import {
+  NimmPatientAufCommandDto,
+  NimmPatientAufCommandStatusDto,
+} from "../shared/infrastructure/nimm_patient_auf_command_dto";
+import { PatientQueryDto, PatientQueryResultDto } from "../shared/infrastructure/suche_patient_query_dto";
+import { PatientenQueryDto, PatientenQueryResultDto } from "../shared/infrastructure/suche_patienten_query_dto";
+import { SettingsDto } from "../shared/infrastructure/settings_dto";
 import "./ui/assets/style.scss";
-import type { MessageHandler } from "./ui/components/message_handler";
 import { MessageHandlerContext } from "./ui/components/message_handler_context";
 import App from "./ui";
 
-const messageGateway = MessageGateway.create();
-
-const messageHandler: MessageHandler = {
+const messageHandler = {
   async nimmPatientAuf(command: NimmPatientAufCommand) {
-    return messageGateway.nimmPatientAuf(command);
+    const statusDto = await window.naturheilpraxis.nimmPatientAuf(NimmPatientAufCommandDto.fromModel(command));
+    return NimmPatientAufCommandStatusDto.create(statusDto).validate();
   },
 
   async suchePatient(query: PatientQuery) {
-    return messageGateway.suchePatient(query);
+    const resultDto = await window.naturheilpraxis.suchePatient(PatientQueryDto.fromModel(query));
+    return PatientQueryResultDto.create(resultDto).validate();
   },
 
   async suchePatienten(query: PatientenQuery) {
-    return messageGateway.suchePatienten(query);
+    const resultDto = await window.naturheilpraxis.suchePatienten(PatientenQueryDto.fromModel(query));
+    return PatientenQueryResultDto.create(resultDto).validate();
   },
 
   async loadSettings() {
-    return messageGateway.loadSettings();
+    const settingsDto = await window.naturheilpraxis.loadSettings();
+    return SettingsDto.create(settingsDto).validate();
   },
 
   async storeSettings(settings: Settings) {
-    await messageGateway.storeSettings(settings);
+    await window.naturheilpraxis.storeSettings(SettingsDto.fromModel(settings));
   },
 };
 
