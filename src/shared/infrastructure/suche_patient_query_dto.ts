@@ -36,10 +36,7 @@ export class PatientQueryResultDto {
   }
 
   static createTestInstance({
-    patient = PatientDto.createTestInstance({
-      nummer: 1,
-      vorname: "Max",
-    }),
+    patient = PatientDto.createTestInstance(),
   }: {
     patient?: PatientDto;
   } = {}): PatientQueryResultDto {

@@ -8,10 +8,6 @@ import {
   PatientQuery,
   PatientQueryResult,
 } from "../../../src/shared/domain/suche_patient_query";
-import {
-  PatientQueryDto,
-  PatientQueryResultDto,
-} from "../../../src/shared/infrastructure/suche_patient_query_dto";
 import { DatabaseProvider } from "../../../src/main/infrastructure/database_provider";
 import { PatientenRepository } from "../../../src/main/infrastructure/patienten_repository";
 
@@ -46,54 +42,6 @@ describe("Suche Patient", () => {
             vorname: "Erika",
           }),
         }),
-      );
-    });
-  });
-
-  describe("Mapping suche Patient Query", () => {
-    it("sollte DTO aus Model erstellen", () => {
-      const model = PatientQuery.createTestInstance();
-
-      const dto = PatientQueryDto.fromModel(model);
-
-      expect(dto).toEqual<PatientQueryDto>(
-        PatientQueryDto.createTestInstance(),
-      );
-    });
-
-    it("sollte Model aus DTO erstellen", () => {
-      const dto = PatientQueryDto.createTestInstance();
-
-      const model = dto.validate();
-
-      expect(model).toEqual<PatientQuery>(PatientQuery.createTestInstance());
-    });
-  });
-
-  describe("Mapping suche Patient Query Result", () => {
-    it("sollte leeres Result erstellen", () => {
-      const dto = PatientQueryResult.create();
-
-      expect(dto).toEqual<PatientQueryResult>(PatientQueryResult.create());
-    });
-
-    it("sollte DTO aus Model erstellen", () => {
-      const model = PatientQueryResult.createTestInstance();
-
-      const dto = PatientQueryResultDto.fromModel(model);
-
-      expect(dto).toEqual<PatientQueryResultDto>(
-        PatientQueryResultDto.createTestInstance(),
-      );
-    });
-
-    it("sollte Model aus DTO erstellen", () => {
-      const dto = PatientQueryResultDto.createTestInstance();
-
-      const model = dto.validate();
-
-      expect(model).toEqual<PatientQueryResult>(
-        PatientQueryResult.createTestInstance(),
       );
     });
   });

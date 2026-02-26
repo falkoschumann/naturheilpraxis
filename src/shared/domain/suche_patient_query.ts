@@ -24,7 +24,7 @@ export class PatientQueryResult {
   }
 
   static createTestInstance({
-    patient = Patient.createTestInstance({ nummer: 1 }),
+    patient = Patient.createTestInstance(),
   }: {
     patient?: Patient;
   } = {}) {

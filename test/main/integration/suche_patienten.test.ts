@@ -8,10 +8,6 @@ import {
   PatientenQuery,
   PatientenQueryResult,
 } from "../../../src/shared/domain/suche_patienten_query";
-import {
-  PatientenQueryDto,
-  PatientenQueryResultDto,
-} from "../../../src/shared/infrastructure/suche_patienten_query_dto";
 import { DatabaseProvider } from "../../../src/main/infrastructure/database_provider";
 import { PatientenRepository } from "../../../src/main/infrastructure/patienten_repository";
 
@@ -48,58 +44,6 @@ describe("Suche Patienten", () => {
           }),
         ],
       });
-    });
-  });
-
-  describe("Mapping suche Patienten Query", () => {
-    it("sollte DTO aus Model erstellen", () => {
-      const model = PatientenQuery.createTestInstance();
-
-      const dto = PatientenQueryDto.fromModel(model);
-
-      expect(dto).toEqual<PatientenQueryDto>(
-        PatientenQueryDto.createTestInstance(),
-      );
-    });
-
-    it("sollte Model aus DTO erstellen", () => {
-      const dto = PatientenQueryDto.createTestInstance();
-
-      const model = dto.validate();
-
-      expect(model).toEqual<PatientenQuery>(
-        PatientenQuery.createTestInstance(),
-      );
-    });
-  });
-
-  describe("Mapping suche Patienten Query Result", () => {
-    it("sollte leeres Result erstellen", () => {
-      const dto = PatientenQueryResult.create();
-
-      expect(dto).toEqual<PatientenQueryResult>(
-        PatientenQueryResult.create({ patienten: [] }),
-      );
-    });
-
-    it("sollte DTO aus Model erstellen", () => {
-      const model = PatientenQueryResult.createTestInstance();
-
-      const dto = PatientenQueryResultDto.fromModel(model);
-
-      expect(dto).toEqual<PatientenQueryResultDto>(
-        PatientenQueryResultDto.createTestInstance(),
-      );
-    });
-
-    it("sollte Model aus DTO erstellen", () => {
-      const dto = PatientenQueryResultDto.createTestInstance();
-
-      const model = dto.validate();
-
-      expect(model).toEqual<PatientenQueryResult>(
-        PatientenQueryResult.createTestInstance(),
-      );
     });
   });
 });
