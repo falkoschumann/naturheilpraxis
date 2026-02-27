@@ -29,3 +29,31 @@ CREATE TABLE IF NOT EXISTS patienten (
     notizen TEXT,
     schluesselworte TEXT
 );
+
+CREATE TABLE IF NOT EXISTS einstellungen (
+    id INTEGER PRIMARY KEY,
+    praxen TEXT NOT NULL,
+    anreden TEXT NOT NULL,
+    familienstaende TEXT NOT NULL,
+    schluesselworte TEXT NOT NULL,
+    standard_schluesselworte TEXT NOT NULL
+);
+
+INSERT INTO
+    einstellungen (
+        id,
+        praxen,
+        anreden,
+        familienstaende,
+        schluesselworte,
+        standard_schluesselworte
+    )
+VALUES
+    (
+        1,
+        '["Naturheilpraxis"]',
+        '["Herr", "Frau"]',
+        '["ledig", "verheiratet", "getrennt", "geschieden", "verwitwet"]',
+        '[]',
+        '[]'
+    );

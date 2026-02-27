@@ -1,6 +1,6 @@
 // Copyright (c) 2025 Falko Schumann. All rights reserved. MIT license.
 
-import { SettingsDto } from "../../src/shared/infrastructure/settings_dto";
+import { Einstellungen } from "../../src/shared/domain/einstellungen";
 
 export function createSettings(configuration: {
   agencies: string[];
@@ -9,12 +9,11 @@ export function createSettings(configuration: {
   handling: string[];
   standardHandling: string[];
 }) {
-  const settings = SettingsDto.create({
-    praxis: configuration.agencies,
-    anrede: configuration.titles,
-    familienstand: configuration.familyStatus,
+  return Einstellungen.create({
+    praxen: configuration.agencies,
+    anreden: configuration.titles,
+    familienstaende: configuration.familyStatus,
     schluesselworte: configuration.handling,
     standardSchluesselworte: configuration.standardHandling,
   });
-  return SettingsDto.fromJson(settings).validate();
 }

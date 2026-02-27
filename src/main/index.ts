@@ -13,9 +13,9 @@ import { NimmPatientAufCommandHandler } from "./application/nimm_patient_auf_com
 import { SuchePatientenQueryHandler } from "./application/suche_patienten_query_handler";
 import { SuchePatientQueryHandler } from "./application/suche_patient_query_handler";
 import {
-  LOAD_SETTINGS_CHANNEL,
+  LADE_EINSTELLUNGEN_CHANNEL,
   NIMM_PATIENT_AUF_CHANNEL,
-  STORE_SETTINGS_CHANNEL,
+  SICHERE_EINSTELLUNGEN_CHANNEL,
   SUCHE_PATIENT_CHANNEL,
   SUCHE_PATIENTEN_CHANNEL,
 } from "../shared/channels";
@@ -31,15 +31,15 @@ import {
   PatientenQueryDto,
   PatientenQueryResultDto,
 } from "../shared/infrastructure/suche_patienten_query_dto";
-import { SettingsDto } from "../shared/infrastructure/settings_dto";
-import { SettingsGateway } from "./infrastructure/settings_gateway";
+import { EinstellungenGateway } from "./infrastructure/einstellungen_gateway";
 import { DatabaseProvider } from "./infrastructure/database_provider";
 import { PatientenRepository } from "./infrastructure/patienten_repository";
 import icon from "../../build/icon.png?asset";
+import { EinstellungenDto } from "../shared/infrastructure/einstellungen_dto";
 
 // TODO Make the file paths configurable
-const settingsGateway = SettingsGateway.create();
 const databaseProvider = DatabaseProvider.create();
+const einstellungenGateway = EinstellungenGateway.create({ databaseProvider });
 const patientenRepository = PatientenRepository.create({ databaseProvider });
 const nimmPatientAufCommandHandler = NimmPatientAufCommandHandler.create({
   patientenRepository,
@@ -134,15 +134,15 @@ function createRendererToMainChannels() {
       return PatientenQueryResultDto.fromModel(result);
     },
   );
-  ipcMain.handle(LOAD_SETTINGS_CHANNEL, async (_event) => {
-    const settings = await settingsGateway.load();
-    return SettingsDto.fromModel(settings);
+  ipcMain.handle(LADE_EINSTELLUNGEN_CHANNEL, (_event) => {
+    const einstellungen = einstellungenGateway.lade();
+    return EinstellungenDto.fromModel(einstellungen);
   });
   ipcMain.handle(
-    STORE_SETTINGS_CHANNEL,
-    async (_event, settingsDto: SettingsDto) => {
-      const settings = SettingsDto.create(settingsDto).validate();
-      await settingsGateway.store(settings);
+    SICHERE_EINSTELLUNGEN_CHANNEL,
+    (_event, settingsDto: EinstellungenDto) => {
+      const einstellungen = EinstellungenDto.create(settingsDto).validate();
+      einstellungenGateway.sichere(einstellungen);
     },
   );
 }

@@ -7,14 +7,14 @@ import "bootstrap";
 import type { NimmPatientAufCommand } from "../shared/domain/nimm_patient_auf_command";
 import type { PatientQuery } from "../shared/domain/suche_patient_query";
 import type { PatientenQuery } from "../shared/domain/suche_patienten_query";
-import type { Settings } from "../shared/domain/settings";
+import type { Einstellungen } from "../shared/domain/einstellungen";
 import {
   NimmPatientAufCommandDto,
   NimmPatientAufCommandStatusDto,
 } from "../shared/infrastructure/nimm_patient_auf_command_dto";
 import { PatientQueryDto, PatientQueryResultDto } from "../shared/infrastructure/suche_patient_query_dto";
 import { PatientenQueryDto, PatientenQueryResultDto } from "../shared/infrastructure/suche_patienten_query_dto";
-import { SettingsDto } from "../shared/infrastructure/settings_dto";
+import { EinstellungenDto } from "../shared/infrastructure/einstellungen_dto";
 import "./ui/assets/style.scss";
 import { MessageHandlerContext } from "./ui/components/message_handler_context";
 import App from "./ui";
@@ -35,13 +35,13 @@ const messageHandler = {
     return PatientenQueryResultDto.create(resultDto).validate();
   },
 
-  async loadSettings() {
-    const settingsDto = await window.naturheilpraxis.loadSettings();
-    return SettingsDto.create(settingsDto).validate();
+  async ladeEinstellungen() {
+    const einstellungenDto = await window.naturheilpraxis.ladeEinstellungen();
+    return EinstellungenDto.create(einstellungenDto).validate();
   },
 
-  async storeSettings(settings: Settings) {
-    await window.naturheilpraxis.storeSettings(SettingsDto.fromModel(settings));
+  async sichereEinstellungen(einstellungen: Einstellungen) {
+    await window.naturheilpraxis.sichereEinstellungen(EinstellungenDto.fromModel(einstellungen));
   },
 };
 

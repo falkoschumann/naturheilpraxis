@@ -8,7 +8,7 @@ import { NavLink, useNavigate } from "react-router";
 import type { Patient } from "../../../../shared/domain/patient";
 import { PATIENTENKARTEIKARTE_PAGE } from "../../components/pages";
 import DefaultPageLayout from "../../layouts/default_page_layout";
-import { usePatienten } from "./patienten_query_handler";
+import { usePatienten } from "./patienten_hook";
 
 // TODO use sorting
 

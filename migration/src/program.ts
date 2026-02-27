@@ -4,7 +4,6 @@ import { Interactions } from "./interactions";
 
 const interactions = new Interactions(
   "data/input/legacy.sqlite",
-  "data/output/settings.json",
   "data/output/event-log.ndjson",
 );
 

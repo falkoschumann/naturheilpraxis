@@ -3,7 +3,7 @@
 import type { ErrorObject } from "ajv";
 
 import { Patient } from "../../src/shared/domain/patient";
-import type { Settings } from "../../src/shared/domain/settings";
+import type { Einstellungen } from "../../src/shared/domain/einstellungen";
 
 import type { CustomerDto } from "./legacy_database_gateway";
 
@@ -13,7 +13,7 @@ const UNGUELTIGER_WERT = "Ungültiger Wert";
 
 export function createPatientenFromCustomers(
   customers: CustomerDto[],
-  settings: Settings,
+  settings: Einstellungen,
 ) {
   const patienten = customers.map((customer) =>
     createPatientFromCustomer(customer, settings),
@@ -28,7 +28,7 @@ export function createPatientenFromCustomers(
 
 export function createPatientFromCustomer(
   customer: CustomerDto,
-  settings: Settings,
+  settings: Einstellungen,
 ) {
   let data = createPatient(customer);
   try {
@@ -69,7 +69,11 @@ function createPatient(customer: CustomerDto): Patient {
   });
 }
 
-function handleError(error: unknown, patient: Patient, settings: Settings) {
+function handleError(
+  error: unknown,
+  patient: Patient,
+  settings: Einstellungen,
+) {
   if (error instanceof TypeError) {
     return handleTypeError(error, patient, settings);
   } else {
@@ -111,7 +115,7 @@ function createArrayFromString(value?: string) {
 function handleTypeError(
   error: TypeError,
   patient: Patient,
-  settings: Settings,
+  settings: Einstellungen,
 ) {
   // TODO entferne ungültiges Attribut
 
@@ -166,7 +170,7 @@ const DEFAULT_STRING = "N/A";
 const DEFAULT_DATE = "1900-01-01";
 const DEFAULT_YEAR = 1900;
 
-function defaultForField(key: keyof Patient, settings: Settings) {
+function defaultForField(key: keyof Patient, settings: Einstellungen) {
   switch (key) {
     case "nachname":
     case "vorname":
@@ -176,7 +180,7 @@ function defaultForField(key: keyof Patient, settings: Settings) {
     case "annahmejahr":
       return DEFAULT_YEAR;
     case "praxis":
-      return settings.praxis[0];
+      return settings.praxen[0];
     default:
       return undefined;
   }

@@ -13,9 +13,9 @@ const TEST_DB_PATH = path.resolve(
 );
 
 describe("Database provider", () => {
-  it("should create file with current schema", async () => {
+  it("should create file with current schema", () => {
     fs.rmSync(TEST_DB_PATH, { force: true });
-    const provider = DatabaseProvider.create({ dbPath: TEST_DB_PATH });
+    const provider = DatabaseProvider.create({ databasePath: TEST_DB_PATH });
 
     const db = provider.getDatabase();
     const result = db.prepare("select * from naturheilpraxis").all();
@@ -23,7 +23,7 @@ describe("Database provider", () => {
     expect(result).toEqual([{ schema_version: 1 }]);
   });
 
-  it("should create schema version 1", async () => {
+  it("should create schema version 1", () => {
     const provider = DatabaseProvider.create();
 
     const db = provider.getDatabase();

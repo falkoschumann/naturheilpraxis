@@ -12,7 +12,7 @@ import {
   type PatientenQuery,
   PatientenQueryResult,
 } from "../../../shared/domain/suche_patienten_query";
-import type { Settings } from "../../../shared/domain/settings";
+import type { Einstellungen } from "../../../shared/domain/einstellungen";
 
 export interface MessageHandler {
   nimmPatientAuf(
@@ -23,7 +23,7 @@ export interface MessageHandler {
 
   suchePatienten(query: PatientenQuery): Promise<PatientenQueryResult>;
 
-  loadSettings(): Promise<Settings>;
+  ladeEinstellungen(): Promise<Einstellungen>;
 
-  storeSettings(settings: Settings): Promise<void>;
+  sichereEinstellungen(einstellungen: Einstellungen): Promise<void>;
 }

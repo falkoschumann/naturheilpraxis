@@ -241,6 +241,7 @@ export class Patient {
   }
 
   validate() {
+    // TODO move validation to migration
     const valid = ajv.validate(PATIENT_SCHEMA, this);
     if (!valid) {
       throw new TypeError("Ungültige Daten für Patient.", {

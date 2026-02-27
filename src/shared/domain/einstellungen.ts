@@ -2,11 +2,11 @@
 
 // TODO split settings: Mandant, Patient, ...
 
-export class Settings {
+export class Einstellungen {
   static create({
-    praxis = ["Naturheilpraxis"],
-    anrede = ["Herr", "Frau"],
-    familienstand = [
+    praxen = ["Naturheilpraxis"],
+    anreden = ["Herr", "Frau"],
+    familienstaende = [
       "ledig",
       "verheiratet",
       "getrennt",
@@ -16,53 +16,53 @@ export class Settings {
     schluesselworte = [],
     standardSchluesselworte = [],
   }: {
-    praxis?: string[];
-    anrede?: string[];
-    familienstand?: string[];
+    praxen?: string[];
+    anreden?: string[];
+    familienstaende?: string[];
     schluesselworte?: string[];
     standardSchluesselworte?: string[];
-  } = {}): Settings {
-    return new Settings(
-      praxis,
-      anrede,
-      familienstand,
+  } = {}): Einstellungen {
+    return new Einstellungen(
+      praxen,
+      anreden,
+      familienstaende,
       schluesselworte,
       standardSchluesselworte,
     );
   }
 
   static createTestInstance({
-    praxis = ["Praxis 1", "Praxis 2"],
-    anrede = ["Herr", "Frau", "Fräulein"],
-    familienstand = ["ledig", "verheiratet", "geschieden", "verwitwet"],
+    praxen = ["Praxis 1", "Praxis 2"],
+    anreden = ["Herr", "Frau", "Fräulein"],
+    familienstaende = ["ledig", "verheiratet", "geschieden", "verwitwet"],
     schluesselworte = ["Aktiv", "Weihnachtskarte", "Geburtstagskarte"],
     standardSchluesselworte = ["Aktiv", "Weihnachtskarte"],
-  }: Partial<Settings> = {}): Settings {
-    return Settings.create({
-      praxis,
-      anrede,
-      familienstand,
+  }: Partial<Einstellungen> = {}): Einstellungen {
+    return Einstellungen.create({
+      praxen,
+      anreden,
+      familienstaende,
       schluesselworte,
       standardSchluesselworte,
     });
   }
 
-  readonly praxis: string[];
-  readonly anrede: string[];
-  readonly familienstand: string[];
+  readonly praxen: string[];
+  readonly anreden: string[];
+  readonly familienstaende: string[];
   readonly schluesselworte: string[];
   readonly standardSchluesselworte: string[];
 
   constructor(
-    praxis: string[],
-    anrede: string[],
-    familienstand: string[],
+    praxen: string[],
+    anreden: string[],
+    familienstaende: string[],
     schluesselworte: string[],
     standardSchluesselworte: string[],
   ) {
-    this.praxis = praxis;
-    this.anrede = anrede;
-    this.familienstand = familienstand;
+    this.praxen = praxen;
+    this.anreden = anreden;
+    this.familienstaende = familienstaende;
     this.schluesselworte = schluesselworte;
     this.standardSchluesselworte = standardSchluesselworte;
   }

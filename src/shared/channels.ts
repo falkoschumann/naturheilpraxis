@@ -8,5 +8,5 @@ export const SUCHE_PATIENT_CHANNEL = "suchePatient";
 export const SUCHE_PATIENTEN_CHANNEL = "suchePatienten";
 
 // Settings
-export const LOAD_SETTINGS_CHANNEL = "loadSettings";
-export const STORE_SETTINGS_CHANNEL = "storeSettings";
+export const LADE_EINSTELLUNGEN_CHANNEL = "ladeEinstellungen";
+export const SICHERE_EINSTELLUNGEN_CHANNEL = "sichereEinstellungen";

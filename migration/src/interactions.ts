@@ -2,8 +2,8 @@
 
 import path from "node:path";
 
-import type { Settings } from "../../src/shared/domain/settings";
-import { SettingsGateway } from "../../src/main/infrastructure/settings_gateway";
+import type { Einstellungen } from "../../src/shared/domain/einstellungen";
+import { EinstellungenGateway } from "../../src/main/infrastructure/einstellungen_gateway";
 import { PatientenRepository } from "../../src/main/infrastructure/patienten_repository";
 import { DatabaseProvider } from "../../src/main/infrastructure/database_provider";
 
@@ -16,23 +16,22 @@ import { createSettings } from "./settings";
 
 export class Interactions {
   #legacyDatabase: LegacyDatabaseGateway;
-  #settingsGateway: SettingsGateway;
+  #einstellungenGateway: EinstellungenGateway;
   #patientenRepository: PatientenRepository;
 
-  constructor(
-    legacyDatabaseFile: string,
-    configurationFile: string,
-    dbPath: string,
-  ) {
+  constructor(legacyDatabaseFile: string, databasePath: string) {
     this.#legacyDatabase = new LegacyDatabaseGateway(legacyDatabaseFile);
-    this.#settingsGateway = SettingsGateway.create({
-      fileName: configurationFile,
-    });
     const schemaPath = path.resolve(
       import.meta.dirname,
       "../../resources/db/schema.sql",
     );
-    const databaseProvider = DatabaseProvider.create({ dbPath, schemaPath });
+    const databaseProvider = DatabaseProvider.create({
+      databasePath,
+      schemaPath,
+    });
+    this.#einstellungenGateway = EinstellungenGateway.create({
+      databaseProvider,
+    });
     this.#patientenRepository = PatientenRepository.create({
       databaseProvider,
     });
@@ -57,7 +56,7 @@ export class Interactions {
         handling,
         standardHandling,
       });
-      await this.#settingsGateway.store(settings);
+      this.#einstellungenGateway.sichere(settings);
       return settings;
     } catch (error) {
       console.error(
@@ -75,7 +74,7 @@ export class Interactions {
     }
   }
 
-  createDatabase(settings: Settings) {
+  createDatabase(settings: Einstellungen) {
     const customers = this.#legacyDatabase.queryCustomers();
     const patienten = createPatientenFromCustomers(customers, settings);
     for (const event of patienten) {

@@ -6,17 +6,17 @@ import sqlite from "node:sqlite";
 
 export class DatabaseProvider {
   static create({
-    dbPath = ":memory:",
+    databasePath = ":memory:",
     schemaPath = "resources/db/schema.sql",
-  }: { dbPath?: string; schemaPath?: string } = {}) {
-    return new DatabaseProvider(dbPath, schemaPath);
+  }: { databasePath?: string; schemaPath?: string } = {}) {
+    return new DatabaseProvider(databasePath, schemaPath);
   }
 
-  #database: sqlite.DatabaseSync;
+  #database;
 
-  private constructor(dbPath: string, schemaPath: string) {
-    this.#createParentDirectoryIfNeeded(dbPath);
-    this.#database = new sqlite.DatabaseSync(dbPath);
+  private constructor(databasePath: string, schemaPath: string) {
+    this.#createParentDirectoryIfNeeded(databasePath);
+    this.#database = new sqlite.DatabaseSync(databasePath);
     this.#createSchemaIfNeeded(schemaPath);
   }
 
@@ -24,12 +24,12 @@ export class DatabaseProvider {
     return this.#database;
   }
 
-  #createParentDirectoryIfNeeded(dbPath: string) {
-    if (dbPath === ":memory:") {
+  #createParentDirectoryIfNeeded(databasePath: string) {
+    if (databasePath === ":memory:") {
       return;
     }
 
-    const parentDir = path.dirname(dbPath);
+    const parentDir = path.dirname(databasePath);
     fs.mkdirSync(parentDir, { recursive: true });
   }
 

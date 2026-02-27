@@ -6,9 +6,9 @@ import Tags from "bootstrap5-tags";
 import { type ChangeEvent, type FormEvent, type MouseEvent, useEffect, useReducer } from "react";
 import { NavLink, useParams } from "react-router";
 
-import { useNimmPatientAuf } from "./nimm_patient_auf_command_handler";
-import { usePatient } from "./patient_query_handler";
-import { useSettings } from "./settings_service";
+import { useNimmPatientAuf } from "./nimm_patient_auf_hook";
+import { usePatient } from "./patient_hook";
+import { useEinstellungen } from "./einstellungen_hook";
 import { PATIENTENKARTEIKARTE_PAGE } from "../../components/pages";
 import DefaultPageLayout from "../../layouts/default_page_layout";
 import {
@@ -35,21 +35,21 @@ export default function PatientenkarteikartePage() {
   const [result] = usePatient({ nummer });
   const nimmPatientAuf = useNimmPatientAuf();
   const [state, dispatch] = useReducer(reducer, initialState);
-  const [settings] = useSettings();
+  const [einstellungen] = useEinstellungen();
 
   useEffect(() => {
     if (result.patient == null) {
       dispatch(
         initialisierePatientendaten({
           annahmejahr: Temporal.Now.plainDateISO().year,
-          praxis: settings.praxis[0],
-          schluesselworte: settings.standardSchluesselworte,
+          praxis: einstellungen.praxen[0],
+          schluesselworte: einstellungen.standardSchluesselworte,
         }),
       );
     } else {
       dispatch(zeigePatientendatenAn(result.patient));
     }
-  }, [result.patient, settings.praxis, settings.standardSchluesselworte]);
+  }, [result.patient, einstellungen.praxen, einstellungen.standardSchluesselworte]);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -92,7 +92,7 @@ export default function PatientenkarteikartePage() {
                 label="Schlüsselworte"
                 cols={12}
                 isReadOnly={state.nurLesen}
-                options={settings.schluesselworte}
+                options={einstellungen.schluesselworte}
                 value={state.patient.schluesselworte ?? []}
                 onChange={(e) =>
                   dispatch(
@@ -127,7 +127,7 @@ export default function PatientenkarteikartePage() {
                 label="Praxis"
                 cols={4}
                 isReadOnly={state.nurLesen}
-                options={settings.praxis}
+                options={einstellungen.praxen}
                 value={state.patient.praxis ?? ""}
                 onChange={(e) => dispatch(aktualisiereFeld({ praxis: e.target.value }))}
               />
@@ -136,7 +136,7 @@ export default function PatientenkarteikartePage() {
                 label="Anrede"
                 cols={2}
                 isReadOnly={state.nurLesen}
-                options={settings.anrede}
+                options={einstellungen.anreden}
                 value={state.patient.anrede ?? ""}
                 onChange={(e) => dispatch(aktualisiereFeld({ anrede: e.target.value }))}
               />
@@ -227,7 +227,7 @@ export default function PatientenkarteikartePage() {
                 label="Familienstand"
                 cols={2}
                 isReadOnly={state.nurLesen}
-                options={settings.familienstand}
+                options={einstellungen.familienstaende}
                 value={state.patient.familienstand ?? ""}
                 onChange={(e) => dispatch(aktualisiereFeld({ familienstand: e.target.value }))}
               />

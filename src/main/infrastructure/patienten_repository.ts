@@ -12,13 +12,13 @@ export class PatientenRepository {
     return new PatientenRepository(databaseProvider);
   }
 
-  #databaseProvider: DatabaseProvider;
+  #databaseProvider;
 
-  constructor(databaseProvider: DatabaseProvider) {
+  private constructor(databaseProvider: DatabaseProvider) {
     this.#databaseProvider = databaseProvider;
   }
 
-  findAll(): Patient[] {
+  findAll() {
     const db = this.#databaseProvider.getDatabase();
     const records = db
       .prepare(
@@ -32,7 +32,7 @@ export class PatientenRepository {
     return records.map((record) => mapSqlRecord(record));
   }
 
-  findByNummer(nummer: number): Patient | undefined {
+  findByNummer(nummer: number) {
     const db = this.#databaseProvider.getDatabase();
     const record = db
       .prepare(
