@@ -29,3 +29,4 @@ updates:
       - dependency-name: "@types/node"
         update-types:
           - "version-update:semver-major"
+      - dependency-name: "eslint-plugin-headers"
