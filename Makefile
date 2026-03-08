@@ -43,9 +43,6 @@ test: prepare
 watch: prepare
 	bun test
 
-coverage: prepare
-	bunx vitest run --coverage
-
 unit-tests: prepare
 	bunx vitest run unit
 
@@ -78,8 +75,8 @@ $(DIAGRAM_FILES): %.png: %.puml
 	plantuml $^
 
 .PHONY: \
-	all clean distclean dist start \
-	doc \
+	all clean distclean dist \
+	start doc \
 	check format \
-	dev test watch coverage unit-tests integration-tests e2e-tests \
+	dev test watch unit-tests integration-tests e2e-tests \
 	build prepare version
