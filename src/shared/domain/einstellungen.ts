@@ -37,7 +37,13 @@ export class Einstellungen {
     familienstaende = ["ledig", "verheiratet", "geschieden", "verwitwet"],
     schluesselworte = ["Aktiv", "Weihnachtskarte", "Geburtstagskarte"],
     standardSchluesselworte = ["Aktiv", "Weihnachtskarte"],
-  }: Partial<Einstellungen> = {}): Einstellungen {
+  }: {
+    praxen?: string[];
+    anreden?: string[];
+    familienstaende?: string[];
+    schluesselworte?: string[];
+    standardSchluesselworte?: string[];
+  } = {}): Einstellungen {
     return Einstellungen.create({
       praxen,
       anreden,

@@ -7,6 +7,6 @@ const interactions = new Interactions(
   "data/output/event-log.ndjson",
 );
 
-const settings = await interactions.createSettings();
-interactions.createDatabase(settings);
+interactions.createSettings();
+interactions.createDatabase();
 interactions.dispose();

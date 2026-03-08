@@ -54,7 +54,7 @@ export class PatientenRepository {
     return mapSqlRecord(record);
   }
 
-  create(patient: Omit<PatientRecord, "nummer">) {
+  create(patient: Patient) {
     const record: Record<string, SQLInputValue> = {};
     for (const [key, value] of Object.entries(patient)) {
       if (key === "nummer" || value == null || typeof value === "function") {
@@ -89,33 +89,6 @@ export class PatientenRepository {
       .run(record);
     return result.lastInsertRowid as number;
   }
-}
-
-export interface PatientRecord {
-  readonly nummer: number;
-  readonly nachname: string;
-  readonly vorname: string; // TODO can be empty
-  readonly geburtsdatum: Temporal.PlainDate; // TODO can be empty
-  readonly annahmejahr: number;
-  readonly praxis: string; // TODO can be empty
-  readonly anrede?: string;
-  readonly strasse?: string;
-  readonly wohnort?: string;
-  readonly postleitzahl?: string;
-  readonly staat?: string;
-  readonly staatsangehoerigkeit?: string;
-  readonly titel?: string;
-  readonly beruf?: string;
-  readonly telefon?: string;
-  readonly mobil?: string;
-  readonly eMail?: string;
-  readonly familienstand?: string;
-  readonly partner?: string; // TODO link to patient ID
-  readonly eltern?: string; // TODO link to patient ID
-  readonly kinder?: string; // TODO link to patient ID
-  readonly geschwister?: string; // TODO link to patient ID
-  readonly notizen?: string;
-  readonly schluesselworte?: string[]; // TODO should be undefined if empty
 }
 
 function mapSqlRecord(result: Record<string, SQLOutputValue>) {

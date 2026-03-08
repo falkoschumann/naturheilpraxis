@@ -3,7 +3,7 @@
 import { Patient } from "./patient";
 
 export class PatientQuery {
-  static create({ nummer }: { nummer: number }) {
+  static create({ nummer }: { nummer?: number } = {}) {
     return new PatientQuery(nummer);
   }
 
@@ -11,9 +11,9 @@ export class PatientQuery {
     return PatientQuery.create({ nummer });
   }
 
-  readonly nummer: number;
+  readonly nummer?: number;
 
-  private constructor(nummer: number) {
+  private constructor(nummer?: number) {
     this.nummer = nummer;
   }
 }

@@ -36,16 +36,20 @@ import { DatabaseProvider } from "./infrastructure/database_provider";
 import { PatientenRepository } from "./infrastructure/patienten_repository";
 import icon from "../../build/icon.png?asset";
 import { EinstellungenDto } from "../shared/infrastructure/einstellungen_dto";
+import { UhrProvider } from "./infrastructure/uhr_provider";
 
 // TODO Make the file paths configurable
 const databaseProvider = DatabaseProvider.create();
 const einstellungenGateway = EinstellungenGateway.create({ databaseProvider });
+const uhrProvider = UhrProvider.create();
 const patientenRepository = PatientenRepository.create({ databaseProvider });
 const nimmPatientAufCommandHandler = NimmPatientAufCommandHandler.create({
   patientenRepository,
 });
 const suchePatientQueryHandler = SuchePatientQueryHandler.create({
   patientenRepository,
+  einstellungenGateway,
+  uhrProvider,
 });
 const suchePatientenQueryHandler = SuchePatientenQueryHandler.create({
   patientenRepository,

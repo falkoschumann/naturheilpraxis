@@ -6,243 +6,43 @@ import {
   NimmPatientAufCommand,
   type NimmPatientAufCommandStatus,
 } from "../domain/nimm_patient_auf_command";
+import { PatientDto } from "./patient_dto";
 
 export class NimmPatientAufCommandDto {
   static create({
-    nachname,
-    vorname,
-    geburtsdatum,
-    annahmejahr,
-    praxis,
-    anrede,
-    strasse,
-    wohnort,
-    postleitzahl,
-    staat,
-    staatsangehoerigkeit,
-    titel,
-    beruf,
-    telefon,
-    mobil,
-    eMail,
-    familienstand,
-    partner,
-    eltern,
-    kinder,
-    geschwister,
-    notizen,
-    schluesselworte,
+    patient,
   }: {
-    nachname: string;
-    vorname: string;
-    geburtsdatum: string;
-    annahmejahr: number;
-    praxis: string;
-    anrede?: string;
-    strasse?: string;
-    wohnort?: string;
-    postleitzahl?: string;
-    staat?: string;
-    staatsangehoerigkeit?: string;
-    titel?: string;
-    beruf?: string;
-    telefon?: string;
-    mobil?: string;
-    eMail?: string;
-    familienstand?: string;
-    partner?: string;
-    eltern?: string;
-    kinder?: string;
-    geschwister?: string;
-    notizen?: string;
-    schluesselworte?: string[];
+    patient: PatientDto;
   }): NimmPatientAufCommandDto {
-    return new NimmPatientAufCommandDto(
-      nachname,
-      vorname,
-      geburtsdatum,
-      annahmejahr,
-      praxis,
-      anrede,
-      strasse,
-      wohnort,
-      postleitzahl,
-      staat,
-      staatsangehoerigkeit,
-      titel,
-      beruf,
-      telefon,
-      mobil,
-      eMail,
-      familienstand,
-      partner,
-      eltern,
-      kinder,
-      geschwister,
-      notizen,
-      schluesselworte,
-    );
+    return new NimmPatientAufCommandDto(patient);
   }
 
   static createTestInstance({
-    nachname = "Mustermann",
-    vorname = "Max",
-    geburtsdatum = "1980-01-01",
-    annahmejahr = 2025,
-    praxis = "Naturheilpraxis",
-    anrede,
-    strasse = "Musterstraße 1",
-    wohnort = "Musterstadt",
-    postleitzahl = "12345",
-    staat,
-    staatsangehoerigkeit,
-    titel,
-    beruf,
-    telefon,
-    mobil = "0123 4567890",
-    eMail = "mail@example.com",
-    familienstand,
-    partner,
-    eltern,
-    kinder,
-    geschwister,
-    notizen,
-    schluesselworte = ["Schlüsselwort1", "Schlüsselwort2"],
+    patient = PatientDto.createTestInstance(),
   }: {
-    nachname?: string;
-    vorname?: string;
-    geburtsdatum?: string;
-    annahmejahr?: number;
-    praxis?: string;
-    anrede?: string;
-    strasse?: string;
-    wohnort?: string;
-    postleitzahl?: string;
-    staat?: string;
-    staatsangehoerigkeit?: string;
-    titel?: string;
-    beruf?: string;
-    telefon?: string;
-    mobil?: string;
-    eMail?: string;
-    familienstand?: string;
-    partner?: string;
-    eltern?: string;
-    kinder?: string;
-    geschwister?: string;
-    notizen?: string;
-    schluesselworte?: string[];
+    patient?: PatientDto;
   } = {}): NimmPatientAufCommandDto {
     return NimmPatientAufCommandDto.create({
-      nachname,
-      vorname,
-      geburtsdatum,
-      annahmejahr,
-      praxis,
-      anrede,
-      strasse,
-      wohnort,
-      postleitzahl,
-      staat,
-      staatsangehoerigkeit,
-      titel,
-      beruf,
-      telefon,
-      mobil,
-      eMail,
-      familienstand,
-      partner,
-      eltern,
-      kinder,
-      geschwister,
-      notizen,
-      schluesselworte,
+      patient,
     });
   }
 
   static fromModel(model: NimmPatientAufCommand): NimmPatientAufCommandDto {
     return NimmPatientAufCommandDto.create({
-      ...model,
-      geburtsdatum: model.geburtsdatum.toString(),
+      patient: PatientDto.fromModel(model.patient),
     });
   }
 
-  readonly nachname: string;
-  readonly vorname: string;
-  readonly geburtsdatum: string;
-  readonly annahmejahr: number;
-  readonly praxis: string;
-  readonly anrede?: string;
-  readonly strasse?: string;
-  readonly wohnort?: string;
-  readonly postleitzahl?: string;
-  readonly staat?: string;
-  readonly staatsangehoerigkeit?: string;
-  readonly titel?: string;
-  readonly beruf?: string;
-  readonly telefon?: string;
-  readonly mobil?: string;
-  readonly eMail?: string;
-  readonly familienstand?: string;
-  readonly partner?: string;
-  readonly eltern?: string;
-  readonly kinder?: string;
-  readonly geschwister?: string;
-  readonly notizen?: string;
-  readonly schluesselworte?: string[];
+  readonly patient: PatientDto;
 
-  private constructor(
-    nachname: string,
-    vorname: string,
-    geburtsdatum: string,
-    annahmejahr: number,
-    praxis: string,
-    anrede?: string,
-    strasse?: string,
-    wohnort?: string,
-    postleitzahl?: string,
-    staat?: string,
-    staatsangehoerigkeit?: string,
-    titel?: string,
-    beruf?: string,
-    telefon?: string,
-    mobil?: string,
-    eMail?: string,
-    familienstand?: string,
-    partner?: string,
-    eltern?: string,
-    kinder?: string,
-    geschwister?: string,
-    notizen?: string,
-    schluesselworte?: string[],
-  ) {
-    this.nachname = nachname;
-    this.vorname = vorname;
-    this.geburtsdatum = geburtsdatum;
-    this.annahmejahr = annahmejahr;
-    this.praxis = praxis;
-    this.anrede = anrede;
-    this.strasse = strasse;
-    this.wohnort = wohnort;
-    this.postleitzahl = postleitzahl;
-    this.staat = staat;
-    this.staatsangehoerigkeit = staatsangehoerigkeit;
-    this.titel = titel;
-    this.beruf = beruf;
-    this.telefon = telefon;
-    this.mobil = mobil;
-    this.eMail = eMail;
-    this.familienstand = familienstand;
-    this.partner = partner;
-    this.eltern = eltern;
-    this.kinder = kinder;
-    this.geschwister = geschwister;
-    this.notizen = notizen;
-    this.schluesselworte = schluesselworte;
+  private constructor(patient: PatientDto) {
+    this.patient = patient;
   }
 
   validate(): NimmPatientAufCommand {
-    return NimmPatientAufCommand.create(this);
+    return NimmPatientAufCommand.create({
+      patient: this.patient.validate(),
+    });
   }
 }
 

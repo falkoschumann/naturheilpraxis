@@ -31,8 +31,13 @@ describe("Nimm Patient auf", () => {
 
       const status = await handler.handle(
         NimmPatientAufCommand.createTestInstance({
-          vorname: "Erika",
-          geburtsdatum: "1985-05-05",
+          patient: Patient.create({
+            vorname: "Erika",
+            geburtsdatum: "1985-05-05",
+            praxis: "Praxis 1",
+            annahmejahr: 2026,
+            schluesselworte: [],
+          }),
         }),
       );
 

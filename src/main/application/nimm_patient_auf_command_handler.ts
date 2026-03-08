@@ -26,7 +26,7 @@ export class NimmPatientAufCommandHandler {
   async handle(
     command: NimmPatientAufCommand,
   ): Promise<NimmPatientAufCommandStatus> {
-    const nummer = this.#patientenRepository.create(command);
+    const nummer = this.#patientenRepository.create(command.patient);
     return new Success({ nummer });
   }
 }

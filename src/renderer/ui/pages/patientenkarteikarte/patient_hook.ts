@@ -8,7 +8,7 @@ import {
 } from "../../../../shared/domain/suche_patient_query";
 import { useMessageHandler } from "../../components/message_handler_context";
 
-export function usePatient(query: Partial<PatientQuery>) {
+export function usePatient(query: PatientQuery) {
   const [result, setResult] = useState(PatientQueryResult.create());
   const messageHandler = useMessageHandler();
 

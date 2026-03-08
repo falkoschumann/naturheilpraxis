@@ -50,10 +50,7 @@ export class PatientenQueryResultDto {
 
   static fromModel(result: PatientenQueryResult): PatientenQueryResultDto {
     const patienten = result.patienten.map((patient) =>
-      PatientDto.create({
-        ...patient,
-        geburtsdatum: patient.geburtsdatum.toString(),
-      }),
+      PatientDto.fromModel(patient),
     );
     return PatientenQueryResultDto.create({ patienten });
   }

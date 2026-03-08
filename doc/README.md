@@ -194,11 +194,13 @@ Stories für den MVP sind mit ❗ markiert.
 
 ```mermaid
 stateDiagram
-    [*] --> Aufnahme: initialisiere Patientendaten
-    [*] --> Anzeige: zeige Patientendaten an
+    state ist_neuer_Patient <<choice>>
+    [*] --> ist_neuer_Patient: initialisiere Formular
+    ist_neuer_Patient --> Aufnahme: Patient neu
+    ist_neuer_Patient --> Anzeige: Patient bekannt
     Aufnahme --> Aufnahme: aktualisiere Feld
-    Aufnahme --> Aufnahme: brich Aufnahme ab
     Aufnahme --> Verarbeitung: sende Formular
+    Aufnahme --> Aufnahme: brich Bearbeitung ab
     Verarbeitung --> Anzeige: Verarbeitung abgeschlossen
     Anzeige --> Bearbeitung: bearbeite Patientendaten
     Bearbeitung --> Bearbeitung: aktualisiere Feld

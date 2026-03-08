@@ -136,7 +136,7 @@ const columns = [
   columnHelper.accessor("vorname", { header: "Vorname" }),
   columnHelper.accessor("geburtsdatum", {
     header: "Geburtsdatum",
-    cell: (info) => info.getValue().toLocaleString(undefined, { dateStyle: "medium" }),
+    cell: (info) => info?.getValue()?.toLocaleString(undefined, { dateStyle: "medium" }),
   }),
   columnHelper.accessor("strasse", { header: "Straße", size: 200 }),
   columnHelper.accessor("postleitzahl", { header: "PLZ", size: 80 }),

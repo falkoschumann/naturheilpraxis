@@ -3,7 +3,7 @@
 import { Temporal } from "@js-temporal/polyfill";
 // @ts-expect-error TS7016
 import Tags from "bootstrap5-tags";
-import { type ChangeEvent, type FormEvent, type MouseEvent, useEffect, useReducer } from "react";
+import { type ChangeEvent, type MouseEvent, type SubmitEvent, useEffect, useReducer } from "react";
 import { NavLink, useParams } from "react-router";
 
 import { useNimmPatientAuf } from "./nimm_patient_auf_hook";
@@ -16,15 +16,13 @@ import {
   bearbeitePatientendaten,
   brichBearbeitungAb,
   FormularZustand,
-  initialisierePatientendaten,
+  initialisiereFormular,
   initialState,
   reducer,
   sendeFormular,
   verarbeitungAbgeschlossen,
-  zeigePatientendatenAn,
 } from "./reducer";
-import type { Patient } from "../../../../shared/domain/patient";
-import { NimmPatientAufCommand } from "../../../../shared/domain/nimm_patient_auf_command";
+import { NimmPatientAufCommand } from "../../../../shared/domain/nimm_patient_auf_command"; // TODO link spouse and parent
 
 // TODO link spouse and parent
 // TODO add back link or link to Patientenkartei
@@ -32,32 +30,24 @@ import { NimmPatientAufCommand } from "../../../../shared/domain/nimm_patient_au
 export default function PatientenkarteikartePage() {
   const params = useParams();
   const nummer = params.nummer != null ? Number(params.nummer) : undefined;
+  // TODO move new patient to main process
+  const [einstellungen] = useEinstellungen();
+  // TODO join the following hooks into one to avoid multiple calls to backend and use single loading state
   const [result] = usePatient({ nummer });
   const nimmPatientAuf = useNimmPatientAuf();
   const [state, dispatch] = useReducer(reducer, initialState);
-  const [einstellungen] = useEinstellungen();
 
   useEffect(() => {
-    if (result.patient == null) {
-      dispatch(
-        initialisierePatientendaten({
-          annahmejahr: Temporal.Now.plainDateISO().year,
-          praxis: einstellungen.praxen[0],
-          schluesselworte: einstellungen.standardSchluesselworte,
-        }),
-      );
-    } else {
-      dispatch(zeigePatientendatenAn(result.patient));
-    }
+    dispatch(initialisiereFormular(result.patient));
   }, [result.patient, einstellungen.praxen, einstellungen.standardSchluesselworte]);
 
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
 
     if (state.zustand === FormularZustand.AUFNAHME) {
       dispatch(sendeFormular());
       // Patient in state should be complete here
-      const status = await nimmPatientAuf(NimmPatientAufCommand.create(state.patient as Patient));
+      const status = await nimmPatientAuf(NimmPatientAufCommand.create({ patient: state.patient }));
       if (status.isSuccess) {
         dispatch(verarbeitungAbgeschlossen({ nummer: status.result!.nummer }));
       }

@@ -31,7 +31,13 @@ export class EinstellungenDto {
     familienstaende = ["ledig", "verheiratet", "geschieden", "verwitwet"],
     schluesselworte = ["Aktiv", "Weihnachtskarte", "Geburtstagskarte"],
     standardSchluesselworte = ["Aktiv", "Weihnachtskarte"],
-  }: Partial<Einstellungen> = {}): EinstellungenDto {
+  }: {
+    praxen?: string[];
+    anreden?: string[];
+    familienstaende?: string[];
+    schluesselworte?: string[];
+    standardSchluesselworte?: string[];
+  } = {}): EinstellungenDto {
     return EinstellungenDto.create({
       praxen,
       anreden,

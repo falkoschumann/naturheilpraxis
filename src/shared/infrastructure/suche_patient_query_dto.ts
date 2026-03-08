@@ -7,7 +7,7 @@ import {
 import { PatientDto } from "./patient_dto";
 
 export class PatientQueryDto {
-  static create({ nummer }: { nummer: number }) {
+  static create({ nummer }: { nummer?: number }) {
     return new PatientQueryDto(nummer);
   }
 
@@ -19,9 +19,9 @@ export class PatientQueryDto {
     return PatientQueryDto.create(model);
   }
 
-  readonly nummer: number;
+  readonly nummer?: number;
 
-  private constructor(nummer: number) {
+  private constructor(nummer?: number) {
     this.nummer = nummer;
   }
 
@@ -45,10 +45,7 @@ export class PatientQueryResultDto {
 
   static fromModel(result: PatientQueryResult): PatientQueryResultDto {
     const patient = result.patient
-      ? PatientDto.create({
-          ...result.patient,
-          geburtsdatum: result.patient.geburtsdatum.toString(),
-        })
+      ? PatientDto.fromModel(result.patient)
       : undefined;
     return PatientQueryResultDto.create({ patient });
   }

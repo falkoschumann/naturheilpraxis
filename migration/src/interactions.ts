@@ -2,7 +2,6 @@
 
 import path from "node:path";
 
-import type { Einstellungen } from "../../src/shared/domain/einstellungen";
 import { EinstellungenGateway } from "../../src/main/infrastructure/einstellungen_gateway";
 import { PatientenRepository } from "../../src/main/infrastructure/patienten_repository";
 import { DatabaseProvider } from "../../src/main/infrastructure/database_provider";
@@ -37,7 +36,7 @@ export class Interactions {
     });
   }
 
-  async createSettings() {
+  createSettings() {
     let agencies;
     let titles;
     let familyStatus;
@@ -74,9 +73,9 @@ export class Interactions {
     }
   }
 
-  createDatabase(settings: Einstellungen) {
+  createDatabase() {
     const customers = this.#legacyDatabase.queryCustomers();
-    const patienten = createPatientenFromCustomers(customers, settings);
+    const patienten = createPatientenFromCustomers(customers);
     for (const event of patienten) {
       this.#patientenRepository.create(event);
     }

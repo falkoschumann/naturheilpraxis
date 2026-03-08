@@ -1,8 +1,6 @@
 // Copyright (c) 2026 Falko Schumann. All rights reserved. MIT license.
 
 import { Temporal } from "@js-temporal/polyfill";
-import Ajv from "ajv";
-import addFormats from "ajv-formats";
 
 export class Patient {
   static create({
@@ -31,12 +29,12 @@ export class Patient {
     notizen,
     schluesselworte,
   }: {
-    nummer: number;
-    nachname: string;
-    vorname: string;
-    geburtsdatum: Temporal.PlainDate | string;
-    annahmejahr: number;
-    praxis: string;
+    nummer?: number;
+    nachname?: string;
+    vorname?: string;
+    geburtsdatum?: Temporal.PlainDate | string;
+    annahmejahr?: number;
+    praxis?: string;
     anrede?: string;
     strasse?: string;
     wohnort?: string;
@@ -163,12 +161,13 @@ export class Patient {
     });
   }
 
-  readonly nummer: number;
-  readonly nachname: string;
-  readonly vorname: string; // TODO can be empty
-  readonly geburtsdatum: Temporal.PlainDate; // TODO can be empty
-  readonly annahmejahr: number;
-  readonly praxis: string; // TODO can be empty
+  // nummer ist ein Pflichtfeld, außer der Patient ist noch nicht aufgenommen
+  readonly nummer?: number;
+  readonly nachname?: string;
+  readonly vorname?: string;
+  readonly geburtsdatum?: Temporal.PlainDate;
+  readonly annahmejahr?: number;
+  readonly praxis?: string;
   readonly anrede?: string;
   readonly strasse?: string;
   readonly wohnort?: string;
@@ -181,20 +180,20 @@ export class Patient {
   readonly mobil?: string;
   readonly eMail?: string;
   readonly familienstand?: string;
-  readonly partner?: string; // TODO link to patient ID
-  readonly eltern?: string; // TODO link to patient ID
-  readonly kinder?: string; // TODO link to patient ID
-  readonly geschwister?: string; // TODO link to patient ID
+  readonly partner?: string;
+  readonly eltern?: string;
+  readonly kinder?: string;
+  readonly geschwister?: string;
   readonly notizen?: string;
-  readonly schluesselworte?: string[]; // TODO should be undefined if empty
+  readonly schluesselworte?: string[];
 
   private constructor(
-    nummer: number,
-    nachname: string,
-    vorname: string,
-    geburtsdatum: Temporal.PlainDate | string,
-    annahmejahr: number,
-    praxis: string,
+    nummer?: number,
+    nachname?: string,
+    vorname?: string,
+    geburtsdatum?: Temporal.PlainDate | string,
+    annahmejahr?: number,
+    praxis?: string,
     anrede?: string,
     strasse?: string,
     wohnort?: string,
@@ -217,7 +216,10 @@ export class Patient {
     this.nummer = nummer;
     this.nachname = nachname;
     this.vorname = vorname;
-    this.geburtsdatum = Temporal.PlainDate.from(geburtsdatum);
+    this.geburtsdatum =
+      geburtsdatum != null
+        ? Temporal.PlainDate.from(geburtsdatum)
+        : geburtsdatum;
     this.annahmejahr = annahmejahr;
     this.praxis = praxis;
     this.anrede = anrede;
@@ -239,59 +241,4 @@ export class Patient {
     this.notizen = notizen;
     this.schluesselworte = schluesselworte;
   }
-
-  validate() {
-    // TODO move validation to migration
-    const valid = ajv.validate(PATIENT_SCHEMA, this);
-    if (!valid) {
-      throw new TypeError("Ungültige Daten für Patient.", {
-        cause: ajv.errors,
-      });
-    }
-
-    return this;
-  }
 }
-
-const ajv = new Ajv({ allErrors: true });
-addFormats(ajv);
-
-const PATIENT_SCHEMA = {
-  type: "object",
-  properties: {
-    nummer: { type: "number" },
-    nachname: { type: "string" },
-    vorname: { type: "string" },
-    geburtsdatum: { type: "string", format: "date" },
-    annahmejahr: { type: "integer" },
-    praxis: { type: "string" },
-    anrede: { type: "string" },
-    strasse: { type: "string" },
-    wohnort: { type: "string" },
-    postleitzahl: { type: "string" },
-    staat: { type: "string" },
-    staatsangehoerigkeit: { type: "string" },
-    titel: { type: "string" },
-    beruf: { type: "string" },
-    telefon: { type: "string" },
-    mobil: { type: "string" },
-    // WORKAROUND should have "format": "email", but it is too restrictive
-    eMail: { type: "string", pattern: "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$" },
-    familienstand: { type: "string" },
-    partner: { type: "string" },
-    eltern: { type: "string" },
-    kinder: { type: "string" },
-    geschwister: { type: "string" },
-    notizen: { type: "string" },
-    schluesselworte: { type: "array", items: { type: "string" } },
-  },
-  required: [
-    "nummer",
-    "nachname",
-    "vorname",
-    "geburtsdatum",
-    "annahmejahr",
-    "praxis",
-  ],
-  additionalProperties: false,
-};

@@ -27,12 +27,12 @@ export class PatientDto {
     notizen,
     schluesselworte,
   }: {
-    nummer: number;
-    nachname: string;
-    vorname: string;
-    geburtsdatum: string;
-    annahmejahr: number;
-    praxis: string;
+    nummer?: number;
+    nachname?: string;
+    vorname?: string;
+    geburtsdatum?: string;
+    annahmejahr?: number;
+    praxis?: string;
     anrede?: string;
     strasse?: string;
     wohnort?: string;
@@ -149,12 +149,20 @@ export class PatientDto {
     });
   }
 
-  readonly nummer: number;
-  readonly nachname: string;
-  readonly vorname: string;
-  readonly geburtsdatum: string;
-  readonly annahmejahr: number;
-  readonly praxis: string;
+  static fromModel(model: Patient) {
+    return PatientDto.create({
+      ...model,
+      geburtsdatum: model.geburtsdatum?.toString(),
+    });
+  }
+
+  // nummer ist ein Pflichtfeld, außer der Patient ist noch nicht aufgenommen
+  readonly nummer?: number;
+  readonly nachname?: string;
+  readonly vorname?: string;
+  readonly geburtsdatum?: string;
+  readonly annahmejahr?: number;
+  readonly praxis?: string;
   readonly anrede?: string;
   readonly strasse?: string;
   readonly wohnort?: string;
@@ -173,12 +181,12 @@ export class PatientDto {
   readonly schluesselworte?: string[];
 
   private constructor(
-    nummer: number,
-    nachname: string,
-    vorname: string,
-    geburtsdatum: string,
-    annahmejahr: number,
-    praxis: string,
+    nummer?: number,
+    nachname?: string,
+    vorname?: string,
+    geburtsdatum?: string,
+    annahmejahr?: number,
+    praxis?: string,
     anrede?: string,
     strasse?: string,
     wohnort?: string,

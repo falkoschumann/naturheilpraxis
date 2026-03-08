@@ -1,42 +1,21 @@
 // Copyright (c) 2025 Falko Schumann. All rights reserved. MIT license.
 
-import type { ErrorObject } from "ajv";
-
 import { Patient } from "../../src/shared/domain/patient";
-import type { Einstellungen } from "../../src/shared/domain/einstellungen";
 
 import type { CustomerDto } from "./legacy_database_gateway";
 
-const PRUEFUNG_ERFORDERLICH = "Prüfung erforderlich";
-const FELD_NICHT_AUSGEFUELLT = "Feld nicht ausgefüllt";
-const UNGUELTIGER_WERT = "Ungültiger Wert";
-
-export function createPatientenFromCustomers(
-  customers: CustomerDto[],
-  settings: Einstellungen,
-) {
+export function createPatientenFromCustomers(customers: CustomerDto[]) {
   const patienten = customers.map((customer) =>
-    createPatientFromCustomer(customer, settings),
+    createPatientFromCustomer(customer),
   );
-  const noOfIssues = patienten.filter((p) =>
-    p.schluesselworte?.includes(PRUEFUNG_ERFORDERLICH),
-  ).length;
   console.log("Anzahl migrierter Patienten:", customers.length);
-  console.log("Anzahl Patienten mit Fehler:", noOfIssues);
   return patienten;
 }
 
-export function createPatientFromCustomer(
-  customer: CustomerDto,
-  settings: Einstellungen,
-) {
-  let data = createPatient(customer);
-  try {
-    return Patient.create(data).validate();
-  } catch (error) {
-    data = handleError(error, data, settings);
-    return Patient.create(data);
-  }
+export function createPatientFromCustomer(customer: CustomerDto) {
+  // TODO validate data
+  const data = createPatient(customer);
+  return Patient.create(data);
 }
 
 function createPatient(customer: CustomerDto): Patient {
@@ -69,20 +48,6 @@ function createPatient(customer: CustomerDto): Patient {
   });
 }
 
-function handleError(
-  error: unknown,
-  patient: Patient,
-  settings: Einstellungen,
-) {
-  if (error instanceof TypeError) {
-    return handleTypeError(error, patient, settings);
-  } else {
-    throw new Error(`Patient ${patient.nummer} kann nicht migriert werden.`, {
-      cause: error,
-    });
-  }
-}
-
 function tidyUpNumber(value?: number | null) {
   if (value == null) {
     return undefined;
@@ -110,78 +75,4 @@ function createArrayFromString(value?: string) {
   }
 
   return value.split(",").map((s) => String(s).trim());
-}
-
-function handleTypeError(
-  error: TypeError,
-  patient: Patient,
-  settings: Einstellungen,
-) {
-  // TODO entferne ungültiges Attribut
-
-  if (patient.schluesselworte == null) {
-    patient = Patient.create({ ...patient, schluesselworte: [] });
-  }
-  patient.schluesselworte!.push(PRUEFUNG_ERFORDERLICH);
-
-  const errors = error.cause as ErrorObject[];
-  console.error(
-    `Der Patient ${patient.nachname}, ${patient.vorname} (${patient.nummer}), geboren am ${patient.geburtsdatum} enthält ${errors.length} Fehler:`,
-  );
-  for (const err of errors) {
-    let key: keyof Patient;
-    let message;
-    switch (err.keyword) {
-      case "format":
-        key = err.instancePath.substring(1) as keyof Patient;
-        message = `Das Feld "${err.instancePath}" hat einen ungültigen Wert: "${patient[key]}" passt nicht zum Format "${err.params.format}".`;
-        patient.schluesselworte!.push(UNGUELTIGER_WERT);
-        break;
-      case "pattern":
-        key = err.instancePath.substring(1) as keyof Patient;
-        message = `Das Feld "${err.instancePath}" hat einen ungültigen Wert: "${patient[key]}" passt nicht zum regulären Ausdruck "${err.params.pattern}".`;
-        patient.schluesselworte!.push(UNGUELTIGER_WERT);
-        break;
-      case "required":
-        key = err.params.missingProperty;
-        message = `Ein erforderliches Feld ist nicht ausgefüllt: "${key}".`;
-        patient.schluesselworte!.push(FELD_NICHT_AUSGEFUELLT);
-        break;
-      default:
-        throw new Error(
-          `Patient ${patient.nummer} kann nicht migriert werden.`,
-          {
-            cause: error,
-          },
-        );
-    }
-    const value = defaultForField(key, settings);
-    console.error("  - " + message + ` Setze Standardwert: "${value}".`);
-    patient = Patient.create({
-      ...patient,
-      [key]: value,
-      notizen: (patient.notizen == null ? "" : "\n") + message,
-    });
-  }
-  return patient;
-}
-
-const DEFAULT_STRING = "N/A";
-const DEFAULT_DATE = "1900-01-01";
-const DEFAULT_YEAR = 1900;
-
-function defaultForField(key: keyof Patient, settings: Einstellungen) {
-  switch (key) {
-    case "nachname":
-    case "vorname":
-      return DEFAULT_STRING;
-    case "geburtsdatum":
-      return DEFAULT_DATE;
-    case "annahmejahr":
-      return DEFAULT_YEAR;
-    case "praxis":
-      return settings.praxen[0];
-    default:
-      return undefined;
-  }
 }
