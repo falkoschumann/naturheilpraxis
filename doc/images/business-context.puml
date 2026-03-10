@@ -10,12 +10,15 @@ Person(patient, "Patient", "Möchte Rechnung für Leistungen erhalten, um sie be
 
 System(naturheilpraxis, "Naturheilpraxis", "Verwaltet Patienten, Diagnosen, Leistungen und Rechnungen.")
 
-SystemDb(eventStore, "Event Store", "Zeichnet alle Änderungen als Liste von Ereignissen auf.")
+SystemDb(patienten, "Patienten", "Patienten die aufgenommen wurden.")
+SystemDb(leistungen, "Leistungen", "Leistungen, die für einen Patienten erbracht wurden.")
+SystemDb(rechnungen, "Rechnungen", "Abgerechnete Leistungen.")
 
 Rel(heilpraktiker, naturheilpraxis, "Nimm Patient auf, erstelle Diagnose, erbringe Leistungen und erstelle Rechnung")
 Rel(patient, naturheilpraxis, "Erhalte Diagnose und Leistungen sowie Rechnung")
-Rel(naturheilpraxis, eventStore, "Sichere fachliche Ereignisse")
+Rel(naturheilpraxis, patienten, "Nimm Patient auf")
+Rel(naturheilpraxis, leistungen, "Erbringe Leistung")
+Rel(naturheilpraxis, rechnungen, "Rechne Leistungen ab")
 
-SHOW_FLOATING_LEGEND()
-Lay_Left(LEGEND(), eventStore)
+SHOW_LEGEND()
 @enduml

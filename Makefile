@@ -1,7 +1,7 @@
 export ASAR?=true
 export MAC_SIGN?=false
 
-PLANTUML_FILES = $(wildcard doc/*.puml)
+PLANTUML_FILES = $(wildcard doc/images/*.puml)
 DIAGRAM_FILES = $(subst .puml,.png,$(PLANTUML_FILES))
 
 all: dist check

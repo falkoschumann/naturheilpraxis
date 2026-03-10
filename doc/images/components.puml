@@ -12,12 +12,16 @@ System_Boundary(naturheilpraxis, "Naturheilpraxis System") {
   Container_Ext(electron, "Electron", "Electron, Node.js", "Container für die Web-Anwendung und Proxy für native Funktionen.")
   Container(rendererProcess, "Renderer Process", "TypeScript, React", "Rendert die Benutzeroberfläche und gibt Nutzereingaben als Nachrichten an den Main Process weiter.")
   Container(mainProcess, "Main Process", "TypeScript", "Verarbeitet die Nachrichten des Renderer Process' und gibt Antwortnachrichten zurück.")
-  ContainerDb(eventStore, "Event Store", "Filesystem, JSOND", "Zeichnet alle Änderungen als Liste von Ereignissen auf.")
+  ContainerDb(patienten, "Patienten", "Sqlite", "Patienten die aufgenommen wurden.")
+  ContainerDb(leistungen, "Leistungen", "Sqlite", "Leistungen, die für einen Patienten erbracht wurden.")
+  ContainerDb(rechnungen, "Rechnungen", "Sqlite", "Abgerechnete Leistungen.")
 
   Rel(electron, rendererProcess, "Stelle Benutzeroberfläche bereit", "HTML, CSS, JavaScript")
   Rel(electron, mainProcess, "Verwalte den Lebenszyklus der Applikation", "Node.js, JavaScript")
   Rel_Up(rendererProcess, mainProcess, "Sende und empfange Nachrichten", "IPC channels")
-  Rel(mainProcess, eventStore, "Sichere fachliche Ereignisse", "File, JSON")
+  Rel(mainProcess, patienten, "Nimm Patient auf", "SQL")
+  Rel(mainProcess, leistungen, "Erbringe Leistung", "SQL")
+  Rel(mainProcess, rechnungen, "Rechne Leistungen ab", "SQL")
 }
 
 Rel(heilpraktiker, electron, "Nimm Patient auf, erstelle Diagnose, erbringe Leistungen und erstelle Rechnung")
