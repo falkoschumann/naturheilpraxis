@@ -28,7 +28,7 @@ describe("Suche Patient", () => {
       const result = await handler.handle(PatientQuery.create({ nummer: 2 }));
 
       expect(result).toEqual<PatientQueryResult>(
-        PatientQueryResult.create({
+        PatientQueryResult.createTestInstance({
           patient: Patient.createTestInstance({
             nummer: 2,
             vorname: "Erika",
@@ -38,15 +38,13 @@ describe("Suche Patient", () => {
     });
 
     it("sollte neuen Patient vorbereiten, wenn keine Nummer angegeben ist", async () => {
-      const { handler, patientenRepository, einstellungenGateway } =
-        configure();
+      const { handler, patientenRepository } = configure();
       patientenRepository.create(Patient.createTestInstance());
-      einstellungenGateway.sichere(Einstellungen.createTestInstance());
 
       const result = await handler.handle(PatientQuery.create());
 
       expect(result).toEqual<PatientQueryResult>(
-        PatientQueryResult.create({
+        PatientQueryResult.createTestInstance({
           patient: Patient.create({
             annahmejahr: 2026,
             praxis: "Praxis 1",
@@ -64,7 +62,10 @@ describe("Suche Patient", () => {
         PatientQuery.create({ nummer: 9999 }),
       );
 
-      expect(result).toEqual<PatientQueryResult>(PatientQueryResult.create());
+      expect(result).toEqual<PatientQueryResult>({
+        ...PatientQueryResult.createTestInstance(),
+        patient: undefined,
+      });
     });
   });
 });
@@ -75,6 +76,7 @@ function configure() {
   const einstellungenGateway = EinstellungenGateway.create({
     databaseProvider,
   });
+  einstellungenGateway.sichere(Einstellungen.createTestInstance());
   const uhrProvider = UhrProvider.createTestInstance();
   const handler = SuchePatientQueryHandler.create({
     patientenRepository,

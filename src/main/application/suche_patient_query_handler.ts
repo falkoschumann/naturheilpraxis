@@ -41,16 +41,18 @@ export class SuchePatientQueryHandler {
   }
 
   async handle(query: PatientQuery) {
+    const einstellungen = this.#einstellungenGateway.lade();
+
     if (query.nummer != null) {
       const patient = this.#patientenRepository.findByNummer(query.nummer);
-      return PatientQueryResult.create({ patient });
+      return PatientQueryResult.create({ ...einstellungen, patient });
     }
 
     const annahmejahr = this.#uhrProvider.getDatum().year;
-    const einstellungen = this.#einstellungenGateway.lade();
     const praxis = einstellungen.praxen[0];
     const schluesselworte = einstellungen.standardSchluesselworte;
     return PatientQueryResult.create({
+      ...einstellungen,
       patient: Patient.create({ annahmejahr, praxis, schluesselworte }),
     });
   }

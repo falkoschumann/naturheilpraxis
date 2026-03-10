@@ -19,21 +19,67 @@ export class PatientQuery {
 }
 
 export class PatientQueryResult {
-  static create({ patient }: { patient?: Patient } = {}) {
-    return new PatientQueryResult(patient);
+  static create({
+    patient,
+    praxen = [],
+    anreden = [],
+    familienstaende = [],
+    schluesselworte = [],
+  }: {
+    patient?: Patient;
+    praxen?: string[];
+    anreden?: string[];
+    familienstaende?: string[];
+    schluesselworte?: string[];
+  } = {}) {
+    return new PatientQueryResult(
+      praxen,
+      anreden,
+      familienstaende,
+      schluesselworte,
+      patient,
+    );
   }
 
   static createTestInstance({
     patient = Patient.createTestInstance(),
+    praxen = ["Praxis 1", "Praxis 2"],
+    anreden = ["Herr", "Frau", "Fräulein"],
+    familienstaende = ["ledig", "verheiratet", "geschieden", "verwitwet"],
+    schluesselworte = ["Aktiv", "Weihnachtskarte", "Geburtstagskarte"],
   }: {
     patient?: Patient;
+    praxen?: string[];
+    anreden?: string[];
+    familienstaende?: string[];
+    schluesselworte?: string[];
   } = {}) {
-    return PatientQueryResult.create({ patient });
+    return PatientQueryResult.create({
+      patient,
+      praxen,
+      anreden,
+      familienstaende,
+      schluesselworte,
+    });
   }
 
   readonly patient?: Patient;
+  readonly praxen: string[];
+  readonly anreden: string[];
+  readonly familienstaende: string[];
+  readonly schluesselworte: string[];
 
-  private constructor(patient?: Patient) {
+  private constructor(
+    praxen: string[],
+    anreden: string[],
+    familienstaende: string[],
+    schluesselworte: string[],
+    patient?: Patient,
+  ) {
     this.patient = patient;
+    this.praxen = praxen;
+    this.anreden = anreden;
+    this.familienstaende = familienstaende;
+    this.schluesselworte = schluesselworte;
   }
 }
