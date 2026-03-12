@@ -29,7 +29,7 @@ export class PatientenRepository {
         `,
       )
       .all();
-    return records.map((record) => mapSqlRecord(record));
+    return records.map(mapSqlRecord);
   }
 
   findByNummer(nummer: number) {
@@ -91,29 +91,30 @@ export class PatientenRepository {
   }
 }
 
-function mapSqlRecord(result: Record<string, SQLOutputValue>) {
+function mapSqlRecord(record: Record<string, SQLOutputValue>) {
   return Patient.create({
-    nummer: result.nummer as number,
-    nachname: result.nachname as string,
-    vorname: result.vorname as string,
-    geburtsdatum: Temporal.PlainDate.from(result.geburtsdatum as string),
-    annahmejahr: result.annahmejahr as number,
-    praxis: result.praxis as string,
-    anrede: (result.anrede as string) || undefined,
-    strasse: (result.strasse as string) || undefined,
-    wohnort: (result.wohnort as string) || undefined,
-    postleitzahl: (result.postleitzahl as string) || undefined,
-    staat: (result.staat as string) || undefined,
-    staatsangehoerigkeit: (result.staatsangehoerigkeit as string) || undefined,
-    titel: (result.titel as string) || undefined,
-    beruf: (result.beruf as string) || undefined,
-    telefon: (result.telefon as string) || undefined,
-    mobil: (result.mobil as string) || undefined,
-    eMail: (result.email as string) || undefined,
-    familienstand: (result.familienstand as string) || undefined,
-    partner: (result.partner as string) || undefined,
-    kinder: (result.kinder as string) || undefined,
-    notizen: (result.notizen as string) || undefined,
-    schluesselworte: (result.schluesselworte as string).split(","),
+    nummer: record["nummer"] as number,
+    nachname: record["nachname"] as string,
+    vorname: record["vorname"] as string,
+    geburtsdatum: Temporal.PlainDate.from(record["geburtsdatum"] as string),
+    annahmejahr: record["annahmejahr"] as number,
+    praxis: record["praxis"] as string,
+    anrede: (record["anrede"] as string) || undefined,
+    strasse: (record["strasse"] as string) || undefined,
+    wohnort: (record["wohnort"] as string) || undefined,
+    postleitzahl: (record["postleitzahl"] as string) || undefined,
+    staat: (record["staat"] as string) || undefined,
+    staatsangehoerigkeit:
+      (record["staatsangehoerigkeit"] as string) || undefined,
+    titel: (record["titel"] as string) || undefined,
+    beruf: (record["beruf"] as string) || undefined,
+    telefon: (record["telefon"] as string) || undefined,
+    mobil: (record["mobil"] as string) || undefined,
+    eMail: (record["email"] as string) || undefined,
+    familienstand: (record["familienstand"] as string) || undefined,
+    partner: (record["partner"] as string) || undefined,
+    kinder: (record["kinder"] as string) || undefined,
+    notizen: (record["notizen"] as string) || undefined,
+    schluesselworte: (record["schluesselworte"] as string).split(","),
   });
 }

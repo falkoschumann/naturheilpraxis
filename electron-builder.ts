@@ -33,7 +33,7 @@ const options: Configuration = {
     "!vitest.config.*",
     "!.prettier*",
   ],
-  asar: process.env.ASAR === "true",
+  asar: process.env["ASAR"] === "true",
   asarUnpack: ["resources/**"],
   win: {
     executableName: "naturheilpraxis",
@@ -50,8 +50,8 @@ const options: Configuration = {
       "NSDocumentsFolderUsageDescription: Application requests access to the user's Documents folder.",
       "NSDownloadsFolderUsageDescription: Application requests access to the user's Downloads folder.",
     ],
-    notarize: process.env.MAC_SIGN === "true",
-    identity: process.env.MAC_SIGN === "true" ? undefined : null,
+    notarize: process.env["MAC_SIGN"] === "true",
+    identity: process.env["MAC_SIGN"] === "true" ? undefined : null,
   },
   dmg: {
     artifactName: "${name}-${version}.${ext}",

@@ -2,6 +2,7 @@
 
 import { Einstellungen } from "../../shared/domain/einstellungen";
 import type { DatabaseProvider } from "./database_provider";
+import type { SQLOutputValue } from "node:sqlite";
 
 export class EinstellungenGateway {
   static create({ databaseProvider }: { databaseProvider: DatabaseProvider }) {
@@ -25,15 +26,7 @@ export class EinstellungenGateway {
         `,
       )
       .get()!;
-    return Einstellungen.create({
-      praxen: JSON.parse(record.praxen as string),
-      anreden: JSON.parse(record.anreden as string),
-      familienstaende: JSON.parse(record.familienstaende as string),
-      schluesselworte: JSON.parse(record.schluesselworte as string),
-      standardSchluesselworte: JSON.parse(
-        record.standard_schluesselworte as string,
-      ),
-    });
+    return mapSqlRecord(record);
   }
 
   sichere(einstellungen: Einstellungen) {
@@ -57,4 +50,16 @@ export class EinstellungenGateway {
       JSON.stringify(einstellungen.standardSchluesselworte),
     );
   }
+}
+
+function mapSqlRecord(record: Record<string, SQLOutputValue>) {
+  return Einstellungen.create({
+    praxen: JSON.parse(record["praxen"] as string),
+    anreden: JSON.parse(record["anreden"] as string),
+    familienstaende: JSON.parse(record["familienstaende"] as string),
+    schluesselworte: JSON.parse(record["schluesselworte"] as string),
+    standardSchluesselworte: JSON.parse(
+      record["standard_schluesselworte"] as string,
+    ),
+  });
 }

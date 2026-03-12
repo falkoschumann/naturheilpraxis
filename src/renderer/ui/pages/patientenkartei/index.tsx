@@ -106,7 +106,7 @@ function TableBody({
   return (
     <tbody className="d-grid position-relative" style={{ height: `${virtualizer.getTotalSize()}px` }}>
       {virtualizer.getVirtualItems().map((virtualRow) => {
-        const row = rows[virtualRow.index];
+        const row = rows[virtualRow.index]!;
         return (
           <tr
             key={row.id}
