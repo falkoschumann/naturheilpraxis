@@ -4,12 +4,12 @@ import { Temporal } from "@js-temporal/polyfill";
 // @ts-expect-error TS7016
 import Tags from "bootstrap5-tags";
 import { type ChangeEvent, type MouseEvent, type SubmitEvent, useEffect, useReducer } from "react";
-import { NavLink, useParams } from "react-router";
+import { NavLink } from "react-router";
 
-import { useNimmPatientAuf } from "./nimm_patient_auf_hook";
-import { usePatient } from "./patient_hook";
+import { NimmPatientAufCommand } from "../../../../shared/domain/nimm_patient_auf_command";
 import { PATIENTENKARTEIKARTE_PAGE } from "../../components/pages";
 import DefaultPageLayout from "../../layouts/default_page_layout";
+import { usePatient } from "./patient_hook";
 import {
   aktualisiereFeld,
   bearbeitePatientendaten,
@@ -21,17 +21,12 @@ import {
   sendeFormular,
   verarbeitungAbgeschlossen,
 } from "./reducer";
-import { NimmPatientAufCommand } from "../../../../shared/domain/nimm_patient_auf_command";
 
 // TODO link spouse and parent
 // TODO add back link or link to Patientenkartei
 
 export default function PatientenkarteikartePage() {
-  const params = useParams();
-  const nummer = params.nummer != null ? Number(params.nummer) : undefined;
-  // TODO join the following hooks into one to avoid multiple calls to backend and use single loading state
-  const [result] = usePatient({ nummer });
-  const nimmPatientAuf = useNimmPatientAuf();
+  const [result, nimmPatientAuf] = usePatient();
   const [state, dispatch] = useReducer(reducer, initialState);
 
   useEffect(() => {
@@ -46,6 +41,7 @@ export default function PatientenkarteikartePage() {
       // Patient in state should be complete here
       const status = await nimmPatientAuf(NimmPatientAufCommand.create({ patient: state.patient }));
       if (status.isSuccess) {
+        // TODO duplicate with effect initialisiereFormular(result.patient)
         dispatch(verarbeitungAbgeschlossen({ nummer: status.result!.nummer }));
       }
     } else if (state.zustand === FormularZustand.ANZEIGE) {
