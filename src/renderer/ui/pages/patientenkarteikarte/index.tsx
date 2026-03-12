@@ -19,7 +19,6 @@ import {
   initialState,
   reducer,
   sendeFormular,
-  verarbeitungAbgeschlossen,
 } from "./reducer";
 
 // TODO link spouse and parent
@@ -39,17 +38,12 @@ export default function PatientenkarteikartePage() {
     if (state.zustand === FormularZustand.AUFNAHME) {
       dispatch(sendeFormular());
       // Patient in state should be complete here
-      const status = await nimmPatientAuf(NimmPatientAufCommand.create({ patient: state.patient }));
-      if (status.isSuccess) {
-        // TODO duplicate with effect initialisiereFormular(result.patient)
-        dispatch(verarbeitungAbgeschlossen({ nummer: status.result!.nummer }));
-      }
+      await nimmPatientAuf(NimmPatientAufCommand.create({ patient: state.patient }));
     } else if (state.zustand === FormularZustand.ANZEIGE) {
       dispatch(bearbeitePatientendaten());
     } else if (state.zustand === FormularZustand.BEARBEITUNG) {
       dispatch(sendeFormular());
       // TODO speichere Änderungen
-      dispatch(verarbeitungAbgeschlossen());
     }
   }
 

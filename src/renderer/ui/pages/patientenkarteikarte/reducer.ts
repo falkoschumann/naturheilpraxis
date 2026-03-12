@@ -48,19 +48,6 @@ export function brichBearbeitungAb(): FluxStandardActionAuto<
   return { type: BRICH_BEARBEITUNG_AB_ACTION, payload: undefined };
 }
 
-const VERARBEITUNG_ABGESCHLOSSEN_ACTION = "verarbeitungAbgeschlossen";
-
-type VerarbeitungAbgeschlossenPayload = { nummer?: number };
-
-export function verarbeitungAbgeschlossen(
-  payload: VerarbeitungAbgeschlossenPayload = {},
-): FluxStandardActionAuto<
-  typeof VERARBEITUNG_ABGESCHLOSSEN_ACTION,
-  VerarbeitungAbgeschlossenPayload
-> {
-  return { type: VERARBEITUNG_ABGESCHLOSSEN_ACTION, payload };
-}
-
 const BEARBEITE_PATIENTENDATEN_ACTION = "bearbeitePatientendaten";
 
 export function bearbeitePatientendaten(): FluxStandardActionAuto<
@@ -74,7 +61,6 @@ export type Action =
   | ReturnType<typeof aktualisiereFeld>
   | ReturnType<typeof sendeFormular>
   | ReturnType<typeof brichBearbeitungAb>
-  | ReturnType<typeof verarbeitungAbgeschlossen>
   | ReturnType<typeof bearbeitePatientendaten>;
 
 // endregion
@@ -124,8 +110,6 @@ export function reducer(state: State, action: Action): State {
       return doSendeFormular(state);
     case BRICH_BEARBEITUNG_AB_ACTION:
       return doBrichBearbeitungAb(state);
-    case VERARBEITUNG_ABGESCHLOSSEN_ACTION:
-      return doVerarbeitungAbgeschlossen(state, action);
     case BEARBEITE_PATIENTENDATEN_ACTION:
       return doBearbeitePatientendaten(state);
     default:
@@ -184,23 +168,6 @@ function doBrichBearbeitungAb(state: State): State {
     nurLesen: !istNeuerPatient,
     sendenText: istNeuerPatient ? "Aufnehmen" : "Bearbeiten",
     sendenDeaktiviert: istNeuerPatient,
-    abbrechenDeaktiviert: true,
-  };
-}
-
-function doVerarbeitungAbgeschlossen(
-  state: State,
-  action: ReturnType<typeof verarbeitungAbgeschlossen>,
-): State {
-  const nummer = action.payload.nummer ?? state.patient.nummer;
-  return {
-    ...state,
-    patient: { ...state.patient, nummer },
-    prevPatient: { ...state.patient, nummer },
-    zustand: FormularZustand.ANZEIGE,
-    nurLesen: true,
-    sendenText: "Bearbeiten",
-    sendenDeaktiviert: false,
     abbrechenDeaktiviert: true,
   };
 }

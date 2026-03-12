@@ -13,7 +13,6 @@ import {
   reducer,
   sendeFormular,
   type State,
-  verarbeitungAbgeschlossen,
 } from "../../../src/renderer/ui/pages/patientenkarteikarte/reducer";
 
 function erzeugePatient(): Patient {
@@ -154,34 +153,6 @@ describe("Patientenkarteikarte", () => {
       state = reducer(state, brichBearbeitungAb());
 
       expect(state).toEqual(aufnahmeState);
-    });
-  });
-
-  describe("Verarbeitung", () => {
-    it("sollte in Zustand Anzeige wechseln, wenn Verarbeitung abgeschlossen wird", () => {
-      let state = verarbeitungState;
-
-      state = reducer(state, verarbeitungAbgeschlossen());
-
-      expect(state).toEqual<State>(anzeigeState);
-    });
-
-    it("sollte Patientennummer übernehmen, wenn Patient aufgenommen wurde", () => {
-      let state: State = {
-        ...verarbeitungState,
-        patient: {
-          ...verarbeitungState.patient,
-          nummer: undefined,
-        },
-        prevPatient: {
-          ...verarbeitungState.patient,
-          nummer: undefined,
-        },
-      };
-
-      state = reducer(state, verarbeitungAbgeschlossen({ nummer: 1 }));
-
-      expect(state).toEqual<State>(anzeigeState);
     });
   });
 

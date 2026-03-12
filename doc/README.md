@@ -201,7 +201,7 @@ stateDiagram
     Aufnahme --> Aufnahme: aktualisiere Feld
     Aufnahme --> Verarbeitung: sende Formular
     Aufnahme --> Aufnahme: brich Bearbeitung ab
-    Verarbeitung --> Anzeige: Verarbeitung abgeschlossen
+    Verarbeitung --> [*]: Verarbeitung abgeschlossen
     Anzeige --> Bearbeitung: bearbeite Patientendaten
     Bearbeitung --> Bearbeitung: aktualisiere Feld
     Bearbeitung --> Verarbeitung: sende Formular
