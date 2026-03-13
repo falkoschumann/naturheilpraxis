@@ -31,10 +31,10 @@
     // Language and Environment
     "jsx": "react-jsx",
     "moduleDetection": "force",
-    "target": "ES2022",
+    "target": "ES2024",
     "useDefineForClassFields": true,
     // Projects
-    "lib": ["ES2022", "DOM"],
+    "lib": ["ES2024"],
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo",
     // Completeness
     "skipLibCheck": true

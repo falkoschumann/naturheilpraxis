@@ -8,6 +8,7 @@ all: dist check
 
 clean:
 	rm -rf coverage out testdata
+	rm -rf node_modules/.tmp
 
 distclean: clean
 	rm -rf dist

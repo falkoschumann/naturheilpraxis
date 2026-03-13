@@ -14,8 +14,11 @@ export default ts.config(
     extends: [js.configs.recommended, ...ts.configs.recommended],
     files: ["**/*.{cjs,mjs,js,jsx,ts,tsx}"],
     languageOptions: {
-      ecmaVersion: 2022,
-      globals: globals.browser,
+      ecmaVersion: 2024,
+      globals: {
+        ...globals.es2024,
+        ...globals.browser,
+      },
       parserOptions: {
         ecmaFeatures: {
           jsx: true,
