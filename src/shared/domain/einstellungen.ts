@@ -4,6 +4,28 @@
 
 export class Einstellungen {
   static create({
+    praxen,
+    anreden,
+    familienstaende,
+    schluesselworte,
+    standardSchluesselworte,
+  }: {
+    praxen: string[];
+    anreden: string[];
+    familienstaende: string[];
+    schluesselworte: string[];
+    standardSchluesselworte: string[];
+  }): Einstellungen {
+    return new Einstellungen(
+      praxen,
+      anreden,
+      familienstaende,
+      schluesselworte,
+      standardSchluesselworte,
+    );
+  }
+
+  static createDefault({
     praxen = ["Naturheilpraxis"],
     anreden = ["Herr", "Frau"],
     familienstaende = [

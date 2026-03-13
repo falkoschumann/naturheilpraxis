@@ -13,7 +13,7 @@ describe("Einstellungen Gateway", () => {
 
       const einstellungen = gateway.lade();
 
-      expect(einstellungen).toEqual(Einstellungen.create());
+      expect(einstellungen).toEqual(Einstellungen.createDefault());
     });
   });
 

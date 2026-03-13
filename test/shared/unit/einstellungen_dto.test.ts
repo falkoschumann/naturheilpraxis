@@ -7,7 +7,7 @@ import { EinstellungenDto } from "../../../src/shared/infrastructure/einstellung
 
 describe("Einstellungen DTO", () => {
   it("sollte Default-Einstellungen von Model nach DTO mappen", () => {
-    const dto = EinstellungenDto.fromModel(Einstellungen.create());
+    const dto = EinstellungenDto.fromModel(Einstellungen.createDefault());
 
     expect(dto).toEqual<EinstellungenDto>(
       EinstellungenDto.create({
