@@ -3,7 +3,7 @@
 import { Patient } from "./patient";
 
 export class PatientenQuery {
-  static create() {
+  static create(_other?: PatientenQuery) {
     return new PatientenQuery();
   }
 
@@ -16,6 +16,7 @@ export class PatientenQuery {
 
 export class PatientenQueryResult {
   static create({ patienten = [] }: { patienten?: Patient[] } = {}) {
+    patienten = patienten.map((patient) => Patient.create(patient));
     return new PatientenQueryResult(patienten);
   }
 

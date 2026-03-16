@@ -1,11 +1,12 @@
 // Copyright (c) 2026 Falko Schumann. All rights reserved. MIT license.
 
-import type { Failure, Success } from "@muspellheim/shared";
+import { Failure, Success } from "@muspellheim/shared";
 
 import { Patient } from "./patient";
 
 export class NimmPatientAufCommand {
   static create({ patient }: { patient: Patient }) {
+    patient = Patient.create(patient);
     return new NimmPatientAufCommand(patient);
   }
 
@@ -27,3 +28,13 @@ export class NimmPatientAufCommand {
 }
 
 export type NimmPatientAufCommandStatus = Success<{ nummer: number }> | Failure;
+
+export function createNimmPatientAufCommandStatus(
+  status: NimmPatientAufCommandStatus,
+): NimmPatientAufCommandStatus {
+  if (status.isSuccess) {
+    return new Success({ nummer: status.result!.nummer });
+  } else {
+    return new Failure(status.errorMessage!);
+  }
+}

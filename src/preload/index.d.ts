@@ -1,17 +1,15 @@
 // Copyright (c) 2025 Falko Schumann. All rights reserved. MIT license.
 
 export interface Naturheilpraxis {
-  nimmPatientAuf(
-    command: NimmPatientAufCommandDto,
-  ): Promise<NimmPatientAufCommandStatusDto>;
+  nimmPatientAuf(command: string): Promise<string>;
 
-  suchePatient(query: PatientQueryDto): Promise<PatientQueryResultDto>;
+  suchePatient(query: string): Promise<string>;
 
-  suchePatienten(query: PatientenQueryDto): Promise<PatientenQueryResultDto>;
+  suchePatienten(query: string): Promise<string>;
 
-  ladeEinstellungen(): Promise<einstellungenDto>;
+  ladeEinstellungen(): Promise<string>;
 
-  sichereEinstellungen(einstellungen: einstellungenDto): Promise<void>;
+  sichereEinstellungen(einstellungen: string): Promise<void>;
 }
 
 declare global {

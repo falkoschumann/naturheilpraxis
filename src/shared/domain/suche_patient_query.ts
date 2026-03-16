@@ -32,6 +32,7 @@ export class PatientQueryResult {
     familienstaende?: string[];
     schluesselworte?: string[];
   } = {}) {
+    patient = patient && Patient.create(patient);
     return new PatientQueryResult(
       praxen,
       anreden,

@@ -19,24 +19,15 @@ import {
   SUCHE_PATIENT_CHANNEL,
   SUCHE_PATIENTEN_CHANNEL,
 } from "../shared/channels";
-import {
-  NimmPatientAufCommandDto,
-  NimmPatientAufCommandStatusDto,
-} from "../shared/infrastructure/nimm_patient_auf_command_dto";
-import {
-  PatientQueryDto,
-  PatientQueryResultDto,
-} from "../shared/infrastructure/suche_patient_query_dto";
-import {
-  PatientenQueryDto,
-  PatientenQueryResultDto,
-} from "../shared/infrastructure/suche_patienten_query_dto";
+import { Einstellungen } from "../shared/domain/einstellungen";
+import { NimmPatientAufCommand } from "../shared/domain/nimm_patient_auf_command";
+import { PatientQuery } from "../shared/domain/suche_patient_query";
+import { PatientenQuery } from "../shared/domain/suche_patienten_query";
 import { EinstellungenGateway } from "./infrastructure/einstellungen_gateway";
 import { DatabaseProvider } from "./infrastructure/database_provider";
 import { PatientenRepository } from "./infrastructure/patienten_repository";
-import icon from "../../build/icon.png?asset";
-import { EinstellungenDto } from "../shared/infrastructure/einstellungen_dto";
 import { UhrProvider } from "./infrastructure/uhr_provider";
+import icon from "../../build/icon.png?asset"; // TODO Make the file paths configurable
 
 // TODO Make the file paths configurable
 const databaseProvider = DatabaseProvider.create();
@@ -114,41 +105,33 @@ async function installDevTools() {
 }
 
 function createRendererToMainChannels() {
-  ipcMain.handle(
-    NIMM_PATIENT_AUF_CHANNEL,
-    async (_event, commandDto: NimmPatientAufCommandDto) => {
-      const command = NimmPatientAufCommandDto.create(commandDto).validate();
-      const status = await nimmPatientAufCommandHandler.handle(command);
-      return NimmPatientAufCommandStatusDto.fromModel(status);
-    },
-  );
-  ipcMain.handle(
-    SUCHE_PATIENT_CHANNEL,
-    async (_event, queryDto: PatientQueryDto) => {
-      const query = PatientQueryDto.create(queryDto).validate();
-      const result = await suchePatientQueryHandler.handle(query);
-      return PatientQueryResultDto.fromModel(result);
-    },
-  );
-  ipcMain.handle(
-    SUCHE_PATIENTEN_CHANNEL,
-    async (_event, queryDto: PatientenQueryDto) => {
-      const query = PatientenQueryDto.create(queryDto).validate();
-      const result = await suchePatientenQueryHandler.handle(query);
-      return PatientenQueryResultDto.fromModel(result);
-    },
-  );
-  ipcMain.handle(LADE_EINSTELLUNGEN_CHANNEL, (_event) => {
-    const einstellungen = einstellungenGateway.lade();
-    return EinstellungenDto.fromModel(einstellungen);
+  ipcMain.handle(NIMM_PATIENT_AUF_CHANNEL, async (_event, json: string) => {
+    const dto = JSON.parse(json);
+    const command = NimmPatientAufCommand.create(dto);
+    const status = await nimmPatientAufCommandHandler.handle(command);
+    return JSON.stringify(status);
   });
-  ipcMain.handle(
-    SICHERE_EINSTELLUNGEN_CHANNEL,
-    (_event, settingsDto: EinstellungenDto) => {
-      const einstellungen = EinstellungenDto.create(settingsDto).validate();
-      einstellungenGateway.sichere(einstellungen);
-    },
-  );
+  ipcMain.handle(SUCHE_PATIENT_CHANNEL, async (_event, json: string) => {
+    const dto = JSON.parse(json);
+    const query = PatientQuery.create(dto);
+    const result = await suchePatientQueryHandler.handle(query);
+    return JSON.stringify(result);
+  });
+  ipcMain.handle(SUCHE_PATIENTEN_CHANNEL, async (_event, json: string) => {
+    const dto = JSON.parse(json);
+    const query = PatientenQuery.create(dto);
+    const result = await suchePatientenQueryHandler.handle(query);
+    return JSON.stringify(result);
+  });
+  ipcMain.handle(LADE_EINSTELLUNGEN_CHANNEL, () => {
+    const einstellungen = einstellungenGateway.lade();
+    return JSON.stringify(einstellungen);
+  });
+  ipcMain.handle(SICHERE_EINSTELLUNGEN_CHANNEL, (_event, json: string) => {
+    const dto = JSON.parse(json);
+    const einstellungen = Einstellungen.create(dto);
+    einstellungenGateway.sichere(einstellungen);
+  });
 }
 
 function createWindow() {

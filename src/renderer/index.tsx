@@ -4,44 +4,46 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import "bootstrap";
 
-import type { NimmPatientAufCommand } from "../shared/domain/nimm_patient_auf_command";
-import type { PatientQuery } from "../shared/domain/suche_patient_query";
-import type { PatientenQuery } from "../shared/domain/suche_patienten_query";
-import type { Einstellungen } from "../shared/domain/einstellungen";
-import {
-  NimmPatientAufCommandDto,
-  NimmPatientAufCommandStatusDto,
-} from "../shared/infrastructure/nimm_patient_auf_command_dto";
-import { PatientQueryDto, PatientQueryResultDto } from "../shared/infrastructure/suche_patient_query_dto";
-import { PatientenQueryDto, PatientenQueryResultDto } from "../shared/infrastructure/suche_patienten_query_dto";
-import { EinstellungenDto } from "../shared/infrastructure/einstellungen_dto";
+import { createNimmPatientAufCommandStatus, NimmPatientAufCommand } from "../shared/domain/nimm_patient_auf_command";
+import { PatientQuery, PatientQueryResult } from "../shared/domain/suche_patient_query";
+import { PatientenQuery, PatientenQueryResult } from "../shared/domain/suche_patienten_query";
+import { Einstellungen } from "../shared/domain/einstellungen";
 import "./ui/assets/style.scss";
 import { MessageHandlerContext } from "./ui/components/message_handler_context";
 import App from "./ui";
+import type { MessageHandler } from "./ui/components/message_handler.ts";
 
-const messageHandler = {
+const messageHandler: MessageHandler = {
   async nimmPatientAuf(command: NimmPatientAufCommand) {
-    const statusDto = await window.naturheilpraxis.nimmPatientAuf(NimmPatientAufCommandDto.fromModel(command));
-    return NimmPatientAufCommandStatusDto.create(statusDto).validate();
+    let json = JSON.stringify(command);
+    json = await window.naturheilpraxis.nimmPatientAuf(json);
+    const dto = JSON.parse(json);
+    return createNimmPatientAufCommandStatus(dto);
   },
 
   async suchePatient(query: PatientQuery) {
-    const resultDto = await window.naturheilpraxis.suchePatient(PatientQueryDto.fromModel(query));
-    return PatientQueryResultDto.create(resultDto).validate();
+    let json = JSON.stringify(query);
+    json = await window.naturheilpraxis.suchePatient(json);
+    const dto = JSON.parse(json);
+    return PatientQueryResult.create(dto);
   },
 
   async suchePatienten(query: PatientenQuery) {
-    const resultDto = await window.naturheilpraxis.suchePatienten(PatientenQueryDto.fromModel(query));
-    return PatientenQueryResultDto.create(resultDto).validate();
+    let json = JSON.stringify(query);
+    json = await window.naturheilpraxis.suchePatienten(json);
+    const dto = JSON.parse(json);
+    return PatientenQueryResult.create(dto);
   },
 
   async ladeEinstellungen() {
-    const einstellungenDto = await window.naturheilpraxis.ladeEinstellungen();
-    return EinstellungenDto.create(einstellungenDto).validate();
+    const json = await window.naturheilpraxis.ladeEinstellungen();
+    const dto = JSON.parse(json);
+    return Einstellungen.create(dto);
   },
 
   async sichereEinstellungen(einstellungen: Einstellungen) {
-    await window.naturheilpraxis.sichereEinstellungen(EinstellungenDto.fromModel(einstellungen));
+    const json = JSON.stringify(einstellungen);
+    await window.naturheilpraxis.sichereEinstellungen(json);
   },
 };
 

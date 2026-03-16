@@ -9,37 +9,20 @@ import {
   SUCHE_PATIENT_CHANNEL,
   SUCHE_PATIENTEN_CHANNEL,
 } from "../shared/channels";
-import type {
-  NimmPatientAufCommandDto,
-  NimmPatientAufCommandStatusDto,
-} from "../shared/infrastructure/nimm_patient_auf_command_dto";
-import {
-  PatientQueryDto,
-  type PatientQueryResultDto,
-} from "../shared/infrastructure/suche_patient_query_dto";
-import {
-  type PatientenQueryDto,
-  PatientenQueryResultDto,
-} from "../shared/infrastructure/suche_patienten_query_dto";
-import type { EinstellungenDto } from "../shared/infrastructure/einstellungen_dto";
 
 contextBridge.exposeInMainWorld("naturheilpraxis", {
-  nimmPatientAuf: (
-    command: NimmPatientAufCommandDto,
-  ): Promise<NimmPatientAufCommandStatusDto> =>
+  nimmPatientAuf: (command: string): Promise<string> =>
     ipcRenderer.invoke(NIMM_PATIENT_AUF_CHANNEL, command),
 
-  suchePatient: (query: PatientQueryDto): Promise<PatientQueryResultDto> =>
+  suchePatient: (query: string): Promise<string> =>
     ipcRenderer.invoke(SUCHE_PATIENT_CHANNEL, query),
 
-  suchePatienten: (
-    query: PatientenQueryDto,
-  ): Promise<PatientenQueryResultDto> =>
+  suchePatienten: (query: string): Promise<string> =>
     ipcRenderer.invoke(SUCHE_PATIENTEN_CHANNEL, query),
 
-  ladeEinstellungen: (): Promise<EinstellungenDto> =>
+  ladeEinstellungen: (): Promise<string> =>
     ipcRenderer.invoke(LADE_EINSTELLUNGEN_CHANNEL),
 
-  sichereEinstellungen: (settings: EinstellungenDto) =>
+  sichereEinstellungen: (settings: string): Promise<void> =>
     ipcRenderer.invoke(SICHERE_EINSTELLUNGEN_CHANNEL, settings),
 });
