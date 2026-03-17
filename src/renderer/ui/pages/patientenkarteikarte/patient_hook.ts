@@ -1,7 +1,7 @@
 // Copyright (c) 2026 Falko Schumann. All rights reserved. MIT license.
 
 import { useCallback, useState } from "react";
-import { useParams } from "react-router";
+import { useLocation } from "react-router";
 
 import {
   PatientQuery,
@@ -11,9 +11,11 @@ import { useMessageHandler } from "../../components/message_handler_context";
 import type { NimmPatientAufCommand } from "../../../../shared/domain/nimm_patient_auf_command";
 
 export function usePatient() {
-  const params = useParams();
-  const nummer =
-    params["nummer"] != null ? Number(params["nummer"]) : undefined;
+  const location = useLocation();
+  const search = new URLSearchParams(location.search);
+  const nummer = search.has("nummer")
+    ? Number(search.get("nummer"))
+    : undefined;
   const messageHandler = useMessageHandler();
   const [result, setResult] = useState(PatientQueryResult.create());
 
@@ -27,6 +29,7 @@ export function usePatient() {
 
   const [prevNummer, setPrevNummer] = useState<number>();
   if (nummer !== prevNummer) {
+    console.log("Patientennummer geändert:", nummer, prevNummer);
     setPrevNummer(nummer);
     void suchePatient(PatientQuery.create({ nummer }));
   }

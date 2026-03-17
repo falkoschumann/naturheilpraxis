@@ -14,7 +14,6 @@ export default function App() {
         <Route path={START_PAGE} element={<StartseitePage />} />
         <Route path={PATIENTENKARTEI_PAGE} element={<PatientenkarteiPage />} />
         <Route path={PATIENTENKARTEIKARTE_PAGE} element={<PatientenkarteikartePage />} />
-        <Route path={PATIENTENKARTEIKARTE_PAGE} element={<PatientenkarteikartePage />} />
       </Routes>
     </BrowserRouter>
   );

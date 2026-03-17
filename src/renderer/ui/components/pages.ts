@@ -2,4 +2,4 @@
 
 export const START_PAGE = "/";
 export const PATIENTENKARTEI_PAGE = "/patientenkartei";
-export const PATIENTENKARTEIKARTE_PAGE = "/patientenkarteikarte/:nummer";
+export const PATIENTENKARTEIKARTE_PAGE = "/patientenkarteikarte";

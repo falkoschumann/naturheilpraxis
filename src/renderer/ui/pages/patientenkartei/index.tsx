@@ -18,7 +18,9 @@ export default function PatientenkarteiPage() {
   const navigate = useNavigate();
 
   function handlePatientClick(nummer: number) {
-    navigate(`${PATIENTENKARTEIKARTE_PAGE.replace(":nummer", String(nummer))}`);
+    const search = new URLSearchParams();
+    search.set("nummer", nummer.toString());
+    navigate({ pathname: PATIENTENKARTEIKARTE_PAGE, search: search.toString() });
   }
 
   return (
