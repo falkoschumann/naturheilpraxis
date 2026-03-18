@@ -1,13 +1,13 @@
 export ASAR?=true
 export MAC_SIGN?=false
 
-PLANTUML_FILES = $(wildcard doc/images/*.puml)
-DIAGRAM_FILES = $(subst .puml,.png,$(PLANTUML_FILES))
-
+PLANTUML_FILES=$(wildcard doc/images/*.puml)
+DIAGRAM_FILES=$(subst .puml,.png,$(PLANTUML_FILES))
 JS?=bun
 PM?=bun
-#PM_OPTIONS?= --ignore-scripts
+#PM_OPTIONS?=--ignore-scripts
 RUN?=bunx
+DEPENDABOT=dependabot[bot]
 SHELL:=/bin/bash
 
 all: dist check
