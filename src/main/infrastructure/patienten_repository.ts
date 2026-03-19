@@ -74,16 +74,16 @@ export class PatientenRepository {
     const result = db
       .prepare(
         `
-        INSERT INTO patienten (nachname, vorname, geburtsdatum, annahmejahr, praxis,
-                               anrede, strasse, wohnort, postleitzahl, staat,
-                               staatsangehoerigkeit, titel, beruf, telefon, mobil,
-                               email, familienstand, partner, kinder, notizen,
-                               schluesselworte)
-        VALUES (:nachname, :vorname, :geburtsdatum, :annahmejahr, :praxis,
-                :anrede, :strasse, :wohnort, :postleitzahl, :staat,
-                :staatsangehoerigkeit, :titel, :beruf, :telefon, :mobil,
-                :email, :familienstand, :partner, :kinder, :notizen,
-                :schluesselworte);
+          INSERT INTO patienten (nummer, nachname, vorname, geburtsdatum, annahmejahr,
+                                 praxis, anrede, strasse, wohnort, postleitzahl,
+                                 staat, staatsangehoerigkeit, titel, beruf, telefon,
+                                 mobil, email, familienstand, partner, eltern,
+                                 kinder, geschwister, notizen, schluesselworte)
+          VALUES (:nummer, :nachname, :vorname, :geburtsdatum, :annahmejahr,
+                  :praxis, :anrede, :strasse, :wohnort, :postleitzahl,
+                  :staat, :staatsangehoerigkeit, :titel, :beruf, :telefon,
+                  :mobil, :email, :familienstand, :partner, :eltern,
+                  :kinder, :geschwister, :notizen, :schluesselworte);
         `,
       )
       .run(record);

@@ -10,8 +10,8 @@ CREATE TABLE IF NOT EXISTS patienten (
     nachname TEXT,
     vorname TEXT,
     geburtsdatum TEXT,
-    annahmejahr INTEGER NOT NULL,
-    praxis TEXT NOT NULL,
+    annahmejahr INTEGER,
+    praxis TEXT,
     anrede TEXT,
     strasse TEXT,
     wohnort TEXT,
@@ -25,7 +25,9 @@ CREATE TABLE IF NOT EXISTS patienten (
     email TEXT,
     familienstand TEXT,
     partner TEXT,
+    eltern TEXT,
     kinder TEXT,
+    geschwister TEXT,
     notizen TEXT,
     schluesselworte TEXT
 );

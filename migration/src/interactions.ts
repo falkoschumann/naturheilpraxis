@@ -7,8 +7,8 @@ import { PatientenRepository } from "../../src/main/infrastructure/patienten_rep
 import { DatabaseProvider } from "../../src/main/infrastructure/database_provider";
 
 import { LegacyDatabaseGateway } from "./legacy_database_gateway";
-import { createPatientenFromCustomers } from "./patienten";
-import { createSettings } from "./settings";
+import { erstellePatienten } from "./patienten";
+import { erstelleEinstellungen } from "./einstellungen.ts";
 
 // TODO integrate migration into main process
 // TODO move settings into database
@@ -36,48 +36,45 @@ export class Interactions {
     });
   }
 
-  createSettings() {
-    let agencies;
-    let titles;
-    let familyStatus;
-    let handling;
-    let standardHandling;
+  migriereEinstellungen() {
     try {
-      agencies = this.#legacyDatabase.queryAgencies();
-      titles = this.#legacyDatabase.queryTitles();
-      familyStatus = this.#legacyDatabase.queryFamilyStatus();
-      handling = this.#legacyDatabase.queryHandling();
-      standardHandling = this.#legacyDatabase.queryStandardHandling();
-      const settings = createSettings({
+      console.log("Migriere Einstellungen ...");
+      const agencies = this.#legacyDatabase.queryAgencies();
+      const titles = this.#legacyDatabase.queryTitles();
+      const familyStatus = this.#legacyDatabase.queryFamilyStatus();
+      const handling = this.#legacyDatabase.queryHandling();
+      const standardHandling = this.#legacyDatabase.queryStandardHandling();
+      const einstellungen = erstelleEinstellungen({
         agencies,
         titles,
         familyStatus,
         handling,
         standardHandling,
       });
-      this.#einstellungenGateway.sichere(settings);
-      return settings;
+      this.#einstellungenGateway.sichere(einstellungen);
+      console.log("  Einstellungen migriert.");
     } catch (error) {
       console.error(
-        "Migration of settings failed.",
-        {
-          agencies,
-          titles,
-          familyStatus,
-          handling,
-          standardHandling,
-        },
-        error,
+        "  Migration der Einstellungen fehlgeschlagen.",
+        (error as Error).message,
       );
-      throw Error("Migration of settings failed.", { cause: error });
     }
   }
 
-  createDatabase() {
-    const customers = this.#legacyDatabase.queryCustomers();
-    const patienten = createPatientenFromCustomers(customers);
-    for (const event of patienten) {
-      this.#patientenRepository.create(event);
+  migrierePatienten() {
+    try {
+      console.log("Migriere Patienten ...");
+      const customers = this.#legacyDatabase.queryCustomers();
+      const patienten = erstellePatienten(customers);
+      for (const patient of patienten) {
+        this.#patientenRepository.create(patient);
+      }
+      console.log(`  ${patienten.length} Patienten migriert.`);
+    } catch (error) {
+      console.error(
+        "  Migration der Patienten fehlgeschlagen.",
+        (error as Error).message,
+      );
     }
   }
 

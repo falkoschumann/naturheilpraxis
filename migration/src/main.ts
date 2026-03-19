@@ -2,11 +2,13 @@
 
 import { Interactions } from "./interactions";
 
+// FIXME Migrate legacy database
+
 const interactions = new Interactions(
   "data/input/legacy.sqlite",
-  "data/output/event-log.ndjson",
+  "data/output/naturheilpraxis.sqlite",
 );
 
-interactions.createSettings();
-interactions.createDatabase();
+interactions.migriereEinstellungen();
+interactions.migrierePatienten();
 interactions.dispose();

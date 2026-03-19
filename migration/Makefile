@@ -1,4 +1,4 @@
-ENTRY_POINT=src/program.ts
+ENTRY_POINT=src/main.ts
 RUN_ARGS=--allow-read --allow-write --sloppy-imports
 OUTPUT_DIR=data/output
 
@@ -9,7 +9,7 @@ clean:
 
 start:
 	mkdir -p $(OUTPUT_DIR)
-	deno run $(RUN_ARGS) $(ENTRY_POINT) 2> $(OUTPUT_DIR)/error.log
+	deno run $(RUN_ARGS) $(ENTRY_POINT)
 
 dev:
 	deno run $(RUN_ARGS) --watch $(ENTRY_POINT)

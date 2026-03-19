@@ -3,75 +3,75 @@
 import { Patient } from "../../src/shared/domain/patient";
 
 import type { CustomerDto } from "./legacy_database_gateway";
+import { Temporal } from "@js-temporal/polyfill";
 
-export function createPatientenFromCustomers(customers: CustomerDto[]) {
-  const patienten = customers.map((customer) =>
-    createPatientFromCustomer(customer),
-  );
-  console.log("Anzahl migrierter Patienten:", customers.length);
-  return patienten;
+const MIGRATIONSFEHLER = "Migrationsfehler";
+
+export function erstellePatienten(customers: CustomerDto[]) {
+  return customers.map((customer) => erstellePatient(customer));
 }
 
-export function createPatientFromCustomer(customer: CustomerDto) {
-  // TODO validate data
-  const data = createPatient(customer);
-  return Patient.create(data);
-}
+export function erstellePatient(customer: CustomerDto) {
+  // TODO Validiere Daten
+  // TODO Prüfe auf leeren Nachname, Vorname, Geburtsdatum, Annahmejahr und Praxis
+  // TODO Markiere Fehler mit Schlüsselwort Migrationsfehler
+  // TODO Sichere Leerstring-Werte als undefined
+  // TODO Refaktoriere flow design
 
-function createPatient(customer: CustomerDto): Patient {
-  // using ! because validation is done later
+  let notizen = customer.memorandum?.trim() ?? "";
+  const schluesselworte = erstelleSchluesselworte(customer.handlings);
+
+  if (customer.dayOfBirth != null) {
+    if (customer.dayOfBirth.trim() === "") {
+      customer.dayOfBirth = undefined;
+    } else {
+      try {
+        Temporal.PlainDate.from(customer.dayOfBirth);
+      } catch {
+        console.warn(
+          `  Ungültiges Geburtsdatum für ${customer.surname}, ${customer.forename} (${customer.id}) gefunden: ${customer.dayOfBirth}`,
+        );
+        customer.dayOfBirth = undefined;
+        schluesselworte.push(MIGRATIONSFEHLER, "Geburtsdatum");
+        if (notizen.length > 0) {
+          notizen += "\n\n";
+        }
+        notizen += `Ungültiges Geburtsdatum: ${customer.dayOfBirth}`;
+      }
+    }
+  }
+
   return Patient.create({
-    nummer: tidyUpNumber(customer.id)!,
-    nachname: tidyUpString(customer.surname)!,
-    vorname: tidyUpString(customer.forename)!,
-    geburtsdatum: tidyUpString(customer.dayOfBirth)!,
-    annahmejahr: tidyUpNumber(customer.acceptance)!,
-    praxis: tidyUpString(customer.agency)!,
-    anrede: tidyUpString(customer.title),
-    strasse: tidyUpString(customer.street),
-    wohnort: tidyUpString(customer.city),
-    postleitzahl: tidyUpString(customer.postalCode),
-    staat: tidyUpString(customer.country),
-    staatsangehoerigkeit: tidyUpString(customer.citizenship),
-    titel: tidyUpString(customer.academicTitle),
-    beruf: tidyUpString(customer.occupation),
-    telefon: tidyUpString(customer.callNumber),
-    mobil: tidyUpString(customer.mobilePhone),
-    eMail: tidyUpString(customer.email),
-    familienstand: tidyUpString(customer.familyStatus),
-    partner: tidyUpString(customer.partnerFrom),
-    eltern: tidyUpString(customer.childFrom),
+    nummer: customer.id,
+    nachname: customer.surname,
+    vorname: customer.forename,
+    geburtsdatum: customer.dayOfBirth,
+    annahmejahr: customer.acceptance,
+    praxis: customer.agency,
+    anrede: customer.title,
+    strasse: customer.street,
+    wohnort: customer.city,
+    postleitzahl: customer.postalCode,
+    staat: customer.country,
+    staatsangehoerigkeit: customer.citizenship,
+    titel: customer.academicTitle,
+    beruf: customer.occupation,
+    telefon: customer.callNumber,
+    mobil: customer.mobilePhone,
+    eMail: customer.email,
+    familienstand: customer.familyStatus,
+    partner: customer.partnerFrom,
+    eltern: customer.childFrom,
     // TODO kinder: customer.xxx,
     // TODO geschwister: customer.xxx,
-    notizen: tidyUpString(customer.memorandum ?? undefined),
-    schluesselworte: createArrayFromString(tidyUpString(customer.handlings)),
+    notizen,
+    schluesselworte,
   });
 }
 
-function tidyUpNumber(value?: number | null) {
+function erstelleSchluesselworte(value?: string) {
   if (value == null) {
-    return undefined;
-  }
-
-  return Number(value);
-}
-
-function tidyUpString(value?: string | null) {
-  if (value == null) {
-    return undefined;
-  }
-
-  const trimmed = String(value).trim();
-  if (trimmed.length === 0) {
-    return undefined;
-  }
-
-  return trimmed;
-}
-
-function createArrayFromString(value?: string) {
-  if (value == null) {
-    return undefined;
+    return [];
   }
 
   return value.split(",").map((s) => String(s).trim());
