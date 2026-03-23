@@ -10,9 +10,6 @@ import { LegacyDatabaseGateway } from "./legacy_database_gateway";
 import { erstellePatienten } from "./patienten";
 import { erstelleEinstellungen } from "./einstellungen.ts";
 
-// TODO integrate migration into main process
-// TODO move settings into database
-
 export class Interactions {
   #legacyDatabase: LegacyDatabaseGateway;
   #einstellungenGateway: EinstellungenGateway;
@@ -36,7 +33,12 @@ export class Interactions {
     });
   }
 
-  migriereEinstellungen() {
+  migriereDatenbank() {
+    this.#migriereEinstellungen();
+    this.#migrierePatienten();
+  }
+
+  #migriereEinstellungen() {
     try {
       console.log("Migriere Einstellungen ...");
       const agencies = this.#legacyDatabase.queryAgencies();
@@ -61,7 +63,7 @@ export class Interactions {
     }
   }
 
-  migrierePatienten() {
+  #migrierePatienten() {
     try {
       console.log("Migriere Patienten ...");
       const customers = this.#legacyDatabase.queryCustomers();
@@ -76,9 +78,5 @@ export class Interactions {
         (error as Error).message,
       );
     }
-  }
-
-  dispose() {
-    this.#legacyDatabase.close();
   }
 }

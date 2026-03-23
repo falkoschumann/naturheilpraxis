@@ -11,14 +11,14 @@ export function erstellePatienten(customers: CustomerDto[]) {
   return customers.map((customer) => erstellePatient(customer));
 }
 
-export function erstellePatient(customer: CustomerDto) {
+function erstellePatient(customer: CustomerDto) {
   // TODO Validiere Daten
   // TODO Prüfe auf leeren Nachname, Vorname, Geburtsdatum, Annahmejahr und Praxis
+  // TODO Markiere fehlende Daten mit Schlüsselwort Unvollständig
   // TODO Markiere Fehler mit Schlüsselwort Migrationsfehler
-  // TODO Sichere Leerstring-Werte als undefined
-  // TODO Refaktoriere flow design
+  // TODO Sichere Leerstring-Werte als undefined?
 
-  let notizen = customer.memorandum?.trim() ?? "";
+  let notizen = erstelleNotizen(customer);
   const schluesselworte = erstelleSchluesselworte(customer.handlings);
 
   if (customer.dayOfBirth != null) {
@@ -67,6 +67,10 @@ export function erstellePatient(customer: CustomerDto) {
     notizen,
     schluesselworte,
   });
+}
+
+function erstelleNotizen(customer: CustomerDto) {
+  return customer.memorandum?.trim() ?? "";
 }
 
 function erstelleSchluesselworte(value?: string) {
