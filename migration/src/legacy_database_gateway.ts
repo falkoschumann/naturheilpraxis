@@ -11,7 +11,7 @@ export class LegacyDatabaseGateway {
 
   queryAgencies() {
     // language=SQLite
-    const records = this.executeQuery<AgencyDto>(
+    const records = this.#executeQuery<AgencyDto>(
       "SELECT agency as agency FROM agencylist ORDER BY ordernumber;",
     );
     return records.map((record) => record.agency);
@@ -19,7 +19,7 @@ export class LegacyDatabaseGateway {
 
   queryTitles() {
     // language=SQLite
-    const records = this.executeQuery<TitleDto>(
+    const records = this.#executeQuery<TitleDto>(
       "SELECT title as title FROM titlelist ORDER BY title;",
     );
     return records.map((record) => record.title);
@@ -27,7 +27,7 @@ export class LegacyDatabaseGateway {
 
   queryFamilyStatus() {
     // language=SQLite
-    const records = this.executeQuery<FamilyStatusDto>(
+    const records = this.#executeQuery<FamilyStatusDto>(
       "SELECT familystatus as familyStatus FROM familystatuslist ORDER BY familystatus;",
     );
     return records.map((record) => record.familyStatus);
@@ -35,7 +35,7 @@ export class LegacyDatabaseGateway {
 
   queryHandling() {
     // language=SQLite
-    const records = this.executeQuery<HandlingDto>(
+    const records = this.#executeQuery<HandlingDto>(
       "SELECT handling as handling FROM handlinglist ORDER BY handling;",
     );
     return records.map((record) => record.handling);
@@ -43,7 +43,7 @@ export class LegacyDatabaseGateway {
 
   queryStandardHandling() {
     // language=SQLite
-    const records = this.executeQuery<HandlingDto>(
+    const records = this.#executeQuery<HandlingDto>(
       "SELECT handling as handling FROM handlinglist WHERE standard=1 ORDER BY handling;",
     );
     return records.map((record) => record.handling);
@@ -51,7 +51,7 @@ export class LegacyDatabaseGateway {
 
   queryCustomers() {
     // language=SQLite
-    return this.executeQuery<CustomerDto>(`
+    return this.#executeQuery<CustomerDto>(`
       SELECT customerlist.id AS id,
              surname AS surname,
              forename AS forename,
@@ -83,14 +83,10 @@ export class LegacyDatabaseGateway {
     `);
   }
 
-  executeQuery<T>(sql: string): T[] {
+  #executeQuery<T>(sql: string): T[] {
     const statement = this.#db.prepare(sql);
     const records = statement.all();
     return records as T[];
-  }
-
-  close() {
-    this.#db.close();
   }
 }
 
