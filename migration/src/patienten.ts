@@ -14,11 +14,9 @@ export function erstellePatienten(customers: CustomerDto[]) {
 }
 
 function erstellePatient(customer: CustomerDto) {
-  // TODO Validiere Daten
   // TODO Prüfe auf leeren Nachname, Vorname, Geburtsdatum, Annahmejahr und Praxis
   // TODO Markiere fehlende Daten mit Schlüsselwort Unvollständig
   // TODO Markiere Fehler mit Schlüsselwort Migrationsfehler
-  // TODO Sichere Leerstring-Werte als undefined?
 
   let notizen = erstelleNotizen(customer);
   let schluesselworte = erstelleSchluesselworte(customer);
@@ -30,11 +28,11 @@ function erstellePatient(customer: CustomerDto) {
   });
 
   return Patient.create({
-    nummer: customer.id,
+    nummer: normalisiereNumber(customer.id),
     nachname: normalisiereString(customer.surname),
     vorname: normalisiereString(customer.forename),
     geburtsdatum,
-    annahmejahr: customer.acceptance,
+    annahmejahr: normalisiereNumber(customer.acceptance),
     praxis: normalisiereString(customer.agency),
     anrede: normalisiereString(customer.title),
     strasse: normalisiereString(customer.street),
@@ -106,6 +104,15 @@ function ergaenzeNotizen(notizen: string, ergaenzendeNotizen: string) {
   }
   notizen += ergaenzendeNotizen;
   return notizen;
+}
+
+function normalisiereNumber(wert?: number): number | undefined {
+  wert = wert && Number(wert);
+  if (wert == null) {
+    return;
+  }
+
+  return wert;
 }
 
 function normalisiereString(wert?: string): string | undefined {
