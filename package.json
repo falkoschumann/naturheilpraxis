@@ -50,7 +50,7 @@
     "bootstrap": "5.3.8",
     "bootstrap-icons": "1.13.1",
     "bootstrap5-tags": "1.7.16",
-    "electron": "40.8.0",
+    "electron": "41.0.3",
     "electron-builder": "26.8.1",
     "electron-devtools-installer": "4.0.0",
     "electron-vite": "5.0.0",
