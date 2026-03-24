@@ -5,8 +5,6 @@ import { Patient } from "../../src/shared/domain/patient";
 import type { CustomerDto } from "./legacy_database_gateway";
 import { Temporal } from "@js-temporal/polyfill";
 
-const MIGRATIONSFEHLER = "Migrationsfehler";
-
 export function erstellePatienten(customers: CustomerDto[]) {
   return customers.map((customer) => {
     return erstellePatient(customer);
@@ -14,10 +12,6 @@ export function erstellePatienten(customers: CustomerDto[]) {
 }
 
 function erstellePatient(customer: CustomerDto) {
-  // TODO Prüfe auf leeren Nachname, Vorname, Geburtsdatum, Annahmejahr und Praxis
-  // TODO Markiere fehlende Daten mit Schlüsselwort Unvollständig
-  // TODO Markiere Fehler mit Schlüsselwort Migrationsfehler
-
   let notizen = erstelleNotizen(customer);
   let schluesselworte = erstelleSchluesselworte(customer);
   const geburtsdatum = erstelleGeburtsdatum(customer, {
@@ -26,8 +20,7 @@ function erstellePatient(customer: CustomerDto) {
       notizen = ergaenzeNotizen(notizen, ergaenzendeNotizen);
     },
   });
-
-  return Patient.create({
+  let patient = Patient.create({
     nummer: normalisiereNumber(customer.id),
     nachname: normalisiereString(customer.surname),
     vorname: normalisiereString(customer.forename),
@@ -53,6 +46,14 @@ function erstellePatient(customer: CustomerDto) {
     notizen,
     schluesselworte,
   });
+  pruefeVollstaendigkeit(patient, {
+    onError: (neueSchluesselworte, ergaenzendeNotizen) => {
+      schluesselworte = [...schluesselworte, ...neueSchluesselworte];
+      notizen = ergaenzeNotizen(notizen, ergaenzendeNotizen);
+      patient = Patient.create({ ...patient, schluesselworte, notizen });
+    },
+  });
+  return patient;
 }
 
 function erstelleNotizen(customer: CustomerDto) {
@@ -91,10 +92,48 @@ function erstelleGeburtsdatum(
       `  Ungültiges Geburtsdatum für ${customer.surname}, ${customer.forename} (${customer.id}) gefunden: ${customer.dayOfBirth}`,
     );
     onError(
-      [MIGRATIONSFEHLER, "Geburtsdatum"],
+      ["Migrationsfehler", "Geburtsdatum"],
       `Ungültiges Geburtsdatum: ${customer.dayOfBirth}`,
     );
     return;
+  }
+}
+
+function pruefeVollstaendigkeit(
+  patient: Patient,
+  {
+    onError,
+  }: {
+    onError: (
+      neueSchluesselworte: string[],
+      ergaenzendeNotizen: string,
+    ) => void;
+  },
+) {
+  const fehlt: string[] = [];
+  if (patient.nachname == null) {
+    fehlt.push("Nachname");
+  }
+  if (patient.vorname == null) {
+    fehlt.push("Vorname");
+  }
+  if (patient.geburtsdatum == null) {
+    fehlt.push("Geburtsdatum");
+  }
+  if (patient.annahmejahr == null) {
+    fehlt.push("Annahmejahr");
+  }
+  if (patient.praxis == null) {
+    fehlt.push("Paxis");
+  }
+  if (fehlt.length > 0) {
+    console.warn(
+      `  Unvollständiger Datensatz für ${patient.nachname}, ${patient.vorname} (${patient.nummer}), vermisse ${fehlt.join(", ")}`,
+    );
+    onError(
+      ["Migrationsfehler", "Unvollständig"],
+      `Fehlende Daten: ${fehlt.join(", ")}.`,
+    );
   }
 }
 
