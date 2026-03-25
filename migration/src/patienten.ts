@@ -161,7 +161,7 @@ function ergaenzeNotizen(notizen = "", ergaenzendeNotizen: string) {
 
 function normalisiereNumber(wert?: number): number | undefined {
   wert = wert && Number(wert);
-  if (wert == null) {
+  if (wert == null || !Number.isFinite(wert)) {
     return;
   }
 
