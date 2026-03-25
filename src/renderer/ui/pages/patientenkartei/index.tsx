@@ -11,6 +11,7 @@ import DefaultPageLayout from "../../layouts/default_page_layout";
 import { usePatienten } from "./patienten_hook";
 
 // TODO use sorting
+// TODO sort by number desc by default
 
 export default function PatientenkarteiPage() {
   const [result] = usePatienten();
@@ -115,7 +116,7 @@ function TableBody({
             data-index={virtualRow.index}
             ref={(node) => virtualizer.measureElement(node)}
             className="d-flex position-absolute w-100"
-            style={{ transform: `translateY(${virtualRow.start}px)` }}
+            style={{ cursor: "pointer", transform: `translateY(${virtualRow.start}px)` }}
             onClick={() => onPatientSelect(row.getValue("nummer"))}
           >
             {row.getVisibleCells().map((cell) => (

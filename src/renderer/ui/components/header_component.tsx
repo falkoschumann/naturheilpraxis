@@ -9,23 +9,29 @@ export default function HeaderComponent() {
   return (
     <header>
       <nav className="navbar navbar-expand-lg">
-        <div className="container-fluid">
+        <div className="container">
           <a href={START_PAGE} className="navbar-brand">
-            <img src={logo} className="me-2" width="32" height="32" alt="Logo" aria-hidden="true" />
-            <span>Naturheilpraxis</span>
+            <img
+              src={logo}
+              width="24"
+              height="24"
+              alt="Naturheilpraxis Logo"
+              className="d-inline-block me-1 align-text-top"
+            />
+            Naturheilpraxis
           </a>
           <button
             className="navbar-toggler"
             type="button"
             data-bs-toggle="collapse"
-            data-bs-target="#navbarSupportedContent"
-            aria-controls="navbarSupportedContent"
+            data-bs-target="#mainMenu"
+            aria-controls="mainMenu"
             aria-expanded="false"
-            aria-label="Toggle navigation"
+            aria-label="Hauptmenü ein-/ausblenden"
           >
             <span className="navbar-toggler-icon"></span>
           </button>
-          <div className="collapse navbar-collapse" id="navbarSupportedContent">
+          <div className="collapse navbar-collapse" id="mainMenu">
             <ul className="navbar-nav me-auto mb-2 mb-lg-0">
               <li className="nav-item">
                 <NavLink to={PATIENTENKARTEI_PAGE} className="nav-link">
