@@ -24,7 +24,7 @@
     // JavaScript Support
     "allowJs": true,
     // Interop Constraints
-    "allowSyntheticDefaultImports": true,
+    "allowSyntheticDefaultImports": false,
     "erasableSyntaxOnly": true,
     "forceConsistentCasingInFileNames": true,
     "verbatimModuleSyntax": true,

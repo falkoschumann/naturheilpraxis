@@ -23,7 +23,7 @@ import { Einstellungen } from "../shared/domain/einstellungen";
 import { NimmPatientAufCommand } from "../shared/domain/nimm_patient_auf_command";
 import { PatientQuery } from "../shared/domain/suche_patient_query";
 import { PatientenQuery } from "../shared/domain/suche_patienten_query";
-import { EinstellungenGateway } from "./infrastructure/einstellungen_gateway";
+import { EinstellungenProvider } from "./infrastructure/einstellungen_provider";
 import { DatabaseProvider } from "./infrastructure/database_provider";
 import { PatientenRepository } from "./infrastructure/patienten_repository";
 import { UhrProvider } from "./infrastructure/uhr_provider";
@@ -31,7 +31,9 @@ import icon from "../../build/icon.png?asset"; // TODO Make the file paths confi
 
 // TODO Make the file paths configurable
 const databaseProvider = DatabaseProvider.create();
-const einstellungenGateway = EinstellungenGateway.create({ databaseProvider });
+const einstellungenProvider = EinstellungenProvider.create({
+  databaseProvider,
+});
 const uhrProvider = UhrProvider.create();
 const patientenRepository = PatientenRepository.create({ databaseProvider });
 const nimmPatientAufCommandHandler = NimmPatientAufCommandHandler.create({
@@ -39,7 +41,7 @@ const nimmPatientAufCommandHandler = NimmPatientAufCommandHandler.create({
 });
 const suchePatientQueryHandler = SuchePatientQueryHandler.create({
   patientenRepository,
-  einstellungenGateway,
+  einstellungenProvider: einstellungenProvider,
   uhrProvider,
 });
 const suchePatientenQueryHandler = SuchePatientenQueryHandler.create({
@@ -124,13 +126,13 @@ function createRendererToMainChannels() {
     return JSON.stringify(result);
   });
   ipcMain.handle(LADE_EINSTELLUNGEN_CHANNEL, () => {
-    const einstellungen = einstellungenGateway.lade();
+    const einstellungen = einstellungenProvider.lade();
     return JSON.stringify(einstellungen);
   });
   ipcMain.handle(SICHERE_EINSTELLUNGEN_CHANNEL, (_event, json: string) => {
     const dto = JSON.parse(json);
     const einstellungen = Einstellungen.create(dto);
-    einstellungenGateway.sichere(einstellungen);
+    einstellungenProvider.sichere(einstellungen);
   });
 }
 

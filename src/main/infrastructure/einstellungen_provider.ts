@@ -4,9 +4,9 @@ import { Einstellungen } from "../../shared/domain/einstellungen";
 import type { DatabaseProvider } from "./database_provider";
 import type { SQLOutputValue } from "node:sqlite";
 
-export class EinstellungenGateway {
+export class EinstellungenProvider {
   static create({ databaseProvider }: { databaseProvider: DatabaseProvider }) {
-    return new EinstellungenGateway(databaseProvider);
+    return new EinstellungenProvider(databaseProvider);
   }
 
   #databaseProvider;

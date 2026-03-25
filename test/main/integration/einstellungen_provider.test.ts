@@ -3,10 +3,10 @@
 import { describe, expect, it } from "vitest";
 
 import { Einstellungen } from "../../../src/shared/domain/einstellungen";
-import { EinstellungenGateway } from "../../../src/main/infrastructure/einstellungen_gateway";
+import { EinstellungenProvider } from "../../../src/main/infrastructure/einstellungen_provider";
 import { DatabaseProvider } from "../../../src/main/infrastructure/database_provider";
 
-describe("Einstellungen Gateway", () => {
+describe("Einstellungen Provider", () => {
   describe("Lade", () => {
     it("sollte Einstellungen laden", () => {
       const { gateway } = configure();
@@ -33,6 +33,6 @@ describe("Einstellungen Gateway", () => {
 
 function configure() {
   const databaseProvider = DatabaseProvider.create();
-  const gateway = EinstellungenGateway.create({ databaseProvider });
+  const gateway = EinstellungenProvider.create({ databaseProvider });
   return { gateway };
 }

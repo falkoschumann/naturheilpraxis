@@ -2,13 +2,13 @@
 
 import path from "node:path";
 
-import { EinstellungenGateway } from "../../src/main/infrastructure/einstellungen_gateway";
+import { EinstellungenProvider } from "../../src/main/infrastructure/einstellungen_provider";
 import { PatientenRepository } from "../../src/main/infrastructure/patienten_repository";
 import { DatabaseProvider } from "../../src/main/infrastructure/database_provider";
 
 import { LegacyDatabaseGateway } from "./legacy_database_gateway";
 import { erstellePatienten } from "./patienten";
-import { erstelleEinstellungen } from "./einstellungen.ts";
+import { erstelleEinstellungen } from "./einstellungen";
 
 export class Interactions {
   static create({
@@ -31,7 +31,7 @@ export class Interactions {
   }
 
   #legacyDatabase: LegacyDatabaseGateway;
-  #einstellungenGateway: EinstellungenGateway;
+  #einstellungenProvider: EinstellungenProvider;
   #patientenRepository: PatientenRepository;
 
   private constructor(
@@ -39,7 +39,7 @@ export class Interactions {
     databaseProvider: DatabaseProvider,
   ) {
     this.#legacyDatabase = legacyDatabase;
-    this.#einstellungenGateway = EinstellungenGateway.create({
+    this.#einstellungenProvider = EinstellungenProvider.create({
       databaseProvider,
     });
     this.#patientenRepository = PatientenRepository.create({
@@ -67,7 +67,7 @@ export class Interactions {
         handling,
         standardHandling,
       });
-      this.#einstellungenGateway.sichere(einstellungen);
+      this.#einstellungenProvider.sichere(einstellungen);
       console.log("  Einstellungen migriert.");
     } catch (error) {
       console.error(

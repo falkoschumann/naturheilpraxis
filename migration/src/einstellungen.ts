@@ -1,6 +1,6 @@
 // Copyright (c) 2026 Falko Schumann. All rights reserved. MIT license.
 
-import { Einstellungen } from "../../src/shared/domain/einstellungen.ts";
+import { Einstellungen } from "../../src/shared/domain/einstellungen";
 
 export function erstelleEinstellungen({
   agencies,

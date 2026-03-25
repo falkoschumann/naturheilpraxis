@@ -5,43 +5,43 @@ import {
   PatientQueryResult,
 } from "../../shared/domain/suche_patient_query";
 import type { PatientenRepository } from "../infrastructure/patienten_repository";
-import { EinstellungenGateway } from "../infrastructure/einstellungen_gateway";
+import { EinstellungenProvider } from "../infrastructure/einstellungen_provider";
 import type { UhrProvider } from "../infrastructure/uhr_provider";
 import { Patient } from "../../shared/domain/patient";
 
 export class SuchePatientQueryHandler {
   static create({
     patientenRepository,
-    einstellungenGateway,
+    einstellungenProvider,
     uhrProvider,
   }: {
     patientenRepository: PatientenRepository;
-    einstellungenGateway: EinstellungenGateway;
+    einstellungenProvider: EinstellungenProvider;
     uhrProvider: UhrProvider;
   }) {
     return new SuchePatientQueryHandler(
       patientenRepository,
-      einstellungenGateway,
+      einstellungenProvider,
       uhrProvider,
     );
   }
 
   #patientenRepository: PatientenRepository;
-  #einstellungenGateway: EinstellungenGateway;
+  #einstellungenProvider: EinstellungenProvider;
   #uhrProvider: UhrProvider;
 
   private constructor(
     patientenRepository: PatientenRepository,
-    einstellungenGateway: EinstellungenGateway,
+    einstellungenprovider: EinstellungenProvider,
     uhrProvider: UhrProvider,
   ) {
     this.#patientenRepository = patientenRepository;
-    this.#einstellungenGateway = einstellungenGateway;
+    this.#einstellungenProvider = einstellungenprovider;
     this.#uhrProvider = uhrProvider;
   }
 
   async handle(query: PatientQuery) {
-    const einstellungen = this.#einstellungenGateway.lade();
+    const einstellungen = this.#einstellungenProvider.lade();
 
     if (query.nummer != null) {
       const patient = this.#patientenRepository.findByNummer(query.nummer);
