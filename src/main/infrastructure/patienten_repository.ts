@@ -93,51 +93,65 @@ export class PatientenRepository {
 
 function mapSqlRecord(record: Record<string, SQLOutputValue>) {
   return Patient.create({
-    nummer: mapNumber(record["nummer"]),
-    nachname: mapString(record["nachname"]),
-    vorname: mapString(record["vorname"]),
-    geburtsdatum: mapString(record["geburtsdatum"]),
-    annahmejahr: mapNumber(record["annahmejahr"]),
-    praxis: mapString(record["praxis"]),
-    anrede: mapString(record["anrede"]),
-    strasse: mapString(record["strasse"]),
-    wohnort: mapString(record["wohnort"]),
-    postleitzahl: mapString(record["postleitzahl"]),
-    staat: mapString(record["staat"]),
-    staatsangehoerigkeit: mapString(record["staatsangehoerigkeit"]),
-    titel: mapString(record["titel"]),
-    beruf: mapString(record["beruf"]),
-    telefon: mapString(record["telefon"]),
-    mobil: mapString(record["mobil"]),
-    eMail: mapString(record["email"]),
-    familienstand: mapString(record["familienstand"]),
-    partner: mapString(record["partner"]),
-    kinder: mapString(record["kinder"]),
-    notizen: mapString(record["notizen"]),
-    schluesselworte: mapString(record["schluesselworte"])?.split(","),
+    nummer: mapNumber(record, "nummer"),
+    nachname: mapString(record, "nachname"),
+    vorname: mapString(record, "vorname"),
+    geburtsdatum: mapString(record, "geburtsdatum"),
+    annahmejahr: mapNumber(record, "annahmejahr"),
+    praxis: mapString(record, "praxis"),
+    anrede: mapString(record, "anrede"),
+    strasse: mapString(record, "strasse"),
+    wohnort: mapString(record, "wohnort"),
+    postleitzahl: mapString(record, "postleitzahl"),
+    staat: mapString(record, "staat"),
+    staatsangehoerigkeit: mapString(record, "staatsangehoerigkeit"),
+    titel: mapString(record, "titel"),
+    beruf: mapString(record, "beruf"),
+    telefon: mapString(record, "telefon"),
+    mobil: mapString(record, "mobil"),
+    eMail: mapString(record, "email"),
+    familienstand: mapString(record, "familienstand"),
+    partner: mapString(record, "partner"),
+    kinder: mapString(record, "kinder"),
+    notizen: mapString(record, "notizen"),
+    schluesselworte: mapString(record, "schluesselworte")?.split(","),
   });
 }
 
-function mapNumber(value?: SQLOutputValue): number | undefined {
+function mapNumber(
+  record: Record<string, SQLOutputValue>,
+  fieldName: string,
+): number | undefined {
+  const value = record[fieldName];
   if (value == null) {
     return;
   }
 
   if (typeof value !== "number") {
-    console.warn(`Expected number but got ${typeof value}:`, value);
+    console.warn(
+      `Expected number but got ${typeof value} for ${fieldName} of #${record["nummer"]}:`,
+      value,
+    );
     return;
   }
 
   return value;
 }
 
-function mapString(value?: SQLOutputValue): string | undefined {
+function mapString(
+  record: Record<string, SQLOutputValue>,
+  fieldName: string,
+): string | undefined {
+  const value = record[fieldName];
   if (value == null) {
     return;
   }
 
   if (typeof value !== "string") {
-    console.warn(`Expected string but got ${typeof value}:`, value);
+    console.warn(
+      `Expected string but got ${typeof value} for ${fieldName} of #${record["nummer"]}:`,
+      value,
+    );
     return;
   }
 
