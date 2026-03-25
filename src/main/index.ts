@@ -30,7 +30,9 @@ import { UhrProvider } from "./infrastructure/uhr_provider";
 import icon from "../../build/icon.png?asset"; // TODO Make the file paths configurable
 
 // TODO Make the file paths configurable
-const databaseProvider = DatabaseProvider.create();
+const databaseProvider = DatabaseProvider.create({
+  databasePath: "data/naturheilpraxis.sqlite",
+});
 const einstellungenProvider = EinstellungenProvider.create({
   databaseProvider,
 });

@@ -58,4 +58,5 @@ VALUES
         '["ledig", "verheiratet", "getrennt", "geschieden", "verwitwet"]',
         '[]',
         '[]'
-    );
+    )
+ON CONFLICT DO NOTHING;
