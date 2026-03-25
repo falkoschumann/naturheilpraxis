@@ -11,12 +11,14 @@ import { erstellePatienten } from "./patienten";
 import { erstelleEinstellungen } from "./einstellungen.ts";
 
 export class Interactions {
-  #legacyDatabase: LegacyDatabaseGateway;
-  #einstellungenGateway: EinstellungenGateway;
-  #patientenRepository: PatientenRepository;
-
-  constructor(legacyDatabaseFile: string, databasePath: string) {
-    this.#legacyDatabase = new LegacyDatabaseGateway(legacyDatabaseFile);
+  static create({
+    legacyDatabasePath,
+    databasePath,
+  }: {
+    legacyDatabasePath: string;
+    databasePath: string;
+  }) {
+    const legacyDatabase = new LegacyDatabaseGateway(legacyDatabasePath);
     const schemaPath = path.resolve(
       import.meta.dirname,
       "../../resources/db/schema.sql",
@@ -25,6 +27,18 @@ export class Interactions {
       databasePath,
       schemaPath,
     });
+    return new Interactions(legacyDatabase, databaseProvider);
+  }
+
+  #legacyDatabase: LegacyDatabaseGateway;
+  #einstellungenGateway: EinstellungenGateway;
+  #patientenRepository: PatientenRepository;
+
+  private constructor(
+    legacyDatabase: LegacyDatabaseGateway,
+    databaseProvider: DatabaseProvider,
+  ) {
+    this.#legacyDatabase = legacyDatabase;
     this.#einstellungenGateway = EinstellungenGateway.create({
       databaseProvider,
     });

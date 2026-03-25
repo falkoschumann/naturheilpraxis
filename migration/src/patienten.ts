@@ -1,9 +1,10 @@
 // Copyright (c) 2025 Falko Schumann. All rights reserved. MIT license.
 
+import { Temporal } from "@js-temporal/polyfill";
+
 import { Patient } from "../../src/shared/domain/patient";
 
 import type { CustomerDto } from "./legacy_database_gateway";
-import { Temporal } from "@js-temporal/polyfill";
 
 export function erstellePatienten(customers: CustomerDto[]) {
   return customers.map((customer) => {
@@ -12,56 +13,90 @@ export function erstellePatienten(customers: CustomerDto[]) {
 }
 
 function erstellePatient(customer: CustomerDto) {
-  let notizen = erstelleNotizen(customer);
-  let schluesselworte = erstelleSchluesselworte(customer);
-  const geburtsdatum = erstelleGeburtsdatum(customer, {
-    onError: (neueSchluesselworte, ergaenzendeNotizen) => {
+  const nummer = normalisiereNumber(customer.id);
+  const nachname = normalisiereString(customer.surname);
+  const vorname = normalisiereString(customer.forename);
+  const annahmejahr = normalisiereNumber(customer.acceptance);
+  const praxis = normalisiereString(customer.agency);
+  const anrede = normalisiereString(customer.title);
+  const strasse = normalisiereString(customer.street);
+  const wohnort = normalisiereString(customer.city);
+  const postleitzahl = normalisiereString(customer.postalCode);
+  const staat = normalisiereString(customer.country);
+  const staatsangehoerigkeit = normalisiereString(customer.citizenship);
+  const titel = normalisiereString(customer.academicTitle);
+  const beruf = normalisiereString(customer.occupation);
+  const telefon = normalisiereString(customer.callNumber);
+  const mobil = normalisiereString(customer.mobilePhone);
+  const eMail = normalisiereString(customer.email);
+  const familienstand = normalisiereString(customer.familyStatus);
+  const partner = normalisiereString(customer.partnerFrom);
+  const eltern = normalisiereString(customer.childFrom);
+  let notizen = normalisiereString(customer.memorandum);
+
+  const handlings = normalisiereString(customer.handlings);
+  let schluesselworte = erstelleSchluesselworte(handlings);
+
+  const dayOfBirth = normalisiereString(customer.dayOfBirth);
+  const geburtsdatum = erstelleGeburtsdatum({
+    dayOfBirth,
+    onError: (neueSchluesselworte) => {
+      console.warn(
+        `  Ungültiges Geburtsdatum für ${nachname}, ${vorname} (${nummer}) gefunden: ${dayOfBirth}`,
+      );
       schluesselworte = [...schluesselworte, ...neueSchluesselworte];
-      notizen = ergaenzeNotizen(notizen, ergaenzendeNotizen);
+      notizen = ergaenzeNotizen(
+        notizen,
+        `Ungültiges Geburtsdatum: ${dayOfBirth}`,
+      );
     },
   });
+
   let patient = Patient.create({
-    nummer: normalisiereNumber(customer.id),
-    nachname: normalisiereString(customer.surname),
-    vorname: normalisiereString(customer.forename),
+    nummer,
+    nachname,
+    vorname,
     geburtsdatum,
-    annahmejahr: normalisiereNumber(customer.acceptance),
-    praxis: normalisiereString(customer.agency),
-    anrede: normalisiereString(customer.title),
-    strasse: normalisiereString(customer.street),
-    wohnort: normalisiereString(customer.city),
-    postleitzahl: normalisiereString(customer.postalCode),
-    staat: normalisiereString(customer.country),
-    staatsangehoerigkeit: normalisiereString(customer.citizenship),
-    titel: normalisiereString(customer.academicTitle),
-    beruf: normalisiereString(customer.occupation),
-    telefon: normalisiereString(customer.callNumber),
-    mobil: normalisiereString(customer.mobilePhone),
-    eMail: normalisiereString(customer.email),
-    familienstand: normalisiereString(customer.familyStatus),
-    partner: normalisiereString(customer.partnerFrom),
-    eltern: normalisiereString(customer.childFrom),
+    annahmejahr,
+    praxis,
+    anrede,
+    strasse,
+    wohnort,
+    postleitzahl,
+    staat,
+    staatsangehoerigkeit,
+    titel,
+    beruf,
+    telefon,
+    mobil,
+    eMail,
+    familienstand,
+    partner,
+    eltern,
     // TODO kinder: customer.xxx,
     // TODO geschwister: customer.xxx,
     notizen,
     schluesselworte,
   });
-  pruefeVollstaendigkeit(patient, {
-    onError: (neueSchluesselworte, ergaenzendeNotizen) => {
+  pruefeVollstaendigkeit({
+    patient,
+    onError: (neueSchluesselworte, fehlendeDaten) => {
+      const fehlendeDatenString = fehlendeDaten.join(", ");
+      console.warn(
+        `  Unvollständiger Datensatz für ${nachname}, ${vorname} (${nummer}), vermisse ${fehlendeDatenString}`,
+      );
       schluesselworte = [...schluesselworte, ...neueSchluesselworte];
-      notizen = ergaenzeNotizen(notizen, ergaenzendeNotizen);
+      notizen = ergaenzeNotizen(
+        notizen,
+        `Fehlende Daten: ${fehlendeDatenString}.`,
+      );
       patient = Patient.create({ ...patient, schluesselworte, notizen });
     },
   });
   return patient;
 }
 
-function erstelleNotizen(customer: CustomerDto) {
-  return normalisiereString(customer.memorandum) ?? "";
-}
-
-function erstelleSchluesselworte(customer: CustomerDto) {
-  const handlings = normalisiereString(customer.handlings);
+function erstelleSchluesselworte(handlings?: string) {
   if (handlings == null) {
     return [];
   }
@@ -69,18 +104,13 @@ function erstelleSchluesselworte(customer: CustomerDto) {
   return handlings.split(",").map((s) => String(s).trim());
 }
 
-function erstelleGeburtsdatum(
-  customer: CustomerDto,
-  {
-    onError,
-  }: {
-    onError: (
-      neueSchluesselworte: string[],
-      ergaenzendeNotizen: string,
-    ) => void;
-  },
-) {
-  const dayOfBirth = normalisiereString(customer.dayOfBirth);
+function erstelleGeburtsdatum({
+  dayOfBirth,
+  onError,
+}: {
+  dayOfBirth?: string;
+  onError: (neueSchluesselworte: string[]) => void;
+}) {
   if (dayOfBirth == null) {
     return;
   }
@@ -88,56 +118,40 @@ function erstelleGeburtsdatum(
   try {
     return Temporal.PlainDate.from(dayOfBirth);
   } catch {
-    console.warn(
-      `  Ungültiges Geburtsdatum für ${customer.surname}, ${customer.forename} (${customer.id}) gefunden: ${customer.dayOfBirth}`,
-    );
-    onError(
-      ["Migrationsfehler", "Geburtsdatum"],
-      `Ungültiges Geburtsdatum: ${customer.dayOfBirth}`,
-    );
+    onError(["Migrationsfehler", "Geburtsdatum"]);
     return;
   }
 }
 
-function pruefeVollstaendigkeit(
-  patient: Patient,
-  {
-    onError,
-  }: {
-    onError: (
-      neueSchluesselworte: string[],
-      ergaenzendeNotizen: string,
-    ) => void;
-  },
-) {
-  const fehlt: string[] = [];
+function pruefeVollstaendigkeit({
+  patient,
+  onError,
+}: {
+  patient: Patient;
+  onError: (neueSchluesselworte: string[], fehlendeDaten: string[]) => void;
+}) {
+  const fehlendeDaten: string[] = [];
   if (patient.nachname == null) {
-    fehlt.push("Nachname");
+    fehlendeDaten.push("Nachname");
   }
   if (patient.vorname == null) {
-    fehlt.push("Vorname");
+    fehlendeDaten.push("Vorname");
   }
   if (patient.geburtsdatum == null) {
-    fehlt.push("Geburtsdatum");
+    fehlendeDaten.push("Geburtsdatum");
   }
   if (patient.annahmejahr == null) {
-    fehlt.push("Annahmejahr");
+    fehlendeDaten.push("Annahmejahr");
   }
   if (patient.praxis == null) {
-    fehlt.push("Paxis");
+    fehlendeDaten.push("Paxis");
   }
-  if (fehlt.length > 0) {
-    console.warn(
-      `  Unvollständiger Datensatz für ${patient.nachname}, ${patient.vorname} (${patient.nummer}), vermisse ${fehlt.join(", ")}`,
-    );
-    onError(
-      ["Migrationsfehler", "Unvollständig"],
-      `Fehlende Daten: ${fehlt.join(", ")}.`,
-    );
+  if (fehlendeDaten.length > 0) {
+    onError(["Migrationsfehler", "Unvollständig"], fehlendeDaten);
   }
 }
 
-function ergaenzeNotizen(notizen: string, ergaenzendeNotizen: string) {
+function ergaenzeNotizen(notizen = "", ergaenzendeNotizen: string) {
   if (notizen.length > 0) {
     notizen += "\n\n";
   }

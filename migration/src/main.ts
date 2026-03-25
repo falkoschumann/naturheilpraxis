@@ -2,15 +2,9 @@
 
 import { Interactions } from "./interactions";
 
-// TODO Refaktoriere Flow Design
-// TODO Definiere Provider
-// TODO Beachte IOSP: Integration vs. Operation
-// TODO Erstelle IODA Architektur
-// TODO Führe Migration in main-Prozess aus?
-
-const interactions = new Interactions(
-  "data/input/legacy.sqlite",
-  "data/output/naturheilpraxis.sqlite",
-);
+const interactions = Interactions.create({
+  legacyDatabasePath: "data/input/legacy.sqlite",
+  databasePath: "data/output/naturheilpraxis.sqlite",
+});
 
 interactions.migriereDatenbank();
