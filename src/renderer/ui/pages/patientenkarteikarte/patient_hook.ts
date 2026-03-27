@@ -13,9 +13,7 @@ import type { NimmPatientAufCommand } from "../../../../shared/domain/nimm_patie
 export function usePatient() {
   const location = useLocation();
   const search = new URLSearchParams(location.search);
-  const nummer = search.has("nummer")
-    ? Number(search.get("nummer"))
-    : undefined;
+  const nummer = search.has("nummer") ? Number(search.get("nummer")) : -1;
   const messageHandler = useMessageHandler();
   const [result, setResult] = useState(PatientQueryResult.create());
 
