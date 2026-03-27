@@ -1,8 +1,6 @@
 // Copyright (c) 2025 Falko Schumann. All rights reserved. MIT license.
 
 import { Temporal } from "@js-temporal/polyfill";
-// @ts-expect-error TS7016
-import Tags from "bootstrap5-tags";
 import { type ChangeEvent, type MouseEvent, type SubmitEvent, useEffect, useReducer } from "react";
 import { NavLink } from "react-router";
 
@@ -437,12 +435,6 @@ function MultiSelect({
   value: string[];
   onChange: (e: ChangeEvent<HTMLSelectElement>) => void;
 }) {
-  useEffect(() => {
-    if (!isReadOnly && value.length > 0) {
-      Tags.init();
-    }
-  }, [isReadOnly, value]);
-
   if (isReadOnly) {
     return (
       <div className={`col-${cols}`}>

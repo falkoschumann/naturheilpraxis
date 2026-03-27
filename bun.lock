@@ -17,8 +17,6 @@
         "@vitejs/plugin-react": "6.0.1",
         "@vitest/coverage-istanbul": "4.1.0",
         "bootstrap": "5.3.8",
-        "bootstrap-icons": "1.13.1",
-        "bootstrap5-tags": "1.7.16",
         "electron": "41.0.3",
         "electron-builder": "26.8.1",
         "electron-devtools-installer": "4.0.0",
@@ -523,10 +521,6 @@
     "boolean": ["boolean@3.2.0", "", {}, "sha512-d0II/GO9uf9lfUHH2BQsjxzRJZBdsjgsBiW4BvhWk/3qoKwQFjIDVN19PfX8F2D/r9PCMTtLWjYVCFrpeYUzsw=="],
 
     "bootstrap": ["bootstrap@5.3.8", "", { "peerDependencies": { "@popperjs/core": "^2.11.8" } }, "sha512-HP1SZDqaLDPwsNiqRqi5NcP0SSXciX2s9E+RyqJIIqGo+vJeN5AJVM98CXmW/Wux0nQ5L7jeWUdplCEf0Ee+tg=="],
-
-    "bootstrap-icons": ["bootstrap-icons@1.13.1", "", {}, "sha512-ijombt4v6bv5CLeXvRWKy7CuM3TRTuPEuGaGKvTV5cz65rQSY8RQ2JcHt6b90cBBAC7s8fsf2EkQDldzCoXUjw=="],
-
-    "bootstrap5-tags": ["bootstrap5-tags@1.7.16", "", {}, "sha512-P5guDQc+DVFJFK0+udbBRgapRnU6dWWhi4FcuAoMOEX7JdhqW/WB0xUxZGOa338odYIi1HogYN/b24yvJpAxfw=="],
 
     "brace-expansion": ["brace-expansion@1.1.12", "", { "dependencies": { "balanced-match": "^1.0.0", "concat-map": "0.0.1" } }, "sha512-9T9UjW3r0UW5c1Q7GTwllptXwhvYmEzFhzMfZ9H7FQWt+uZePjZPjBP/W1ZEyZ1twGWom5/56TF4lPcqjnDHcg=="],
 

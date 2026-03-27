@@ -29,7 +29,6 @@ export function usePatient() {
 
   const [prevNummer, setPrevNummer] = useState<number>();
   if (nummer !== prevNummer) {
-    console.log("Patientennummer geändert:", nummer, prevNummer);
     setPrevNummer(nummer);
     void suchePatient(PatientQuery.create({ nummer }));
   }
