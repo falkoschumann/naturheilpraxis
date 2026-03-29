@@ -1,19 +1,18 @@
 // Copyright (c) 2026 Falko Schumann. All rights reserved. MIT license.
 
-import { Einstellungen } from "../shared/domain/einstellungen.ts";
-import {
-  createNimmPatientAufCommandStatus,
-  type NimmPatientAufCommand,
-} from "../shared/domain/nimm_patient_auf_command.ts";
+import { createCommandStatus } from "@muspellheim/shared";
+
+import { Einstellungen } from "../shared/domain/einstellungen";
+import { type NimmPatientAufCommand } from "../shared/domain/nimm_patient_auf_command";
 import {
   type PatientQuery,
   PatientQueryResult,
-} from "../shared/domain/suche_patient_query.ts";
+} from "../shared/domain/suche_patient_query";
 import {
   type PatientenQuery,
   PatientenQueryResult,
-} from "../shared/domain/suche_patienten_query.ts";
-import type { MessageHandler } from "./ui/components/message_handler.ts";
+} from "../shared/domain/suche_patienten_query";
+import type { MessageHandler } from "./ui/components/message_handler";
 
 export const messageHandler: MessageHandler = {
   async nimmPatientAuf(command: NimmPatientAufCommand) {
