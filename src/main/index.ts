@@ -18,7 +18,7 @@ import {
   SICHERE_EINSTELLUNGEN_CHANNEL,
   SUCHE_PATIENT_CHANNEL,
   SUCHE_PATIENTEN_CHANNEL,
-} from "../shared/channels";
+} from "../shared/infrastructure/channels";
 import { Einstellungen } from "../shared/domain/einstellungen";
 import { NimmPatientAufCommand } from "../shared/domain/nimm_patient_auf_command";
 import { PatientQuery } from "../shared/domain/suche_patient_query";

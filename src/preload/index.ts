@@ -8,7 +8,7 @@ import {
   SICHERE_EINSTELLUNGEN_CHANNEL,
   SUCHE_PATIENT_CHANNEL,
   SUCHE_PATIENTEN_CHANNEL,
-} from "../shared/channels";
+} from "../shared/infrastructure/channels";
 
 contextBridge.exposeInMainWorld("naturheilpraxis", {
   nimmPatientAuf: (command: string): Promise<string> =>
