@@ -20,7 +20,7 @@ export const messageHandler: MessageHandler = {
     let json = JSON.stringify(command);
     json = await window.naturheilpraxis.nimmPatientAuf(json);
     const dto = JSON.parse(json);
-    return createNimmPatientAufCommandStatus(dto);
+    return createCommandStatus(dto);
   },
 
   async suchePatient(query: PatientQuery) {

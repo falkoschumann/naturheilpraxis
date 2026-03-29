@@ -28,13 +28,3 @@ export class NimmPatientAufCommand {
 }
 
 export type NimmPatientAufCommandStatus = Success<{ nummer: number }> | Failure;
-
-export function createNimmPatientAufCommandStatus(
-  status: NimmPatientAufCommandStatus,
-): NimmPatientAufCommandStatus {
-  if (status.isSuccess) {
-    return new Success({ nummer: status.result!.nummer });
-  } else {
-    return new Failure(status.errorMessage!);
-  }
-}
