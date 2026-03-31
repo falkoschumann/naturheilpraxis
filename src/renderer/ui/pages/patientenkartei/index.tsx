@@ -133,7 +133,7 @@ function PatientenTable({ data, onPatientSelect }: { data: Patient[]; onPatientS
 
 const columnHelper = createColumnHelper<Patient>();
 const columns = [
-  columnHelper.accessor("nummer", { header: "#", size: 80 }),
+  columnHelper.accessor("nummer", { header: "#", size: 60 }),
   columnHelper.accessor("anrede", { header: "Anrede", size: 80 }),
   columnHelper.accessor("nachname", { header: "Nachname", size: 120 }),
   columnHelper.accessor("vorname", { header: "Vorname", size: 120 }),
@@ -142,12 +142,12 @@ const columns = [
     size: 100,
     cell: (info) => info?.getValue()?.toLocaleString(undefined, { dateStyle: "medium" }),
   }),
-  columnHelper.accessor("strasse", { header: "Straße", size: 200 }),
-  columnHelper.accessor("postleitzahl", { header: "PLZ", size: 80 }),
-  columnHelper.accessor("wohnort", { header: "Wohnort", size: 120 }),
+  columnHelper.accessor("strasse", { header: "Straße", size: 250 }),
+  columnHelper.accessor("postleitzahl", { header: "PLZ", size: 70 }),
+  columnHelper.accessor("wohnort", { header: "Wohnort", size: 140 }),
   columnHelper.accessor("telefon", {
     header: "Telefon",
-    size: 100,
+    size: 140,
     cell: (info) => (
       <a href={`tel:${info.getValue()}`} onClick={(event) => event.stopPropagation()}>
         {info.getValue()}
@@ -156,7 +156,7 @@ const columns = [
   }),
   columnHelper.accessor("mobil", {
     header: "Mobil",
-    size: 100,
+    size: 140,
     cell: (info) => (
       <a href={`tel:${info.getValue()}`} onClick={(event) => event.stopPropagation()}>
         {info.getValue()}
