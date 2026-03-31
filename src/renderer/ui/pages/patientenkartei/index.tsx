@@ -24,9 +24,6 @@ export default function PatientenkarteiPage() {
     navigate({ pathname: PATIENTENKARTEIKARTE_PAGE, search: search.toString() });
   }
 
-  const patienten = result.patienten.slice(0, 100);
-  //const patienten = result.patienten;
-
   return (
     <DefaultPageLayout>
       <aside className="flex-shrink-0 container">
@@ -43,7 +40,7 @@ export default function PatientenkarteiPage() {
         </div>
       </aside>
       <main className="flex-grow-1 container-fluid overflow-hidden">
-        <PatientenTable data={patienten} onPatientSelect={handlePatientClick} />
+        <PatientenTable data={result.patienten} onPatientSelect={handlePatientClick} />
       </main>
       <aside className="flex-shrink-0 container">
         <div className="btn-toolbar py-3" role="toolbar" aria-label="Aktionen für Patienten">
@@ -61,7 +58,7 @@ function PatientenTable({ data, onPatientSelect }: { data: Patient[]; onPatientS
   "use no memo";
 
   // eslint-disable-next-line react-hooks/incompatible-library
-  const table = useReactTable({ data, columns, getCoreRowModel: getCoreRowModel(), debugTable: true });
+  const table = useReactTable({ data, columns, getCoreRowModel: getCoreRowModel() });
 
   const { rows } = table.getRowModel();
 
@@ -72,13 +69,18 @@ function PatientenTable({ data, onPatientSelect }: { data: Patient[]; onPatientS
     getScrollElement: () => parentRef.current,
     estimateSize: () => 41,
     overscan: 10,
-    debug: true,
   });
+
+  const virtualRows = virtualizer.getVirtualItems();
+  const firstVirtualRow = virtualRows[0];
+  const lastVirtualRow = virtualRows[virtualRows.length - 1];
+  const paddingTop = firstVirtualRow ? firstVirtualRow.start : 0;
+  const paddingBottom = lastVirtualRow ? virtualizer.getTotalSize() - lastVirtualRow.end : 0;
 
   return (
     <div ref={parentRef} className="h-100 overflow-auto">
       <div style={{ height: `${virtualizer.getTotalSize()}px` }}>
-        <table className="table table-hover">
+        <table className="table table-hover mb-0">
           <thead className="sticky-top">
             {table.getHeaderGroups().map((hg) => (
               <tr key={hg.id}>
@@ -91,26 +93,37 @@ function PatientenTable({ data, onPatientSelect }: { data: Patient[]; onPatientS
             ))}
           </thead>
           <tbody>
-            {virtualizer.getVirtualItems().map((virtualRow, index) => {
+            {paddingTop > 0 ? (
+              <tr>
+                <td style={{ height: `${paddingTop}px` }} colSpan={table.getVisibleLeafColumns().length} />
+              </tr>
+            ) : null}
+            {virtualRows.map((virtualRow) => {
               const row = rows[virtualRow.index]!;
               return (
                 <tr
                   key={row.id}
                   style={{
                     height: `${virtualRow.size}px`,
-                    transform: `translateY(${virtualRow.start - index * virtualRow.size})px`,
                     cursor: "pointer",
                   }}
                   onClick={() => onPatientSelect(row.getValue("nummer"))}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <td key={cell.id} className="text-nowrap">
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      <div className="text-truncate" style={{ width: cell.column.getSize() }}>
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      </div>
                     </td>
                   ))}
                 </tr>
               );
             })}
+            {paddingBottom > 0 ? (
+              <tr>
+                <td style={{ height: `${paddingBottom}px` }} colSpan={table.getVisibleLeafColumns().length} />
+              </tr>
+            ) : null}
           </tbody>
         </table>
       </div>
@@ -122,17 +135,19 @@ const columnHelper = createColumnHelper<Patient>();
 const columns = [
   columnHelper.accessor("nummer", { header: "#", size: 80 }),
   columnHelper.accessor("anrede", { header: "Anrede", size: 80 }),
-  columnHelper.accessor("nachname", { header: "Nachname" }),
-  columnHelper.accessor("vorname", { header: "Vorname" }),
+  columnHelper.accessor("nachname", { header: "Nachname", size: 120 }),
+  columnHelper.accessor("vorname", { header: "Vorname", size: 120 }),
   columnHelper.accessor("geburtsdatum", {
     header: "Geburtsdatum",
+    size: 100,
     cell: (info) => info?.getValue()?.toLocaleString(undefined, { dateStyle: "medium" }),
   }),
   columnHelper.accessor("strasse", { header: "Straße", size: 200 }),
   columnHelper.accessor("postleitzahl", { header: "PLZ", size: 80 }),
-  columnHelper.accessor("wohnort", { header: "Wohnort" }),
+  columnHelper.accessor("wohnort", { header: "Wohnort", size: 120 }),
   columnHelper.accessor("telefon", {
     header: "Telefon",
+    size: 100,
     cell: (info) => (
       <a href={`tel:${info.getValue()}`} onClick={(event) => event.stopPropagation()}>
         {info.getValue()}
@@ -141,6 +156,7 @@ const columns = [
   }),
   columnHelper.accessor("mobil", {
     header: "Mobil",
+    size: 100,
     cell: (info) => (
       <a href={`tel:${info.getValue()}`} onClick={(event) => event.stopPropagation()}>
         {info.getValue()}
