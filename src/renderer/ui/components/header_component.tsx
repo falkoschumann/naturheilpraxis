@@ -7,7 +7,7 @@ import { PATIENTENKARTEI_PAGE, START_PAGE } from "./pages";
 
 export default function HeaderComponent() {
   return (
-    <header>
+    <header className="flex-shrink-0">
       <nav className="navbar navbar-expand-lg">
         <div className="container">
           <a href={START_PAGE} className="navbar-brand">

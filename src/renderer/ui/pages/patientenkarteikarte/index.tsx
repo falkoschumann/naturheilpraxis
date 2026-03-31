@@ -53,226 +53,230 @@ export default function PatientenkarteikartePage() {
 
   return (
     <DefaultPageLayout>
-      <main className="container my-4">
-        <h2 className="mb-3">
-          {state.zustand === FormularZustand.AUFNAHME
-            ? "Neuer Patient"
-            : `${state.patient.nachname}, ${state.patient.vorname} (Nr. ${state.patient.nummer}), geboren am ${state.patient.geburtsdatum?.toLocaleString(undefined, { dateStyle: "medium" })}`}
-        </h2>
-        <form onSubmit={handleSubmit}>
-          <div className="position-relative overflow-auto" style={{ height: "calc(100vh - 15.5rem)" }}>
-            <div className="row g-3">
-              <MultiSelect
-                name="schluesselworte"
-                label="Schlüsselworte"
-                cols={12}
-                isReadOnly={state.nurLesen}
-                options={result.schluesselworte}
-                value={state.patient.schluesselworte ?? []}
-                onChange={(e) =>
-                  dispatch(
-                    aktualisiereFeld({
-                      schluesselworte: Array.from(e.target.selectedOptions, (option) => option.value),
-                    }),
-                  )
-                }
-              />
-              <Input
-                name="geburtsdatum"
-                label="Geburtsdatum"
-                type="date"
-                isRequired
-                isReadOnly={state.nurLesen}
-                cols={4}
-                value={state.patient.geburtsdatum?.toString() ?? ""}
-                onChange={(e) => dispatch(aktualisiereFeld({ geburtsdatum: Temporal.PlainDate.from(e.target.value) }))}
-              />
-              <Input
-                name="annahmejahr"
-                label="Annahmejahr"
-                type="number"
-                isRequired
-                isReadOnly={state.nurLesen}
-                cols={4}
-                value={String(state.patient.annahmejahr ?? "")}
-                onChange={(e) => dispatch(aktualisiereFeld({ annahmejahr: Number(e.target.value) }))}
-              />
-              <Select
-                name="praxis"
-                label="Praxis"
-                cols={4}
-                isReadOnly={state.nurLesen}
-                options={result.praxen}
-                value={state.patient.praxis ?? ""}
-                onChange={(e) => dispatch(aktualisiereFeld({ praxis: e.target.value }))}
-              />
-              <Select
-                name="anrede"
-                label="Anrede"
-                cols={2}
-                isReadOnly={state.nurLesen}
-                options={result.anreden}
-                value={state.patient.anrede ?? ""}
-                onChange={(e) => dispatch(aktualisiereFeld({ anrede: e.target.value }))}
-              />
-              <Input
-                name="titel"
-                label="Titel"
-                cols={2}
-                isReadOnly={state.nurLesen}
-                value={state.patient.titel ?? ""}
-                onChange={(e) => dispatch(aktualisiereFeld({ titel: e.target.value }))}
-              />
-              <Input
-                name="vorname"
-                label="Vorname"
-                isRequired
-                cols={4}
-                isReadOnly={state.nurLesen}
-                value={state.patient.vorname ?? ""}
-                onChange={(e) => dispatch(aktualisiereFeld({ vorname: e.target.value }))}
-              />
-              <Input
-                name="nachname"
-                label="Nachname"
-                isRequired
-                isReadOnly={state.nurLesen}
-                cols={4}
-                value={state.patient.nachname ?? ""}
-                onChange={(e) => dispatch(aktualisiereFeld({ nachname: e.target.value }))}
-              />
-              <Input
-                name="strasse"
-                label="Straße"
-                cols={4}
-                isReadOnly={state.nurLesen}
-                value={state.patient.strasse ?? ""}
-                onChange={(e) => dispatch(aktualisiereFeld({ strasse: e.target.value }))}
-              />
-              <Input
-                name="postleitzahl"
-                label="Postleitzahl"
-                cols={2}
-                isReadOnly={state.nurLesen}
-                value={state.patient.postleitzahl ?? ""}
-                onChange={(e) => dispatch(aktualisiereFeld({ postleitzahl: e.target.value }))}
-              />
-              <Input
-                name="wohnort"
-                label="Wohnort"
-                cols={3}
-                isReadOnly={state.nurLesen}
-                value={state.patient.wohnort ?? ""}
-                onChange={(e) => dispatch(aktualisiereFeld({ wohnort: e.target.value }))}
-              />
-              <Input
-                name="staat"
-                label="Staat"
-                cols={3}
-                isReadOnly={state.nurLesen}
-                value={state.patient.staat ?? ""}
-                onChange={(e) => dispatch(aktualisiereFeld({ staat: e.target.value }))}
-              />
-              <Input
-                name="telefon"
-                label="Telefon"
-                cols={3}
-                isReadOnly={state.nurLesen}
-                value={state.patient.telefon ?? ""}
-                onChange={(e) => dispatch(aktualisiereFeld({ telefon: e.target.value }))}
-              />
-              <Input
-                name="mobil"
-                label="Mobil"
-                cols={3}
-                isReadOnly={state.nurLesen}
-                value={state.patient.mobil ?? ""}
-                onChange={(e) => dispatch(aktualisiereFeld({ mobil: e.target.value }))}
-              />
-              <Input
-                name="eMail"
-                label="E-Mail"
-                cols={6}
-                isReadOnly={state.nurLesen}
-                value={state.patient.eMail ?? ""}
-                onChange={(e) => dispatch(aktualisiereFeld({ eMail: e.target.value }))}
-              />
-              <Select
-                name="familienstand"
-                label="Familienstand"
-                cols={2}
-                isReadOnly={state.nurLesen}
-                options={result.familienstaende}
-                value={state.patient.familienstand ?? ""}
-                onChange={(e) => dispatch(aktualisiereFeld({ familienstand: e.target.value }))}
-              />
-              <Input
-                name="partner"
-                label="Partner"
-                cols={5}
-                isReadOnly={state.nurLesen}
-                value={state.patient.partner ?? ""}
-                onChange={(e) => dispatch(aktualisiereFeld({ partner: e.target.value }))}
-              />
-              <Input
-                name="kinder"
-                label="Kinder"
-                cols={5}
-                isReadOnly={state.nurLesen}
-                value={state.patient.kinder ?? ""}
-                onChange={(e) => dispatch(aktualisiereFeld({ kinder: e.target.value }))}
-              />
-              <Input
-                name="staatsangehoeringkeit"
-                label="Staatsangehörigkeit"
-                cols={6}
-                isReadOnly={state.nurLesen}
-                value={state.patient.staatsangehoerigkeit ?? ""}
-                onChange={(e) => dispatch(aktualisiereFeld({ staatsangehoerigkeit: e.target.value }))}
-              />
-              <Input
-                name="beruf"
-                label="Beruf"
-                cols={6}
-                isReadOnly={state.nurLesen}
-                value={state.patient.beruf ?? ""}
-                onChange={(e) => dispatch(aktualisiereFeld({ beruf: e.target.value }))}
-              />
-              <TextArea
-                name="notizen"
-                label="Notizen"
-                cols={12}
-                isReadOnly={state.nurLesen}
-                value={state.patient.notizen ?? ""}
-                onChange={(e) => dispatch(aktualisiereFeld({ notizen: e.target.value }))}
-              />
-            </div>
-          </div>
-          <div className="form-text mb-3">* Erforderliche Angaben</div>
-          <div
-            className="btn-toolbar justify-content-end align-items-center"
-            role="toolbar"
-            aria-label="Aktionen für Patient"
-          >
-            {state.zustand !== FormularZustand.AUFNAHME && (
-              <NavLink to={PATIENTENKARTEIKARTE_PAGE} className="btn btn-primary">
-                Nimm Patient auf
-              </NavLink>
-            )}
-            <div className="me-auto"></div>
-            {state.zustand === FormularZustand.VERARBEITUNG && (
-              <div className="spinner-border text-primary" role="status">
-                <span className="visually-hidden">Loading...</span>
+      <main className="flex-grow-1 container my-4">
+        <div className="h-100">
+          <h2 className="mb-3">
+            {state.zustand === FormularZustand.AUFNAHME
+              ? "Neuer Patient"
+              : `${state.patient.nachname}, ${state.patient.vorname} (Nr. ${state.patient.nummer}), geboren am ${state.patient.geburtsdatum?.toLocaleString(undefined, { dateStyle: "medium" })}`}
+          </h2>
+          <form onSubmit={handleSubmit}>
+            <div className="overflow-y-auto">
+              <div className="row g-3">
+                <MultiSelect
+                  name="schluesselworte"
+                  label="Schlüsselworte"
+                  cols={12}
+                  isReadOnly={state.nurLesen}
+                  options={result.schluesselworte}
+                  value={state.patient.schluesselworte ?? []}
+                  onChange={(e) =>
+                    dispatch(
+                      aktualisiereFeld({
+                        schluesselworte: Array.from(e.target.selectedOptions, (option) => option.value),
+                      }),
+                    )
+                  }
+                />
+                <Input
+                  name="geburtsdatum"
+                  label="Geburtsdatum"
+                  type="date"
+                  isRequired
+                  isReadOnly={state.nurLesen}
+                  cols={4}
+                  value={state.patient.geburtsdatum?.toString() ?? ""}
+                  onChange={(e) =>
+                    dispatch(aktualisiereFeld({ geburtsdatum: Temporal.PlainDate.from(e.target.value) }))
+                  }
+                />
+                <Input
+                  name="annahmejahr"
+                  label="Annahmejahr"
+                  type="number"
+                  isRequired
+                  isReadOnly={state.nurLesen}
+                  cols={4}
+                  value={String(state.patient.annahmejahr ?? "")}
+                  onChange={(e) => dispatch(aktualisiereFeld({ annahmejahr: Number(e.target.value) }))}
+                />
+                <Select
+                  name="praxis"
+                  label="Praxis"
+                  cols={4}
+                  isReadOnly={state.nurLesen}
+                  options={result.praxen}
+                  value={state.patient.praxis ?? ""}
+                  onChange={(e) => dispatch(aktualisiereFeld({ praxis: e.target.value }))}
+                />
+                <Select
+                  name="anrede"
+                  label="Anrede"
+                  cols={2}
+                  isReadOnly={state.nurLesen}
+                  options={result.anreden}
+                  value={state.patient.anrede ?? ""}
+                  onChange={(e) => dispatch(aktualisiereFeld({ anrede: e.target.value }))}
+                />
+                <Input
+                  name="titel"
+                  label="Titel"
+                  cols={2}
+                  isReadOnly={state.nurLesen}
+                  value={state.patient.titel ?? ""}
+                  onChange={(e) => dispatch(aktualisiereFeld({ titel: e.target.value }))}
+                />
+                <Input
+                  name="vorname"
+                  label="Vorname"
+                  isRequired
+                  cols={4}
+                  isReadOnly={state.nurLesen}
+                  value={state.patient.vorname ?? ""}
+                  onChange={(e) => dispatch(aktualisiereFeld({ vorname: e.target.value }))}
+                />
+                <Input
+                  name="nachname"
+                  label="Nachname"
+                  isRequired
+                  isReadOnly={state.nurLesen}
+                  cols={4}
+                  value={state.patient.nachname ?? ""}
+                  onChange={(e) => dispatch(aktualisiereFeld({ nachname: e.target.value }))}
+                />
+                <Input
+                  name="strasse"
+                  label="Straße"
+                  cols={4}
+                  isReadOnly={state.nurLesen}
+                  value={state.patient.strasse ?? ""}
+                  onChange={(e) => dispatch(aktualisiereFeld({ strasse: e.target.value }))}
+                />
+                <Input
+                  name="postleitzahl"
+                  label="Postleitzahl"
+                  cols={2}
+                  isReadOnly={state.nurLesen}
+                  value={state.patient.postleitzahl ?? ""}
+                  onChange={(e) => dispatch(aktualisiereFeld({ postleitzahl: e.target.value }))}
+                />
+                <Input
+                  name="wohnort"
+                  label="Wohnort"
+                  cols={3}
+                  isReadOnly={state.nurLesen}
+                  value={state.patient.wohnort ?? ""}
+                  onChange={(e) => dispatch(aktualisiereFeld({ wohnort: e.target.value }))}
+                />
+                <Input
+                  name="staat"
+                  label="Staat"
+                  cols={3}
+                  isReadOnly={state.nurLesen}
+                  value={state.patient.staat ?? ""}
+                  onChange={(e) => dispatch(aktualisiereFeld({ staat: e.target.value }))}
+                />
+                <Input
+                  name="telefon"
+                  label="Telefon"
+                  cols={3}
+                  isReadOnly={state.nurLesen}
+                  value={state.patient.telefon ?? ""}
+                  onChange={(e) => dispatch(aktualisiereFeld({ telefon: e.target.value }))}
+                />
+                <Input
+                  name="mobil"
+                  label="Mobil"
+                  cols={3}
+                  isReadOnly={state.nurLesen}
+                  value={state.patient.mobil ?? ""}
+                  onChange={(e) => dispatch(aktualisiereFeld({ mobil: e.target.value }))}
+                />
+                <Input
+                  name="eMail"
+                  label="E-Mail"
+                  cols={6}
+                  isReadOnly={state.nurLesen}
+                  value={state.patient.eMail ?? ""}
+                  onChange={(e) => dispatch(aktualisiereFeld({ eMail: e.target.value }))}
+                />
+                <Select
+                  name="familienstand"
+                  label="Familienstand"
+                  cols={2}
+                  isReadOnly={state.nurLesen}
+                  options={result.familienstaende}
+                  value={state.patient.familienstand ?? ""}
+                  onChange={(e) => dispatch(aktualisiereFeld({ familienstand: e.target.value }))}
+                />
+                <Input
+                  name="partner"
+                  label="Partner"
+                  cols={5}
+                  isReadOnly={state.nurLesen}
+                  value={state.patient.partner ?? ""}
+                  onChange={(e) => dispatch(aktualisiereFeld({ partner: e.target.value }))}
+                />
+                <Input
+                  name="kinder"
+                  label="Kinder"
+                  cols={5}
+                  isReadOnly={state.nurLesen}
+                  value={state.patient.kinder ?? ""}
+                  onChange={(e) => dispatch(aktualisiereFeld({ kinder: e.target.value }))}
+                />
+                <Input
+                  name="staatsangehoeringkeit"
+                  label="Staatsangehörigkeit"
+                  cols={6}
+                  isReadOnly={state.nurLesen}
+                  value={state.patient.staatsangehoerigkeit ?? ""}
+                  onChange={(e) => dispatch(aktualisiereFeld({ staatsangehoerigkeit: e.target.value }))}
+                />
+                <Input
+                  name="beruf"
+                  label="Beruf"
+                  cols={6}
+                  isReadOnly={state.nurLesen}
+                  value={state.patient.beruf ?? ""}
+                  onChange={(e) => dispatch(aktualisiereFeld({ beruf: e.target.value }))}
+                />
+                <TextArea
+                  name="notizen"
+                  label="Notizen"
+                  cols={12}
+                  isReadOnly={state.nurLesen}
+                  value={state.patient.notizen ?? ""}
+                  onChange={(e) => dispatch(aktualisiereFeld({ notizen: e.target.value }))}
+                />
               </div>
-            )}
-            <button type="submit" className="btn btn-primary ms-2" disabled={state.sendenDeaktiviert}>
-              {state.sendenText}
-            </button>
-            <button className="btn btn-secondary ms-2" disabled={state.abbrechenDeaktiviert} onClick={handleCancel}>
-              Abbrechen
-            </button>
-          </div>
-        </form>
+            </div>
+            <div className="form-text mb-3">* Erforderliche Angaben</div>
+            <div
+              className="btn-toolbar justify-content-end align-items-center"
+              role="toolbar"
+              aria-label="Aktionen für Patient"
+            >
+              {state.zustand !== FormularZustand.AUFNAHME && (
+                <NavLink to={PATIENTENKARTEIKARTE_PAGE} className="btn btn-primary">
+                  Nimm Patient auf
+                </NavLink>
+              )}
+              <div className="me-auto"></div>
+              {state.zustand === FormularZustand.VERARBEITUNG && (
+                <div className="spinner-border text-primary" role="status">
+                  <span className="visually-hidden">Loading...</span>
+                </div>
+              )}
+              <button type="submit" className="btn btn-primary ms-2" disabled={state.sendenDeaktiviert}>
+                {state.sendenText}
+              </button>
+              <button className="btn btn-secondary ms-2" disabled={state.abbrechenDeaktiviert} onClick={handleCancel}>
+                Abbrechen
+              </button>
+            </div>
+          </form>
+        </div>
       </main>
     </DefaultPageLayout>
   );

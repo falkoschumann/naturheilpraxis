@@ -6,9 +6,9 @@ import HeaderComponent from "../components/header_component";
 
 export default function DefaultPageLayout({ children }: { children: ReactNode }) {
   return (
-    <>
+    <div className="vh-100 d-flex flex-column overflow-hidden">
       <HeaderComponent />
       {children}
-    </>
+    </div>
   );
 }

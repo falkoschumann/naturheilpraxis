@@ -1,8 +1,8 @@
 // Copyright (c) 2025 Falko Schumann. All rights reserved. MIT license.
 
-import { createColumnHelper, flexRender, getCoreRowModel, type Table, useReactTable } from "@tanstack/react-table";
+import { createColumnHelper, flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table";
 import { useVirtualizer } from "@tanstack/react-virtual";
-import { type RefObject, useRef } from "react";
+import { useRef } from "react";
 import { NavLink, useNavigate } from "react-router";
 
 import type { Patient } from "../../../../shared/domain/patient";
@@ -10,7 +10,7 @@ import { PATIENTENKARTEIKARTE_PAGE } from "../../components/pages";
 import DefaultPageLayout from "../../layouts/default_page_layout";
 import { usePatienten } from "./patienten_hook";
 
-// TODO use sorting
+// TODO use sorting with getSortedRowModel
 // TODO sort by number desc by default
 
 export default function PatientenkarteiPage() {
@@ -24,11 +24,14 @@ export default function PatientenkarteiPage() {
     navigate({ pathname: PATIENTENKARTEIKARTE_PAGE, search: search.toString() });
   }
 
+  const patienten = result.patienten.slice(0, 100);
+  //const patienten = result.patienten;
+
   return (
     <DefaultPageLayout>
-      <main className="container-fluid my-4">
-        <div className="d-flex">
-          <h2 className="mb-3">Patienten</h2>
+      <aside className="flex-shrink-0 container">
+        <div className="d-flex py-3">
+          <h2>Patienten</h2>
           <div className="ms-auto">
             <form className="d-flex" role="search">
               <input className="form-control me-2" type="search" placeholder="Suche" aria-label="Suche" />
@@ -38,96 +41,80 @@ export default function PatientenkarteiPage() {
             </form>
           </div>
         </div>
-        <Table data={result.patienten} onPatientSelect={handlePatientClick} />
-        <div className="btn-toolbar mt-3" role="toolbar" aria-label="Aktionen für Patienten">
+      </aside>
+      <main className="flex-grow-1 container-fluid overflow-hidden">
+        <PatientenTable data={patienten} onPatientSelect={handlePatientClick} />
+      </main>
+      <aside className="flex-shrink-0 container">
+        <div className="btn-toolbar py-3" role="toolbar" aria-label="Aktionen für Patienten">
           <NavLink to={PATIENTENKARTEIKARTE_PAGE} type="button" className="btn btn-primary">
             Nimm Patient auf
           </NavLink>
         </div>
-      </main>
+      </aside>
     </DefaultPageLayout>
   );
 }
 
-function Table({ data, onPatientSelect }: { data: Patient[]; onPatientSelect: (nummer: number) => void }) {
+function PatientenTable({ data, onPatientSelect }: { data: Patient[]; onPatientSelect: (nummer: number) => void }) {
   // WORKAROUND see https://github.com/TanStack/table/issues/6137
   "use no memo";
 
-  const tableContainerRef = useRef<HTMLDivElement>(null);
   // eslint-disable-next-line react-hooks/incompatible-library
-  const table = useReactTable({ data, columns, getCoreRowModel: getCoreRowModel() });
-
-  return (
-    <div
-      ref={tableContainerRef}
-      className="position-relative overflow-auto"
-      style={{ height: "calc(100vh - 13.5rem)" }}
-    >
-      <table className="d-grid table table-hover">
-        <thead className="d-grid sticky-top">
-          {table.getHeaderGroups().map((headerGroup) => (
-            <tr key={headerGroup.id} className="d-flex w-100">
-              {headerGroup.headers.map((header) => (
-                <th key={header.id} scope="col" className="d-flex" style={{ width: header.getSize() }}>
-                  {flexRender(header.column.columnDef.header, header.getContext())}
-                </th>
-              ))}
-            </tr>
-          ))}
-        </thead>
-        <TableBody table={table} tableContainerRef={tableContainerRef} onPatientSelect={onPatientSelect} />
-      </table>
-    </div>
-  );
-}
-
-function TableBody({
-  table,
-  tableContainerRef,
-  onPatientSelect,
-}: {
-  table: Table<Patient>;
-  tableContainerRef: RefObject<HTMLDivElement | null>;
-  onPatientSelect: (nummer: number) => void;
-}) {
-  // WORKAROUND for eslint issue with useVirtualizer
-  "use no memo";
+  const table = useReactTable({ data, columns, getCoreRowModel: getCoreRowModel(), debugTable: true });
 
   const { rows } = table.getRowModel();
-  // eslint-disable-next-line react-hooks/incompatible-library
-  const virtualizer = useVirtualizer<HTMLDivElement, HTMLTableRowElement>({
+
+  const parentRef = useRef<HTMLDivElement>(null);
+
+  const virtualizer = useVirtualizer({
     count: rows.length,
+    getScrollElement: () => parentRef.current,
     estimateSize: () => 41,
-    getScrollElement: () => tableContainerRef.current,
-    measureElement:
-      typeof window !== "undefined" && navigator.userAgent.indexOf("Firefox") === -1
-        ? (element) => element?.getBoundingClientRect().height
-        : undefined,
-    overscan: 5,
+    overscan: 10,
+    debug: true,
   });
 
   return (
-    <tbody className="d-grid position-relative" style={{ height: `${virtualizer.getTotalSize()}px` }}>
-      {virtualizer.getVirtualItems().map((virtualRow) => {
-        const row = rows[virtualRow.index]!;
-        return (
-          <tr
-            key={row.id}
-            data-index={virtualRow.index}
-            ref={(node) => virtualizer.measureElement(node)}
-            className="d-flex position-absolute w-100"
-            style={{ cursor: "pointer", transform: `translateY(${virtualRow.start}px)` }}
-            onClick={() => onPatientSelect(row.getValue("nummer"))}
-          >
-            {row.getVisibleCells().map((cell) => (
-              <td key={cell.id} className="d-flex" style={{ width: cell.column.getSize() }}>
-                {flexRender(cell.column.columnDef.cell, cell.getContext())}
-              </td>
+    <div ref={parentRef} className="h-100 overflow-auto">
+      <div style={{ height: `${virtualizer.getTotalSize()}px` }}>
+        <table className="table table-hover">
+          <thead className="sticky-top">
+            {table.getHeaderGroups().map((hg) => (
+              <tr key={hg.id}>
+                {hg.headers.map((header) => (
+                  <th key={header.id} scope="col" className="text-nowrap">
+                    {flexRender(header.column.columnDef.header, header.getContext())}
+                  </th>
+                ))}
+              </tr>
             ))}
-          </tr>
-        );
-      })}
-    </tbody>
+          </thead>
+          <tbody>
+            {virtualizer.getVirtualItems().map((virtualRow, index) => {
+              const row = rows[virtualRow.index]!;
+              return (
+                <tr
+                  key={row.id}
+                  style={{
+                    height: `${virtualRow.size}px`,
+                    transform: `translateY(${virtualRow.start - index * virtualRow.size})px`,
+                    cursor: "pointer",
+                  }}
+                  onClick={() => onPatientSelect(row.getValue("nummer"))}
+                >
+                  {row.getVisibleCells().map((cell) => (
+                    <td key={cell.id} className="text-nowrap">
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                    </td>
+                  ))}
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </div>
   );
 }
 
