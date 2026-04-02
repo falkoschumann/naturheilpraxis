@@ -13,3 +13,7 @@ $theme-colors: map-merge(
 $navbar-light-active-color: $primary;
 
 @import "../../../../node_modules/bootstrap";
+
+.cursor-pointer {
+  cursor: pointer;
+}

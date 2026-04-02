@@ -1,17 +1,25 @@
 // Copyright (c) 2025 Falko Schumann. All rights reserved. MIT license.
 
-import { createColumnHelper, flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table";
+import {
+  createColumnHelper,
+  flexRender,
+  getCoreRowModel,
+  getSortedRowModel,
+  type SortingFn,
+  type SortingState,
+  useReactTable,
+} from "@tanstack/react-table";
 import { useVirtualizer } from "@tanstack/react-virtual";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { NavLink, useNavigate } from "react-router";
 
 import type { Patient } from "../../../../shared/domain/patient";
 import { PATIENTENKARTEIKARTE_PAGE } from "../../components/pages";
 import DefaultPageLayout from "../../layouts/default_page_layout";
 import { usePatienten } from "./patienten_hook";
+import { Temporal } from "@js-temporal/polyfill";
 
-// TODO use sorting with getSortedRowModel
-// TODO sort by number desc by default
+// TODO do not sort in backend by number desc
 
 export default function PatientenkarteiPage() {
   const [result] = usePatienten();
@@ -57,8 +65,18 @@ function PatientenTable({ data, onPatientSelect }: { data: Patient[]; onPatientS
   // WORKAROUND see https://github.com/TanStack/table/issues/6137
   "use no memo";
 
+  const [sorting, setSorting] = useState<SortingState>([{ id: "nummer", desc: true }]);
+
   // eslint-disable-next-line react-hooks/incompatible-library
-  const table = useReactTable({ data, columns, getCoreRowModel: getCoreRowModel() });
+  const table = useReactTable({
+    columns,
+    data,
+    state: { sorting },
+    sortDescFirst: false,
+    getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    onSortingChange: setSorting,
+  });
 
   const { rows } = table.getRowModel();
 
@@ -82,11 +100,30 @@ function PatientenTable({ data, onPatientSelect }: { data: Patient[]; onPatientS
       <div style={{ height: `${virtualizer.getTotalSize()}px` }}>
         <table className="table table-hover mb-0">
           <thead className="sticky-top">
-            {table.getHeaderGroups().map((hg) => (
-              <tr key={hg.id}>
-                {hg.headers.map((header) => (
+            {table.getHeaderGroups().map((headerGroup) => (
+              <tr key={headerGroup.id}>
+                {headerGroup.headers.map((header) => (
                   <th key={header.id} scope="col" className="text-nowrap">
-                    {flexRender(header.column.columnDef.header, header.getContext())}
+                    <div
+                      className={`d-flex align-items-center ${header.column.getCanSort() ? "user-select-none cursor-pointer" : ""}`}
+                      style={{ width: `${header.column.getSize()}px` }}
+                      onClick={header.column.getToggleSortingHandler()}
+                      title={
+                        header.column.getCanSort()
+                          ? header.column.getNextSortingOrder() === "asc"
+                            ? "Sort ascending"
+                            : header.column.getNextSortingOrder() === "desc"
+                              ? "Sort descending"
+                              : "Clear sort"
+                          : undefined
+                      }
+                    >
+                      {flexRender(header.column.columnDef.header, header.getContext())}
+                      {{
+                        asc: <i className="fa-solid fa-sort-up ms-auto"></i>,
+                        desc: <i className="fa-solid fa-sort-down ms-auto"></i>,
+                      }[header.column.getIsSorted() as string] || <i className="fa-solid fa-sort ms-auto"></i>}
+                    </div>
                   </th>
                 ))}
               </tr>
@@ -111,7 +148,7 @@ function PatientenTable({ data, onPatientSelect }: { data: Patient[]; onPatientS
                 >
                   {row.getVisibleCells().map((cell) => (
                     <td key={cell.id} className="text-nowrap">
-                      <div className="text-truncate" style={{ width: cell.column.getSize() }}>
+                      <div className="text-truncate" style={{ width: `${cell.column.getSize()}px` }}>
                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
                       </div>
                     </td>
@@ -131,6 +168,21 @@ function PatientenTable({ data, onPatientSelect }: { data: Patient[]; onPatientS
   );
 }
 
+const sortGeburtsdatumFn: SortingFn<Patient> = (rowA, rowB, _columnId) => {
+  const dateA = rowA.original.geburtsdatum;
+  const dateB = rowB.original.geburtsdatum;
+  if (dateA == null && dateB != null) {
+    return 1;
+  } else if (dateA != null && dateB == null) {
+    return -1;
+  } else if (dateA != null && dateB != null) {
+    return Temporal.PlainDate.compare(dateA, dateB);
+  } else {
+    // dateA == null && dateB == null
+    return 0;
+  }
+};
+
 const columnHelper = createColumnHelper<Patient>();
 const columns = [
   columnHelper.accessor("nummer", { header: "#", size: 60 }),
@@ -139,11 +191,12 @@ const columns = [
   columnHelper.accessor("vorname", { header: "Vorname", size: 120 }),
   columnHelper.accessor("geburtsdatum", {
     header: "Geburtsdatum",
-    size: 100,
+    size: 140,
     cell: (info) => info?.getValue()?.toLocaleString(undefined, { dateStyle: "medium" }),
+    sortingFn: sortGeburtsdatumFn,
   }),
   columnHelper.accessor("strasse", { header: "Straße", size: 250 }),
-  columnHelper.accessor("postleitzahl", { header: "PLZ", size: 70 }),
+  columnHelper.accessor("postleitzahl", { header: "PLZ", size: 80 }),
   columnHelper.accessor("wohnort", { header: "Wohnort", size: 140 }),
   columnHelper.accessor("telefon", {
     header: "Telefon",

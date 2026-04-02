@@ -37,6 +37,7 @@
   },
   "devDependencies": {
     "@eslint/js": "9.39.3",
+    "@fortawesome/fontawesome-free": "7.2.0",
     "@js-temporal/polyfill": "0.5.1",
     "@muspellheim/shared": "0.20.0",
     "@softarc/sheriff-core": "0.19.6",

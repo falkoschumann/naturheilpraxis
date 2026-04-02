@@ -4,6 +4,7 @@ import "bootstrap";
 import { BrowserRouter, Route, Routes } from "react-router";
 
 import "./assets/bootstrap.scss";
+import "./assets/fontawesome.css";
 import { PATIENTENKARTEI_PAGE, PATIENTENKARTEIKARTE_PAGE, START_PAGE } from "./components/pages";
 import PatientenkarteiPage from "./pages/patientenkartei";
 import PatientenkarteikartePage from "./pages/patientenkarteikarte";
