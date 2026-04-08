@@ -41,7 +41,7 @@ Stories für den MVP sind mit ❗ markiert.
 #### Suche Patienten
 
 - [x] ❗Liste alle Patienten auf
-- [ ] Suche Patient(en) nach einem beliebigen Feld
+- [x] Suche Patient(en) nach einem beliebigen Feld
 - [x] Sortiere nach einem sichtbaren Feld
 - [ ] Konfiguriere sichtbare Felder
 - [ ] Blende inaktive Patienten aus

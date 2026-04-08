@@ -1,25 +1,28 @@
 // Copyright (c) 2025 Falko Schumann. All rights reserved. MIT license.
 
+import { Temporal } from "@js-temporal/polyfill";
 import {
   createColumnHelper,
   flexRender,
   getCoreRowModel,
+  getFilteredRowModel,
   getSortedRowModel,
+  type Row,
   type SortingFn,
   type SortingState,
   useReactTable,
 } from "@tanstack/react-table";
 import { useVirtualizer } from "@tanstack/react-virtual";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { NavLink, useNavigate } from "react-router";
 
 import type { Patient } from "../../../../shared/domain/patient";
 import { PATIENTENKARTEIKARTE_PAGE } from "../../components/pages";
 import DefaultPageLayout from "../../layouts/default_page_layout";
 import { usePatienten } from "./patienten_hook";
-import { Temporal } from "@js-temporal/polyfill";
 
 export default function PatientenkarteiPage() {
+  const [suchText, setSuchText] = useState("");
   const [result] = usePatienten();
 
   const navigate = useNavigate();
@@ -37,7 +40,13 @@ export default function PatientenkarteiPage() {
           <h2>Patienten</h2>
           <div className="ms-auto">
             <form className="d-flex" role="search">
-              <input className="form-control me-2" type="search" placeholder="Suche" aria-label="Suche" />
+              <input
+                className="form-control me-2"
+                type="search"
+                placeholder="Suche"
+                aria-label="Suche"
+                onChange={(e) => setSuchText(String(e.target.value))}
+              />
               <button className="btn btn-outline-primary" type="submit">
                 Suche
               </button>
@@ -46,7 +55,7 @@ export default function PatientenkarteiPage() {
         </div>
       </aside>
       <main className="flex-grow-1 container-fluid overflow-hidden">
-        <PatientenTable data={result.patienten} onPatientSelect={handlePatientClick} />
+        <PatientenTable data={result.patienten} suchText={suchText} onPatientSelect={handlePatientClick} />
       </main>
       <aside className="flex-shrink-0 container">
         <div className="btn-toolbar py-3" role="toolbar" aria-label="Aktionen für Patienten">
@@ -59,20 +68,44 @@ export default function PatientenkarteiPage() {
   );
 }
 
-function PatientenTable({ data, onPatientSelect }: { data: Patient[]; onPatientSelect: (nummer: number) => void }) {
-  // WORKAROUND see https://github.com/TanStack/table/issues/6137
+function PatientenTable({
+  data,
+  suchText,
+  onPatientSelect,
+}: {
+  data: Patient[];
+  suchText: string;
+  onPatientSelect: (nummer: number) => void;
+}) {
   "use no memo";
 
+  const [globalFilter, setGlobalFilter] = useState<string[]>([]);
   const [sorting, setSorting] = useState<SortingState>([{ id: "nummer", desc: true }]);
+
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      const filter = suchText
+        .split(/\s+/)
+        .map((wort) => wort.trim())
+        .filter((wort) => wort.length > 0);
+      console.log("Setting global filter", filter);
+      setGlobalFilter(filter);
+    }, 400);
+
+    return () => clearTimeout(timeoutId);
+  }, [suchText]);
 
   // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
     columns,
     data,
-    state: { sorting },
+    state: { globalFilter, sorting },
     sortDescFirst: false,
     getCoreRowModel: getCoreRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
     getSortedRowModel: getSortedRowModel(),
+    globalFilterFn: customFilterFn,
+    onGlobalFilterChange: setGlobalFilter,
     onSortingChange: setSorting,
   });
 
@@ -190,7 +223,7 @@ const columns = [
   columnHelper.accessor("geburtsdatum", {
     header: "Geburtsdatum",
     size: 140,
-    cell: (info) => info?.getValue()?.toLocaleString(undefined, { dateStyle: "medium" }),
+    cell: (info) => info?.getValue()?.toLocaleString("de-DE", { dateStyle: "medium" }),
     sortingFn: sortGeburtsdatumFn,
   }),
   columnHelper.accessor("strasse", { header: "Straße", size: 250 }),
@@ -224,3 +257,24 @@ const columns = [
     ),
   }),
 ];
+
+function customFilterFn(row: Row<Patient>, _columnId: string, filterValues: string[]) {
+  if (filterValues.length === 0) {
+    return true;
+  }
+
+  const cellValues = row.getVisibleCells().map((cell) => {
+    const value = cell.getValue();
+    if (cell.column.id === "geburtsdatum" && value != null) {
+      const date = value as Temporal.PlainDate;
+      // WORKAROUND the Temporal polyfill is very slow (4.5 sec instead of 0,2 sec for ~9000 rows) so we format manually
+      //return date.toLocaleString("de-DE", { dateStyle: "medium" });
+      return `${date.day.toString().padStart(2, "0")}.${date.month.toString().padStart(2, "0")}.${date.year}`;
+    }
+
+    return String(value);
+  });
+  return filterValues.every((filterValue) =>
+    cellValues.some((cellValue) => cellValue.toLowerCase().includes(filterValue.toLowerCase())),
+  );
+}
