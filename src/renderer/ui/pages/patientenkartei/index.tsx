@@ -19,8 +19,6 @@ import DefaultPageLayout from "../../layouts/default_page_layout";
 import { usePatienten } from "./patienten_hook";
 import { Temporal } from "@js-temporal/polyfill";
 
-// TODO do not sort in backend by number desc
-
 export default function PatientenkarteiPage() {
   const [result] = usePatienten();
 
