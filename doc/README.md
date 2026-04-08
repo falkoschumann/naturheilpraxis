@@ -3,10 +3,6 @@
 Mit dieser App können Heilpraktiker Leistungen für Patienten erfassen, um ihnen
 diese in Rechnung stellen zu können.
 
-## Open Issues
-
-- Use vertical flex box layout instead of fix pixel layout
-
 ## Domain
 
 Stories für den MVP sind mit ❗ markiert.
