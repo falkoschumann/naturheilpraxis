@@ -6,13 +6,13 @@ import {
 } from "../../shared/domain/suche_patienten_query";
 import type { PatientenRepository } from "../infrastructure/patienten_repository";
 
-export class SuchePatientenQueryHandler {
+export class PatientenQueryHandler {
   static create({
     patientenRepository,
   }: {
     patientenRepository: PatientenRepository;
   }) {
-    return new SuchePatientenQueryHandler(patientenRepository);
+    return new PatientenQueryHandler(patientenRepository);
   }
 
   #patientenRepository: PatientenRepository;

@@ -23,7 +23,7 @@ Stories für den MVP sind mit ❗ markiert.
 - [ ] Wenn eines der Pflichtfelder Nachname, Vorname, Geburtsdatum, Annahmejahr
       und Praxis nicht ausgefüllt ist, muss der Nutzer die Aufnahme bestätigen
 
-#### Suche Patient
+#### Patient
 
 - [x] ❗Suche Patient mit Nummer
 
@@ -34,7 +34,7 @@ Stories für den MVP sind mit ❗ markiert.
       und Praxis nicht ausgefüllt ist, muss der Nutzer die Aktualisierung
       bestätigen
 
-#### Suche Patienten
+#### Patienten
 
 - [x] ❗Liste alle Patienten auf
 - [x] Suche Patient(en) nach einem beliebigen Feld
@@ -58,7 +58,7 @@ Stories für den MVP sind mit ❗ markiert.
 
 - [ ] ❗Erfasse eine Diagnose mit Datum und Beschreibung für einen Patienten
 
-#### Suche Diagnosen
+#### Diagnosen
 
 - [ ] ❗Liste alle Diagnosen für einen Patienten auf
 - [ ] Suche Diagnose(n) mit Datum oder Beschreibung
@@ -82,7 +82,7 @@ Stories für den MVP sind mit ❗ markiert.
 - [ ] ❗Erfasse Leistung für einen Patienten mit Datum, einer Gebühr und
       optionalen Kommentar
 
-#### Suche Leistungen
+#### Leistungen
 
 - [ ] ❗Liste alle Leistungen für einen Patienten auf
 - [ ] Suche Leistung(en) nach einem beliebigen Feld
@@ -114,7 +114,7 @@ Stories für den MVP sind mit ❗ markiert.
 - [ ] **Constraint:** Patient, Diagnose und Leistungen dürfen nach Fakturierung
       der Rechnung nicht mehr geändert werden
 
-#### Suche Rechnung
+#### Rechnung
 
 - [ ] Suche Rechnung mit ID
 
@@ -134,7 +134,7 @@ Stories für den MVP sind mit ❗ markiert.
 - [ ] ❗Drucke Rechnung mit Leistungsbezeichnung
 - [ ] Drucke Rechnung ohne Leistungsbezeichnung
 
-#### Suche Rechnungen
+#### Rechnungen
 
 - [ ] ❗Liste alle Rechnungen auf
 - [ ] Liste Rechnungen eines Patienten auf
@@ -166,7 +166,7 @@ Stories für den MVP sind mit ❗ markiert.
 
 ![Gebühren](images/gebuehren.png)
 
-#### Suche Gebühren
+#### Gebühren
 
 - [ ] Liste alle Gebühren auf
 - [ ] Suche Gebühr(en) nach Ziffer oder Beschreibung

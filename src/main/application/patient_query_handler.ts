@@ -9,7 +9,7 @@ import { EinstellungenProvider } from "../infrastructure/einstellungen_provider"
 import type { UhrProvider } from "../infrastructure/uhr_provider";
 import { Patient } from "../../shared/domain/patient";
 
-export class SuchePatientQueryHandler {
+export class PatientQueryHandler {
   static create({
     patientenRepository,
     einstellungenProvider,
@@ -19,7 +19,7 @@ export class SuchePatientQueryHandler {
     einstellungenProvider: EinstellungenProvider;
     uhrProvider: UhrProvider;
   }) {
-    return new SuchePatientQueryHandler(
+    return new PatientQueryHandler(
       patientenRepository,
       einstellungenProvider,
       uhrProvider,

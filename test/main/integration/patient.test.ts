@@ -2,7 +2,7 @@
 
 import { describe, expect, it } from "vitest";
 
-import { SuchePatientQueryHandler } from "../../../src/main/application/suche_patient_query_handler";
+import { PatientQueryHandler } from "../../../src/main/application/patient_query_handler";
 import { Einstellungen } from "../../../src/shared/domain/einstellungen";
 import { Patient } from "../../../src/shared/domain/patient";
 import {
@@ -78,7 +78,7 @@ function configure() {
   });
   einstellungenProvider.sichere(Einstellungen.createTestInstance());
   const uhrProvider = UhrProvider.createTestInstance();
-  const handler = SuchePatientQueryHandler.create({
+  const handler = PatientQueryHandler.create({
     patientenRepository,
     einstellungenProvider: einstellungenProvider,
     uhrProvider,

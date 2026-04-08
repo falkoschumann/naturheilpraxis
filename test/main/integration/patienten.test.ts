@@ -2,7 +2,7 @@
 
 import { describe, expect, it } from "vitest";
 
-import { SuchePatientenQueryHandler } from "../../../src/main/application/suche_patienten_query_handler";
+import { PatientenQueryHandler } from "../../../src/main/application/patienten_query_handler";
 import { Patient } from "../../../src/shared/domain/patient";
 import {
   PatientenQuery,
@@ -51,6 +51,6 @@ describe("Suche Patienten", () => {
 function configure() {
   const databaseProvider = DatabaseProvider.create();
   const patientenRepository = PatientenRepository.create({ databaseProvider });
-  const handler = SuchePatientenQueryHandler.create({ patientenRepository });
+  const handler = PatientenQueryHandler.create({ patientenRepository });
   return { handler, patientenRepository };
 }

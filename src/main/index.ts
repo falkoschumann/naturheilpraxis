@@ -10,8 +10,8 @@ import {
 } from "electron-devtools-installer";
 
 import { NimmPatientAufCommandHandler } from "./application/nimm_patient_auf_command_handler";
-import { SuchePatientenQueryHandler } from "./application/suche_patienten_query_handler";
-import { SuchePatientQueryHandler } from "./application/suche_patient_query_handler";
+import { PatientenQueryHandler } from "./application/patienten_query_handler";
+import { PatientQueryHandler } from "./application/patient_query_handler";
 import {
   LADE_EINSTELLUNGEN_CHANNEL,
   NIMM_PATIENT_AUF_CHANNEL,
@@ -41,12 +41,12 @@ const patientenRepository = PatientenRepository.create({ databaseProvider });
 const nimmPatientAufCommandHandler = NimmPatientAufCommandHandler.create({
   patientenRepository,
 });
-const suchePatientQueryHandler = SuchePatientQueryHandler.create({
+const suchePatientQueryHandler = PatientQueryHandler.create({
   patientenRepository,
   einstellungenProvider: einstellungenProvider,
   uhrProvider,
 });
-const suchePatientenQueryHandler = SuchePatientenQueryHandler.create({
+const suchePatientenQueryHandler = PatientenQueryHandler.create({
   patientenRepository,
 });
 
