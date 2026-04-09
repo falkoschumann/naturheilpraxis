@@ -5,21 +5,25 @@ import type { SQLInputValue, SQLOutputValue } from "node:sqlite";
 import { Temporal } from "@js-temporal/polyfill";
 
 import { Patient } from "../../shared/domain/patient";
-import { DatabaseProvider } from "./database_provider";
+import { DatenbankProvider } from "./datenbank_provider";
 
 export class PatientenRepository {
-  static create({ databaseProvider }: { databaseProvider: DatabaseProvider }) {
-    return new PatientenRepository(databaseProvider);
+  static create({
+    datenbankProvider,
+  }: {
+    datenbankProvider: DatenbankProvider;
+  }) {
+    return new PatientenRepository(datenbankProvider);
   }
 
-  #databaseProvider;
+  #datenbankProvider;
 
-  private constructor(databaseProvider: DatabaseProvider) {
-    this.#databaseProvider = databaseProvider;
+  private constructor(datenbankProvider: DatenbankProvider) {
+    this.#datenbankProvider = datenbankProvider;
   }
 
   findAll() {
-    const db = this.#databaseProvider.getDatabase();
+    const db = this.#datenbankProvider.get();
     const records = db
       .prepare(
         `
@@ -33,7 +37,7 @@ export class PatientenRepository {
   }
 
   findByNummer(nummer: number) {
-    const db = this.#databaseProvider.getDatabase();
+    const db = this.#datenbankProvider.get();
     const record = db
       .prepare(
         `
@@ -70,7 +74,7 @@ export class PatientenRepository {
         record[columnName] = value;
       }
     }
-    const db = this.#databaseProvider.getDatabase();
+    const db = this.#datenbankProvider.get();
     const result = db
       .prepare(
         `

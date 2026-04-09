@@ -8,7 +8,7 @@ import {
   PatientenQuery,
   PatientenQueryResult,
 } from "../../../src/shared/domain/suche_patienten_query";
-import { DatabaseProvider } from "../../../src/main/infrastructure/database_provider";
+import { DatenbankProvider } from "../../../src/main/infrastructure/datenbank_provider";
 import { PatientenRepository } from "../../../src/main/infrastructure/patienten_repository";
 
 describe("Suche Patienten", () => {
@@ -49,8 +49,8 @@ describe("Suche Patienten", () => {
 });
 
 function configure() {
-  const databaseProvider = DatabaseProvider.create();
-  const patientenRepository = PatientenRepository.create({ databaseProvider });
+  const datenbankProvider = DatenbankProvider.create();
+  const patientenRepository = PatientenRepository.create({ datenbankProvider });
   const handler = PatientenQueryHandler.create({ patientenRepository });
   return { handler, patientenRepository };
 }

@@ -24,20 +24,20 @@ import { NimmPatientAufCommand } from "../shared/domain/nimm_patient_auf_command
 import { PatientQuery } from "../shared/domain/suche_patient_query";
 import { PatientenQuery } from "../shared/domain/suche_patienten_query";
 import { EinstellungenProvider } from "./infrastructure/einstellungen_provider";
-import { DatabaseProvider } from "./infrastructure/database_provider";
+import { DatenbankProvider } from "./infrastructure/datenbank_provider";
 import { PatientenRepository } from "./infrastructure/patienten_repository";
 import { UhrProvider } from "./infrastructure/uhr_provider";
-import icon from "../../build/icon.png?asset"; // TODO Make the file paths configurable
+import icon from "../../build/icon.png?asset";
 
 // TODO Make the file paths configurable
-const databaseProvider = DatabaseProvider.create({
-  databasePath: "data/naturheilpraxis.sqlite",
+const datenbankProvider = DatenbankProvider.create({
+  datenbankPfad: "data/naturheilpraxis.sqlite",
 });
 const einstellungenProvider = EinstellungenProvider.create({
-  databaseProvider,
+  datenbankProvider,
 });
 const uhrProvider = UhrProvider.create();
-const patientenRepository = PatientenRepository.create({ databaseProvider });
+const patientenRepository = PatientenRepository.create({ datenbankProvider });
 const nimmPatientAufCommandHandler = NimmPatientAufCommandHandler.create({
   patientenRepository,
 });

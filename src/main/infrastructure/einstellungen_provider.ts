@@ -1,22 +1,27 @@
 // Copyright (c) 2025 Falko Schumann. All rights reserved. MIT license.
 
-import { Einstellungen } from "../../shared/domain/einstellungen";
-import type { DatabaseProvider } from "./database_provider";
 import type { SQLOutputValue } from "node:sqlite";
 
+import { Einstellungen } from "../../shared/domain/einstellungen";
+import { DatenbankProvider } from "./datenbank_provider";
+
 export class EinstellungenProvider {
-  static create({ databaseProvider }: { databaseProvider: DatabaseProvider }) {
-    return new EinstellungenProvider(databaseProvider);
+  static create({
+    datenbankProvider,
+  }: {
+    datenbankProvider: DatenbankProvider;
+  }) {
+    return new EinstellungenProvider(datenbankProvider);
   }
 
-  #databaseProvider;
+  #datenbankProvider;
 
-  constructor(databaseProvider: DatabaseProvider) {
-    this.#databaseProvider = databaseProvider;
+  constructor(datenbankProvider: DatenbankProvider) {
+    this.#datenbankProvider = datenbankProvider;
   }
 
   lade(): Einstellungen {
-    const db = this.#databaseProvider.getDatabase();
+    const db = this.#datenbankProvider.get();
     const record = db
       .prepare(
         `
@@ -30,7 +35,7 @@ export class EinstellungenProvider {
   }
 
   sichere(einstellungen: Einstellungen) {
-    const db = this.#databaseProvider.getDatabase();
+    const db = this.#datenbankProvider.get();
     db.prepare(
       `
       INSERT INTO einstellungen (id, praxen, anreden, familienstaende, schluesselworte, standard_schluesselworte)

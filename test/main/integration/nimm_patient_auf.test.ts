@@ -7,7 +7,7 @@ import { NimmPatientAufCommandHandler } from "../../../src/main/application/nimm
 import { Patient } from "../../../src/shared/domain/patient";
 import { NimmPatientAufCommand } from "../../../src/shared/domain/nimm_patient_auf_command";
 import { PatientenRepository } from "../../../src/main/infrastructure/patienten_repository";
-import { DatabaseProvider } from "../../../src/main/infrastructure/database_provider";
+import { DatenbankProvider } from "../../../src/main/infrastructure/datenbank_provider";
 
 describe("Nimm Patient auf", () => {
   describe("Erfasse Informationen wie Name, Geburtsdatum, Praxis, Annahmejahr, Anschrift und Kontaktmöglichkeit", () => {
@@ -49,8 +49,8 @@ describe("Nimm Patient auf", () => {
 });
 
 function configure() {
-  const databaseProvider = DatabaseProvider.create();
-  const patientenRepository = PatientenRepository.create({ databaseProvider });
+  const datenbankProvider = DatenbankProvider.create();
+  const patientenRepository = PatientenRepository.create({ datenbankProvider });
   const handler = NimmPatientAufCommandHandler.create({ patientenRepository });
   return { handler, patientenRepository };
 }

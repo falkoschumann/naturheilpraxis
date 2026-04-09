@@ -4,7 +4,7 @@ import path from "node:path";
 
 import { EinstellungenProvider } from "../../src/main/infrastructure/einstellungen_provider";
 import { PatientenRepository } from "../../src/main/infrastructure/patienten_repository";
-import { DatabaseProvider } from "../../src/main/infrastructure/database_provider";
+import { DatenbankProvider } from "../../src/main/infrastructure/datenbank_provider";
 
 import { LegacyDatabaseGateway } from "./legacy_database_gateway";
 import { erstellePatienten } from "./patienten";
@@ -13,21 +13,21 @@ import { erstelleEinstellungen } from "./einstellungen";
 export class Interactions {
   static create({
     legacyDatabasePath,
-    databasePath,
+    datenbankPfad,
   }: {
     legacyDatabasePath: string;
-    databasePath: string;
+    datenbankPfad: string;
   }) {
     const legacyDatabase = new LegacyDatabaseGateway(legacyDatabasePath);
-    const schemaPath = path.resolve(
+    const schemaPfad = path.resolve(
       import.meta.dirname,
       "../../resources/db/schema.sql",
     );
-    const databaseProvider = DatabaseProvider.create({
-      databasePath,
-      schemaPath,
+    const datenbankProvider = DatenbankProvider.create({
+      datenbankPfad: datenbankPfad,
+      schemaPfad: schemaPfad,
     });
-    return new Interactions(legacyDatabase, databaseProvider);
+    return new Interactions(legacyDatabase, datenbankProvider);
   }
 
   #legacyDatabase: LegacyDatabaseGateway;
@@ -36,14 +36,14 @@ export class Interactions {
 
   private constructor(
     legacyDatabase: LegacyDatabaseGateway,
-    databaseProvider: DatabaseProvider,
+    datenbankProvider: DatenbankProvider,
   ) {
     this.#legacyDatabase = legacyDatabase;
     this.#einstellungenProvider = EinstellungenProvider.create({
-      databaseProvider,
+      datenbankProvider,
     });
     this.#patientenRepository = PatientenRepository.create({
-      databaseProvider,
+      datenbankProvider,
     });
   }
 

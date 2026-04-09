@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 
 import { Einstellungen } from "../../../src/shared/domain/einstellungen";
 import { EinstellungenProvider } from "../../../src/main/infrastructure/einstellungen_provider";
-import { DatabaseProvider } from "../../../src/main/infrastructure/database_provider";
+import { DatenbankProvider } from "../../../src/main/infrastructure/datenbank_provider";
 
 describe("Einstellungen Provider", () => {
   describe("Lade", () => {
@@ -32,7 +32,7 @@ describe("Einstellungen Provider", () => {
 });
 
 function configure() {
-  const databaseProvider = DatabaseProvider.create();
-  const gateway = EinstellungenProvider.create({ databaseProvider });
+  const datenbankProvider = DatenbankProvider.create();
+  const gateway = EinstellungenProvider.create({ datenbankProvider });
   return { gateway };
 }

@@ -9,7 +9,7 @@ import {
   PatientQuery,
   PatientQueryResult,
 } from "../../../src/shared/domain/suche_patient_query";
-import { DatabaseProvider } from "../../../src/main/infrastructure/database_provider";
+import { DatenbankProvider } from "../../../src/main/infrastructure/datenbank_provider";
 import { EinstellungenProvider } from "../../../src/main/infrastructure/einstellungen_provider";
 import { PatientenRepository } from "../../../src/main/infrastructure/patienten_repository";
 import { UhrProvider } from "../../../src/main/infrastructure/uhr_provider";
@@ -71,10 +71,10 @@ describe("Suche Patient", () => {
 });
 
 function configure() {
-  const databaseProvider = DatabaseProvider.create();
-  const patientenRepository = PatientenRepository.create({ databaseProvider });
+  const datenbankProvider = DatenbankProvider.create();
+  const patientenRepository = PatientenRepository.create({ datenbankProvider });
   const einstellungenProvider = EinstellungenProvider.create({
-    databaseProvider,
+    datenbankProvider,
   });
   einstellungenProvider.sichere(Einstellungen.createTestInstance());
   const uhrProvider = UhrProvider.createTestInstance();

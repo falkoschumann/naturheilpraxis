@@ -4,7 +4,7 @@ import { Interactions } from "./interactions";
 
 const interactions = Interactions.create({
   legacyDatabasePath: "data/input/legacy.sqlite",
-  databasePath: "data/output/naturheilpraxis.sqlite",
+  datenbankPfad: "data/output/naturheilpraxis.sqlite",
 });
 
 interactions.migriereDatenbank();
