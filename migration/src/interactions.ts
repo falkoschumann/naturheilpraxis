@@ -2,13 +2,15 @@
 
 import path from "node:path";
 
-import { EinstellungenProvider } from "../../src/main/infrastructure/einstellungen_provider";
-import { PatientenRepository } from "../../src/main/infrastructure/patienten_repository";
 import { DatenbankProvider } from "../../src/main/infrastructure/datenbank_provider";
+import { EinstellungenProvider } from "../../src/main/infrastructure/einstellungen_provider";
+import { LeistungenRepository } from "../../src/main/infrastructure/leistungen_repository";
+import { PatientenRepository } from "../../src/main/infrastructure/patienten_repository";
 
-import { LegacyDatabaseGateway } from "./legacy_database_gateway";
-import { erstellePatienten } from "./patienten";
 import { erstelleEinstellungen } from "./einstellungen";
+import { LegacyDatabaseGateway } from "./legacy_database_gateway";
+import { erstelleLeistungen } from "./leistungen";
+import { erstellePatienten } from "./patienten";
 
 export class Interactions {
   static create({
@@ -33,6 +35,7 @@ export class Interactions {
   #legacyDatabase: LegacyDatabaseGateway;
   #einstellungenProvider: EinstellungenProvider;
   #patientenRepository: PatientenRepository;
+  #leistungenRepository: LeistungenRepository;
 
   private constructor(
     legacyDatabase: LegacyDatabaseGateway,
@@ -45,11 +48,15 @@ export class Interactions {
     this.#patientenRepository = PatientenRepository.create({
       datenbankProvider,
     });
+    this.#leistungenRepository = LeistungenRepository.create({
+      datenbankProvider,
+    });
   }
 
   migriereDatenbank() {
     this.#migriereEinstellungen();
     this.#migrierePatienten();
+    this.#migriereLeistungen();
   }
 
   #migriereEinstellungen() {
@@ -89,6 +96,23 @@ export class Interactions {
     } catch (error) {
       console.error(
         "  Migration der Patienten fehlgeschlagen.",
+        (error as Error).message,
+      );
+    }
+  }
+
+  #migriereLeistungen() {
+    try {
+      console.log("Migriere Leistungen ...");
+      const activities = this.#legacyDatabase.queryActivities();
+      const leistungen = erstelleLeistungen(activities);
+      for (const leistung of leistungen) {
+        this.#leistungenRepository.create(leistung);
+      }
+      console.log(`  ${leistungen.length} Leistungen migriert.`);
+    } catch (error) {
+      console.error(
+        "  Migration der Leistungen fehlgeschlagen.",
         (error as Error).message,
       );
     }

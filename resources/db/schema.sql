@@ -32,6 +32,19 @@ CREATE TABLE IF NOT EXISTS patienten (
     schluesselworte TEXT
 );
 
+CREATE TABLE IF NOT EXISTS leistungen (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    praxis TEXT NOT NULL,
+    patient_id INTEGER NOT NULL,
+    rechnung_id INTEGER,
+    datum TEXT NOT NULL NOT NULL,
+    gebuehrenziffer TEXT NOT NULL,
+    beschreibung TEXT NOT NULL,
+    kommentar TEXT,
+    einzelpreis NUMERIC NOT NULL,
+    anzahl NUMERIC NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS einstellungen (
     id INTEGER PRIMARY KEY,
     praxen TEXT NOT NULL,

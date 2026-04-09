@@ -83,6 +83,24 @@ export class LegacyDatabaseGateway {
     `);
   }
 
+  queryActivities() {
+    // language=SQLite
+    return this.#executeQuery<ActivityDto>(`
+      SELECT activitylist.id AS id,
+             agencylist.agency AS agency,
+             customerid AS customerId,
+             date AS date,
+             shortnote AS shortNote,
+             description AS description,
+             amount AS amount,
+             quantity AS quantity,
+             invoiceid AS invoiceId,
+             comment AS comment
+        FROM activitylist
+        LEFT JOIN agencylist ON activitylist.agencyid=agencylist.id
+    `);
+  }
+
   #executeQuery<T>(sql: string): T[] {
     const statement = this.#db.prepare(sql);
     const records = statement.all();
@@ -135,4 +153,17 @@ export interface CustomerDto {
   childFrom?: string;
   memorandum?: string;
   handlings?: string;
+}
+
+export interface ActivityDto {
+  id: number;
+  agency: string;
+  customerId: number;
+  date: string;
+  shortNote: string;
+  description: string;
+  amount: number;
+  quantity: number;
+  invoiceId: number;
+  comment: string;
 }

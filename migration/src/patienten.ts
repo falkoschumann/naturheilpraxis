@@ -5,11 +5,10 @@ import { Temporal } from "@js-temporal/polyfill";
 import { Patient } from "../../src/shared/domain/patient";
 
 import type { CustomerDto } from "./legacy_database_gateway";
+import { normalisiereNumber, normalisiereString } from "./migration";
 
-export function erstellePatienten(customers: CustomerDto[]) {
-  return customers.map((customer) => {
-    return erstellePatient(customer);
-  });
+export function erstellePatienten(customers: CustomerDto[]): Patient[] {
+  return customers.map((customer) => erstellePatient(customer));
 }
 
 function erstellePatient(customer: CustomerDto) {
@@ -157,22 +156,4 @@ function ergaenzeNotizen(notizen = "", ergaenzendeNotizen: string) {
   }
   notizen += ergaenzendeNotizen;
   return notizen;
-}
-
-function normalisiereNumber(wert?: number): number | undefined {
-  wert = wert && Number(wert);
-  if (wert == null || !Number.isFinite(wert)) {
-    return;
-  }
-
-  return wert;
-}
-
-function normalisiereString(wert?: string): string | undefined {
-  wert = wert && String(wert).trim();
-  if (wert == null || wert.length === 0) {
-    return;
-  }
-
-  return wert.trim();
 }
