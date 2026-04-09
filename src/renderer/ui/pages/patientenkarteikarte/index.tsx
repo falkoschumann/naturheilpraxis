@@ -19,7 +19,6 @@ import {
 import { NavLink } from "react-router";
 import { PATIENTENKARTEIKARTE_PAGE } from "../../components/pages";
 
-// FIXME layout
 // TODO link spouse and parent
 // TODO add back link or link to Patientenkartei
 
