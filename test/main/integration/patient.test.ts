@@ -12,7 +12,7 @@ import {
 import { DatenbankProvider } from "../../../src/main/infrastructure/datenbank_provider";
 import { EinstellungenProvider } from "../../../src/main/infrastructure/einstellungen_provider";
 import { PatientenRepository } from "../../../src/main/infrastructure/patienten_repository";
-import { UhrProvider } from "../../../src/main/infrastructure/uhr_provider";
+import { KalenderProvider } from "../../../src/main/infrastructure/kalender_provider";
 
 describe("Suche Patient", () => {
   describe("Suche Patient mit Nummer", () => {
@@ -77,7 +77,7 @@ function configure() {
     datenbankProvider,
   });
   einstellungenProvider.sichere(Einstellungen.createTestInstance());
-  const uhrProvider = UhrProvider.createTestInstance();
+  const uhrProvider = KalenderProvider.createTestInstance();
   const handler = PatientQueryHandler.create({
     patientenRepository,
     einstellungenProvider: einstellungenProvider,

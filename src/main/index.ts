@@ -26,7 +26,7 @@ import { PatientenQuery } from "../shared/domain/suche_patienten_query";
 import { EinstellungenProvider } from "./infrastructure/einstellungen_provider";
 import { DatenbankProvider } from "./infrastructure/datenbank_provider";
 import { PatientenRepository } from "./infrastructure/patienten_repository";
-import { UhrProvider } from "./infrastructure/uhr_provider";
+import { KalenderProvider } from "./infrastructure/kalender_provider";
 import icon from "../../build/icon.png?asset";
 
 // TODO Make the file paths configurable
@@ -36,7 +36,7 @@ const datenbankProvider = DatenbankProvider.create({
 const einstellungenProvider = EinstellungenProvider.create({
   datenbankProvider,
 });
-const uhrProvider = UhrProvider.create();
+const uhrProvider = KalenderProvider.create();
 const patientenRepository = PatientenRepository.create({ datenbankProvider });
 const nimmPatientAufCommandHandler = NimmPatientAufCommandHandler.create({
   patientenRepository,

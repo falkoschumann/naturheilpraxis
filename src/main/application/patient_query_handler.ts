@@ -6,7 +6,7 @@ import {
 } from "../../shared/domain/suche_patient_query";
 import type { PatientenRepository } from "../infrastructure/patienten_repository";
 import { EinstellungenProvider } from "../infrastructure/einstellungen_provider";
-import type { UhrProvider } from "../infrastructure/uhr_provider";
+import type { KalenderProvider } from "../infrastructure/kalender_provider";
 import { Patient } from "../../shared/domain/patient";
 
 export class PatientQueryHandler {
@@ -17,7 +17,7 @@ export class PatientQueryHandler {
   }: {
     patientenRepository: PatientenRepository;
     einstellungenProvider: EinstellungenProvider;
-    uhrProvider: UhrProvider;
+    uhrProvider: KalenderProvider;
   }) {
     return new PatientQueryHandler(
       patientenRepository,
@@ -28,12 +28,12 @@ export class PatientQueryHandler {
 
   #patientenRepository: PatientenRepository;
   #einstellungenProvider: EinstellungenProvider;
-  #uhrProvider: UhrProvider;
+  #uhrProvider: KalenderProvider;
 
   private constructor(
     patientenRepository: PatientenRepository,
     einstellungenprovider: EinstellungenProvider,
-    uhrProvider: UhrProvider,
+    uhrProvider: KalenderProvider,
   ) {
     this.#patientenRepository = patientenRepository;
     this.#einstellungenProvider = einstellungenprovider;
