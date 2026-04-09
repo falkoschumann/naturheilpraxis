@@ -3,7 +3,7 @@
 import {
   type PatientQuery,
   PatientQueryResult,
-} from "../../shared/domain/suche_patient_query";
+} from "../../shared/domain/patient_query";
 import type { PatientenRepository } from "../infrastructure/patienten_repository";
 import { EinstellungenProvider } from "../infrastructure/einstellungen_provider";
 import type { KalenderProvider } from "../infrastructure/kalender_provider";

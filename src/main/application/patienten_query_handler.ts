@@ -3,7 +3,7 @@
 import {
   type PatientenQuery,
   PatientenQueryResult,
-} from "../../shared/domain/suche_patienten_query";
+} from "../../shared/domain/patienten_query";
 import type { PatientenRepository } from "../infrastructure/patienten_repository";
 
 export class PatientenQueryHandler {

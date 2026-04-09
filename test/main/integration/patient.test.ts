@@ -8,7 +8,7 @@ import { Patient } from "../../../src/shared/domain/patient";
 import {
   PatientQuery,
   PatientQueryResult,
-} from "../../../src/shared/domain/suche_patient_query";
+} from "../../../src/shared/domain/patient_query";
 import { DatenbankProvider } from "../../../src/main/infrastructure/datenbank_provider";
 import { EinstellungenProvider } from "../../../src/main/infrastructure/einstellungen_provider";
 import { PatientenRepository } from "../../../src/main/infrastructure/patienten_repository";

@@ -7,11 +7,11 @@ import type {
 import {
   type PatientQuery,
   PatientQueryResult,
-} from "../../../shared/domain/suche_patient_query";
+} from "../../../shared/domain/patient_query";
 import {
   type PatientenQuery,
   PatientenQueryResult,
-} from "../../../shared/domain/suche_patienten_query";
+} from "../../../shared/domain/patienten_query";
 import type { Einstellungen } from "../../../shared/domain/einstellungen";
 
 export interface MessageHandler {

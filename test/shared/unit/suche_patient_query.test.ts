@@ -5,7 +5,7 @@ import { describe, expect, it } from "vitest";
 import {
   PatientQuery,
   PatientQueryResult,
-} from "../../../src/shared/domain/suche_patient_query";
+} from "../../../src/shared/domain/patient_query";
 
 describe("Suche Patient Query", () => {
   it("sollte Query mappen", () => {

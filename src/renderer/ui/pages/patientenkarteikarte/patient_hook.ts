@@ -6,7 +6,7 @@ import { useLocation } from "react-router";
 import {
   PatientQuery,
   PatientQueryResult,
-} from "../../../../shared/domain/suche_patient_query";
+} from "../../../../shared/domain/patient_query";
 import { useMessageHandler } from "../../components/message_handler_context";
 import type { NimmPatientAufCommand } from "../../../../shared/domain/nimm_patient_auf_command";
 

@@ -7,11 +7,11 @@ import { type NimmPatientAufCommand } from "../shared/domain/nimm_patient_auf_co
 import {
   type PatientQuery,
   PatientQueryResult,
-} from "../shared/domain/suche_patient_query";
+} from "../shared/domain/patient_query";
 import {
   type PatientenQuery,
   PatientenQueryResult,
-} from "../shared/domain/suche_patienten_query";
+} from "../shared/domain/patienten_query";
 import type { MessageHandler } from "./ui/components/message_handler";
 
 export const messageHandler: MessageHandler = {

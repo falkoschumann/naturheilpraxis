@@ -5,7 +5,7 @@ import { useCallback, useEffect, useState } from "react";
 import {
   PatientenQuery,
   PatientenQueryResult,
-} from "../../../../shared/domain/suche_patienten_query";
+} from "../../../../shared/domain/patienten_query";
 import { useMessageHandler } from "../../components/message_handler_context";
 
 export function usePatienten() {

@@ -21,8 +21,8 @@ import {
 } from "../shared/infrastructure/channels";
 import { Einstellungen } from "../shared/domain/einstellungen";
 import { NimmPatientAufCommand } from "../shared/domain/nimm_patient_auf_command";
-import { PatientQuery } from "../shared/domain/suche_patient_query";
-import { PatientenQuery } from "../shared/domain/suche_patienten_query";
+import { PatientQuery } from "../shared/domain/patient_query";
+import { PatientenQuery } from "../shared/domain/patienten_query";
 import { EinstellungenProvider } from "./infrastructure/einstellungen_provider";
 import { DatenbankProvider } from "./infrastructure/datenbank_provider";
 import { PatientenRepository } from "./infrastructure/patienten_repository";
