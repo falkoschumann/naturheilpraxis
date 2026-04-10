@@ -45,7 +45,11 @@ export class Währung {
   }
 
   toString() {
-    return `${(this.cents / 100).toFixed(2)} €`;
+    const formatter = new Intl.NumberFormat("de-DE", {
+      style: "currency",
+      currency: "EUR",
+    });
+    return formatter.format(this.cents / 100);
   }
 
   toJSON() {

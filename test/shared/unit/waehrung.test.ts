@@ -10,7 +10,7 @@ describe("Währung", () => {
 
     expect(währung.cents).toBe(1234);
     expect(währung.toEuro()).toBe(12.34);
-    expect(währung.toString()).toBe("12.34 €");
+    expect(währung.toString()).toBe("12,34\u00A0€");
   });
 
   it("sollte Währungen summieren", () => {
