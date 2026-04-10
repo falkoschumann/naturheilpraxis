@@ -1,6 +1,5 @@
 // Copyright (c) 2025 Falko Schumann. All rights reserved. MIT license.
 
-import { Temporal } from "@js-temporal/polyfill";
 import {
   createColumnHelper,
   flexRender,
@@ -21,8 +20,10 @@ import { PATIENTENKARTEIKARTE_PAGE } from "../../components/pages";
 import DefaultPageLayout from "../../layouts/default_page_layout";
 import { usePatienten } from "./patienten_hook";
 
+// TODO store table state like search in query params
+
 export default function PatientenkarteiPage() {
-  const [suchText, setSuchText] = useState("");
+  const [suchtext, setSuchtext] = useState("");
   const [result] = usePatienten();
 
   const navigate = useNavigate();
@@ -37,13 +38,14 @@ export default function PatientenkarteiPage() {
         <div className="d-flex py-3">
           <h2>Patienten</h2>
           <div className="ms-auto">
-            <form className="d-flex" role="search">
+            <form className="d-flex" role="search" onSubmit={(event) => event.preventDefault()}>
               <input
                 className="form-control me-2"
                 type="search"
                 placeholder="Suche"
                 aria-label="Suche"
-                onChange={(e) => setSuchText(String(e.target.value))}
+                value={suchtext}
+                onChange={(e) => setSuchtext(String(e.target.value))}
               />
               <button className="btn btn-outline-primary" type="submit">
                 Suche
@@ -53,7 +55,7 @@ export default function PatientenkarteiPage() {
         </div>
       </aside>
       <main className="flex-grow-1 container-fluid overflow-hidden">
-        <PatientenTable data={result.patienten} suchText={suchText} onPatientSelect={handlePatientClick} />
+        <PatientenTable data={result.patienten} suchText={suchtext} onPatientSelect={handlePatientClick} />
       </main>
       <aside className="flex-shrink-0 container">
         <div className="btn-toolbar py-3" role="toolbar" aria-label="Aktionen für Patienten">

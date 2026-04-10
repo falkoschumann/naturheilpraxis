@@ -1,9 +1,9 @@
 // Copyright (c) 2026 Falko Schumann. All rights reserved. MIT license.
 
-import { Temporal } from "@js-temporal/polyfill";
 import { type ChangeEvent, type MouseEvent, type SubmitEvent, useEffect, useReducer } from "react";
+import { useOutletContext } from "react-router";
 
-import type { Patient } from "../../../../../shared/domain/patient";
+import { NimmPatientAufCommand } from "../../../../../shared/domain/nimm_patient_auf_command";
 import type { PatientQueryResult } from "../../../../../shared/domain/patient_query";
 import {
   aktualisiereFeld,
@@ -16,13 +16,13 @@ import {
   sendeFormular,
 } from "./reducer";
 
-export function PatientComponent({
-  result,
-  onAufnahme,
-}: {
+export type PatientContext = {
   result: PatientQueryResult;
-  onAufnahme: (patient: Patient) => void;
-}) {
+  onNimmPatientAuf: (command: NimmPatientAufCommand) => void;
+};
+
+export function PatientComponent() {
+  const { result, onNimmPatientAuf } = useOutletContext<PatientContext>();
   const [state, dispatch] = useReducer(reducer, initialState);
 
   useEffect(() => {
@@ -34,7 +34,7 @@ export function PatientComponent({
 
     if (state.zustand === FormularZustand.AUFNAHME) {
       dispatch(sendeFormular());
-      onAufnahme(state.patient);
+      onNimmPatientAuf(NimmPatientAufCommand.create({ patient: state.patient }));
     } else if (state.zustand === FormularZustand.ANZEIGE) {
       dispatch(bearbeitePatientendaten());
     } else if (state.zustand === FormularZustand.BEARBEITUNG) {
