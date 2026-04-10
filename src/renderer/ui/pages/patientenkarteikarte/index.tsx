@@ -1,19 +1,46 @@
 // Copyright (c) 2025 Falko Schumann. All rights reserved. MIT license.
 
-import { Outlet, useNavigate } from "react-router";
+import { useEffect, useState } from "react";
+import { NavLink, Outlet, useNavigate, useParams } from "react-router";
 
+import type { NimmPatientAufCommand } from "../../../../shared/domain/nimm_patient_auf_command";
+import { PatientQuery, PatientQueryResult } from "../../../../shared/domain/patient_query";
+import { useMessageHandler } from "../../components/message_handler_context";
 import { PATIENTENKARTEIKARTE_LEISTUNGEN_PAGE, PATIENTENKARTEIKARTE_PAGE } from "../../components/pages";
 import DefaultPageLayout from "../../layouts/default_page_layout";
-import { usePatient } from "./patient_hook";
+import type { PatientContext } from "./patient";
+import type { LeistungenContext } from "./leistungen";
 
 // TODO link spouse and parent
 // TODO add back link or link to Patientenkartei
 
+type PatientenkarteikarteContext = PatientContext & LeistungenContext;
+
 export default function PatientenkarteikartePage() {
   const navigate = useNavigate();
-  const [result, nimmPatientAuf] = usePatient();
+  const { nummer } = useParams();
+  const messageHandler = useMessageHandler();
+  const [result, setResult] = useState(PatientQueryResult.create());
 
   const istAufnahme = result.patient?.nummer == null;
+
+  useEffect(() => {
+    async function runAsync() {
+      const result = await messageHandler.suchePatient(PatientQuery.create({ nummer: Number(nummer) }));
+      setResult(result);
+    }
+
+    void runAsync();
+  }, [messageHandler, nummer]);
+
+  async function handleNimmPatientAuf(command: NimmPatientAufCommand) {
+    const status = await messageHandler.nimmPatientAuf(command);
+    if (status.isSuccess) {
+      const result = await messageHandler.suchePatient(PatientQuery.create({ nummer: Number(nummer) }));
+      setResult(result);
+    }
+    return status;
+  }
 
   return (
     <DefaultPageLayout>
@@ -30,26 +57,34 @@ export default function PatientenkarteikartePage() {
         </div>
         <ul className="nav nav-tabs">
           <li className="nav-item">
-            <a
-              className="nav-link active"
-              aria-current="page"
-              href={`${PATIENTENKARTEIKARTE_PAGE.replace(":nummer?", result.patient?.nummer?.toString() || "")}`}
+            <NavLink
+              to={`${PATIENTENKARTEIKARTE_PAGE.replace(":nummer?", result.patient?.nummer?.toString() || "")}`}
+              className="nav-link"
+              end
             >
               Patient
-            </a>
+            </NavLink>
           </li>
           <li className="nav-item">
-            <a
+            <NavLink
+              to={`${PATIENTENKARTEIKARTE_LEISTUNGEN_PAGE.replace(":nummer", result.patient?.nummer?.toString() || "")}`}
               className={`nav-link ${istAufnahme ? "disabled" : ""}`}
               aria-disabled={istAufnahme}
-              href={`${PATIENTENKARTEIKARTE_LEISTUNGEN_PAGE.replace(":nummer", result.patient?.nummer?.toString() || "")}`}
             >
               Leistungen
-            </a>
+            </NavLink>
           </li>
         </ul>
       </aside>
-      <Outlet context={{ result, nimmPatientAuf }} />
+      <Outlet
+        context={
+          {
+            result,
+            patientennummer: result.patient?.nummer || -1,
+            onNimmPatientAuf: handleNimmPatientAuf,
+          } satisfies PatientenkarteikarteContext
+        }
+      />
     </DefaultPageLayout>
   );
 }

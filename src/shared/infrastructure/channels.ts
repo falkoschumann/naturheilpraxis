@@ -6,6 +6,7 @@ export const NIMM_PATIENT_AUF_CHANNEL = "nimmPatientAuf";
 // Queries
 export const SUCHE_PATIENT_CHANNEL = "suchePatient";
 export const SUCHE_PATIENTEN_CHANNEL = "suchePatienten";
+export const SUCHE_LEISTUNGEN_CHANNEL = "sucheLeistungen";
 
 // Settings
 export const LADE_EINSTELLUNGEN_CHANNEL = "ladeEinstellungen";

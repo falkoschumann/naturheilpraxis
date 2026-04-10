@@ -9,7 +9,8 @@ import { PATIENTENKARTEI_PAGE, PATIENTENKARTEIKARTE_PAGE, START_PAGE } from "./c
 import PatientenkarteiPage from "./pages/patientenkartei";
 import PatientenkarteikartePage from "./pages/patientenkarteikarte";
 import StartseitePage from "./pages/startseite";
-import { PatientComponent } from "./pages/patientenkarteikarte/patient";
+import LeistungenComponent from "./pages/patientenkarteikarte/leistungen";
+import PatientComponent from "./pages/patientenkarteikarte/patient";
 
 export default function App() {
   return (
@@ -19,7 +20,7 @@ export default function App() {
         <Route path={PATIENTENKARTEI_PAGE} element={<PatientenkarteiPage />} />
         <Route path={PATIENTENKARTEIKARTE_PAGE} element={<PatientenkarteikartePage />}>
           <Route path=":nummer?" element={<PatientComponent />} />
-          <Route path="leistungen" element={<h2>Leistungen</h2>} />
+          <Route path="leistungen" element={<LeistungenComponent />} />
         </Route>
       </Routes>
     </BrowserRouter>

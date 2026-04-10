@@ -3,6 +3,10 @@
 import { createCommandStatus } from "@muspellheim/shared";
 
 import { Einstellungen } from "../shared/domain/einstellungen";
+import {
+  type LeistungenQuery,
+  LeistungenQueryResult,
+} from "../shared/domain/leistungen_query";
 import { type NimmPatientAufCommand } from "../shared/domain/nimm_patient_auf_command";
 import {
   type PatientQuery,
@@ -34,6 +38,13 @@ export const messageHandler: MessageHandler = {
     json = await window.naturheilpraxis.suchePatienten(json);
     const dto = JSON.parse(json);
     return PatientenQueryResult.create(dto);
+  },
+
+  async sucheLeistungen(query: LeistungenQuery) {
+    let json = JSON.stringify(query);
+    json = await window.naturheilpraxis.sucheLeistungen(json);
+    const dto = JSON.parse(json);
+    return LeistungenQueryResult.create(dto);
   },
 
   async ladeEinstellungen() {

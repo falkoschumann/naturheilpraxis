@@ -29,9 +29,11 @@ function erstelleLeistung(activity: ActivityDto): Leistung | undefined {
       id,
       praxis,
       patientId,
+      rechnungId,
       datum,
       gebührenziffer,
       beschreibung,
+      kommentar,
       einzelpreis,
       anzahl,
     },
@@ -40,8 +42,6 @@ function erstelleLeistung(activity: ActivityDto): Leistung | undefined {
       result = Leistung.create({
         ...leistung,
         einzelpreis,
-        rechnungId,
-        kommentar,
       });
     },
     onError: (fehlendeDaten) => {
@@ -63,9 +63,11 @@ function prüfeVollständigkeit({
     id?: number;
     praxis?: string;
     patientId?: number;
+    rechnungId?: number;
     datum?: string;
     gebührenziffer?: string;
     beschreibung?: string;
+    kommentar?: string;
     einzelpreis?: number;
     anzahl?: number;
   };
@@ -73,16 +75,18 @@ function prüfeVollständigkeit({
     id: number;
     praxis: string;
     patientId: number;
+    rechnungId?: number;
     datum: string;
     gebührenziffer: string;
     beschreibung: string;
+    kommentar?: string;
     einzelpreis: number;
     anzahl: number;
   }) => void;
   onError: (fehlendeDaten: string[]) => void;
 }) {
-  const { id, praxis, patientId, datum, gebührenziffer } = leistung;
-  let { beschreibung, einzelpreis, anzahl } = leistung;
+  const { id, praxis, patientId, datum, gebührenziffer, kommentar } = leistung;
+  let { beschreibung, einzelpreis, anzahl, rechnungId } = leistung;
   const fehlendeDaten: string[] = [];
   if (id == null) {
     fehlendeDaten.push("ID");
@@ -108,6 +112,9 @@ function prüfeVollständigkeit({
   if (anzahl == null) {
     anzahl = 1;
   }
+  if (rechnungId === -1) {
+    rechnungId = undefined;
+  }
   if (fehlendeDaten.length > 0) {
     onError(fehlendeDaten);
   } else {
@@ -115,9 +122,11 @@ function prüfeVollständigkeit({
       id: id!,
       praxis: praxis!,
       patientId: patientId!,
+      rechnungId,
       datum: datum!,
       gebührenziffer: gebührenziffer!,
       beschreibung,
+      kommentar,
       einzelpreis,
       anzahl,
     });

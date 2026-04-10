@@ -10,6 +10,7 @@ import {
 } from "electron-devtools-installer";
 
 import "../shared/polyfill";
+import { LeistungenQueryHandler } from "./application/leistungen_query_handler";
 import { NimmPatientAufCommandHandler } from "./application/nimm_patient_auf_command_handler";
 import { PatientenQueryHandler } from "./application/patienten_query_handler";
 import { PatientQueryHandler } from "./application/patient_query_handler";
@@ -17,6 +18,7 @@ import {
   LADE_EINSTELLUNGEN_CHANNEL,
   NIMM_PATIENT_AUF_CHANNEL,
   SICHERE_EINSTELLUNGEN_CHANNEL,
+  SUCHE_LEISTUNGEN_CHANNEL,
   SUCHE_PATIENT_CHANNEL,
   SUCHE_PATIENTEN_CHANNEL,
 } from "../shared/infrastructure/channels";
@@ -28,7 +30,9 @@ import { EinstellungenProvider } from "./infrastructure/einstellungen_provider";
 import { DatenbankProvider } from "./infrastructure/datenbank_provider";
 import { PatientenRepository } from "./infrastructure/patienten_repository";
 import { KalenderProvider } from "./infrastructure/kalender_provider";
+import { LeistungenRepository } from "./infrastructure/leistungen_repository";
 import icon from "../../build/icon.png?asset";
+import { LeistungenQuery } from "../shared/domain/leistungen_query";
 
 // TODO Make the file paths configurable
 const datenbankProvider = DatenbankProvider.create({
@@ -42,13 +46,17 @@ const patientenRepository = PatientenRepository.create({ datenbankProvider });
 const nimmPatientAufCommandHandler = NimmPatientAufCommandHandler.create({
   patientenRepository,
 });
-const suchePatientQueryHandler = PatientQueryHandler.create({
+const patientQueryHandler = PatientQueryHandler.create({
   patientenRepository,
   einstellungenProvider: einstellungenProvider,
   uhrProvider,
 });
-const suchePatientenQueryHandler = PatientenQueryHandler.create({
+const patientenQueryHandler = PatientenQueryHandler.create({
   patientenRepository,
+});
+const leistungenRepository = LeistungenRepository.create({ datenbankProvider });
+const leistungenQueryHandler = LeistungenQueryHandler.create({
+  leistungenRepository,
 });
 
 const isProduction = app.isPackaged;
@@ -119,13 +127,19 @@ function createRendererToMainChannels() {
   ipcMain.handle(SUCHE_PATIENT_CHANNEL, async (_event, json: string) => {
     const dto = JSON.parse(json);
     const query = PatientQuery.create(dto);
-    const result = await suchePatientQueryHandler.handle(query);
+    const result = await patientQueryHandler.handle(query);
     return JSON.stringify(result);
   });
   ipcMain.handle(SUCHE_PATIENTEN_CHANNEL, async (_event, json: string) => {
     const dto = JSON.parse(json);
     const query = PatientenQuery.create(dto);
-    const result = await suchePatientenQueryHandler.handle(query);
+    const result = await patientenQueryHandler.handle(query);
+    return JSON.stringify(result);
+  });
+  ipcMain.handle(SUCHE_LEISTUNGEN_CHANNEL, async (_event, json: string) => {
+    const dto = JSON.parse(json);
+    const query = LeistungenQuery.create(dto);
+    const result = await leistungenQueryHandler.handle(query);
     return JSON.stringify(result);
   });
   ipcMain.handle(LADE_EINSTELLUNGEN_CHANNEL, () => {

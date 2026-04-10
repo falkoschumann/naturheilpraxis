@@ -262,6 +262,8 @@ export function PatientComponent() {
   );
 }
 
+export default PatientComponent;
+
 function Input({
   name,
   label,

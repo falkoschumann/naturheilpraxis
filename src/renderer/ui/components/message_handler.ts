@@ -1,5 +1,10 @@
 // Copyright (c) 2026 Falko Schumann. All rights reserved. MIT license.
 
+import type { Einstellungen } from "../../../shared/domain/einstellungen";
+import type {
+  LeistungenQuery,
+  LeistungenQueryResult,
+} from "../../../shared/domain/leistungen_query";
 import type {
   NimmPatientAufCommand,
   NimmPatientAufCommandStatus,
@@ -12,7 +17,6 @@ import {
   type PatientenQuery,
   PatientenQueryResult,
 } from "../../../shared/domain/patienten_query";
-import type { Einstellungen } from "../../../shared/domain/einstellungen";
 
 export interface MessageHandler {
   nimmPatientAuf(
@@ -22,6 +26,8 @@ export interface MessageHandler {
   suchePatient(query: PatientQuery): Promise<PatientQueryResult>;
 
   suchePatienten(query: PatientenQuery): Promise<PatientenQueryResult>;
+
+  sucheLeistungen(query: LeistungenQuery): Promise<LeistungenQueryResult>;
 
   ladeEinstellungen(): Promise<Einstellungen>;
 
