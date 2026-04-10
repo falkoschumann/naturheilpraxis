@@ -45,31 +45,13 @@ CREATE TABLE IF NOT EXISTS leistungen (
     anzahl NUMERIC NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS einstellungen (
-    id INTEGER PRIMARY KEY,
-    praxen TEXT NOT NULL,
-    anreden TEXT NOT NULL,
-    familienstaende TEXT NOT NULL,
-    schluesselworte TEXT NOT NULL,
-    standard_schluesselworte TEXT NOT NULL
-);
+CREATE TABLE IF NOT EXISTS einstellungen (id INTEGER PRIMARY KEY, json TEXT NOT NULL);
 
 INSERT INTO
-    einstellungen (
-        id,
-        praxen,
-        anreden,
-        familienstaende,
-        schluesselworte,
-        standard_schluesselworte
-    )
+    einstellungen (id, json)
 VALUES
     (
         1,
-        '["Naturheilpraxis"]',
-        '["Herr", "Frau"]',
-        '["ledig", "verheiratet", "getrennt", "geschieden", "verwitwet"]',
-        '[]',
-        '[]'
+        '{"praxen": ["Naturheilpraxis"],"anreden": ["Herr", "Frau"],"familienstände": ["ledig", "verheiratet", "getrennt", "geschieden", "verwitwet"],"schlüsselworte": [],"standardSchlüsselworte": []}'
     )
 ON CONFLICT DO NOTHING;

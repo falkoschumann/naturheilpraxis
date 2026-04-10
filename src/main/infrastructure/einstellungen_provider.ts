@@ -25,7 +25,7 @@ export class EinstellungenProvider {
     const record = db
       .prepare(
         `
-        SELECT praxen, anreden, familienstaende, schluesselworte, standard_schluesselworte
+        SELECT json
           FROM einstellungen
          WHERE id = 1;
         `,
@@ -38,33 +38,16 @@ export class EinstellungenProvider {
     const db = this.#datenbankProvider.get();
     db.prepare(
       `
-      INSERT INTO einstellungen (id, praxen, anreden, familienstaende, schluesselworte, standard_schluesselworte)
-      VALUES (1, ?, ?, ?, ?, ?)
+      INSERT INTO einstellungen (id, json)
+      VALUES (1, ?)
       ON CONFLICT(id) DO UPDATE SET
-        praxen = excluded.praxen,
-        anreden = excluded.anreden,
-        familienstaende = excluded.familienstaende,
-        schluesselworte = excluded.schluesselworte,
-        standard_schluesselworte = excluded.standard_schluesselworte;
+        json = excluded.json;
       `,
-    ).run(
-      JSON.stringify(einstellungen.praxen),
-      JSON.stringify(einstellungen.anreden),
-      JSON.stringify(einstellungen.familienstände),
-      JSON.stringify(einstellungen.schlüsselworte),
-      JSON.stringify(einstellungen.standardSchlüsselworte),
-    );
+    ).run(JSON.stringify(einstellungen));
   }
 }
 
 function mapSqlRecord(record: Record<string, SQLOutputValue>) {
-  return Einstellungen.create({
-    praxen: JSON.parse(record["praxen"] as string),
-    anreden: JSON.parse(record["anreden"] as string),
-    familienstände: JSON.parse(record["familienstaende"] as string),
-    schlüsselworte: JSON.parse(record["schluesselworte"] as string),
-    standardSchlüsselworte: JSON.parse(
-      record["standard_schluesselworte"] as string,
-    ),
-  });
+  const json = JSON.parse(record["json"] as string);
+  return Einstellungen.create(json);
 }
