@@ -14,7 +14,7 @@ import { EinstellungenProvider } from "../../../src/main/infrastructure/einstell
 import { PatientenRepository } from "../../../src/main/infrastructure/patienten_repository";
 import { KalenderProvider } from "../../../src/main/infrastructure/kalender_provider";
 
-describe("Suche Patient", () => {
+describe("Patient", () => {
   describe("Suche Patient mit Nummer", () => {
     it("sollte Patient finden", async () => {
       const { handler, patientenRepository } = configure();

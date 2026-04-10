@@ -3,6 +3,7 @@
 import type { SQLInputValue, SQLOutputValue } from "node:sqlite";
 
 import { Patient } from "../../shared/domain/patient";
+import { mapNumber, mapString } from "./datenbank_mapper";
 import { DatenbankProvider } from "./datenbank_provider";
 
 export class PatientenRepository {
@@ -31,7 +32,6 @@ export class PatientenRepository {
         `,
       )
       .all();
-    console.log(`Found ${records.length} records`);
     return records.map(mapSqlRecord);
   }
 
@@ -119,44 +119,4 @@ function mapSqlRecord(record: Record<string, SQLOutputValue>) {
     notizen: mapString(record, "notizen"),
     schlüsselworte: mapString(record, "schluesselworte")?.split(","),
   });
-}
-
-function mapNumber(
-  record: Record<string, SQLOutputValue>,
-  fieldName: string,
-): number | undefined {
-  const value = record[fieldName];
-  if (value == null) {
-    return;
-  }
-
-  if (typeof value !== "number") {
-    console.warn(
-      `Expected number but got ${typeof value} for ${fieldName} of #${record["nummer"]}:`,
-      value,
-    );
-    return;
-  }
-
-  return value;
-}
-
-function mapString(
-  record: Record<string, SQLOutputValue>,
-  fieldName: string,
-): string | undefined {
-  const value = record[fieldName];
-  if (value == null) {
-    return;
-  }
-
-  if (typeof value !== "string") {
-    console.warn(
-      `Expected string but got ${typeof value} for ${fieldName} of #${record["nummer"]}:`,
-      value,
-    );
-    return;
-  }
-
-  return value;
 }

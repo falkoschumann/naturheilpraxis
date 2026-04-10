@@ -1,9 +1,10 @@
 // Copyright (c) 2026 Falko Schumann. All rights reserved. MIT license.
 
-import type { SQLInputValue } from "node:sqlite";
+import type { SQLInputValue, SQLOutputValue } from "node:sqlite";
 
-import type { Leistung } from "../../shared/domain/leistung";
+import { Leistung } from "../../shared/domain/leistung";
 import { Währung } from "../../shared/domain/waehrung";
+import { mapNumber, mapString } from "./datenbank_mapper";
 import { DatenbankProvider } from "./datenbank_provider";
 
 export class LeistungenRepository {
@@ -19,6 +20,21 @@ export class LeistungenRepository {
 
   private constructor(datenbankProvider: DatenbankProvider) {
     this.#datenbankProvider = datenbankProvider;
+  }
+
+  findAllByPatientennummer(nummer: number): Leistung[] {
+    const db = this.#datenbankProvider.get();
+    const records = db
+      .prepare(
+        `
+          SELECT *
+            FROM leistungen
+           WHERE patient_id = ?
+           ORDER BY datum, id;
+        `,
+      )
+      .all(nummer);
+    return records.map(mapSqlRecord);
   }
 
   create(leistung: Leistung) {
@@ -50,4 +66,19 @@ export class LeistungenRepository {
       .run(record);
     return result.lastInsertRowid as number;
   }
+}
+
+function mapSqlRecord(record: Record<string, SQLOutputValue>) {
+  return Leistung.create({
+    id: mapNumber(record, "id"),
+    praxis: mapString(record, "praxis")!,
+    patientId: mapNumber(record, "patient_id")!,
+    rechnungId: mapNumber(record, "rechnung_id"),
+    datum: mapString(record, "datum")!,
+    gebührenziffer: mapString(record, "gebuehrenziffer")!,
+    beschreibung: mapString(record, "beschreibung")!,
+    kommentar: mapString(record, "kommentar"),
+    einzelpreis: mapNumber(record, "einzelpreis")!,
+    anzahl: mapNumber(record, "anzahl")!,
+  });
 }

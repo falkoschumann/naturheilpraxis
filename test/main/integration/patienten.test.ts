@@ -11,14 +11,16 @@ import {
 import { DatenbankProvider } from "../../../src/main/infrastructure/datenbank_provider";
 import { PatientenRepository } from "../../../src/main/infrastructure/patienten_repository";
 
-describe("Suche Patienten", () => {
+describe("Patienten", () => {
   describe("Liste alle Patienten auf", () => {
     it("Sollte eine leere Liste zurückgeben, wenn es keinen Patienten gibt", async () => {
       const { handler } = configure();
 
       const result = await handler.handle(PatientenQuery.create());
 
-      expect(result).toEqual<PatientenQueryResult>({ patienten: [] });
+      expect(result).toEqual<PatientenQueryResult>(
+        PatientenQueryResult.create(),
+      );
     });
 
     it("Sollte alle Patienten absteigend sortiert nach Nummer zurückgeben", async () => {
