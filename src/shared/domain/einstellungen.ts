@@ -6,92 +6,92 @@ export class Einstellungen {
   static create({
     praxen,
     anreden,
-    familienstaende,
-    schluesselworte,
-    standardSchluesselworte,
+    familienstände,
+    schlüsselworte,
+    standardSchlüsselworte,
   }: {
     praxen: string[];
     anreden: string[];
-    familienstaende: string[];
-    schluesselworte: string[];
-    standardSchluesselworte: string[];
+    familienstände: string[];
+    schlüsselworte: string[];
+    standardSchlüsselworte: string[];
   }): Einstellungen {
     return new Einstellungen(
       praxen,
       anreden,
-      familienstaende,
-      schluesselworte,
-      standardSchluesselworte,
+      familienstände,
+      schlüsselworte,
+      standardSchlüsselworte,
     );
   }
 
   static createDefault({
     praxen = ["Naturheilpraxis"],
     anreden = ["Herr", "Frau"],
-    familienstaende = [
+    familienstände = [
       "ledig",
       "verheiratet",
       "getrennt",
       "geschieden",
       "verwitwet",
     ],
-    schluesselworte = [],
-    standardSchluesselworte = [],
+    schlüsselworte = [],
+    standardSchlüsselworte = [],
   }: {
     praxen?: string[];
     anreden?: string[];
-    familienstaende?: string[];
-    schluesselworte?: string[];
-    standardSchluesselworte?: string[];
+    familienstände?: string[];
+    schlüsselworte?: string[];
+    standardSchlüsselworte?: string[];
   } = {}): Einstellungen {
     return new Einstellungen(
       praxen,
       anreden,
-      familienstaende,
-      schluesselworte,
-      standardSchluesselworte,
+      familienstände,
+      schlüsselworte,
+      standardSchlüsselworte,
     );
   }
 
   static createTestInstance({
     praxen = ["Praxis 1", "Praxis 2"],
     anreden = ["Herr", "Frau", "Fräulein"],
-    familienstaende = ["ledig", "verheiratet", "geschieden", "verwitwet"],
-    schluesselworte = ["Aktiv", "Weihnachtskarte", "Geburtstagskarte"],
-    standardSchluesselworte = ["Aktiv", "Weihnachtskarte"],
+    familienstände = ["ledig", "verheiratet", "geschieden", "verwitwet"],
+    schlüsselworte = ["Aktiv", "Weihnachtskarte", "Geburtstagskarte"],
+    standardSchlüsselworte = ["Aktiv", "Weihnachtskarte"],
   }: {
     praxen?: string[];
     anreden?: string[];
-    familienstaende?: string[];
-    schluesselworte?: string[];
-    standardSchluesselworte?: string[];
+    familienstände?: string[];
+    schlüsselworte?: string[];
+    standardSchlüsselworte?: string[];
   } = {}): Einstellungen {
     return Einstellungen.create({
       praxen,
       anreden,
-      familienstaende,
-      schluesselworte,
-      standardSchluesselworte,
+      familienstände: familienstände,
+      schlüsselworte: schlüsselworte,
+      standardSchlüsselworte: standardSchlüsselworte,
     });
   }
 
   readonly praxen: string[];
   readonly anreden: string[];
-  readonly familienstaende: string[];
-  readonly schluesselworte: string[];
-  readonly standardSchluesselworte: string[];
+  readonly familienstände: string[];
+  readonly schlüsselworte: string[];
+  readonly standardSchlüsselworte: string[];
 
   constructor(
     praxen: string[],
     anreden: string[],
-    familienstaende: string[],
-    schluesselworte: string[],
-    standardSchluesselworte: string[],
+    familienstände: string[],
+    schlüsselworte: string[],
+    standardSchlüsselworte: string[],
   ) {
     this.praxen = praxen;
     this.anreden = anreden;
-    this.familienstaende = familienstaende;
-    this.schluesselworte = schluesselworte;
-    this.standardSchluesselworte = standardSchluesselworte;
+    this.familienstände = familienstände;
+    this.schlüsselworte = schlüsselworte;
+    this.standardSchlüsselworte = standardSchlüsselworte;
   }
 }

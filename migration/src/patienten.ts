@@ -18,11 +18,11 @@ function erstellePatient(customer: CustomerDto) {
   const annahmejahr = normalisiereNumber(customer.acceptance);
   const praxis = normalisiereString(customer.agency);
   const anrede = normalisiereString(customer.title);
-  const strasse = normalisiereString(customer.street);
+  const straße = normalisiereString(customer.street);
   const wohnort = normalisiereString(customer.city);
   const postleitzahl = normalisiereString(customer.postalCode);
   const staat = normalisiereString(customer.country);
-  const staatsangehoerigkeit = normalisiereString(customer.citizenship);
+  const staatsangehörigkeit = normalisiereString(customer.citizenship);
   const titel = normalisiereString(customer.academicTitle);
   const beruf = normalisiereString(customer.occupation);
   const telefon = normalisiereString(customer.callNumber);
@@ -34,17 +34,17 @@ function erstellePatient(customer: CustomerDto) {
   let notizen = normalisiereString(customer.memorandum);
 
   const handlings = normalisiereString(customer.handlings);
-  let schluesselworte = erstelleSchluesselworte(handlings);
+  let schlüsselworte = erstelleSchlüsselworte(handlings);
 
   const dayOfBirth = normalisiereString(customer.dayOfBirth);
   const geburtsdatum = erstelleGeburtsdatum({
     dayOfBirth,
-    onError: (neueSchluesselworte) => {
+    onError: (neueSchlüsselworte) => {
       console.warn(
         `  Ungültiges Geburtsdatum für ${nachname}, ${vorname} (${nummer}) gefunden: ${dayOfBirth}`,
       );
-      schluesselworte = [...schluesselworte, ...neueSchluesselworte];
-      notizen = ergaenzeNotizen(
+      schlüsselworte = [...schlüsselworte, ...neueSchlüsselworte];
+      notizen = ergänzeNotizen(
         notizen,
         `Ungültiges Geburtsdatum: ${dayOfBirth}`,
       );
@@ -59,11 +59,11 @@ function erstellePatient(customer: CustomerDto) {
     annahmejahr,
     praxis,
     anrede,
-    strasse,
+    straße,
     wohnort,
     postleitzahl,
     staat,
-    staatsangehoerigkeit,
+    staatsangehörigkeit,
     titel,
     beruf,
     telefon,
@@ -75,27 +75,31 @@ function erstellePatient(customer: CustomerDto) {
     // TODO kinder: customer.xxx,
     // TODO geschwister: customer.xxx,
     notizen,
-    schluesselworte,
+    schlüsselworte,
   });
-  pruefeVollstaendigkeit({
+  prüfeVollständigkeit({
     patient,
-    onError: (neueSchluesselworte, fehlendeDaten) => {
+    onError: (neueSchlüsselworte, fehlendeDaten) => {
       const fehlendeDatenString = fehlendeDaten.join(", ");
       console.warn(
         `  Unvollständiger Datensatz für ${nachname}, ${vorname} (${nummer}), vermisse ${fehlendeDatenString}`,
       );
-      schluesselworte = [...schluesselworte, ...neueSchluesselworte];
-      notizen = ergaenzeNotizen(
+      schlüsselworte = [...schlüsselworte, ...neueSchlüsselworte];
+      notizen = ergänzeNotizen(
         notizen,
         `Fehlende Daten: ${fehlendeDatenString}.`,
       );
-      patient = Patient.create({ ...patient, schluesselworte, notizen });
+      patient = Patient.create({
+        ...patient,
+        schlüsselworte: schlüsselworte,
+        notizen,
+      });
     },
   });
   return patient;
 }
 
-function erstelleSchluesselworte(handlings?: string) {
+function erstelleSchlüsselworte(handlings?: string) {
   if (handlings == null) {
     return [];
   }
@@ -108,7 +112,7 @@ function erstelleGeburtsdatum({
   onError,
 }: {
   dayOfBirth?: string;
-  onError: (neueSchluesselworte: string[]) => void;
+  onError: (neueSchlüsselworte: string[]) => void;
 }) {
   if (dayOfBirth == null) {
     return;
@@ -122,12 +126,12 @@ function erstelleGeburtsdatum({
   }
 }
 
-function pruefeVollstaendigkeit({
+function prüfeVollständigkeit({
   patient,
   onError,
 }: {
   patient: Patient;
-  onError: (neueSchluesselworte: string[], fehlendeDaten: string[]) => void;
+  onError: (neueSchlüsselworte: string[], fehlendeDaten: string[]) => void;
 }) {
   const fehlendeDaten: string[] = [];
   if (patient.nachname == null) {
@@ -150,10 +154,10 @@ function pruefeVollstaendigkeit({
   }
 }
 
-function ergaenzeNotizen(notizen = "", ergaenzendeNotizen: string) {
+function ergänzeNotizen(notizen = "", ergänzendeNotizen: string) {
   if (notizen.length > 0) {
     notizen += "\n\n";
   }
-  notizen += ergaenzendeNotizen;
+  notizen += ergänzendeNotizen;
   return notizen;
 }

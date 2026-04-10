@@ -48,7 +48,7 @@ describe("Suche Patient", () => {
           patient: Patient.create({
             annahmejahr: 2026,
             praxis: "Praxis 1",
-            schluesselworte: ["Aktiv", "Weihnachtskarte"],
+            schlüsselworte: ["Aktiv", "Weihnachtskarte"],
           }),
         }),
       );

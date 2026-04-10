@@ -23,21 +23,21 @@ export class PatientQueryResult {
     patient,
     praxen = [],
     anreden = [],
-    familienstaende = [],
-    schluesselworte = [],
+    familienstände = [],
+    schlüsselworte = [],
   }: {
     patient?: Patient;
     praxen?: string[];
     anreden?: string[];
-    familienstaende?: string[];
-    schluesselworte?: string[];
+    familienstände?: string[];
+    schlüsselworte?: string[];
   } = {}) {
     patient = patient && Patient.create(patient);
     return new PatientQueryResult(
       praxen,
       anreden,
-      familienstaende,
-      schluesselworte,
+      familienstände,
+      schlüsselworte,
       patient,
     );
   }
@@ -46,41 +46,41 @@ export class PatientQueryResult {
     patient = Patient.createTestInstance(),
     praxen = ["Praxis 1", "Praxis 2"],
     anreden = ["Herr", "Frau", "Fräulein"],
-    familienstaende = ["ledig", "verheiratet", "geschieden", "verwitwet"],
-    schluesselworte = ["Aktiv", "Weihnachtskarte", "Geburtstagskarte"],
+    familienstände = ["ledig", "verheiratet", "geschieden", "verwitwet"],
+    schlüsselworte = ["Aktiv", "Weihnachtskarte", "Geburtstagskarte"],
   }: {
     patient?: Patient;
     praxen?: string[];
     anreden?: string[];
-    familienstaende?: string[];
-    schluesselworte?: string[];
+    familienstände?: string[];
+    schlüsselworte?: string[];
   } = {}) {
     return PatientQueryResult.create({
       patient,
       praxen,
       anreden,
-      familienstaende,
-      schluesselworte,
+      familienstände,
+      schlüsselworte,
     });
   }
 
   readonly patient?: Patient;
   readonly praxen: string[];
   readonly anreden: string[];
-  readonly familienstaende: string[];
-  readonly schluesselworte: string[];
+  readonly familienstände: string[];
+  readonly schlüsselworte: string[];
 
   private constructor(
     praxen: string[],
     anreden: string[],
-    familienstaende: string[],
-    schluesselworte: string[],
+    familienstände: string[],
+    schlüsselworte: string[],
     patient?: Patient,
   ) {
     this.patient = patient;
     this.praxen = praxen;
     this.anreden = anreden;
-    this.familienstaende = familienstaende;
-    this.schluesselworte = schluesselworte;
+    this.familienstände = familienstände;
+    this.schlüsselworte = schlüsselworte;
   }
 }

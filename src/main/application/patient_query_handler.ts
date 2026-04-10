@@ -32,11 +32,11 @@ export class PatientQueryHandler {
 
   private constructor(
     patientenRepository: PatientenRepository,
-    einstellungenprovider: EinstellungenProvider,
+    einstellungenProvider: EinstellungenProvider,
     uhrProvider: KalenderProvider,
   ) {
     this.#patientenRepository = patientenRepository;
-    this.#einstellungenProvider = einstellungenprovider;
+    this.#einstellungenProvider = einstellungenProvider;
     this.#uhrProvider = uhrProvider;
   }
 
@@ -50,10 +50,14 @@ export class PatientQueryHandler {
 
     const annahmejahr = this.#uhrProvider.getDatum().year;
     const praxis = einstellungen.praxen[0];
-    const schluesselworte = einstellungen.standardSchluesselworte;
+    const schlüsselworte = einstellungen.standardSchlüsselworte;
     return PatientQueryResult.create({
       ...einstellungen,
-      patient: Patient.create({ annahmejahr, praxis, schluesselworte }),
+      patient: Patient.create({
+        annahmejahr,
+        praxis,
+        schlüsselworte,
+      }),
     });
   }
 }

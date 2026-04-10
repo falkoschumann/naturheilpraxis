@@ -11,11 +11,11 @@ export class Patient {
     annahmejahr,
     praxis,
     anrede,
-    strasse,
+    straße,
     wohnort,
     postleitzahl,
     staat,
-    staatsangehoerigkeit,
+    staatsangehörigkeit,
     titel,
     beruf,
     telefon,
@@ -27,7 +27,7 @@ export class Patient {
     kinder,
     geschwister,
     notizen,
-    schluesselworte,
+    schlüsselworte,
   }: {
     nummer?: number;
     nachname?: string;
@@ -36,11 +36,11 @@ export class Patient {
     annahmejahr?: number;
     praxis?: string;
     anrede?: string;
-    strasse?: string;
+    straße?: string;
     wohnort?: string;
     postleitzahl?: string;
     staat?: string;
-    staatsangehoerigkeit?: string;
+    staatsangehörigkeit?: string;
     titel?: string;
     beruf?: string;
     telefon?: string;
@@ -52,7 +52,7 @@ export class Patient {
     kinder?: string;
     geschwister?: string;
     notizen?: string;
-    schluesselworte?: string[];
+    schlüsselworte?: string[];
   }): Patient {
     return new Patient(
       nummer,
@@ -62,11 +62,11 @@ export class Patient {
       annahmejahr,
       praxis,
       anrede,
-      strasse,
+      straße,
       wohnort,
       postleitzahl,
       staat,
-      staatsangehoerigkeit,
+      staatsangehörigkeit,
       titel,
       beruf,
       telefon,
@@ -78,7 +78,7 @@ export class Patient {
       kinder,
       geschwister,
       notizen,
-      schluesselworte,
+      schlüsselworte,
     );
   }
 
@@ -90,11 +90,11 @@ export class Patient {
     annahmejahr = 2025,
     praxis = "Naturheilpraxis",
     anrede,
-    strasse = "Musterstraße 1",
+    straße = "Musterstraße 1",
     wohnort = "Musterstadt",
     postleitzahl = "12345",
     staat,
-    staatsangehoerigkeit,
+    staatsangehörigkeit,
     titel,
     beruf,
     telefon,
@@ -106,7 +106,7 @@ export class Patient {
     kinder,
     geschwister,
     notizen,
-    schluesselworte = ["Schlüsselwort1", "Schlüsselwort2"],
+    schlüsselworte = ["Schlüsselwort1", "Schlüsselwort2"],
   }: {
     nummer?: number;
     nachname?: string;
@@ -115,11 +115,11 @@ export class Patient {
     annahmejahr?: number;
     praxis?: string;
     anrede?: string;
-    strasse?: string;
+    straße?: string;
     wohnort?: string;
     postleitzahl?: string;
     staat?: string;
-    staatsangehoerigkeit?: string;
+    staatsangehörigkeit?: string;
     titel?: string;
     beruf?: string;
     telefon?: string;
@@ -131,7 +131,7 @@ export class Patient {
     kinder?: string;
     geschwister?: string;
     notizen?: string;
-    schluesselworte?: string[];
+    schlüsselworte?: string[];
   } = {}): Patient {
     return Patient.create({
       nummer,
@@ -141,11 +141,11 @@ export class Patient {
       annahmejahr,
       praxis,
       anrede,
-      strasse,
+      straße: straße,
       wohnort,
       postleitzahl,
       staat,
-      staatsangehoerigkeit,
+      staatsangehörigkeit: staatsangehörigkeit,
       titel,
       beruf,
       telefon,
@@ -157,7 +157,7 @@ export class Patient {
       kinder,
       geschwister,
       notizen,
-      schluesselworte,
+      schlüsselworte: schlüsselworte,
     });
   }
 
@@ -169,11 +169,11 @@ export class Patient {
   readonly annahmejahr?: number;
   readonly praxis?: string;
   readonly anrede?: string;
-  readonly strasse?: string;
+  readonly straße?: string;
   readonly wohnort?: string;
   readonly postleitzahl?: string;
   readonly staat?: string;
-  readonly staatsangehoerigkeit?: string;
+  readonly staatsangehörigkeit?: string;
   readonly titel?: string;
   readonly beruf?: string;
   readonly telefon?: string;
@@ -185,7 +185,7 @@ export class Patient {
   readonly kinder?: string;
   readonly geschwister?: string;
   readonly notizen?: string;
-  readonly schluesselworte?: string[];
+  readonly schlüsselworte?: string[];
 
   private constructor(
     nummer?: number,
@@ -195,11 +195,11 @@ export class Patient {
     annahmejahr?: number,
     praxis?: string,
     anrede?: string,
-    strasse?: string,
+    straße?: string,
     wohnort?: string,
     postleitzahl?: string,
     staat?: string,
-    staatsangehoerigkeit?: string,
+    staatsangehörigkeit?: string,
     titel?: string,
     beruf?: string,
     telefon?: string,
@@ -211,7 +211,7 @@ export class Patient {
     kinder?: string,
     geschwister?: string,
     notizen?: string,
-    schluesselworte?: string[],
+    schlüsselworte?: string[],
   ) {
     this.nummer = nummer;
     this.nachname = nachname;
@@ -223,11 +223,11 @@ export class Patient {
     this.annahmejahr = annahmejahr;
     this.praxis = praxis;
     this.anrede = anrede;
-    this.strasse = strasse;
+    this.straße = straße;
     this.wohnort = wohnort;
     this.postleitzahl = postleitzahl;
     this.staat = staat;
-    this.staatsangehoerigkeit = staatsangehoerigkeit;
+    this.staatsangehörigkeit = staatsangehörigkeit;
     this.titel = titel;
     this.beruf = beruf;
     this.telefon = telefon;
@@ -239,6 +239,6 @@ export class Patient {
     this.kinder = kinder;
     this.geschwister = geschwister;
     this.notizen = notizen;
-    this.schluesselworte = schluesselworte;
+    this.schlüsselworte = schlüsselworte;
   }
 }

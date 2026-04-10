@@ -36,7 +36,7 @@ describe("Nimm Patient auf", () => {
             geburtsdatum: "1985-05-05",
             praxis: "Praxis 1",
             annahmejahr: 2026,
-            schluesselworte: [],
+            schlüsselworte: [],
           }),
         }),
       );

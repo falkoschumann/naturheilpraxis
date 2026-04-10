@@ -226,7 +226,7 @@ const columns = [
     cell: (info) => info?.getValue()?.toLocaleString("de-DE", { dateStyle: "medium" }),
     sortingFn: sortGeburtsdatumFn,
   }),
-  columnHelper.accessor("strasse", { header: "Straße", size: 250 }),
+  columnHelper.accessor("straße", { header: "Straße", size: 250 }),
   columnHelper.accessor("postleitzahl", { header: "PLZ", size: 80 }),
   columnHelper.accessor("wohnort", { header: "Wohnort", size: 140 }),
   columnHelper.accessor("telefon", {

@@ -84,10 +84,10 @@ export class PatientenRepository {
                                  mobil, email, familienstand, partner, eltern,
                                  kinder, geschwister, notizen, schluesselworte)
           VALUES (:nummer, :nachname, :vorname, :geburtsdatum, :annahmejahr,
-                  :praxis, :anrede, :strasse, :wohnort, :postleitzahl,
-                  :staat, :staatsangehoerigkeit, :titel, :beruf, :telefon,
+                  :praxis, :anrede, :straße, :wohnort, :postleitzahl,
+                  :staat, :staatsangehörigkeit, :titel, :beruf, :telefon,
                   :mobil, :email, :familienstand, :partner, :eltern,
-                  :kinder, :geschwister, :notizen, :schluesselworte);
+                  :kinder, :geschwister, :notizen, :schlüsselworte);
         `,
       )
       .run(record);
@@ -104,11 +104,11 @@ function mapSqlRecord(record: Record<string, SQLOutputValue>) {
     annahmejahr: mapNumber(record, "annahmejahr"),
     praxis: mapString(record, "praxis"),
     anrede: mapString(record, "anrede"),
-    strasse: mapString(record, "strasse"),
+    straße: mapString(record, "strasse"),
     wohnort: mapString(record, "wohnort"),
     postleitzahl: mapString(record, "postleitzahl"),
     staat: mapString(record, "staat"),
-    staatsangehoerigkeit: mapString(record, "staatsangehoerigkeit"),
+    staatsangehörigkeit: mapString(record, "staatsangehoerigkeit"),
     titel: mapString(record, "titel"),
     beruf: mapString(record, "beruf"),
     telefon: mapString(record, "telefon"),
@@ -118,7 +118,7 @@ function mapSqlRecord(record: Record<string, SQLOutputValue>) {
     partner: mapString(record, "partner"),
     kinder: mapString(record, "kinder"),
     notizen: mapString(record, "notizen"),
-    schluesselworte: mapString(record, "schluesselworte")?.split(","),
+    schlüsselworte: mapString(record, "schluesselworte")?.split(","),
   });
 }
 

@@ -19,7 +19,7 @@ function erzeugePatient(): Patient {
   return {
     annahmejahr: 2026,
     praxis: "Test-Praxis",
-    schluesselworte: ["Test-Schlüsselwort"],
+    schlüsselworte: ["Test-Schlüsselwort"],
   };
 }
 

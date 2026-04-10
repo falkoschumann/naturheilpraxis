@@ -70,12 +70,12 @@ export default function PatientenkarteikartePage() {
               label="Schlüsselworte"
               cols={12}
               isReadOnly={state.nurLesen}
-              options={result.schluesselworte}
-              value={state.patient.schluesselworte ?? []}
+              options={result.schlüsselworte}
+              value={state.patient.schlüsselworte ?? []}
               onChange={(e) =>
                 dispatch(
                   aktualisiereFeld({
-                    schluesselworte: Array.from(e.target.selectedOptions, (option) => option.value),
+                    schlüsselworte: Array.from(e.target.selectedOptions, (option) => option.value),
                   }),
                 )
               }
@@ -149,8 +149,8 @@ export default function PatientenkarteikartePage() {
               label="Straße"
               cols={4}
               isReadOnly={state.nurLesen}
-              value={state.patient.strasse ?? ""}
-              onChange={(e) => dispatch(aktualisiereFeld({ strasse: e.target.value }))}
+              value={state.patient.straße ?? ""}
+              onChange={(e) => dispatch(aktualisiereFeld({ straße: e.target.value }))}
             />
             <Input
               name="postleitzahl"
@@ -205,7 +205,7 @@ export default function PatientenkarteikartePage() {
               label="Familienstand"
               cols={2}
               isReadOnly={state.nurLesen}
-              options={result.familienstaende}
+              options={result.familienstände}
               value={state.patient.familienstand ?? ""}
               onChange={(e) => dispatch(aktualisiereFeld({ familienstand: e.target.value }))}
             />
@@ -230,8 +230,8 @@ export default function PatientenkarteikartePage() {
               label="Staatsangehörigkeit"
               cols={6}
               isReadOnly={state.nurLesen}
-              value={state.patient.staatsangehoerigkeit ?? ""}
-              onChange={(e) => dispatch(aktualisiereFeld({ staatsangehoerigkeit: e.target.value }))}
+              value={state.patient.staatsangehörigkeit ?? ""}
+              onChange={(e) => dispatch(aktualisiereFeld({ staatsangehörigkeit: e.target.value }))}
             />
             <Input
               name="beruf"

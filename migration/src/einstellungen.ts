@@ -18,8 +18,8 @@ export function erstelleEinstellungen({
   return Einstellungen.create({
     praxen: agencies,
     anreden: titles,
-    familienstaende: familyStatus,
-    schluesselworte: handling,
-    standardSchluesselworte: standardHandling,
+    familienstände: familyStatus,
+    schlüsselworte: handling,
+    standardSchlüsselworte: standardHandling,
   });
 }

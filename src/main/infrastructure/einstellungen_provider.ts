@@ -50,9 +50,9 @@ export class EinstellungenProvider {
     ).run(
       JSON.stringify(einstellungen.praxen),
       JSON.stringify(einstellungen.anreden),
-      JSON.stringify(einstellungen.familienstaende),
-      JSON.stringify(einstellungen.schluesselworte),
-      JSON.stringify(einstellungen.standardSchluesselworte),
+      JSON.stringify(einstellungen.familienstände),
+      JSON.stringify(einstellungen.schlüsselworte),
+      JSON.stringify(einstellungen.standardSchlüsselworte),
     );
   }
 }
@@ -61,9 +61,9 @@ function mapSqlRecord(record: Record<string, SQLOutputValue>) {
   return Einstellungen.create({
     praxen: JSON.parse(record["praxen"] as string),
     anreden: JSON.parse(record["anreden"] as string),
-    familienstaende: JSON.parse(record["familienstaende"] as string),
-    schluesselworte: JSON.parse(record["schluesselworte"] as string),
-    standardSchluesselworte: JSON.parse(
+    familienstände: JSON.parse(record["familienstaende"] as string),
+    schlüsselworte: JSON.parse(record["schluesselworte"] as string),
+    standardSchlüsselworte: JSON.parse(
       record["standard_schluesselworte"] as string,
     ),
   });
