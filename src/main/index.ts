@@ -9,6 +9,7 @@ import {
   REACT_DEVELOPER_TOOLS,
 } from "electron-devtools-installer";
 
+import "../shared/polyfill";
 import { NimmPatientAufCommandHandler } from "./application/nimm_patient_auf_command_handler";
 import { PatientenQueryHandler } from "./application/patienten_query_handler";
 import { PatientQueryHandler } from "./application/patient_query_handler";

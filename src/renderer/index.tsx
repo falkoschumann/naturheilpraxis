@@ -3,6 +3,7 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 
+import "../shared/polyfill";
 import { MessageHandlerContext } from "./ui/components/message_handler_context";
 import { messageHandler } from "./message_handler";
 import App from "./ui";

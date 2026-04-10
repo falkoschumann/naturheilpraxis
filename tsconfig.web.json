@@ -39,5 +39,5 @@
     // Completeness
     "skipLibCheck": true
   },
-  "include": ["src/preload/*.d.ts", "src/renderer/**/*"]
+  "include": ["src/preload/*.d.ts", "src/renderer/**/*", "src/shared/**/*"]
 }

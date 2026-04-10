@@ -2,8 +2,6 @@
 
 import type { SQLInputValue, SQLOutputValue } from "node:sqlite";
 
-import { Temporal } from "@js-temporal/polyfill";
-
 import { Patient } from "../../shared/domain/patient";
 import { DatenbankProvider } from "./datenbank_provider";
 
@@ -33,6 +31,7 @@ export class PatientenRepository {
         `,
       )
       .all();
+    console.log(`Found ${records.length} records`);
     return records.map(mapSqlRecord);
   }
 

@@ -43,6 +43,7 @@
     "migration/**/*",
     "src/main/**/*",
     "src/preload/**/*",
+    "src/shared/**/*",
     "test/**/*",
     "*.ts"
   ]

@@ -1,7 +1,5 @@
 // Copyright (c) 2025 Falko Schumann. All rights reserved. MIT license.
 
-import { Temporal } from "@js-temporal/polyfill";
-
 import { Patient } from "../../src/shared/domain/patient";
 
 import type { CustomerDto } from "./legacy_database_gateway";

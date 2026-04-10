@@ -88,7 +88,6 @@ function PatientenTable({
         .split(/\s+/)
         .map((wort) => wort.trim())
         .filter((wort) => wort.length > 0);
-      console.log("Setting global filter", filter);
       setGlobalFilter(filter);
     }, 400);
 
@@ -267,7 +266,7 @@ function customFilterFn(row: Row<Patient>, _columnId: string, filterValues: stri
     const value = cell.getValue();
     if (cell.column.id === "geburtsdatum" && value != null) {
       const date = value as Temporal.PlainDate;
-      // WORKAROUND the Temporal polyfill is very slow (4.5 sec instead of 0,2 sec for ~9000 rows) so we format manually
+      // WORKAROUND Temporal is very slow (Polyfill 4.5 sec and native 2 sec instead of 0.2 sec for ~9000 rows) so we format manually
       //return date.toLocaleString("de-DE", { dateStyle: "medium" });
       return `${date.day.toString().padStart(2, "0")}.${date.month.toString().padStart(2, "0")}.${date.year}`;
     }
