@@ -13,7 +13,7 @@ import {
   reducer,
   sendeFormular,
   type State,
-} from "../../../src/renderer/ui/pages/patientenkarteikarte/reducer";
+} from "../../../src/renderer/ui/pages/patientenkarteikarte/patient/reducer";
 
 function erzeugePatient(): Patient {
   return {

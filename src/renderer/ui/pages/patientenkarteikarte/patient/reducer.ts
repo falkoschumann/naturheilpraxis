@@ -2,7 +2,7 @@
 
 import type { FluxStandardActionAuto } from "flux-standard-action";
 
-import { Patient } from "../../../../shared/domain/patient";
+import { Patient } from "../../../../../shared/domain/patient";
 
 // region Actions and Action Creators
 
