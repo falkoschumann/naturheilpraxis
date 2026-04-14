@@ -11,8 +11,9 @@ import DefaultPageLayout from "../../layouts/default_page_layout";
 import type { PatientContext } from "./patient";
 import type { LeistungenContext } from "./leistungen";
 
-// TODO link spouse and parent
+// TODO hide tabs when new Patient
 // TODO add back link or link to Patientenkartei
+// TODO link spouse and parent
 
 type PatientenkarteikarteContext = PatientContext & LeistungenContext;
 

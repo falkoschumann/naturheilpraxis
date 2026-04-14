@@ -84,7 +84,7 @@ Stories für den MVP sind mit ❗ markiert.
 
 #### Leistungen
 
-- [ ] ❗Liste alle Leistungen für einen Patienten auf
+- [x] ❗Liste alle Leistungen für einen Patienten auf
 - [ ] Suche Leistung(en) nach einem beliebigen Feld
 
 #### Aktualisiere Leistung

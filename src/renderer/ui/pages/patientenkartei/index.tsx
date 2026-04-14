@@ -22,7 +22,7 @@ import { usePatienten } from "./patienten_hook";
 
 // TODO store table state like search in query params
 
-export default function PatientenkarteiPage() {
+export function PatientenkarteiPage() {
   const [suchtext, setSuchtext] = useState("");
   const [result] = usePatienten();
 
@@ -67,6 +67,8 @@ export default function PatientenkarteiPage() {
     </DefaultPageLayout>
   );
 }
+
+export default PatientenkarteiPage;
 
 function PatientenTable({
   data,

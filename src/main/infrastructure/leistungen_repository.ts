@@ -30,7 +30,7 @@ export class LeistungenRepository {
           SELECT *
             FROM leistungen
            WHERE patient_id = ?
-           ORDER BY datum, id;
+           ORDER BY datum DESC, id;
         `,
       )
       .all(nummer);
