@@ -3,5 +3,6 @@
 import { Temporal as TemporalPolyfill } from "@js-temporal/polyfill";
 
 if (typeof globalThis.Temporal === "undefined") {
+  // @ts-expect-error incompatible types
   globalThis.Temporal = TemporalPolyfill;
 }
