@@ -26,10 +26,10 @@ describe("Patienten", () => {
     it("Sollte alle Patienten absteigend sortiert nach Nummer zurückgeben", async () => {
       const { handler, patientenRepository } = configure();
       patientenRepository.create(
-        Patient.createTestInstance({ vorname: "Max" }),
+        Patient.createTestInstance({ nummer: 1, vorname: "Max" }),
       );
       patientenRepository.create(
-        Patient.createTestInstance({ vorname: "Erika" }),
+        Patient.createTestInstance({ nummer: 2, vorname: "Erika" }),
       );
 
       const result = await handler.handle(PatientenQuery.create());

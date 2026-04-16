@@ -6,11 +6,13 @@ import { DatenbankProvider } from "../../src/main/infrastructure/datenbank_provi
 import { EinstellungenProvider } from "../../src/main/infrastructure/einstellungen_provider";
 import { LeistungenRepository } from "../../src/main/infrastructure/leistungen_repository";
 import { PatientenRepository } from "../../src/main/infrastructure/patienten_repository";
+import { RechnungenRepository } from "../../src/main/infrastructure/rechnungen_repository";
 
 import { erstelleEinstellungen } from "./einstellungen";
 import { LegacyDatabaseGateway } from "./legacy_database_gateway";
 import { erstelleLeistungen } from "./leistungen";
 import { erstellePatienten } from "./patienten";
+import { erstelleRechnungen } from "./rechnungen";
 
 export class Interactions {
   static create({
@@ -36,6 +38,7 @@ export class Interactions {
   #einstellungenProvider: EinstellungenProvider;
   #patientenRepository: PatientenRepository;
   #leistungenRepository: LeistungenRepository;
+  #rechnungenRepository: RechnungenRepository;
 
   private constructor(
     legacyDatabase: LegacyDatabaseGateway,
@@ -51,11 +54,15 @@ export class Interactions {
     this.#leistungenRepository = LeistungenRepository.create({
       datenbankProvider,
     });
+    this.#rechnungenRepository = RechnungenRepository.create({
+      datenbankProvider,
+    });
   }
 
   migriereDatenbank() {
     this.#migriereEinstellungen();
     this.#migrierePatienten();
+    this.#migriereRechnungen();
     this.#migriereLeistungen();
   }
 
@@ -80,6 +87,7 @@ export class Interactions {
       console.error(
         "  Migration der Einstellungen fehlgeschlagen.",
         (error as Error).message,
+        error,
       );
     }
   }
@@ -92,12 +100,23 @@ export class Interactions {
       for (const patient of patienten) {
         this.#patientenRepository.create(patient);
       }
-      console.log(`  ${patienten.length} Patienten migriert.`);
+      console.log(`  ${patienten.length}  Patienten migriert.`);
     } catch (error) {
-      console.error(
-        "  Migration der Patienten fehlgeschlagen.",
-        (error as Error).message,
-      );
+      console.error("  Migration der Patienten fehlgeschlagen.", error);
+    }
+  }
+
+  #migriereRechnungen() {
+    try {
+      console.log("Migriere Rechnungen ...");
+      const invoices = this.#legacyDatabase.queryInvoices();
+      const rechnungen = erstelleRechnungen(invoices);
+      for (const rechnung of rechnungen) {
+        this.#rechnungenRepository.create(rechnung);
+      }
+      console.log(`  ${rechnungen.length} Rechnungen migriert.`);
+    } catch (error) {
+      console.error("  Migration der Rechnungen fehlgeschlagen.", error);
     }
   }
 
@@ -111,10 +130,7 @@ export class Interactions {
       }
       console.log(`  ${leistungen.length} Leistungen migriert.`);
     } catch (error) {
-      console.error(
-        "  Migration der Leistungen fehlgeschlagen.",
-        (error as Error).message,
-      );
+      console.error("  Migration der Leistungen fehlgeschlagen.", error);
     }
   }
 }

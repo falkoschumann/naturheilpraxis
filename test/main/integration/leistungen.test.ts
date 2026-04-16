@@ -8,9 +8,11 @@ import {
   LeistungenQuery,
   LeistungenQueryResult,
 } from "../../../src/shared/domain/leistungen_query";
+import { Patient } from "../../../src/shared/domain/patient";
 import { Währung } from "../../../src/shared/domain/waehrung";
 import { DatenbankProvider } from "../../../src/main/infrastructure/datenbank_provider";
 import { LeistungenRepository } from "../../../src/main/infrastructure/leistungen_repository";
+import { PatientenRepository } from "../../../src/main/infrastructure/patienten_repository";
 
 describe("Leistungen", () => {
   describe("Liste alle Leistungen für einen Patienten auf", () => {
@@ -27,7 +29,9 @@ describe("Leistungen", () => {
     });
 
     it("Sollte alle Patienten absteigend sortiert nach Nummer zurückgeben", async () => {
-      const { handler, leistungenRepository } = configure();
+      const { handler, patientenRepository, leistungenRepository } =
+        configure();
+      patientenRepository.create(Patient.createTestInstance());
       leistungenRepository.create(Leistung.createTestInstance({ id: 1 }));
       leistungenRepository.create(
         Leistung.createTestInstance({
@@ -56,7 +60,9 @@ describe("Leistungen", () => {
     });
 
     it("Sollte eine leere Liste zurückgeben, wenn es den Patienten nicht", async () => {
-      const { handler, leistungenRepository } = configure();
+      const { handler, patientenRepository, leistungenRepository } =
+        configure();
+      patientenRepository.create(Patient.createTestInstance());
       leistungenRepository.create(Leistung.createTestInstance({ id: 1 }));
       leistungenRepository.create(
         Leistung.createTestInstance({
@@ -80,9 +86,10 @@ describe("Leistungen", () => {
 
 function configure() {
   const datenbankProvider = DatenbankProvider.create();
+  const patientenRepository = PatientenRepository.create({ datenbankProvider });
   const leistungenRepository = LeistungenRepository.create({
     datenbankProvider,
   });
   const handler = LeistungenQueryHandler.create({ leistungenRepository });
-  return { handler, leistungenRepository };
+  return { handler, patientenRepository, leistungenRepository };
 }

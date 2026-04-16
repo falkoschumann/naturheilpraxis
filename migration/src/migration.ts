@@ -1,5 +1,14 @@
 // Copyright (c) 2026 Falko Schumann. All rights reserved. MIT license.
 
+export function normalisiereString(wert?: string): string | undefined {
+  wert = wert && String(wert).trim();
+  if (wert == null || wert.length === 0) {
+    return;
+  }
+
+  return wert.trim();
+}
+
 export function normalisiereNumber(wert?: number | string): number | undefined {
   if (typeof wert === "string") {
     wert = wert.replace(",", ".");
@@ -13,11 +22,12 @@ export function normalisiereNumber(wert?: number | string): number | undefined {
   return wert;
 }
 
-export function normalisiereString(wert?: string): string | undefined {
-  wert = wert && String(wert).trim();
-  if (wert == null || wert.length === 0) {
+export function normalisiereBoolean(
+  wert?: number | string,
+): boolean | undefined {
+  if (wert == null) {
     return;
   }
 
-  return wert.trim();
+  return wert != 0;
 }

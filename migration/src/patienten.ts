@@ -132,6 +132,9 @@ function prüfeVollständigkeit({
   onError: (neueSchlüsselworte: string[], fehlendeDaten: string[]) => void;
 }) {
   const fehlendeDaten: string[] = [];
+  if (patient.nummer == null) {
+    throw new Error("Patient hat keine Nummer.");
+  }
   if (patient.nachname == null) {
     fehlendeDaten.push("Nachname");
   }

@@ -2,18 +2,17 @@
 
 import type { SQLInputValue, SQLOutputValue } from "node:sqlite";
 
-import { Leistung } from "../../shared/domain/leistung";
-import { Währung } from "../../shared/domain/waehrung";
-import { mapNumber, mapString } from "./datenbank_mapper";
+import { Rechnung } from "../../shared/domain/rechnung";
+import { mapBoolean, mapNumber, mapString } from "./datenbank_mapper";
 import { DatenbankProvider } from "./datenbank_provider";
 
-export class LeistungenRepository {
+export class RechnungenRepository {
   static create({
     datenbankProvider,
   }: {
     datenbankProvider: DatenbankProvider;
   }) {
-    return new LeistungenRepository(datenbankProvider);
+    return new RechnungenRepository(datenbankProvider);
   }
 
   #datenbankProvider;
@@ -22,13 +21,27 @@ export class LeistungenRepository {
     this.#datenbankProvider = datenbankProvider;
   }
 
-  findAllByPatientennummer(nummer: number): Leistung[] {
+  findAll(): Rechnung[] {
     const db = this.#datenbankProvider.get();
     const records = db
       .prepare(
         `
           SELECT *
-            FROM leistungen
+            FROM rechnungen
+           ORDER BY datum DESC, id;
+        `,
+      )
+      .all();
+    return records.map(mapSqlRecord);
+  }
+
+  findAllByPatientennummer(nummer: number): Rechnung[] {
+    const db = this.#datenbankProvider.get();
+    const records = db
+      .prepare(
+        `
+          SELECT *
+            FROM rechnungen
            WHERE patient_id = ?
            ORDER BY datum DESC, id;
         `,
@@ -37,10 +50,10 @@ export class LeistungenRepository {
     return records.map(mapSqlRecord);
   }
 
-  create(leistung: Leistung) {
+  create(rechnung: Rechnung) {
     try {
       const record: Record<string, SQLInputValue> = {};
-      for (const [key, value] of Object.entries(leistung)) {
+      for (const [key, value] of Object.entries(rechnung)) {
         if (value == null || typeof value === "function") {
           continue;
         }
@@ -48,27 +61,28 @@ export class LeistungenRepository {
         const columnName = key.toLowerCase();
         if (value instanceof Temporal.PlainDate) {
           record[columnName] = value.toString();
-        } else if (value instanceof Währung) {
-          record[columnName] = value.cents;
         } else {
           record[columnName] = value;
+        }
+        if (typeof value === "boolean") {
+          record[columnName] = value ? 1 : 0;
         }
       }
       const db = this.#datenbankProvider.get();
       const result = db
         .prepare(
           `
-          INSERT INTO leistungen (id, praxis, patient_id, rechnung_id, datum,
-                                 gebuehrenziffer, beschreibung, kommentar, einzelpreis, anzahl)
-          VALUES (:id, :praxis, :patientid, :rechnungid, :datum,
-                  :gebührenziffer, :beschreibung, :kommentar, :einzelpreis, :anzahl);
+          INSERT INTO rechnungen (id, praxis, nummer, datum, patient_id,
+                                  rechnungstext, kommentar, bezahlt, gutschrift)
+          VALUES (:id, :praxis, :nummer, :datum, :patientid,
+                  :rechnungstext, :kommentar, :bezahlt, :gutschrift);
         `,
         )
         .run(record);
       return result.lastInsertRowid as number;
     } catch (error) {
       throw new Error(
-        `Leistung konnte nicht erstellt werden: ${JSON.stringify(leistung)}.`,
+        `Rechnung konnte nicht erstellt werden: ${JSON.stringify(rechnung)}.`,
         {
           cause: error,
         },
@@ -78,16 +92,15 @@ export class LeistungenRepository {
 }
 
 function mapSqlRecord(record: Record<string, SQLOutputValue>) {
-  return Leistung.create({
+  return Rechnung.create({
     id: mapNumber(record, "id"),
     praxis: mapString(record, "praxis")!,
-    patientId: mapNumber(record, "patient_id")!,
-    rechnungId: mapNumber(record, "rechnung_id"),
+    nummer: mapString(record, "nummer")!,
     datum: mapString(record, "datum")!,
-    gebührenziffer: mapString(record, "gebuehrenziffer")!,
-    beschreibung: mapString(record, "beschreibung")!,
+    patientId: mapNumber(record, "patientId")!,
+    rechnungstext: mapString(record, "rechnungstext"),
     kommentar: mapString(record, "kommentar"),
-    einzelpreis: mapNumber(record, "einzelpreis")!,
-    anzahl: mapNumber(record, "anzahl")!,
+    bezahlt: mapBoolean(record, "bezahlt"),
+    gutschrift: mapBoolean(record, "gutschrift")!,
   });
 }

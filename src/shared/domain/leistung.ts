@@ -89,7 +89,7 @@ export class Leistung {
   readonly einzelpreis: Währung;
   readonly anzahl: number;
 
-  constructor(
+  private constructor(
     praxis: string,
     patientId: number,
     datum: Temporal.PlainDate | string,

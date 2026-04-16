@@ -58,25 +58,26 @@ export class PatientenRepository {
   }
 
   create(patient: Patient) {
-    const record: Record<string, SQLInputValue> = {};
-    for (const [key, value] of Object.entries(patient)) {
-      if (key === "nummer" || value == null || typeof value === "function") {
-        continue;
-      }
+    try {
+      const record: Record<string, SQLInputValue> = {};
+      for (const [key, value] of Object.entries(patient)) {
+        if (value == null || typeof value === "function") {
+          continue;
+        }
 
-      const columnName = key.toLowerCase();
-      if (value instanceof Temporal.PlainDate) {
-        record[columnName] = value.toString();
-      } else if (Array.isArray(value)) {
-        record[columnName] = value.join(",");
-      } else {
-        record[columnName] = value;
+        const columnName = key.toLowerCase();
+        if (value instanceof Temporal.PlainDate) {
+          record[columnName] = value.toString();
+        } else if (Array.isArray(value)) {
+          record[columnName] = value.join(",");
+        } else {
+          record[columnName] = value;
+        }
       }
-    }
-    const db = this.#datenbankProvider.get();
-    const result = db
-      .prepare(
-        `
+      const db = this.#datenbankProvider.get();
+      const result = db
+        .prepare(
+          `
           INSERT INTO patienten (nummer, nachname, vorname, geburtsdatum, annahmejahr,
                                  praxis, anrede, strasse, wohnort, postleitzahl,
                                  staat, staatsangehoerigkeit, titel, beruf, telefon,
@@ -88,9 +89,17 @@ export class PatientenRepository {
                   :mobil, :email, :familienstand, :partner, :eltern,
                   :kinder, :geschwister, :notizen, :schlüsselworte);
         `,
-      )
-      .run(record);
-    return result.lastInsertRowid as number;
+        )
+        .run(record);
+      return result.lastInsertRowid as number;
+    } catch (error) {
+      throw new Error(
+        `Patient konnte nicht erstellt werden: ${JSON.stringify(patient)}.`,
+        {
+          cause: error,
+        },
+      );
+    }
   }
 }
 

@@ -2,6 +2,26 @@
 
 import type { SQLOutputValue } from "node:sqlite";
 
+export function mapString(
+  record: Record<string, SQLOutputValue>,
+  fieldName: string,
+): string | undefined {
+  const value = record[fieldName];
+  if (value == null) {
+    return;
+  }
+
+  if (typeof value !== "string") {
+    console.warn(
+      `Expected string but got ${typeof value} for ${fieldName} of #${record["nummer"]}:`,
+      value,
+    );
+    return;
+  }
+
+  return value;
+}
+
 export function mapNumber(
   record: Record<string, SQLOutputValue>,
   fieldName: string,
@@ -22,22 +42,14 @@ export function mapNumber(
   return value;
 }
 
-export function mapString(
+export function mapBoolean(
   record: Record<string, SQLOutputValue>,
   fieldName: string,
-): string | undefined {
-  const value = record[fieldName];
-  if (value == null) {
-    return;
+): boolean | undefined {
+  const number = mapNumber(record, fieldName);
+  if (number == null) {
+    return undefined;
   }
 
-  if (typeof value !== "string") {
-    console.warn(
-      `Expected string but got ${typeof value} for ${fieldName} of #${record["nummer"]}:`,
-      value,
-    );
-    return;
-  }
-
-  return value;
+  return number !== 0;
 }

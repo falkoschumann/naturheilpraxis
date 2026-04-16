@@ -34,15 +34,27 @@ CREATE TABLE IF NOT EXISTS patienten (
 
 CREATE TABLE IF NOT EXISTS leistungen (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
+    patient_id INTEGER NOT NULL REFERENCES patienten (nummer),
+    rechnung_id INTEGER REFERENCES rechnungen (id),
     praxis TEXT NOT NULL,
-    patient_id INTEGER NOT NULL,
-    rechnung_id INTEGER,
-    datum TEXT NOT NULL NOT NULL,
+    datum TEXT NOT NULL,
     gebuehrenziffer TEXT NOT NULL,
     beschreibung TEXT NOT NULL,
     kommentar TEXT,
     einzelpreis NUMERIC NOT NULL,
     anzahl NUMERIC NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS rechnungen (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    patient_id INTEGER NOT NULL REFERENCES patienten (nummer),
+    praxis TEXT NOT NULL,
+    nummer TEXT NOT NULL,
+    datum TEXT NOT NULL,
+    rechnungstext TEXT,
+    kommentar TEXT,
+    bezahlt INTEGER NOT NULL,
+    gutschrift INTEGER NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS einstellungen (id INTEGER PRIMARY KEY, json TEXT NOT NULL);

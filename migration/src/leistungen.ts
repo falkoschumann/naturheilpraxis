@@ -4,15 +4,12 @@ import type { ActivityDto } from "./legacy_database_gateway";
 
 import { Leistung } from "../../src/shared/domain/leistung";
 import { normalisiereNumber, normalisiereString } from "./migration";
-import { Währung } from "../../src/shared/domain/waehrung";
 
 export function erstelleLeistungen(activities: ActivityDto[]): Leistung[] {
-  return activities
-    .map((activity) => erstelleLeistung(activity))
-    .filter((leistung) => leistung != null);
+  return activities.map((activity) => erstelleLeistung(activity));
 }
 
-function erstelleLeistung(activity: ActivityDto): Leistung | undefined {
+function erstelleLeistung(activity: ActivityDto) {
   const id = normalisiereNumber(activity.id);
   const praxis = normalisiereString(activity.agency);
   const patientId = normalisiereNumber(activity.customerId);
@@ -21,10 +18,10 @@ function erstelleLeistung(activity: ActivityDto): Leistung | undefined {
   const gebührenziffer = normalisiereString(activity.shortNote);
   const beschreibung = normalisiereString(activity.description);
   const kommentar = normalisiereString(activity.comment);
-  const einzelpreis = normalisiereNumber(activity.amount);
+  const amount = normalisiereNumber(activity.amount);
+  const einzelpreis = erstelleEinzelpreis(amount);
   const anzahl = normalisiereNumber(activity.quantity);
-  let result;
-  prüfeVollständigkeit({
+  const leistung = prüfeVollständigkeit({
     leistung: {
       id,
       praxis,
@@ -37,13 +34,6 @@ function erstelleLeistung(activity: ActivityDto): Leistung | undefined {
       einzelpreis,
       anzahl,
     },
-    onVollständig: (leistung) => {
-      const einzelpreis = erstelleEinzelpreis(leistung.einzelpreis);
-      result = Leistung.create({
-        ...leistung,
-        einzelpreis,
-      });
-    },
     onError: (fehlendeDaten) => {
       const fehlendeDatenString = fehlendeDaten.join(", ");
       console.warn(
@@ -51,12 +41,19 @@ function erstelleLeistung(activity: ActivityDto): Leistung | undefined {
       );
     },
   });
-  return result;
+  return Leistung.create(leistung);
+}
+
+function erstelleEinzelpreis(amount: number | undefined) {
+  if (amount == null) {
+    return;
+  }
+
+  return Math.round(amount * 100);
 }
 
 function prüfeVollständigkeit({
   leistung,
-  onVollständig,
   onError,
 }: {
   leistung: {
@@ -71,45 +68,49 @@ function prüfeVollständigkeit({
     einzelpreis?: number;
     anzahl?: number;
   };
-  onVollständig: (leistung: {
-    id: number;
-    praxis: string;
-    patientId: number;
-    rechnungId?: number;
-    datum: string;
-    gebührenziffer: string;
-    beschreibung: string;
-    kommentar?: string;
-    einzelpreis: number;
-    anzahl: number;
-  }) => void;
   onError: (fehlendeDaten: string[]) => void;
 }) {
-  const { id, praxis, patientId, datum, gebührenziffer, kommentar } = leistung;
-  let { beschreibung, einzelpreis, anzahl, rechnungId } = leistung;
+  const { id, kommentar } = leistung;
+  let {
+    patientId,
+    praxis,
+    datum,
+    gebührenziffer,
+    beschreibung,
+    einzelpreis,
+    anzahl,
+    rechnungId,
+  } = leistung;
   const fehlendeDaten: string[] = [];
   if (id == null) {
-    fehlendeDaten.push("ID");
+    throw new Error("Leistung hat keine ID.");
   }
   if (praxis == null) {
     fehlendeDaten.push("Praxis");
+    praxis = "N/A";
   }
   if (patientId == null) {
     fehlendeDaten.push("Patient");
+    patientId = 1;
   }
   if (datum == null) {
     fehlendeDaten.push("Datum");
+    datum = "1970-01-01";
   }
   if (gebührenziffer == null) {
     fehlendeDaten.push("Gebührenziffer");
+    gebührenziffer = "N/A";
   }
   if (beschreibung == null) {
-    beschreibung = "";
+    fehlendeDaten.push("Beschreibung");
+    beschreibung = "N/A";
   }
   if (einzelpreis == null) {
+    fehlendeDaten.push("Einzelpreis");
     einzelpreis = 0;
   }
   if (anzahl == null) {
+    fehlendeDaten.push("Anzahl");
     anzahl = 1;
   }
   if (rechnungId === -1) {
@@ -117,22 +118,17 @@ function prüfeVollständigkeit({
   }
   if (fehlendeDaten.length > 0) {
     onError(fehlendeDaten);
-  } else {
-    onVollständig({
-      id: id!,
-      praxis: praxis!,
-      patientId: patientId!,
-      rechnungId,
-      datum: datum!,
-      gebührenziffer: gebührenziffer!,
-      beschreibung,
-      kommentar,
-      einzelpreis,
-      anzahl,
-    });
   }
-}
-
-function erstelleEinzelpreis(amount: number) {
-  return Währung.from(Math.round(amount * 100));
+  return {
+    id,
+    praxis,
+    patientId,
+    rechnungId,
+    datum,
+    gebührenziffer,
+    beschreibung,
+    kommentar,
+    einzelpreis,
+    anzahl,
+  };
 }

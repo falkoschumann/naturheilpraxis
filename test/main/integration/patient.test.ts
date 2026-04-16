@@ -19,10 +19,10 @@ describe("Patient", () => {
     it("sollte Patient finden", async () => {
       const { handler, patientenRepository } = configure();
       patientenRepository.create(
-        Patient.createTestInstance({ vorname: "Max" }),
+        Patient.createTestInstance({ nummer: 1, vorname: "Max" }),
       );
       patientenRepository.create(
-        Patient.createTestInstance({ vorname: "Erika" }),
+        Patient.createTestInstance({ nummer: 2, vorname: "Erika" }),
       );
 
       const result = await handler.handle(PatientQuery.create({ nummer: 2 }));
