@@ -43,20 +43,31 @@ export class PatientQueryHandler {
   async handle(query: PatientQuery) {
     const einstellungen = this.#einstellungenProvider.lade();
 
+    const schlüsselworte = einstellungen.schlüsselworte.map(
+      (schlüsselwort) => schlüsselwort.name,
+    );
+
     if (query.nummer != null) {
       const patient = this.#patientenRepository.findByNummer(query.nummer);
-      return PatientQueryResult.create({ ...einstellungen, patient });
+      return PatientQueryResult.create({
+        ...einstellungen,
+        schlüsselworte,
+        patient,
+      });
     }
 
     const annahmejahr = this.#uhrProvider.getDatum().year;
     const praxis = einstellungen.praxen[0];
-    const schlüsselworte = einstellungen.standardSchlüsselworte;
+    const defaultSchlüsselworte = einstellungen.schlüsselworte
+      .filter((schlüsselwort) => schlüsselwort.istDefault)
+      .map((schlüsselwort) => schlüsselwort.name);
     return PatientQueryResult.create({
       ...einstellungen,
+      schlüsselworte,
       patient: Patient.create({
         annahmejahr,
         praxis,
-        schlüsselworte,
+        schlüsselworte: defaultSchlüsselworte,
       }),
     });
   }

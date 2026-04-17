@@ -6,20 +6,21 @@ export function erstelleEinstellungen({
   agencies,
   titles,
   familyStatus,
-  handling,
-  standardHandling,
+  handlings,
 }: {
   agencies: string[];
   titles: string[];
   familyStatus: string[];
-  handling: string[];
-  standardHandling: string[];
+  handlings: { handling: string; standard?: number }[];
 }) {
+  const schlüsselworte = handlings.map((handling) => ({
+    name: handling.handling,
+    istDefault: handling.standard === 1,
+  }));
   return Einstellungen.create({
     praxen: agencies,
     anreden: titles,
     familienstände: familyStatus,
-    schlüsselworte: handling,
-    standardSchlüsselworte: standardHandling,
+    schlüsselworte,
   });
 }

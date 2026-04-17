@@ -72,14 +72,12 @@ export class Interactions {
       const agencies = this.#legacyDatabase.queryAgencies();
       const titles = this.#legacyDatabase.queryTitles();
       const familyStatus = this.#legacyDatabase.queryFamilyStatus();
-      const handling = this.#legacyDatabase.queryHandling();
-      const standardHandling = this.#legacyDatabase.queryStandardHandling();
+      const handlings = this.#legacyDatabase.queryHandling();
       const einstellungen = erstelleEinstellungen({
         agencies,
         titles,
         familyStatus,
-        handling,
-        standardHandling,
+        handlings,
       });
       this.#einstellungenProvider.sichere(einstellungen);
       console.log("  Einstellungen migriert.");

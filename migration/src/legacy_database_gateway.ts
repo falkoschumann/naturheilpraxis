@@ -35,18 +35,13 @@ export class LegacyDatabaseGateway {
 
   queryHandling() {
     // language=SQLite
-    const records = this.#executeQuery<HandlingDto>(
-      "SELECT handling as handling FROM handlinglist ORDER BY handling;",
-    );
-    return records.map((record) => record.handling);
-  }
-
-  queryStandardHandling() {
-    // language=SQLite
-    const records = this.#executeQuery<HandlingDto>(
-      "SELECT handling as handling FROM handlinglist WHERE standard=1 ORDER BY handling;",
-    );
-    return records.map((record) => record.handling);
+    const records = this.#executeQuery<HandlingDto>(`
+      SELECT handling AS handling,
+             standard AS standard
+        FROM handlinglist
+       ORDER BY handling;
+    `);
+    return records.map((record) => record);
   }
 
   queryCustomers() {

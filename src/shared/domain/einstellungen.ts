@@ -8,21 +8,13 @@ export class Einstellungen {
     anreden,
     familienstände,
     schlüsselworte,
-    standardSchlüsselworte,
   }: {
     praxen: string[];
     anreden: string[];
     familienstände: string[];
-    schlüsselworte: string[];
-    standardSchlüsselworte: string[];
+    schlüsselworte: Schlüsselwort[];
   }): Einstellungen {
-    return new Einstellungen(
-      praxen,
-      anreden,
-      familienstände,
-      schlüsselworte,
-      standardSchlüsselworte,
-    );
+    return new Einstellungen(praxen, anreden, familienstände, schlüsselworte);
   }
 
   static createDefault({
@@ -36,62 +28,54 @@ export class Einstellungen {
       "verwitwet",
     ],
     schlüsselworte = [],
-    standardSchlüsselworte = [],
   }: {
     praxen?: string[];
     anreden?: string[];
     familienstände?: string[];
-    schlüsselworte?: string[];
-    standardSchlüsselworte?: string[];
+    schlüsselworte?: Schlüsselwort[];
   } = {}): Einstellungen {
-    return new Einstellungen(
-      praxen,
-      anreden,
-      familienstände,
-      schlüsselworte,
-      standardSchlüsselworte,
-    );
+    return new Einstellungen(praxen, anreden, familienstände, schlüsselworte);
   }
 
   static createTestInstance({
     praxen = ["Praxis 1", "Praxis 2"],
     anreden = ["Herr", "Frau", "Fräulein"],
     familienstände = ["ledig", "verheiratet", "geschieden", "verwitwet"],
-    schlüsselworte = ["Aktiv", "Weihnachtskarte", "Geburtstagskarte"],
-    standardSchlüsselworte = ["Aktiv", "Weihnachtskarte"],
+    schlüsselworte = [
+      { name: "Aktiv", istDefault: true },
+      { name: "Weihnachtskarte", istDefault: true },
+      { name: "Geburtstagskarte", istDefault: false },
+    ],
   }: {
     praxen?: string[];
     anreden?: string[];
     familienstände?: string[];
-    schlüsselworte?: string[];
-    standardSchlüsselworte?: string[];
+    schlüsselworte?: Schlüsselwort[];
   } = {}): Einstellungen {
     return Einstellungen.create({
       praxen,
       anreden,
       familienstände: familienstände,
       schlüsselworte: schlüsselworte,
-      standardSchlüsselworte: standardSchlüsselworte,
     });
   }
 
   readonly praxen: string[];
   readonly anreden: string[];
   readonly familienstände: string[];
-  readonly schlüsselworte: string[];
-  readonly standardSchlüsselworte: string[];
+  readonly schlüsselworte: Schlüsselwort[];
 
   constructor(
     praxen: string[],
     anreden: string[],
     familienstände: string[],
-    schlüsselworte: string[],
-    standardSchlüsselworte: string[],
+    schlüsselworte: Schlüsselwort[],
   ) {
     this.praxen = praxen;
     this.anreden = anreden;
     this.familienstände = familienstände;
     this.schlüsselworte = schlüsselworte;
-    this.standardSchlüsselworte = standardSchlüsselworte;
   }
 }
+
+export type Schlüsselwort = { name: string; istDefault: boolean };
