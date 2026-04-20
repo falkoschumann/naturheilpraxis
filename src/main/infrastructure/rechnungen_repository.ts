@@ -97,7 +97,7 @@ function mapSqlRecord(record: Record<string, SQLOutputValue>) {
     praxis: mapString(record, "praxis")!,
     nummer: mapString(record, "nummer")!,
     datum: mapString(record, "datum")!,
-    patientId: mapNumber(record, "patientId")!,
+    patientId: mapNumber(record, "patient_id")!,
     rechnungstext: mapString(record, "rechnungstext"),
     kommentar: mapString(record, "kommentar"),
     bezahlt: mapBoolean(record, "bezahlt"),

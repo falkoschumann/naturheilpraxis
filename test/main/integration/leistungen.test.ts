@@ -28,14 +28,17 @@ describe("Leistungen", () => {
       );
     });
 
-    it("Sollte alle Patienten absteigend sortiert nach Nummer zurückgeben", async () => {
+    it("Sollte alle Leistungen absteigend sortiert nach Datum zurückgeben", async () => {
       const { handler, patientenRepository, leistungenRepository } =
         configure();
       patientenRepository.create(Patient.createTestInstance());
-      leistungenRepository.create(Leistung.createTestInstance({ id: 1 }));
+      leistungenRepository.create(
+        Leistung.createTestInstance({ id: 1, datum: "2026-04-13" }),
+      );
       leistungenRepository.create(
         Leistung.createTestInstance({
           id: 2,
+          datum: "2026-04-14",
           gebührenziffer: "21",
           beschreibung: "Akupunktur",
           einzelpreis: Währung.from(1815),
@@ -46,17 +49,20 @@ describe("Leistungen", () => {
         LeistungenQuery.create({ patientennummer: 1 }),
       );
 
-      expect(result).toEqual<LeistungenQueryResult>({
-        leistungen: [
-          Leistung.createTestInstance({ id: 1 }),
-          Leistung.createTestInstance({
-            id: 2,
-            gebührenziffer: "21",
-            beschreibung: "Akupunktur",
-            einzelpreis: Währung.from(1815),
-          }),
-        ],
-      });
+      expect(result).toEqual<LeistungenQueryResult>(
+        LeistungenQueryResult.create({
+          leistungen: [
+            Leistung.createTestInstance({
+              id: 2,
+              datum: "2026-04-14",
+              gebührenziffer: "21",
+              beschreibung: "Akupunktur",
+              einzelpreis: Währung.from(1815),
+            }),
+            Leistung.createTestInstance({ id: 1, datum: "2026-04-13" }),
+          ],
+        }),
+      );
     });
 
     it("Sollte eine leere Liste zurückgeben, wenn es den Patienten nicht", async () => {

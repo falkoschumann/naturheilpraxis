@@ -1,5 +1,6 @@
 // Copyright (c) 2026 Falko Schumann. All rights reserved. MIT license.
 
+import { Patient } from "../../shared/domain/patient";
 import {
   type PatientQuery,
   PatientQueryResult,
@@ -7,7 +8,6 @@ import {
 import type { PatientenRepository } from "../infrastructure/patienten_repository";
 import { EinstellungenProvider } from "../infrastructure/einstellungen_provider";
 import type { KalenderProvider } from "../infrastructure/kalender_provider";
-import { Patient } from "../../shared/domain/patient";
 
 export class PatientQueryHandler {
   static create({

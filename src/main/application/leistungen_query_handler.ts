@@ -1,10 +1,10 @@
 // Copyright (c) 2026 Falko Schumann. All rights reserved. MIT license.
 
-import type { LeistungenRepository } from "../infrastructure/leistungen_repository";
 import {
   type LeistungenQuery,
   LeistungenQueryResult,
 } from "../../shared/domain/leistungen_query";
+import type { LeistungenRepository } from "../infrastructure/leistungen_repository";
 
 export class LeistungenQueryHandler {
   static create({
