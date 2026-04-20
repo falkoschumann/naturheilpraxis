@@ -14,7 +14,7 @@ import { RechnungenRepository } from "../../../src/main/infrastructure/rechnunge
 import { PatientenRepository } from "../../../src/main/infrastructure/patienten_repository";
 
 describe("Rechnungen", () => {
-  describe("Liste alle Rechnungen für einen Patienten auf", () => {
+  describe("Liste alle Rechnungen auf", () => {
     it("Sollte eine leere Liste zurückgeben, wenn es keinen Rechnungen gibt", async () => {
       const { handler } = configure();
 
@@ -25,56 +25,7 @@ describe("Rechnungen", () => {
       );
     });
 
-    it("Sollte alle Rechnungen eines Patienten absteigend sortiert nach Datum zurückgeben", async () => {
-      const { handler, patientenRepository, rechnungenRepository } =
-        configure();
-      patientenRepository.create(Patient.createTestInstance({ nummer: 1 }));
-      patientenRepository.create(Patient.createTestInstance({ nummer: 2 }));
-      rechnungenRepository.create(
-        Rechnung.createTestInstance({
-          id: 1,
-          datum: "2026-04-15",
-          patientId: 1,
-        }),
-      );
-      rechnungenRepository.create(
-        Rechnung.createTestInstance({
-          id: 2,
-          datum: "2026-04-16",
-          patientId: 1,
-        }),
-      );
-      rechnungenRepository.create(
-        Rechnung.createTestInstance({
-          id: 3,
-          datum: "2026-04-17",
-          patientId: 2,
-        }),
-      );
-
-      const result = await handler.handle(
-        RechnungenQuery.create({ patientennummer: 1 }),
-      );
-
-      expect(result).toEqual<RechnungenQueryResult>(
-        RechnungenQueryResult.create({
-          rechnungen: [
-            Rechnung.createTestInstance({
-              id: 2,
-              datum: "2026-04-16",
-              patientId: 1,
-            }),
-            Rechnung.createTestInstance({
-              id: 1,
-              datum: "2026-04-15",
-              patientId: 1,
-            }),
-          ],
-        }),
-      );
-    });
-
-    it("Sollte alle Rechnungen aller Patienten absteigend sortiert nach Datum zurückgeben", async () => {
+    it("Sollte Rechnungen absteigend sortiert nach Datum zurückgeben", async () => {
       const { handler, patientenRepository, rechnungenRepository } =
         configure();
       patientenRepository.create(
@@ -115,6 +66,69 @@ describe("Rechnungen", () => {
               datum: "2026-04-17",
               patientId: 2,
             }),
+            Rechnung.createTestInstance({
+              id: 2,
+              datum: "2026-04-16",
+              patientId: 1,
+            }),
+            Rechnung.createTestInstance({
+              id: 1,
+              datum: "2026-04-15",
+              patientId: 1,
+            }),
+          ],
+        }),
+      );
+    });
+  });
+
+  describe("Liste Rechnungen eines Patienten auf", () => {
+    it("Sollte eine leere Liste zurückgeben, wenn es keinen Rechnungen gibt", async () => {
+      const { handler } = configure();
+
+      const result = await handler.handle(
+        RechnungenQuery.create({ patientennummer: 1 }),
+      );
+
+      expect(result).toEqual<RechnungenQueryResult>(
+        RechnungenQueryResult.create(),
+      );
+    });
+
+    it("Sollte Rechnungen absteigend sortiert nach Datum zurückgeben", async () => {
+      const { handler, patientenRepository, rechnungenRepository } =
+        configure();
+      patientenRepository.create(Patient.createTestInstance({ nummer: 1 }));
+      patientenRepository.create(Patient.createTestInstance({ nummer: 2 }));
+      rechnungenRepository.create(
+        Rechnung.createTestInstance({
+          id: 1,
+          datum: "2026-04-15",
+          patientId: 1,
+        }),
+      );
+      rechnungenRepository.create(
+        Rechnung.createTestInstance({
+          id: 2,
+          datum: "2026-04-16",
+          patientId: 1,
+        }),
+      );
+      rechnungenRepository.create(
+        Rechnung.createTestInstance({
+          id: 3,
+          datum: "2026-04-17",
+          patientId: 2,
+        }),
+      );
+
+      const result = await handler.handle(
+        RechnungenQuery.create({ patientennummer: 1 }),
+      );
+
+      expect(result).toEqual<RechnungenQueryResult>(
+        RechnungenQueryResult.create({
+          rechnungen: [
             Rechnung.createTestInstance({
               id: 2,
               datum: "2026-04-16",

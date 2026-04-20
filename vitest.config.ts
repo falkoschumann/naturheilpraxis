@@ -16,8 +16,8 @@ export default defineConfig({
       provider: "istanbul",
       reporter: ["text", "html", "cobertura", "json"],
       thresholds: {
-        statements: 75,
-        branches: 75,
+        statements: 85,
+        branches: 80,
       },
     },
     outputFile: "coverage/junit.xml",
