@@ -5,3 +5,5 @@ export const PATIENTENKARTEI_PAGE = "/patientenkartei";
 export const PATIENTENKARTEIKARTE_PAGE = "/patientenkarteikarte/:nummer?";
 export const PATIENTENKARTEIKARTE_LEISTUNGEN_PAGE =
   "/patientenkarteikarte/:nummer/leistungen";
+export const PATIENTENKARTEIKARTE_RECHNUNGEN_PAGE =
+  "/patientenkarteikarte/:nummer/rechnungen";

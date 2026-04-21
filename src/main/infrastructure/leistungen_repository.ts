@@ -3,7 +3,6 @@
 import type { SQLInputValue, SQLOutputValue } from "node:sqlite";
 
 import { Leistung } from "../../shared/domain/leistung";
-import { Währung } from "../../shared/domain/waehrung";
 import { mapNumber, mapString } from "./datenbank_mapper";
 import { DatenbankProvider } from "./datenbank_provider";
 
@@ -27,41 +26,28 @@ export class LeistungenRepository {
     const records = db
       .prepare(
         `
-          SELECT *
+          SELECT *,
+                 einzelpreis * anzahl AS summe
             FROM leistungen
            WHERE patient_id = ?
            ORDER BY datum DESC, id;
         `,
       )
       .all(nummer);
-    return records.map(mapSqlRecord);
+    return records.map(createLeistung);
   }
 
   create(leistung: Leistung) {
     try {
-      const record: Record<string, SQLInputValue> = {};
-      for (const [key, value] of Object.entries(leistung)) {
-        if (value == null || typeof value === "function") {
-          continue;
-        }
-
-        const columnName = key.toLowerCase();
-        if (value instanceof Temporal.PlainDate) {
-          record[columnName] = value.toString();
-        } else if (value instanceof Währung) {
-          record[columnName] = value.cents;
-        } else {
-          record[columnName] = value;
-        }
-      }
       const db = this.#datenbankProvider.get();
+      const record = createRecord(leistung);
       const result = db
         .prepare(
           `
           INSERT INTO leistungen (id, praxis, patient_id, rechnung_id, datum,
                                  gebuehrenziffer, beschreibung, kommentar, einzelpreis, anzahl)
-          VALUES (:id, :praxis, :patientid, :rechnungid, :datum,
-                  :gebührenziffer, :beschreibung, :kommentar, :einzelpreis, :anzahl);
+          VALUES (:id, :praxis, :patient_id, :rechnung_id, :datum,
+                  :gebuehrenziffer, :beschreibung, :kommentar, :einzelpreis, :anzahl);
         `,
         )
         .run(record);
@@ -77,7 +63,22 @@ export class LeistungenRepository {
   }
 }
 
-function mapSqlRecord(record: Record<string, SQLOutputValue>) {
+function createRecord(leistung: Leistung): Record<string, SQLInputValue> {
+  return {
+    id: leistung.id ?? null,
+    praxis: leistung.praxis,
+    patient_id: leistung.patientId,
+    rechnung_id: leistung.rechnungId ?? null,
+    datum: leistung.datum.toString(),
+    gebuehrenziffer: leistung.gebührenziffer,
+    beschreibung: leistung.beschreibung,
+    kommentar: leistung.kommentar ?? null,
+    einzelpreis: leistung.einzelpreis.cents,
+    anzahl: leistung.anzahl,
+  };
+}
+
+function createLeistung(record: Record<string, SQLOutputValue>) {
   return Leistung.create({
     id: mapNumber(record, "id"),
     praxis: mapString(record, "praxis")!,
@@ -89,5 +90,6 @@ function mapSqlRecord(record: Record<string, SQLOutputValue>) {
     kommentar: mapString(record, "kommentar"),
     einzelpreis: mapNumber(record, "einzelpreis")!,
     anzahl: mapNumber(record, "anzahl")!,
+    summe: mapNumber(record, "summe")!,
   });
 }

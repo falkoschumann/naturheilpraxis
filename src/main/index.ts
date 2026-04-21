@@ -14,25 +14,29 @@ import { LeistungenQueryHandler } from "./application/leistungen_query_handler";
 import { NimmPatientAufCommandHandler } from "./application/nimm_patient_auf_command_handler";
 import { PatientenQueryHandler } from "./application/patienten_query_handler";
 import { PatientQueryHandler } from "./application/patient_query_handler";
+import { RechnungenQueryHandler } from "./application/rechnungen_query_handler";
+import { Einstellungen } from "../shared/domain/einstellungen";
+import { LeistungenQuery } from "../shared/domain/leistungen_query";
+import { NimmPatientAufCommand } from "../shared/domain/nimm_patient_auf_command";
+import { PatientQuery } from "../shared/domain/patient_query";
+import { PatientenQuery } from "../shared/domain/patienten_query";
+import { RechnungenQuery } from "../shared/domain/rechnungen_query";
 import {
   LADE_EINSTELLUNGEN_CHANNEL,
   LEISTUNGEN_CHANNEL,
   NIMM_PATIENT_AUF_CHANNEL,
   PATIENT_CHANNEL,
   PATIENTEN_CHANNEL,
+  RECHNUNGEN_CHANNEL,
   SICHERE_EINSTELLUNGEN_CHANNEL,
 } from "../shared/infrastructure/channels";
-import { Einstellungen } from "../shared/domain/einstellungen";
-import { NimmPatientAufCommand } from "../shared/domain/nimm_patient_auf_command";
-import { PatientQuery } from "../shared/domain/patient_query";
-import { PatientenQuery } from "../shared/domain/patienten_query";
-import { EinstellungenProvider } from "./infrastructure/einstellungen_provider";
 import { DatenbankProvider } from "./infrastructure/datenbank_provider";
-import { PatientenRepository } from "./infrastructure/patienten_repository";
+import { EinstellungenProvider } from "./infrastructure/einstellungen_provider";
 import { KalenderProvider } from "./infrastructure/kalender_provider";
 import { LeistungenRepository } from "./infrastructure/leistungen_repository";
+import { PatientenRepository } from "./infrastructure/patienten_repository";
+import { RechnungenRepository } from "./infrastructure/rechnungen_repository";
 import icon from "../../build/icon.png?asset";
-import { LeistungenQuery } from "../shared/domain/leistungen_query";
 
 // TODO Make the file paths configurable
 const datenbankProvider = DatenbankProvider.create({
@@ -57,6 +61,10 @@ const patientenQueryHandler = PatientenQueryHandler.create({
 const leistungenRepository = LeistungenRepository.create({ datenbankProvider });
 const leistungenQueryHandler = LeistungenQueryHandler.create({
   leistungenRepository,
+});
+const rechnungenRepository = RechnungenRepository.create({ datenbankProvider });
+const rechnungenQueryHandler = RechnungenQueryHandler.create({
+  rechnungenRepository,
 });
 
 const isProduction = app.isPackaged;
@@ -140,6 +148,12 @@ function createRendererToMainChannels() {
     const dto = JSON.parse(json);
     const query = LeistungenQuery.create(dto);
     const result = await leistungenQueryHandler.handle(query);
+    return JSON.stringify(result);
+  });
+  ipcMain.handle(RECHNUNGEN_CHANNEL, async (_event, json: string) => {
+    const dto = JSON.parse(json);
+    const query = RechnungenQuery.create(dto);
+    const result = await rechnungenQueryHandler.handle(query);
     return JSON.stringify(result);
   });
   ipcMain.handle(LADE_EINSTELLUNGEN_CHANNEL, () => {

@@ -9,6 +9,8 @@ export interface Naturheilpraxis {
 
   sucheLeistungen(query: string): Promise<string>;
 
+  sucheRechnungen(query: string): Promise<string>;
+
   ladeEinstellungen(): Promise<string>;
 
   sichereEinstellungen(einstellungen: string): Promise<void>;

@@ -32,7 +32,7 @@ export class PatientenRepository {
         `,
       )
       .all();
-    return records.map(mapSqlRecord);
+    return records.map(createPatient);
   }
 
   findByNummer(nummer: number) {
@@ -54,27 +54,13 @@ export class PatientenRepository {
       return;
     }
 
-    return mapSqlRecord(record);
+    return createPatient(record);
   }
 
   create(patient: Patient) {
     try {
-      const record: Record<string, SQLInputValue> = {};
-      for (const [key, value] of Object.entries(patient)) {
-        if (value == null || typeof value === "function") {
-          continue;
-        }
-
-        const columnName = key.toLowerCase();
-        if (value instanceof Temporal.PlainDate) {
-          record[columnName] = value.toString();
-        } else if (Array.isArray(value)) {
-          record[columnName] = value.join(",");
-        } else {
-          record[columnName] = value;
-        }
-      }
       const db = this.#datenbankProvider.get();
+      const record = createRecord(patient);
       const result = db
         .prepare(
           `
@@ -84,10 +70,10 @@ export class PatientenRepository {
                                  mobil, email, familienstand, partner, eltern,
                                  kinder, geschwister, notizen, schluesselworte)
           VALUES (:nummer, :nachname, :vorname, :geburtsdatum, :annahmejahr,
-                  :praxis, :anrede, :straße, :wohnort, :postleitzahl,
-                  :staat, :staatsangehörigkeit, :titel, :beruf, :telefon,
+                  :praxis, :anrede, :strasse, :wohnort, :postleitzahl,
+                  :staat, :staatsangehoerigkeit, :titel, :beruf, :telefon,
                   :mobil, :email, :familienstand, :partner, :eltern,
-                  :kinder, :geschwister, :notizen, :schlüsselworte);
+                  :kinder, :geschwister, :notizen, :schluesselworte);
         `,
         )
         .run(record);
@@ -103,7 +89,34 @@ export class PatientenRepository {
   }
 }
 
-function mapSqlRecord(record: Record<string, SQLOutputValue>) {
+function createRecord(patient: Patient): Record<string, SQLInputValue> {
+  return {
+    nummer: patient.nummer ?? null,
+    nachname: patient.nachname ?? null,
+    vorname: patient.vorname ?? null,
+    geburtsdatum: patient.geburtsdatum?.toString() ?? null,
+    annahmejahr: patient.annahmejahr ?? null,
+    praxis: patient.praxis ?? null,
+    anrede: patient.anrede ?? null,
+    strasse: patient.straße ?? null,
+    wohnort: patient.wohnort ?? null,
+    postleitzahl: patient.postleitzahl ?? null,
+    staat: patient.staat ?? null,
+    staatsangehoerigkeit: patient.staatsangehörigkeit ?? null,
+    titel: patient.titel ?? null,
+    beruf: patient.beruf ?? null,
+    telefon: patient.telefon ?? null,
+    mobil: patient.mobil ?? null,
+    email: patient.eMail ?? null,
+    familienstand: patient.familienstand ?? null,
+    partner: patient.partner ?? null,
+    kinder: patient.kinder ?? null,
+    notizen: patient.notizen ?? null,
+    schluesselworte: patient.schlüsselworte?.join(",") ?? null,
+  };
+}
+
+function createPatient(record: Record<string, SQLOutputValue>) {
   return Patient.create({
     nummer: mapNumber(record, "nummer"),
     nachname: mapString(record, "nachname"),

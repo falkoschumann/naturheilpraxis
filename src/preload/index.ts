@@ -8,6 +8,7 @@ import {
   NIMM_PATIENT_AUF_CHANNEL,
   PATIENT_CHANNEL,
   PATIENTEN_CHANNEL,
+  RECHNUNGEN_CHANNEL,
   SICHERE_EINSTELLUNGEN_CHANNEL,
 } from "../shared/infrastructure/channels";
 
@@ -23,6 +24,9 @@ contextBridge.exposeInMainWorld("naturheilpraxis", {
 
   sucheLeistungen: (query: string): Promise<string> =>
     ipcRenderer.invoke(LEISTUNGEN_CHANNEL, query),
+
+  sucheRechnungen: (query: string): Promise<string> =>
+    ipcRenderer.invoke(RECHNUNGEN_CHANNEL, query),
 
   ladeEinstellungen: (): Promise<string> =>
     ipcRenderer.invoke(LADE_EINSTELLUNGEN_CHANNEL),

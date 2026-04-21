@@ -32,7 +32,7 @@ export class RechnungenRepository {
         `,
       )
       .all();
-    return records.map(mapSqlRecord);
+    return records.map(createRechnung);
   }
 
   findAllByPatientennummer(nummer: number): Rechnung[] {
@@ -47,34 +47,20 @@ export class RechnungenRepository {
         `,
       )
       .all(nummer);
-    return records.map(mapSqlRecord);
+    return records.map(createRechnung);
   }
 
   create(rechnung: Rechnung) {
+    // TODO handle duplicate Rechnungsnummer
     try {
-      const record: Record<string, SQLInputValue> = {};
-      for (const [key, value] of Object.entries(rechnung)) {
-        if (value == null || typeof value === "function") {
-          continue;
-        }
-
-        const columnName = key.toLowerCase();
-        if (value instanceof Temporal.PlainDate) {
-          record[columnName] = value.toString();
-        } else {
-          record[columnName] = value;
-        }
-        if (typeof value === "boolean") {
-          record[columnName] = value ? 1 : 0;
-        }
-      }
       const db = this.#datenbankProvider.get();
+      const record = createRecord(rechnung);
       const result = db
         .prepare(
           `
           INSERT INTO rechnungen (id, praxis, nummer, datum, patient_id,
                                   rechnungstext, kommentar, bezahlt, gutschrift)
-          VALUES (:id, :praxis, :nummer, :datum, :patientid,
+          VALUES (:id, :praxis, :nummer, :datum, :patient_id,
                   :rechnungstext, :kommentar, :bezahlt, :gutschrift);
         `,
         )
@@ -91,7 +77,21 @@ export class RechnungenRepository {
   }
 }
 
-function mapSqlRecord(record: Record<string, SQLOutputValue>) {
+function createRecord(rechnung: Rechnung): Record<string, SQLInputValue> {
+  return {
+    id: rechnung.id ?? null,
+    praxis: rechnung.praxis,
+    nummer: rechnung.nummer,
+    datum: rechnung.datum.toString(),
+    patient_id: rechnung.patientId,
+    rechnungstext: rechnung.rechnungstext ?? null,
+    kommentar: rechnung.kommentar ?? null,
+    bezahlt: rechnung.bezahlt ? 1 : 0,
+    gutschrift: rechnung.gutschrift ? 1 : 0,
+  };
+}
+
+function createRechnung(record: Record<string, SQLOutputValue>) {
   return Rechnung.create({
     id: mapNumber(record, "id"),
     praxis: mapString(record, "praxis")!,

@@ -49,6 +49,7 @@ CREATE TABLE IF NOT EXISTS rechnungen (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     patient_id INTEGER NOT NULL REFERENCES patienten (nummer),
     praxis TEXT NOT NULL,
+    -- TODO nummer sollte UNIQUE sein
     nummer TEXT NOT NULL,
     datum TEXT NOT NULL,
     rechnungstext TEXT,

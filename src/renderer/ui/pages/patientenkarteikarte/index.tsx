@@ -6,7 +6,11 @@ import { NavLink, Outlet, useNavigate, useParams } from "react-router";
 import type { NimmPatientAufCommand } from "../../../../shared/domain/nimm_patient_auf_command";
 import { PatientQuery, PatientQueryResult } from "../../../../shared/domain/patient_query";
 import { useMessageHandler } from "../../components/message_handler_context";
-import { PATIENTENKARTEIKARTE_LEISTUNGEN_PAGE, PATIENTENKARTEIKARTE_PAGE } from "../../components/pages";
+import {
+  PATIENTENKARTEIKARTE_LEISTUNGEN_PAGE,
+  PATIENTENKARTEIKARTE_PAGE,
+  PATIENTENKARTEIKARTE_RECHNUNGEN_PAGE,
+} from "../../components/pages";
 import DefaultPageLayout from "../../layouts/default_page_layout";
 import type { PatientContext } from "./patient";
 import type { LeistungenContext } from "./leistungen";
@@ -73,6 +77,15 @@ export default function PatientenkarteikartePage() {
               aria-disabled={istAufnahme}
             >
               Leistungen
+            </NavLink>
+          </li>
+          <li className="nav-item">
+            <NavLink
+              to={`${PATIENTENKARTEIKARTE_RECHNUNGEN_PAGE.replace(":nummer", result.patient?.nummer?.toString() || "")}`}
+              className={`nav-link ${istAufnahme ? "disabled" : ""}`}
+              aria-disabled={istAufnahme}
+            >
+              Rechnungen
             </NavLink>
           </li>
         </ul>

@@ -11,6 +11,7 @@ import PatientenkarteikartePage from "./pages/patientenkarteikarte";
 import StartseitePage from "./pages/startseite";
 import LeistungenComponent from "./pages/patientenkarteikarte/leistungen";
 import PatientComponent from "./pages/patientenkarteikarte/patient";
+import RechnungenComponent from "./pages/patientenkarteikarte/rechnungen";
 
 export default function App() {
   return (
@@ -21,6 +22,7 @@ export default function App() {
         <Route path={PATIENTENKARTEIKARTE_PAGE} element={<PatientenkarteikartePage />}>
           <Route path=":nummer?" element={<PatientComponent />} />
           <Route path="leistungen" element={<LeistungenComponent />} />
+          <Route path="rechnungen" element={<RechnungenComponent />} />
         </Route>
       </Routes>
     </BrowserRouter>

@@ -14,6 +14,7 @@ export class Leistung {
     kommentar,
     einzelpreis,
     anzahl,
+    summe,
   }: {
     id?: number;
     praxis: string;
@@ -25,6 +26,7 @@ export class Leistung {
     kommentar?: string;
     einzelpreis: Währung | number;
     anzahl: number;
+    summe?: Währung | number;
   }) {
     return new Leistung(
       praxis,
@@ -37,6 +39,7 @@ export class Leistung {
       id,
       rechnungId,
       kommentar,
+      summe,
     );
   }
 
@@ -49,8 +52,9 @@ export class Leistung {
     gebührenziffer = "1",
     beschreibung = "Eingehende Untersuchung",
     kommentar,
-    einzelpreis = Währung.from(1640),
+    einzelpreis = 1640,
     anzahl = 1,
+    summe,
   }: {
     id?: number;
     praxis?: string;
@@ -60,8 +64,9 @@ export class Leistung {
     gebührenziffer?: string;
     beschreibung?: string;
     kommentar?: string;
-    einzelpreis?: Währung;
+    einzelpreis?: Währung | number;
     anzahl?: number;
+    summe?: Währung | number;
   } = {}) {
     return Leistung.create({
       id,
@@ -74,6 +79,7 @@ export class Leistung {
       kommentar,
       einzelpreis,
       anzahl,
+      summe,
     });
   }
 
@@ -88,6 +94,7 @@ export class Leistung {
   readonly kommentar?: string;
   readonly einzelpreis: Währung;
   readonly anzahl: number;
+  readonly summe: Währung;
 
   private constructor(
     praxis: string,
@@ -100,6 +107,7 @@ export class Leistung {
     id?: number,
     rechnungId?: number,
     kommentar?: string,
+    summe?: Währung | number,
   ) {
     this.id = id;
     this.praxis = praxis;
@@ -111,5 +119,9 @@ export class Leistung {
     this.kommentar = kommentar;
     this.einzelpreis = Währung.from(einzelpreis);
     this.anzahl = anzahl;
+    this.summe =
+      summe != null
+        ? Währung.from(summe)
+        : this.einzelpreis.multipliziere(anzahl);
   }
 }

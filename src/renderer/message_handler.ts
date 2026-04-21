@@ -16,6 +16,10 @@ import {
   type PatientenQuery,
   PatientenQueryResult,
 } from "../shared/domain/patienten_query";
+import {
+  type RechnungenQuery,
+  RechnungenQueryResult,
+} from "../shared/domain/rechnungen_query";
 import type { MessageHandler } from "./ui/components/message_handler";
 
 export const messageHandler: MessageHandler = {
@@ -45,6 +49,13 @@ export const messageHandler: MessageHandler = {
     json = await window.naturheilpraxis.sucheLeistungen(json);
     const dto = JSON.parse(json);
     return LeistungenQueryResult.create(dto);
+  },
+
+  async sucheRechnungen(query: RechnungenQuery) {
+    let json = JSON.stringify(query);
+    json = await window.naturheilpraxis.sucheRechnungen(json);
+    const dto = JSON.parse(json);
+    return RechnungenQueryResult.create(dto);
   },
 
   async ladeEinstellungen() {

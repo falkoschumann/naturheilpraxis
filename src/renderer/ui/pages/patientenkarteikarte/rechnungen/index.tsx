@@ -1,32 +1,30 @@
 // Copyright (c) 2026 Falko Schumann. All rights reserved. MIT license.
 
 import { createColumnHelper, flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table";
+import { useVirtualizer } from "@tanstack/react-virtual";
 import { useEffect, useRef, useState } from "react";
 import { useOutletContext } from "react-router";
 
-import type { Leistung } from "../../../../../shared/domain/leistung";
-import { LeistungenQuery, LeistungenQueryResult } from "../../../../../shared/domain/leistungen_query";
+import type { Rechnung } from "../../../../../shared/domain/rechnung";
+import { RechnungenQuery, RechnungenQueryResult } from "../../../../../shared/domain/rechnungen_query";
 import { useMessageHandler } from "../../../components/message_handler_context";
-import type { Währung } from "../../../../../shared/domain/waehrung";
-import { useVirtualizer } from "@tanstack/react-virtual";
 
 // TODO sorting
 // TODO search
-// TODO show Rechnungsnummer
-// TODO link to Rechnung
+// TODO show Rechnungssumme
 
-export type LeistungenContext = {
+export type RechnungenContext = {
   patientennummer: number;
 };
 
-export function LeistungenComponent() {
-  const { patientennummer } = useOutletContext<LeistungenContext>();
+export function RechnungenComponent() {
+  const { patientennummer } = useOutletContext<RechnungenContext>();
   const messageHandler = useMessageHandler();
-  const [result, setResult] = useState(LeistungenQueryResult.create());
+  const [result, setResult] = useState(RechnungenQueryResult.create());
 
   useEffect(() => {
     async function runAsync() {
-      const result = await messageHandler.sucheLeistungen(LeistungenQuery.create({ patientennummer }));
+      const result = await messageHandler.sucheRechnungen(RechnungenQuery.create({ patientennummer }));
       setResult(result);
     }
 
@@ -35,14 +33,14 @@ export function LeistungenComponent() {
 
   return (
     <main className="flex-grow-1 container overflow-hidden">
-      <LeistungenTable data={result.leistungen} />
+      <RechnungenTable data={result.rechnungen} />
     </main>
   );
 }
 
-export default LeistungenComponent;
+export default RechnungenComponent;
 
-function LeistungenTable({ data }: { data: Leistung[] }) {
+function RechnungenTable({ data }: { data: Rechnung[] }) {
   "use no memo";
 
   // eslint-disable-next-line react-hooks/incompatible-library
@@ -126,27 +124,25 @@ function LeistungenTable({ data }: { data: Leistung[] }) {
   );
 }
 
-const columnHelper = createColumnHelper<Leistung>();
+const columnHelper = createColumnHelper<Rechnung>();
 const columns = [
   columnHelper.accessor("praxis", { header: "Praxis", size: 100 }),
+  columnHelper.accessor("nummer", { header: "Nummer", size: 120 }),
   columnHelper.accessor("datum", {
     header: "Datum",
     size: 100,
     cell: (info) => info?.getValue()?.toLocaleString("de-DE", { dateStyle: "medium" }),
   }),
-  columnHelper.accessor("gebührenziffer", { header: "Ziffer", size: 80 }),
-  columnHelper.accessor("beschreibung", { header: "Beschreibung", size: 200 }),
-  columnHelper.accessor("einzelpreis", {
-    header: "Einzelpreis",
-    size: 100,
-    cell: (info) => info?.getValue()?.toString(),
+  columnHelper.accessor("rechnungstext", { header: "Rechnungstext", size: 300 }),
+  columnHelper.accessor("kommentar", { header: "Kommentar", size: 300 }),
+  columnHelper.accessor("bezahlt", {
+    header: "Bezahlt",
+    size: 80,
+    cell: (info) => <input type="checkbox" defaultChecked={info.getValue()} />,
   }),
-  columnHelper.accessor("anzahl", { header: "Anzahl", size: 80 }),
-  columnHelper.display({
-    header: "Summe",
-    size: 100,
-    cell: (info) => (info.row.getValue("einzelpreis") as Währung).multipliziere(info.row.getValue("anzahl")).toString(),
+  columnHelper.accessor("gutschrift", {
+    header: "Gutschrift",
+    size: 80,
+    cell: (info) => <input type="checkbox" defaultChecked={info.getValue()} />,
   }),
-  columnHelper.accessor("kommentar", { header: "Kommentar", size: 200 }),
-  columnHelper.accessor("rechnungId", { header: "Rechnung", size: 80 }),
 ];

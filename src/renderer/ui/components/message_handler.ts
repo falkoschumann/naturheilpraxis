@@ -17,6 +17,10 @@ import {
   type PatientenQuery,
   PatientenQueryResult,
 } from "../../../shared/domain/patienten_query";
+import {
+  type RechnungenQuery,
+  RechnungenQueryResult,
+} from "../../../shared/domain/rechnungen_query";
 
 export interface MessageHandler {
   nimmPatientAuf(
@@ -28,6 +32,8 @@ export interface MessageHandler {
   suchePatienten(query: PatientenQuery): Promise<PatientenQueryResult>;
 
   sucheLeistungen(query: LeistungenQuery): Promise<LeistungenQueryResult>;
+
+  sucheRechnungen(query: RechnungenQuery): Promise<RechnungenQueryResult>;
 
   ladeEinstellungen(): Promise<Einstellungen>;
 
