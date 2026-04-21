@@ -4,11 +4,11 @@ import { contextBridge, ipcRenderer } from "electron/renderer";
 
 import {
   LADE_EINSTELLUNGEN_CHANNEL,
+  LEISTUNGEN_CHANNEL,
   NIMM_PATIENT_AUF_CHANNEL,
+  PATIENT_CHANNEL,
+  PATIENTEN_CHANNEL,
   SICHERE_EINSTELLUNGEN_CHANNEL,
-  SUCHE_LEISTUNGEN_CHANNEL,
-  SUCHE_PATIENT_CHANNEL,
-  SUCHE_PATIENTEN_CHANNEL,
 } from "../shared/infrastructure/channels";
 
 contextBridge.exposeInMainWorld("naturheilpraxis", {
@@ -16,13 +16,13 @@ contextBridge.exposeInMainWorld("naturheilpraxis", {
     ipcRenderer.invoke(NIMM_PATIENT_AUF_CHANNEL, command),
 
   suchePatient: (query: string): Promise<string> =>
-    ipcRenderer.invoke(SUCHE_PATIENT_CHANNEL, query),
+    ipcRenderer.invoke(PATIENT_CHANNEL, query),
 
   suchePatienten: (query: string): Promise<string> =>
-    ipcRenderer.invoke(SUCHE_PATIENTEN_CHANNEL, query),
+    ipcRenderer.invoke(PATIENTEN_CHANNEL, query),
 
   sucheLeistungen: (query: string): Promise<string> =>
-    ipcRenderer.invoke(SUCHE_LEISTUNGEN_CHANNEL, query),
+    ipcRenderer.invoke(LEISTUNGEN_CHANNEL, query),
 
   ladeEinstellungen: (): Promise<string> =>
     ipcRenderer.invoke(LADE_EINSTELLUNGEN_CHANNEL),

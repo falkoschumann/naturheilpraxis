@@ -16,11 +16,11 @@ import { PatientenQueryHandler } from "./application/patienten_query_handler";
 import { PatientQueryHandler } from "./application/patient_query_handler";
 import {
   LADE_EINSTELLUNGEN_CHANNEL,
+  LEISTUNGEN_CHANNEL,
   NIMM_PATIENT_AUF_CHANNEL,
+  PATIENT_CHANNEL,
+  PATIENTEN_CHANNEL,
   SICHERE_EINSTELLUNGEN_CHANNEL,
-  SUCHE_LEISTUNGEN_CHANNEL,
-  SUCHE_PATIENT_CHANNEL,
-  SUCHE_PATIENTEN_CHANNEL,
 } from "../shared/infrastructure/channels";
 import { Einstellungen } from "../shared/domain/einstellungen";
 import { NimmPatientAufCommand } from "../shared/domain/nimm_patient_auf_command";
@@ -124,19 +124,19 @@ function createRendererToMainChannels() {
     const status = await nimmPatientAufCommandHandler.handle(command);
     return JSON.stringify(status);
   });
-  ipcMain.handle(SUCHE_PATIENT_CHANNEL, async (_event, json: string) => {
+  ipcMain.handle(PATIENT_CHANNEL, async (_event, json: string) => {
     const dto = JSON.parse(json);
     const query = PatientQuery.create(dto);
     const result = await patientQueryHandler.handle(query);
     return JSON.stringify(result);
   });
-  ipcMain.handle(SUCHE_PATIENTEN_CHANNEL, async (_event, json: string) => {
+  ipcMain.handle(PATIENTEN_CHANNEL, async (_event, json: string) => {
     const dto = JSON.parse(json);
     const query = PatientenQuery.create(dto);
     const result = await patientenQueryHandler.handle(query);
     return JSON.stringify(result);
   });
-  ipcMain.handle(SUCHE_LEISTUNGEN_CHANNEL, async (_event, json: string) => {
+  ipcMain.handle(LEISTUNGEN_CHANNEL, async (_event, json: string) => {
     const dto = JSON.parse(json);
     const query = LeistungenQuery.create(dto);
     const result = await leistungenQueryHandler.handle(query);
