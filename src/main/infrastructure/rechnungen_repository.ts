@@ -26,9 +26,13 @@ export class RechnungenRepository {
     const records = db
       .prepare(
         `
-          SELECT *
+          SELECT rechnungen.*,
+                 (SELECT sum(leistungen.einzelpreis * leistungen.anzahl)
+                    FROM leistungen
+                   WHERE leistungen.rechnung_id = rechnungen.id
+                 ) AS summe
             FROM rechnungen
-           ORDER BY datum DESC, id;
+           ORDER BY rechnungen.datum DESC, rechnungen.id;
         `,
       )
       .all();
@@ -40,10 +44,14 @@ export class RechnungenRepository {
     const records = db
       .prepare(
         `
-          SELECT *
+          SELECT rechnungen.*,
+                 (SELECT sum(leistungen.einzelpreis * leistungen.anzahl)
+                    FROM leistungen
+                   WHERE leistungen.rechnung_id = rechnungen.id
+                 ) AS summe
             FROM rechnungen
-           WHERE patient_id = ?
-           ORDER BY datum DESC, id;
+           WHERE rechnungen.patient_id = ?
+           ORDER BY rechnungen.datum DESC, rechnungen.id;
         `,
       )
       .all(nummer);
@@ -98,6 +106,7 @@ function createRechnung(record: Record<string, SQLOutputValue>) {
     nummer: mapString(record, "nummer")!,
     datum: mapString(record, "datum")!,
     patientId: mapNumber(record, "patient_id")!,
+    summe: mapNumber(record, "summe"),
     rechnungstext: mapString(record, "rechnungstext"),
     kommentar: mapString(record, "kommentar"),
     bezahlt: mapBoolean(record, "bezahlt"),

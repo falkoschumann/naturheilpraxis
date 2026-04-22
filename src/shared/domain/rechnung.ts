@@ -1,5 +1,7 @@
 // Copyright (c) 2026 Falko Schumann. All rights reserved. MIT license.
 
+import { Währung } from "./waehrung";
+
 export class Rechnung {
   static create({
     id,
@@ -7,6 +9,7 @@ export class Rechnung {
     nummer,
     datum,
     patientId,
+    summe,
     rechnungstext,
     kommentar,
     bezahlt = false,
@@ -17,6 +20,7 @@ export class Rechnung {
     nummer?: string;
     datum: Temporal.PlainDate | string;
     patientId: number;
+    summe?: Währung | number;
     rechnungstext?: string;
     kommentar?: string;
     bezahlt?: boolean;
@@ -32,6 +36,7 @@ export class Rechnung {
       nummer,
       rechnungstext,
       kommentar,
+      summe,
     );
   }
 
@@ -41,6 +46,7 @@ export class Rechnung {
     nummer,
     datum = "2026-04-16",
     patientId = 1,
+    summe,
     rechnungstext = "Bitte überweisen Sie den obigen Rechnungsbetrag auf das Konto DE84 1022 7075 0900 1170 01.",
     kommentar,
     bezahlt = false,
@@ -51,17 +57,19 @@ export class Rechnung {
     nummer?: string;
     datum?: Temporal.PlainDate | string;
     patientId?: number;
+    summe?: Währung | number;
     rechnungstext?: string;
     kommentar?: string;
     bezahlt?: boolean;
     gutschrift?: boolean;
-  }) {
+  } = {}) {
     return Rechnung.create({
       id,
       praxis,
       nummer,
       datum,
       patientId,
+      summe,
       rechnungstext,
       kommentar,
       bezahlt,
@@ -75,6 +83,7 @@ export class Rechnung {
   readonly nummer: string;
   readonly datum: Temporal.PlainDate;
   readonly patientId: number;
+  readonly summe?: Währung;
   readonly rechnungstext?: string;
   readonly kommentar?: string;
   readonly bezahlt: boolean;
@@ -90,6 +99,7 @@ export class Rechnung {
     nummer?: string,
     rechnungstext?: string,
     kommentar?: string,
+    summe?: Währung | number,
   ) {
     this.id = id;
     this.praxis = praxis;
@@ -103,6 +113,7 @@ export class Rechnung {
           String(this.datum.month).padStart(2, "0") +
           String(this.datum.day).padStart(2, "0");
     this.patientId = patientId;
+    this.summe = summe != null ? Währung.from(summe) : undefined;
     this.rechnungstext = rechnungstext;
     this.kommentar = kommentar;
     this.bezahlt = bezahlt;

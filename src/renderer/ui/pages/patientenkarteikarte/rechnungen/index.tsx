@@ -11,7 +11,6 @@ import { useMessageHandler } from "../../../components/message_handler_context";
 
 // TODO sorting
 // TODO search
-// TODO show Rechnungssumme
 
 export type RechnungenContext = {
   patientennummer: number;
@@ -133,8 +132,9 @@ const columns = [
     size: 100,
     cell: (info) => info?.getValue()?.toLocaleString("de-DE", { dateStyle: "medium" }),
   }),
-  columnHelper.accessor("rechnungstext", { header: "Rechnungstext", size: 300 }),
-  columnHelper.accessor("kommentar", { header: "Kommentar", size: 300 }),
+  columnHelper.accessor("summe", { header: "Summe", size: 100 }),
+  columnHelper.accessor("rechnungstext", { header: "Rechnungstext", size: 250 }),
+  columnHelper.accessor("kommentar", { header: "Kommentar", size: 250 }),
   columnHelper.accessor("bezahlt", {
     header: "Bezahlt",
     size: 80,
