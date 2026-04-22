@@ -8,6 +8,7 @@ export class Leistung {
     praxis,
     patientId,
     rechnungId,
+    rechnungsnummer,
     datum,
     gebührenziffer,
     beschreibung,
@@ -20,6 +21,7 @@ export class Leistung {
     praxis: string;
     patientId: number;
     rechnungId?: number;
+    rechnungsnummer?: string;
     datum: Temporal.PlainDate | string;
     gebührenziffer: string;
     beschreibung: string;
@@ -38,6 +40,7 @@ export class Leistung {
       anzahl,
       id,
       rechnungId,
+      rechnungsnummer,
       kommentar,
       summe,
     );
@@ -48,6 +51,7 @@ export class Leistung {
     praxis = "Naturheilpraxis",
     patientId = 1,
     rechnungId,
+    rechnungsnummer,
     datum = "2026-04-09",
     gebührenziffer = "1",
     beschreibung = "Eingehende Untersuchung",
@@ -60,6 +64,7 @@ export class Leistung {
     praxis?: string;
     patientId?: number;
     rechnungId?: number;
+    rechnungsnummer?: string;
     datum?: Temporal.PlainDate | string;
     gebührenziffer?: string;
     beschreibung?: string;
@@ -73,6 +78,7 @@ export class Leistung {
       praxis,
       patientId,
       rechnungId,
+      rechnungsnummer,
       datum,
       gebührenziffer,
       beschreibung,
@@ -88,6 +94,7 @@ export class Leistung {
   readonly praxis: string;
   readonly patientId: number;
   readonly rechnungId?: number;
+  readonly rechnungsnummer?: string;
   readonly datum: Temporal.PlainDate;
   readonly gebührenziffer: string;
   readonly beschreibung: string;
@@ -106,6 +113,7 @@ export class Leistung {
     anzahl: number,
     id?: number,
     rechnungId?: number,
+    rechnungsnummer?: string,
     kommentar?: string,
     summe?: Währung | number,
   ) {
@@ -113,6 +121,7 @@ export class Leistung {
     this.praxis = praxis;
     this.patientId = patientId;
     this.rechnungId = rechnungId;
+    this.rechnungsnummer = rechnungsnummer;
     this.datum = Temporal.PlainDate.from(datum);
     this.gebührenziffer = gebührenziffer;
     this.beschreibung = beschreibung;

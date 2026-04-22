@@ -12,7 +12,6 @@ import { useVirtualizer } from "@tanstack/react-virtual";
 
 // TODO sorting
 // TODO search
-// TODO show Rechnungsnummer
 // TODO link to Rechnung
 
 export type LeistungenContext = {
@@ -148,5 +147,5 @@ const columns = [
     cell: (info) => (info.row.getValue("einzelpreis") as Währung).multipliziere(info.row.getValue("anzahl")).toString(),
   }),
   columnHelper.accessor("kommentar", { header: "Kommentar", size: 200 }),
-  columnHelper.accessor("rechnungId", { header: "Rechnung", size: 80 }),
+  columnHelper.accessor("rechnungsnummer", { header: "Rechnung", size: 80 }),
 ];

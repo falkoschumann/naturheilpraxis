@@ -26,11 +26,13 @@ export class LeistungenRepository {
     const records = db
       .prepare(
         `
-          SELECT *,
-                 einzelpreis * anzahl AS summe
+          SELECT leistungen.*,
+                 leistungen.einzelpreis * leistungen.anzahl AS summe,
+                 rechnungen.nummer AS rechnungsnummer
             FROM leistungen
-           WHERE patient_id = ?
-           ORDER BY datum DESC, id;
+            LEFT JOIN rechnungen ON leistungen.rechnung_id = rechnungen.id
+           WHERE leistungen.patient_id = ?
+           ORDER BY leistungen.datum DESC, leistungen.id;
         `,
       )
       .all(nummer);
@@ -84,6 +86,7 @@ function createLeistung(record: Record<string, SQLOutputValue>) {
     praxis: mapString(record, "praxis")!,
     patientId: mapNumber(record, "patient_id")!,
     rechnungId: mapNumber(record, "rechnung_id"),
+    rechnungsnummer: mapString(record, "rechnungsnummer"),
     datum: mapString(record, "datum")!,
     gebührenziffer: mapString(record, "gebuehrenziffer")!,
     beschreibung: mapString(record, "beschreibung")!,
