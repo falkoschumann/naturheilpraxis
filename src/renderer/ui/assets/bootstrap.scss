@@ -11,6 +11,7 @@ $theme-colors: map-merge(
 );
 
 $link-color: $primary;
+$link-hover-color: shift-color($link-color, $link-shade-percentage);
 
 $navbar-light-active-color: $primary;
 
