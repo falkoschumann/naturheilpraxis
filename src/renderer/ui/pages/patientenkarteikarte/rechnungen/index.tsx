@@ -17,7 +17,6 @@ import { RechnungenQuery, RechnungenQueryResult } from "../../../../../shared/do
 import { useMessageHandler } from "../../../components/message_handler_context";
 import { sortPlainDate, sortWährung } from "../../../components/table";
 
-// TODO sorting
 // TODO search
 
 export type RechnungenContext = {
