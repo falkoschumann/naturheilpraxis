@@ -1,21 +1,33 @@
 // Copyright (c) 2025 Falko Schumann. All rights reserved. MIT license.
 
 import { createColumnHelper } from "@tanstack/react-table";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { NavLink, useNavigate } from "react-router";
 
 import type { Patient } from "../../../../shared/domain/patient";
+import { PatientenQueryResult } from "../../../../shared/domain/patienten_query";
 import { PATIENTENKARTEIKARTE_PAGE } from "../../components/pages";
-import DefaultPageLayout from "../../layouts/default_page_layout";
-import { usePatienten } from "./patienten_hook";
+import { useMessageHandler } from "../../components/message_handler_context";
 import { filterGlobal, sortPlainDate } from "../../components/table";
 import TableComponent from "../../components/table_component";
+import DefaultPageLayout from "../../layouts/default_page_layout";
+import { PatientQuery } from "../../../../shared/domain/patient_query";
 
 // TODO store table state like search in query params
 
 export function PatientenkarteiPage() {
   const [suchtext, setSuchtext] = useState("");
-  const [result] = usePatienten();
+  const messageHandler = useMessageHandler();
+  const [result, setResult] = useState(PatientenQueryResult.create());
+
+  useEffect(() => {
+    async function runAsync() {
+      const result = await messageHandler.suchePatienten(PatientQuery.create());
+      setResult(result);
+    }
+
+    void runAsync();
+  }, [messageHandler]);
 
   const navigate = useNavigate();
 
