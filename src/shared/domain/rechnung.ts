@@ -86,6 +86,8 @@ export class Rechnung {
   readonly summe?: Währung;
   readonly rechnungstext?: string;
   readonly kommentar?: string;
+
+  // TODO merge bezahlt and gutschrift to zustand: erstellt, abgerechnet, bezahlt, annulliert
   readonly bezahlt: boolean;
   readonly gutschrift: boolean;
 
