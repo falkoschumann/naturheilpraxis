@@ -14,12 +14,13 @@ import {
 import DefaultPageLayout from "../../layouts/default_page_layout";
 import type { PatientContext } from "./patient";
 import type { LeistungenContext } from "./leistungen";
+import type { RechnungenContext } from "./rechnungen";
 
 // TODO hide tabs when new Patient
 // TODO add back link or link to Patientenkartei
 // TODO link spouse and parent
 
-type PatientenkarteikarteContext = PatientContext & LeistungenContext;
+type PatientenkarteikarteContext = PatientContext & LeistungenContext & RechnungenContext;
 
 export default function PatientenkarteikartePage() {
   const navigate = useNavigate();
