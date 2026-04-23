@@ -4,7 +4,9 @@ import {
   createColumnHelper,
   flexRender,
   getCoreRowModel,
+  getFilteredRowModel,
   getSortedRowModel,
+  type Row,
   type SortingState,
   useReactTable,
 } from "@tanstack/react-table";
@@ -17,13 +19,12 @@ import { RechnungenQuery, RechnungenQueryResult } from "../../../../../shared/do
 import { useMessageHandler } from "../../../components/message_handler_context";
 import { sortPlainDate, sortWährung } from "../../../components/table";
 
-// TODO search
-
 export type RechnungenContext = {
   patientennummer: number;
 };
 
 export function RechnungenComponent() {
+  const [suchtext, setSuchtext] = useState("");
   const { patientennummer } = useOutletContext<RechnungenContext>();
   const messageHandler = useMessageHandler();
   const [result, setResult] = useState(RechnungenQueryResult.create());
@@ -38,27 +39,64 @@ export function RechnungenComponent() {
   }, [messageHandler, patientennummer]);
 
   return (
-    <main className="flex-grow-1 container overflow-hidden">
-      <RechnungenTable data={result.rechnungen} />
-    </main>
+    <>
+      <aside className="flex-shrink-0 container">
+        <div className="d-flex py-3">
+          <div className="ms-auto">
+            <form className="d-flex" role="search" onSubmit={(event) => event.preventDefault()}>
+              <input
+                className="form-control me-2"
+                type="search"
+                placeholder="Suche"
+                aria-label="Suche"
+                value={suchtext}
+                onChange={(e) => setSuchtext(String(e.target.value))}
+              />
+              <button className="btn btn-outline-primary" type="submit">
+                Suche
+              </button>
+            </form>
+          </div>
+        </div>
+      </aside>
+      <main className="flex-grow-1 container overflow-hidden">
+        <RechnungenTable data={result.rechnungen} suchText={suchtext} />
+      </main>
+    </>
   );
 }
 
 export default RechnungenComponent;
 
-function RechnungenTable({ data }: { data: Rechnung[] }) {
+function RechnungenTable({ data, suchText }: { data: Rechnung[]; suchText: string }) {
   "use no memo";
 
+  const [globalFilter, setGlobalFilter] = useState<string[]>([]);
   const [sorting, setSorting] = useState<SortingState>([{ id: "datum", desc: true }]);
+
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      const filter = suchText
+        .split(/\s+/)
+        .map((wort) => wort.trim())
+        .filter((wort) => wort.length > 0);
+      setGlobalFilter(filter);
+    }, 400);
+
+    return () => clearTimeout(timeoutId);
+  }, [suchText]);
 
   // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
     columns,
     data,
-    state: { sorting },
+    state: { globalFilter, sorting },
     sortDescFirst: false,
     getCoreRowModel: getCoreRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
     getSortedRowModel: getSortedRowModel(),
+    globalFilterFn: customFilterFn,
+    onGlobalFilterChange: setGlobalFilter,
     onSortingChange: setSorting,
   });
 
@@ -184,3 +222,24 @@ const columns = [
       info.getValue() ? <i className="fa-regular fa-circle-check"></i> : <i className="fa-regular fa-circle"></i>,
   }),
 ];
+
+function customFilterFn(row: Row<Rechnung>, _columnId: string, filterValues: string[]) {
+  if (filterValues.length === 0) {
+    return true;
+  }
+
+  const cellValues = row.getVisibleCells().map((cell) => {
+    const value = cell.getValue();
+    if (cell.column.id === "datum" && value != null) {
+      const date = value as Temporal.PlainDate;
+      // WORKAROUND Temporal is very slow (Polyfill 4.5 sec and native 2 sec instead of 0.2 sec for ~9000 rows) so we format manually
+      //return date.toLocaleString("de-DE", { dateStyle: "medium" });
+      return `${date.day.toString().padStart(2, "0")}.${date.month.toString().padStart(2, "0")}.${date.year}`;
+    }
+
+    return String(value);
+  });
+  return filterValues.every((filterValue) =>
+    cellValues.some((cellValue) => cellValue.toLowerCase().includes(filterValue.toLowerCase())),
+  );
+}
