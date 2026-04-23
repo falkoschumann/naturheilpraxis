@@ -5,7 +5,7 @@ diese in Rechnung stellen zu können.
 
 ## Domain
 
-Stories für den MVP sind mit ❗ markiert.
+Storys für den MVP sind mit ❗ markiert.
 
 ### Patienten
 
