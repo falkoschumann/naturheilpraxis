@@ -1,24 +1,15 @@
 // Copyright (c) 2025 Falko Schumann. All rights reserved. MIT license.
 
-import {
-  createColumnHelper,
-  flexRender,
-  getCoreRowModel,
-  getFilteredRowModel,
-  getSortedRowModel,
-  type Row,
-  type SortingState,
-  useReactTable,
-} from "@tanstack/react-table";
-import { useVirtualizer } from "@tanstack/react-virtual";
-import { useEffect, useRef, useState } from "react";
+import { createColumnHelper } from "@tanstack/react-table";
+import { useState } from "react";
 import { NavLink, useNavigate } from "react-router";
 
 import type { Patient } from "../../../../shared/domain/patient";
 import { PATIENTENKARTEIKARTE_PAGE } from "../../components/pages";
 import DefaultPageLayout from "../../layouts/default_page_layout";
 import { usePatienten } from "./patienten_hook";
-import { sortPlainDate } from "../../components/table";
+import { filterGlobal, sortPlainDate } from "../../components/table";
+import TableComponent from "../../components/table_component";
 
 // TODO store table state like search in query params
 
@@ -28,8 +19,8 @@ export function PatientenkarteiPage() {
 
   const navigate = useNavigate();
 
-  function handlePatientClick(nummer: number) {
-    navigate({ pathname: PATIENTENKARTEIKARTE_PAGE.replace(":nummer?", nummer.toString()) });
+  function handlePatientClick(patient: Patient) {
+    navigate({ pathname: PATIENTENKARTEIKARTE_PAGE.replace(":nummer?", patient.nummer!.toString()) });
   }
 
   return (
@@ -55,7 +46,14 @@ export function PatientenkarteiPage() {
         </div>
       </aside>
       <main className="flex-grow-1 container-fluid overflow-hidden">
-        <PatientenTable data={result.patienten} suchText={suchtext} onPatientSelect={handlePatientClick} />
+        <TableComponent
+          columns={columns}
+          data={result.patienten}
+          initialSorting={[{ id: "geburtsdatum", desc: true }]}
+          globalFilterFn={filterGlobal}
+          suchText={suchtext}
+          onSelectRow={handlePatientClick}
+        />
       </main>
       <aside className="flex-shrink-0 container">
         <div className="btn-toolbar py-3" role="toolbar" aria-label="Aktionen für Patienten">
@@ -69,140 +67,6 @@ export function PatientenkarteiPage() {
 }
 
 export default PatientenkarteiPage;
-
-function PatientenTable({
-  data,
-  suchText,
-  onPatientSelect,
-}: {
-  data: Patient[];
-  suchText: string;
-  onPatientSelect: (nummer: number) => void;
-}) {
-  "use no memo";
-
-  const [globalFilter, setGlobalFilter] = useState<string[]>([]);
-  const [sorting, setSorting] = useState<SortingState>([{ id: "nummer", desc: true }]);
-
-  useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      const filter = suchText
-        .split(/\s+/)
-        .map((wort) => wort.trim())
-        .filter((wort) => wort.length > 0);
-      setGlobalFilter(filter);
-    }, 400);
-
-    return () => clearTimeout(timeoutId);
-  }, [suchText]);
-
-  // eslint-disable-next-line react-hooks/incompatible-library
-  const table = useReactTable({
-    columns,
-    data,
-    state: { globalFilter, sorting },
-    sortDescFirst: false,
-    getCoreRowModel: getCoreRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    globalFilterFn: customFilterFn,
-    onGlobalFilterChange: setGlobalFilter,
-    onSortingChange: setSorting,
-  });
-
-  const { rows } = table.getRowModel();
-
-  const parentRef = useRef<HTMLDivElement>(null);
-
-  const virtualizer = useVirtualizer({
-    count: rows.length,
-    getScrollElement: () => parentRef.current,
-    estimateSize: () => 41,
-    overscan: 10,
-  });
-
-  const virtualRows = virtualizer.getVirtualItems();
-  const firstVirtualRow = virtualRows[0];
-  const lastVirtualRow = virtualRows[virtualRows.length - 1];
-  const paddingTop = firstVirtualRow ? firstVirtualRow.start : 0;
-  const paddingBottom = lastVirtualRow ? virtualizer.getTotalSize() - lastVirtualRow.end : 0;
-
-  return (
-    <div ref={parentRef} className="h-100 overflow-auto">
-      <div style={{ height: `${virtualizer.getTotalSize()}px` }}>
-        <table className="table table-hover mb-0">
-          <thead className="sticky-top">
-            {table.getHeaderGroups().map((headerGroup) => (
-              <tr key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <th
-                    key={header.id}
-                    scope="col"
-                    className="text-nowrap"
-                    style={{ width: `${header.column.getSize()}px` }}
-                  >
-                    <div
-                      className={`d-flex align-items-center ${header.column.getCanSort() ? "user-select-none cursor-pointer" : ""}`}
-                      onClick={header.column.getToggleSortingHandler()}
-                      title={
-                        header.column.getCanSort()
-                          ? header.column.getNextSortingOrder() === "asc"
-                            ? "Sort ascending"
-                            : header.column.getNextSortingOrder() === "desc"
-                              ? "Sort descending"
-                              : "Clear sort"
-                          : undefined
-                      }
-                    >
-                      {flexRender(header.column.columnDef.header, header.getContext())}
-                      {{
-                        asc: <i className="fa-solid fa-sort-up ms-auto"></i>,
-                        desc: <i className="fa-solid fa-sort-down ms-auto"></i>,
-                      }[header.column.getIsSorted() as string] || <i className="fa-solid fa-sort ms-auto"></i>}
-                    </div>
-                  </th>
-                ))}
-              </tr>
-            ))}
-          </thead>
-          <tbody>
-            {paddingTop > 0 ? (
-              <tr>
-                <td style={{ height: `${paddingTop}px` }} colSpan={table.getVisibleLeafColumns().length} />
-              </tr>
-            ) : null}
-            {virtualRows.map((virtualRow) => {
-              const row = rows[virtualRow.index]!;
-              return (
-                <tr
-                  key={row.id}
-                  style={{
-                    height: `${virtualRow.size}px`,
-                    cursor: "pointer",
-                  }}
-                  onClick={() => onPatientSelect(row.getValue("nummer"))}
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <td key={cell.id} className="text-nowrap">
-                      <div className="text-truncate" style={{ width: `${cell.column.getSize()}px` }}>
-                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                      </div>
-                    </td>
-                  ))}
-                </tr>
-              );
-            })}
-            {paddingBottom > 0 ? (
-              <tr>
-                <td style={{ height: `${paddingBottom}px` }} colSpan={table.getVisibleLeafColumns().length} />
-              </tr>
-            ) : null}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  );
-}
 
 const columnHelper = createColumnHelper<Patient>();
 const columns = [
@@ -247,24 +111,3 @@ const columns = [
     ),
   }),
 ];
-
-function customFilterFn(row: Row<Patient>, _columnId: string, filterValues: string[]) {
-  if (filterValues.length === 0) {
-    return true;
-  }
-
-  const cellValues = row.getVisibleCells().map((cell) => {
-    const value = cell.getValue();
-    if (cell.column.id === "geburtsdatum" && value != null) {
-      const date = value as Temporal.PlainDate;
-      // WORKAROUND Temporal is very slow (Polyfill 4.5 sec and native 2 sec instead of 0.2 sec for ~9000 rows) so we format manually
-      //return date.toLocaleString("de-DE", { dateStyle: "medium" });
-      return `${date.day.toString().padStart(2, "0")}.${date.month.toString().padStart(2, "0")}.${date.year}`;
-    }
-
-    return String(value);
-  });
-  return filterValues.every((filterValue) =>
-    cellValues.some((cellValue) => cellValue.toLowerCase().includes(filterValue.toLowerCase())),
-  );
-}
