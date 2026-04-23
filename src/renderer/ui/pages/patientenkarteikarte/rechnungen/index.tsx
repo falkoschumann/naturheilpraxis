@@ -138,11 +138,17 @@ const columns = [
   columnHelper.accessor("bezahlt", {
     header: "Bezahlt",
     size: 80,
-    cell: (info) => <input type="checkbox" defaultChecked={info.getValue()} />,
+    cell: (info) =>
+      info.getValue() ? (
+        <i className="fa-regular fa-circle-check text-success"></i>
+      ) : (
+        <i className="fa-regular fa-circle"></i>
+      ),
   }),
   columnHelper.accessor("gutschrift", {
     header: "Gutschrift",
     size: 80,
-    cell: (info) => <input type="checkbox" defaultChecked={info.getValue()} />,
+    cell: (info) =>
+      info.getValue() ? <i className="fa-regular fa-circle-check"></i> : <i className="fa-regular fa-circle"></i>,
   }),
 ];
