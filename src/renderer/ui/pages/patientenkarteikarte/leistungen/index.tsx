@@ -83,7 +83,7 @@ function LeistungenTable({ data }: { data: Leistung[] }) {
   return (
     <div ref={parentRef} className="h-100 overflow-auto">
       <div style={{ height: `${virtualizer.getTotalSize()}px` }}>
-        <table className="table mb-0">
+        <table className="table table-hover mb-0">
           <thead className="sticky-top">
             {table.getHeaderGroups().map((headerGroup) => (
               <tr key={headerGroup.id}>
