@@ -56,10 +56,10 @@ export class Währung {
     return this.cents;
   }
 
-  compare(währung: Währung) {
-    if (this.cents < währung.cents) {
+  static compare(one: Währung, two: Währung) {
+    if (one.cents < two.cents) {
       return -1;
-    } else if (this.cents > währung.cents) {
+    } else if (one.cents > two.cents) {
       return 1;
     } else {
       return 0;

@@ -1,16 +1,22 @@
 // Copyright (c) 2026 Falko Schumann. All rights reserved. MIT license.
 
-import { createColumnHelper, flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table";
+import {
+  createColumnHelper,
+  flexRender,
+  getCoreRowModel,
+  getSortedRowModel,
+  type SortingState,
+  useReactTable,
+} from "@tanstack/react-table";
 import { useEffect, useRef, useState } from "react";
 import { useOutletContext } from "react-router";
 
 import type { Leistung } from "../../../../../shared/domain/leistung";
 import { LeistungenQuery, LeistungenQueryResult } from "../../../../../shared/domain/leistungen_query";
 import { useMessageHandler } from "../../../components/message_handler_context";
-import type { Währung } from "../../../../../shared/domain/waehrung";
 import { useVirtualizer } from "@tanstack/react-virtual";
+import { sortPlainDate, sortWährung } from "../../../components/table";
 
-// TODO sorting
 // TODO search
 // TODO link to Rechnung
 
@@ -44,11 +50,17 @@ export default LeistungenComponent;
 function LeistungenTable({ data }: { data: Leistung[] }) {
   "use no memo";
 
+  const [sorting, setSorting] = useState<SortingState>([{ id: "datum", desc: true }]);
+
   // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
     columns,
     data,
+    state: { sorting },
+    sortDescFirst: false,
     getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    onSortingChange: setSorting,
   });
 
   const { rows } = table.getRowModel();
@@ -82,7 +94,25 @@ function LeistungenTable({ data }: { data: Leistung[] }) {
                     className="text-nowrap"
                     style={{ width: `${header.column.getSize()}px` }}
                   >
-                    {flexRender(header.column.columnDef.header, header.getContext())}
+                    <div
+                      className={`d-flex align-items-center ${header.column.getCanSort() ? "user-select-none cursor-pointer" : ""}`}
+                      onClick={header.column.getToggleSortingHandler()}
+                      title={
+                        header.column.getCanSort()
+                          ? header.column.getNextSortingOrder() === "asc"
+                            ? "Sort ascending"
+                            : header.column.getNextSortingOrder() === "desc"
+                              ? "Sort descending"
+                              : "Clear sort"
+                          : undefined
+                      }
+                    >
+                      {flexRender(header.column.columnDef.header, header.getContext())}
+                      {{
+                        asc: <i className="fa-solid fa-sort-up ms-auto"></i>,
+                        desc: <i className="fa-solid fa-sort-down ms-auto"></i>,
+                      }[header.column.getIsSorted() as string] || <i className="fa-solid fa-sort ms-auto"></i>}
+                    </div>
                   </th>
                 ))}
               </tr>
@@ -132,6 +162,7 @@ const columns = [
     header: "Datum",
     size: 100,
     cell: (info) => info?.getValue()?.toLocaleString("de-DE", { dateStyle: "medium" }),
+    sortingFn: sortPlainDate<Leistung>("datum"),
   }),
   columnHelper.accessor("gebührenziffer", { header: "Ziffer", size: 80 }),
   columnHelper.accessor("beschreibung", { header: "Beschreibung", size: 200 }),
@@ -139,13 +170,15 @@ const columns = [
     header: "Einzelpreis",
     size: 100,
     cell: (info) => info?.getValue()?.toString(),
+    sortingFn: sortWährung<Leistung>("einzelpreis"),
   }),
   columnHelper.accessor("anzahl", { header: "Anzahl", size: 80 }),
-  columnHelper.display({
+  columnHelper.accessor("summe", {
     header: "Summe",
     size: 100,
-    cell: (info) => (info.row.getValue("einzelpreis") as Währung).multipliziere(info.row.getValue("anzahl")).toString(),
+    cell: (info) => info?.getValue()?.toString(),
+    sortingFn: sortWährung<Leistung>("summe"),
   }),
   columnHelper.accessor("kommentar", { header: "Kommentar", size: 200 }),
-  columnHelper.accessor("rechnungsnummer", { header: "Rechnung", size: 80 }),
+  columnHelper.accessor("rechnungsnummer", { header: "Rechnung", size: 120 }),
 ];

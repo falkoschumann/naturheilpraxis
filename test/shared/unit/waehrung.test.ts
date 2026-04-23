@@ -36,9 +36,9 @@ describe("Währung", () => {
     const währung2 = Währung.from(500);
     const währung3 = Währung.from(300);
 
-    expect(währung1.compare(währung2)).toBe(0);
-    expect(währung1.compare(währung3)).toBe(1);
-    expect(währung3.compare(währung1)).toBe(-1);
+    expect(Währung.compare(währung1, währung2)).toBe(0);
+    expect(Währung.compare(währung1, währung3)).toBe(1);
+    expect(Währung.compare(währung3, währung1)).toBe(-1);
   });
 
   it("sollte als Cent-Betrag serialisiert werden", () => {

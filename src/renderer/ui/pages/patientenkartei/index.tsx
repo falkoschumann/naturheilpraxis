@@ -7,7 +7,6 @@ import {
   getFilteredRowModel,
   getSortedRowModel,
   type Row,
-  type SortingFn,
   type SortingState,
   useReactTable,
 } from "@tanstack/react-table";
@@ -19,6 +18,7 @@ import type { Patient } from "../../../../shared/domain/patient";
 import { PATIENTENKARTEIKARTE_PAGE } from "../../components/pages";
 import DefaultPageLayout from "../../layouts/default_page_layout";
 import { usePatienten } from "./patienten_hook";
+import { sortPlainDate } from "../../components/table";
 
 // TODO store table state like search in query params
 
@@ -135,10 +135,14 @@ function PatientenTable({
             {table.getHeaderGroups().map((headerGroup) => (
               <tr key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
-                  <th key={header.id} scope="col" className="text-nowrap">
+                  <th
+                    key={header.id}
+                    scope="col"
+                    className="text-nowrap"
+                    style={{ width: `${header.column.getSize()}px` }}
+                  >
                     <div
                       className={`d-flex align-items-center ${header.column.getCanSort() ? "user-select-none cursor-pointer" : ""}`}
-                      style={{ width: `${header.column.getSize()}px` }}
                       onClick={header.column.getToggleSortingHandler()}
                       title={
                         header.column.getCanSort()
@@ -200,21 +204,6 @@ function PatientenTable({
   );
 }
 
-const sortGeburtsdatumFn: SortingFn<Patient> = (rowA, rowB, _columnId) => {
-  const dateA = rowA.original.geburtsdatum;
-  const dateB = rowB.original.geburtsdatum;
-  if (dateA == null && dateB != null) {
-    return 1;
-  } else if (dateA != null && dateB == null) {
-    return -1;
-  } else if (dateA != null && dateB != null) {
-    return Temporal.PlainDate.compare(dateA, dateB);
-  } else {
-    // dateA == null && dateB == null
-    return 0;
-  }
-};
-
 const columnHelper = createColumnHelper<Patient>();
 const columns = [
   columnHelper.accessor("nummer", { header: "#", size: 60 }),
@@ -225,7 +214,7 @@ const columns = [
     header: "Geburtsdatum",
     size: 140,
     cell: (info) => info?.getValue()?.toLocaleString("de-DE", { dateStyle: "medium" }),
-    sortingFn: sortGeburtsdatumFn,
+    sortingFn: sortPlainDate<Patient>("geburtsdatum"),
   }),
   columnHelper.accessor("straße", { header: "Straße", size: 250 }),
   columnHelper.accessor("postleitzahl", { header: "PLZ", size: 80 }),
