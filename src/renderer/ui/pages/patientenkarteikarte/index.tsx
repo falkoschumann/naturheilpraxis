@@ -64,8 +64,9 @@ export default function PatientenkarteikartePage() {
           <li className="nav-item">
             <NavLink
               to={`${PATIENTENKARTEIKARTE_PAGE.replace(":nummer?", result.patient?.nummer?.toString() || "")}`}
-              className="nav-link"
+              replace
               end
+              className="nav-link"
             >
               Patient
             </NavLink>
@@ -73,6 +74,7 @@ export default function PatientenkarteikartePage() {
           <li className="nav-item">
             <NavLink
               to={`${PATIENTENKARTEIKARTE_LEISTUNGEN_PAGE.replace(":nummer", result.patient?.nummer?.toString() || "")}`}
+              replace
               className={`nav-link ${istAufnahme ? "disabled" : ""}`}
               aria-disabled={istAufnahme}
             >
@@ -82,6 +84,7 @@ export default function PatientenkarteikartePage() {
           <li className="nav-item">
             <NavLink
               to={`${PATIENTENKARTEIKARTE_RECHNUNGEN_PAGE.replace(":nummer", result.patient?.nummer?.toString() || "")}`}
+              replace
               className={`nav-link ${istAufnahme ? "disabled" : ""}`}
               aria-disabled={istAufnahme}
             >
