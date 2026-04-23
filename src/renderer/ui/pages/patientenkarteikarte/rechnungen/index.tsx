@@ -1,6 +1,13 @@
 // Copyright (c) 2026 Falko Schumann. All rights reserved. MIT license.
 
-import { createColumnHelper, flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table";
+import {
+  createColumnHelper,
+  flexRender,
+  getCoreRowModel,
+  getSortedRowModel,
+  type SortingState,
+  useReactTable,
+} from "@tanstack/react-table";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { useEffect, useRef, useState } from "react";
 import { useOutletContext } from "react-router";
@@ -8,6 +15,7 @@ import { useOutletContext } from "react-router";
 import type { Rechnung } from "../../../../../shared/domain/rechnung";
 import { RechnungenQuery, RechnungenQueryResult } from "../../../../../shared/domain/rechnungen_query";
 import { useMessageHandler } from "../../../components/message_handler_context";
+import { sortPlainDate, sortWährung } from "../../../components/table";
 
 // TODO sorting
 // TODO search
@@ -42,11 +50,17 @@ export default RechnungenComponent;
 function RechnungenTable({ data }: { data: Rechnung[] }) {
   "use no memo";
 
+  const [sorting, setSorting] = useState<SortingState>([{ id: "datum", desc: true }]);
+
   // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
     columns,
     data,
+    state: { sorting },
+    sortDescFirst: false,
     getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    onSortingChange: setSorting,
   });
 
   const { rows } = table.getRowModel();
@@ -80,7 +94,25 @@ function RechnungenTable({ data }: { data: Rechnung[] }) {
                     className="text-nowrap"
                     style={{ width: `${header.column.getSize()}px` }}
                   >
-                    {flexRender(header.column.columnDef.header, header.getContext())}
+                    <div
+                      className={`d-flex align-items-center ${header.column.getCanSort() ? "user-select-none cursor-pointer" : ""}`}
+                      onClick={header.column.getToggleSortingHandler()}
+                      title={
+                        header.column.getCanSort()
+                          ? header.column.getNextSortingOrder() === "asc"
+                            ? "Sort ascending"
+                            : header.column.getNextSortingOrder() === "desc"
+                              ? "Sort descending"
+                              : "Clear sort"
+                          : undefined
+                      }
+                    >
+                      {flexRender(header.column.columnDef.header, header.getContext())}
+                      {{
+                        asc: <i className="fa-solid fa-sort-up ms-auto"></i>,
+                        desc: <i className="fa-solid fa-sort-down ms-auto"></i>,
+                      }[header.column.getIsSorted() as string] || <i className="fa-solid fa-sort ms-auto"></i>}
+                    </div>
                   </th>
                 ))}
               </tr>
@@ -131,8 +163,9 @@ const columns = [
     header: "Datum",
     size: 100,
     cell: (info) => info?.getValue()?.toLocaleString("de-DE", { dateStyle: "medium" }),
+    sortingFn: sortPlainDate<Rechnung>("datum"),
   }),
-  columnHelper.accessor("summe", { header: "Summe", size: 100 }),
+  columnHelper.accessor("summe", { header: "Summe", size: 100, sortingFn: sortWährung<Rechnung>("summe") }),
   columnHelper.accessor("rechnungstext", { header: "Rechnungstext", size: 250 }),
   columnHelper.accessor("kommentar", { header: "Kommentar", size: 250 }),
   columnHelper.accessor("bezahlt", {
