@@ -137,7 +137,7 @@ Storys für den MVP sind mit ❗ markiert.
 #### Rechnungen
 
 - [ ] ❗Liste alle Rechnungen auf
-- [ ] Liste Rechnungen eines Patienten auf
+- [x] ❗Liste Rechnungen eines Patienten auf
 - [ ] Liste Rechnungen einer Praxis auf
 - [ ] Suche Rechnung(en) nach einem beliebigen Feld
 - [ ] Sortiere nach Status und Datum
