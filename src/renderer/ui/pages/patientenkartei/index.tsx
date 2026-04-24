@@ -12,6 +12,7 @@ import { filterGlobal, sortPlainDate } from "../../components/table";
 import TableComponent from "../../components/table_component";
 import DefaultPageLayout from "../../layouts/default_page_layout";
 import { PatientQuery } from "../../../../shared/domain/patient_query";
+import { SearchComponent } from "../../components/search_component";
 
 // TODO store table state like search in query params
 
@@ -41,19 +42,7 @@ export function PatientenkarteiPage() {
         <div className="d-flex py-3">
           <h2>Patienten</h2>
           <div className="ms-auto">
-            <form className="d-flex" role="search" onSubmit={(event) => event.preventDefault()}>
-              <input
-                className="form-control me-2"
-                type="search"
-                placeholder="Suche"
-                aria-label="Suche"
-                value={suchtext}
-                onChange={(e) => setSuchtext(String(e.target.value))}
-              />
-              <button className="btn btn-outline-primary" type="submit">
-                Suche
-              </button>
-            </form>
+            <SearchComponent suchtext={suchtext} setSuchtext={setSuchtext} />
           </div>
         </div>
       </aside>
