@@ -27,12 +27,16 @@ export class RechnungenRepository {
       .prepare(
         `
           SELECT rechnungen.*,
+                 patienten.nachname,
+                 patienten.vorname,
+                 patienten.geburtsdatum,
                  (SELECT sum(leistungen.einzelpreis * leistungen.anzahl)
                     FROM leistungen
                    WHERE leistungen.rechnung_id = rechnungen.id
                  ) AS summe
             FROM rechnungen
-           ORDER BY rechnungen.datum DESC, rechnungen.id;
+                   INNER JOIN patienten ON rechnungen.patient_id = patienten.nummer
+           ORDER BY rechnungen.datum DESC;
         `,
       )
       .all();
@@ -45,13 +49,17 @@ export class RechnungenRepository {
       .prepare(
         `
           SELECT rechnungen.*,
+                 patienten.nachname,
+                 patienten.vorname,
+                 patienten.geburtsdatum,
                  (SELECT sum(leistungen.einzelpreis * leistungen.anzahl)
                     FROM leistungen
                    WHERE leistungen.rechnung_id = rechnungen.id
                  ) AS summe
             FROM rechnungen
+                   INNER JOIN patienten ON rechnungen.patient_id = patienten.nummer
            WHERE rechnungen.patient_id = ?
-           ORDER BY rechnungen.datum DESC, rechnungen.id;
+           ORDER BY rechnungen.datum DESC;
         `,
       )
       .all(nummer);
@@ -103,13 +111,16 @@ function createRechnung(record: Record<string, SQLOutputValue>) {
   return Rechnung.create({
     id: mapNumber(record, "id"),
     praxis: mapString(record, "praxis")!,
-    nummer: mapString(record, "nummer")!,
+    nummer: mapString(record, "nummer"),
     datum: mapString(record, "datum")!,
     patientId: mapNumber(record, "patient_id")!,
     summe: mapNumber(record, "summe"),
     rechnungstext: mapString(record, "rechnungstext"),
     kommentar: mapString(record, "kommentar"),
     bezahlt: mapBoolean(record, "bezahlt"),
-    gutschrift: mapBoolean(record, "gutschrift")!,
+    gutschrift: mapBoolean(record, "gutschrift"),
+    nachname: mapString(record, "nachname"),
+    vorname: mapString(record, "vorname"),
+    geburtsdatum: mapString(record, "geburtsdatum"),
   });
 }

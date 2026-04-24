@@ -3,7 +3,7 @@
 import { NavLink } from "react-router";
 
 import logo from "../assets/logo.svg";
-import { PATIENTENKARTEI_PAGE, START_PAGE } from "./pages";
+import { PATIENTENKARTEI_PAGE, RECHNUNGEN_PAGE, START_PAGE } from "./pages";
 
 export default function HeaderComponent() {
   return (
@@ -36,6 +36,11 @@ export default function HeaderComponent() {
               <li className="nav-item">
                 <NavLink to={PATIENTENKARTEI_PAGE} className="nav-link">
                   Patienten
+                </NavLink>
+              </li>
+              <li className="nav-item">
+                <NavLink to={RECHNUNGEN_PAGE} className="nav-link">
+                  Rechnungen
                 </NavLink>
               </li>
             </ul>

@@ -32,7 +32,7 @@ export class LeistungenRepository {
             FROM leistungen
             LEFT JOIN rechnungen ON leistungen.rechnung_id = rechnungen.id
            WHERE leistungen.patient_id = ?
-           ORDER BY leistungen.datum DESC, leistungen.id;
+           ORDER BY leistungen.datum DESC;
         `,
       )
       .all(nummer);

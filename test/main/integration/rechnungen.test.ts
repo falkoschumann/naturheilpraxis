@@ -65,6 +65,7 @@ describe("Rechnungen", () => {
               id: 3,
               datum: "2026-04-17",
               patientId: 2,
+              vorname: "Erika",
             }),
             Rechnung.createTestInstance({
               id: 2,

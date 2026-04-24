@@ -2,7 +2,7 @@
 
 import { NavLink } from "react-router";
 
-import { PATIENTENKARTEI_PAGE, PATIENTENKARTEIKARTE_PAGE } from "../../components/pages";
+import { PATIENTENKARTEI_PAGE, PATIENTENKARTEIKARTE_PAGE, RECHNUNGEN_PAGE } from "../../components/pages";
 import DefaultPageLayout from "../../layouts/default_page_layout";
 
 export default function StartseitePage() {
@@ -10,13 +10,20 @@ export default function StartseitePage() {
     <DefaultPageLayout>
       <main className="flex-grow-1 container my-4 overflow-y-auto">
         <h2>Naturheilpraxis</h2>
-        <div className="my-5 d-grid gap-2 col-4">
-          <NavLink to={PATIENTENKARTEI_PAGE} className="btn btn-primary" type="button">
-            Patientenkartei
-          </NavLink>
-          <NavLink to={PATIENTENKARTEIKARTE_PAGE} className="btn btn-primary" type="button">
-            Nimm Patient auf
-          </NavLink>
+        <div className="my-5 row">
+          <div className="col-3 d-flex flex-column gap-2">
+            <NavLink to={PATIENTENKARTEI_PAGE} className="btn btn-primary" type="button">
+              Patientenkartei
+            </NavLink>
+            <NavLink to={PATIENTENKARTEIKARTE_PAGE} className="btn btn-primary" type="button">
+              Nimm Patient auf
+            </NavLink>
+          </div>
+          <div className="col-3 d-flex flex-column gap-2">
+            <NavLink to={RECHNUNGEN_PAGE} className="btn btn-primary" type="button">
+              Rechnungen
+            </NavLink>
+          </div>
         </div>
       </main>
     </DefaultPageLayout>

@@ -14,6 +14,9 @@ export class Rechnung {
     kommentar,
     bezahlt = false,
     gutschrift = false,
+    nachname,
+    vorname,
+    geburtsdatum,
   }: {
     id?: number;
     praxis: string;
@@ -25,6 +28,9 @@ export class Rechnung {
     kommentar?: string;
     bezahlt?: boolean;
     gutschrift?: boolean;
+    nachname?: string;
+    vorname?: string;
+    geburtsdatum?: Temporal.PlainDate | string;
   }) {
     return new Rechnung(
       praxis,
@@ -37,6 +43,9 @@ export class Rechnung {
       rechnungstext,
       kommentar,
       summe,
+      nachname,
+      vorname,
+      geburtsdatum,
     );
   }
 
@@ -51,6 +60,9 @@ export class Rechnung {
     kommentar,
     bezahlt = false,
     gutschrift = false,
+    nachname = "Mustermann",
+    vorname = "Max",
+    geburtsdatum = "1980-01-01",
   }: {
     id?: number;
     praxis?: string;
@@ -62,6 +74,9 @@ export class Rechnung {
     kommentar?: string;
     bezahlt?: boolean;
     gutschrift?: boolean;
+    nachname?: string;
+    vorname?: string;
+    geburtsdatum?: Temporal.PlainDate | string;
   } = {}) {
     return Rechnung.create({
       id,
@@ -74,6 +89,9 @@ export class Rechnung {
       kommentar,
       bezahlt,
       gutschrift,
+      nachname,
+      vorname,
+      geburtsdatum,
     });
   }
 
@@ -91,6 +109,10 @@ export class Rechnung {
   readonly bezahlt: boolean;
   readonly gutschrift: boolean;
 
+  readonly nachname?: string;
+  readonly vorname?: string;
+  readonly geburtsdatum?: Temporal.PlainDate;
+
   private constructor(
     praxis: string,
     datum: Temporal.PlainDate | string,
@@ -102,6 +124,9 @@ export class Rechnung {
     rechnungstext?: string,
     kommentar?: string,
     summe?: Währung | number,
+    nachname?: string,
+    vorname?: string,
+    geburtsdatum?: Temporal.PlainDate | string,
   ) {
     this.id = id;
     this.praxis = praxis;
@@ -120,5 +145,9 @@ export class Rechnung {
     this.kommentar = kommentar;
     this.bezahlt = bezahlt;
     this.gutschrift = gutschrift;
+    this.nachname = nachname;
+    this.vorname = vorname;
+    this.geburtsdatum =
+      geburtsdatum != null ? Temporal.PlainDate.from(geburtsdatum) : undefined;
   }
 }
