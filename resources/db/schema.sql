@@ -45,6 +45,10 @@ CREATE TABLE IF NOT EXISTS leistungen (
     anzahl NUMERIC NOT NULL
 );
 
+CREATE INDEX IF NOT EXISTS leistungen_patient_id ON leistungen (patient_id);
+
+CREATE INDEX IF NOT EXISTS leistungen_rechnung_id ON leistungen (rechnung_id);
+
 CREATE TABLE IF NOT EXISTS rechnungen (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     patient_id INTEGER NOT NULL REFERENCES patienten (nummer),
@@ -57,6 +61,8 @@ CREATE TABLE IF NOT EXISTS rechnungen (
     bezahlt INTEGER NOT NULL,
     gutschrift INTEGER NOT NULL
 );
+
+CREATE INDEX IF NOT EXISTS rechnungen_patient_id ON rechnungen (patient_id);
 
 CREATE TABLE IF NOT EXISTS einstellungen (id INTEGER PRIMARY KEY, json TEXT NOT NULL);
 
