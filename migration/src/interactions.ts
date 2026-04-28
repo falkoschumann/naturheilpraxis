@@ -3,11 +3,13 @@
 import path from "node:path";
 
 import { DatenbankProvider } from "../../src/main/infrastructure/datenbank_provider";
+import { DiagnosenRepository } from "../../src/main/infrastructure/diagnosen_repository";
 import { EinstellungenProvider } from "../../src/main/infrastructure/einstellungen_provider";
 import { LeistungenRepository } from "../../src/main/infrastructure/leistungen_repository";
 import { PatientenRepository } from "../../src/main/infrastructure/patienten_repository";
 import { RechnungenRepository } from "../../src/main/infrastructure/rechnungen_repository";
 
+import { erstelleDiagnosen } from "./diagnosen";
 import { erstelleEinstellungen } from "./einstellungen";
 import { LegacyDatabaseGateway } from "./legacy_database_gateway";
 import { erstelleLeistungen } from "./leistungen";
@@ -39,6 +41,7 @@ export class Interactions {
   #patientenRepository: PatientenRepository;
   #leistungenRepository: LeistungenRepository;
   #rechnungenRepository: RechnungenRepository;
+  #diagnoseRepository: DiagnosenRepository;
 
   private constructor(
     legacyDatabase: LegacyDatabaseGateway,
@@ -57,6 +60,9 @@ export class Interactions {
     this.#rechnungenRepository = RechnungenRepository.create({
       datenbankProvider,
     });
+    this.#diagnoseRepository = DiagnosenRepository.create({
+      datenbankProvider,
+    });
   }
 
   migriereDatenbank() {
@@ -64,6 +70,7 @@ export class Interactions {
     this.#migrierePatienten();
     this.#migriereRechnungen();
     this.#migriereLeistungen();
+    this.#migriereDiagnosen();
   }
 
   #migriereEinstellungen() {
@@ -129,6 +136,20 @@ export class Interactions {
       console.log(`  ${leistungen.length} Leistungen migriert.`);
     } catch (error) {
       console.error("  Migration der Leistungen fehlgeschlagen.", error);
+    }
+  }
+
+  #migriereDiagnosen() {
+    try {
+      console.log("Migriere Diagnosen ...");
+      const diagnoses = this.#legacyDatabase.queryDiagnoses();
+      const diagnosen = erstelleDiagnosen(diagnoses);
+      for (const diagnose of diagnosen) {
+        this.#diagnoseRepository.create(diagnose);
+      }
+      console.log(`  ${diagnosen.length} Diagnosen migriert.`);
+    } catch (error) {
+      console.error("  Migration der Diagnosen fehlgeschlagen.", error);
     }
   }
 }

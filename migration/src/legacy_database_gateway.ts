@@ -113,6 +113,18 @@ export class LegacyDatabaseGateway {
     `);
   }
 
+  queryDiagnoses() {
+    // language=SQLite
+    return this.#executeQuery<DiagnosisDto>(`
+      SELECT MIN(date) AS date,
+             customerid AS customerId,
+             trim(comment, ' ' || char(10) || char(13)) AS comment
+        FROM invoicelist
+       WHERE trim(comment, ' ' || char(10) || char(13)) <> ''
+       GROUP BY customerid, lower(trim(comment, ' ' || char(10) || char(13)));
+    `);
+  }
+
   #executeQuery<T>(sql: string): T[] {
     const statement = this.#db.prepare(sql);
     const records = statement.all();
@@ -190,4 +202,10 @@ export interface InvoiceDto {
   comment?: string;
   cleared?: number;
   creditNote?: number;
+}
+
+export interface DiagnosisDto {
+  date?: string;
+  customerId?: number;
+  comment: string;
 }

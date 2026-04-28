@@ -64,6 +64,15 @@ CREATE TABLE IF NOT EXISTS rechnungen (
 
 CREATE INDEX IF NOT EXISTS rechnungen_patient_id ON rechnungen (patient_id);
 
+CREATE TABLE IF NOT EXISTS diagnosen (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    patient_id INTEGER NOT NULL REFERENCES patienten (nummer),
+    datum TEXT NOT NULL,
+    beschreibung TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS diagnosen_patient_id ON diagnosen (patient_id);
+
 CREATE TABLE IF NOT EXISTS einstellungen (id INTEGER PRIMARY KEY, json TEXT NOT NULL);
 
 INSERT INTO

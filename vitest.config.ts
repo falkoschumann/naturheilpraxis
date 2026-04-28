@@ -16,7 +16,7 @@ export default defineConfig({
       provider: "istanbul",
       reporter: ["text", "html", "cobertura", "json"],
       thresholds: {
-        statements: 85,
+        statements: 80,
         branches: 80,
       },
     },

@@ -49,15 +49,12 @@ export class RechnungenRepository {
       .prepare(
         `
           SELECT rechnungen.*,
-                 patienten.nachname,
-                 patienten.vorname,
-                 patienten.geburtsdatum,
                  (SELECT sum(leistungen.einzelpreis * leistungen.anzahl)
                     FROM leistungen
                    WHERE leistungen.rechnung_id = rechnungen.id
                  ) AS summe
             FROM rechnungen
-                   INNER JOIN patienten ON rechnungen.patient_id = patienten.nummer
+           INNER JOIN patienten ON rechnungen.patient_id = patienten.nummer
            WHERE rechnungen.patient_id = ?
            ORDER BY rechnungen.datum DESC;
         `,

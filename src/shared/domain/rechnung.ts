@@ -60,9 +60,9 @@ export class Rechnung {
     kommentar,
     bezahlt = false,
     gutschrift = false,
-    nachname = "Mustermann",
-    vorname = "Max",
-    geburtsdatum = "1980-01-01",
+    nachname,
+    vorname,
+    geburtsdatum,
   }: {
     id?: number;
     praxis?: string;
