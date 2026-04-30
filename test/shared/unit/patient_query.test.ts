@@ -7,7 +7,7 @@ import {
   PatientQueryResult,
 } from "../../../src/shared/domain/patient_query";
 
-describe("Suche Patient Query", () => {
+describe("Patient Query", () => {
   it("sollte Query mappen", () => {
     const query = PatientQuery.createTestInstance();
 
