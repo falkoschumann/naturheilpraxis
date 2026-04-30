@@ -4,7 +4,10 @@ import { describe, expect, it } from "vitest";
 
 import { DiagnosenQueryHandler } from "../../../src/main/application/diagnosen_query_handler";
 import { Diagnose } from "../../../src/shared/domain/diagnose";
-import { DiagnosenQuery, DiagnosenQueryResult } from "../../../src/shared/domain/diagnosen_query";
+import {
+  DiagnosenQuery,
+  DiagnosenQueryResult,
+} from "../../../src/shared/domain/diagnosen_query";
 import { Patient } from "../../../src/shared/domain/patient";
 import { DatenbankProvider } from "../../../src/main/infrastructure/datenbank_provider";
 import { DiagnosenRepository } from "../../../src/main/infrastructure/diagnosen_repository";
@@ -59,7 +62,7 @@ describe("Diagnosen", () => {
     it("Sollte eine leere Liste zurückgeben, wenn es den Patienten nicht", async () => {
       const { handler, patientenRepository, diagnosenRepository } = configure();
       patientenRepository.create(Patient.createTestInstance());
-      diagnosenRepository.create(Diagnose.createTestInstance({ id: 1 }));
+      diagnosenRepository.create(Diagnose.createTestInstance());
       diagnosenRepository.create(
         Diagnose.createTestInstance({
           id: 2,
