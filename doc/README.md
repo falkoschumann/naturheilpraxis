@@ -60,8 +60,8 @@ Storys für den MVP sind mit ❗ markiert.
 
 #### Diagnosen
 
-- [ ] ❗Liste alle Diagnosen für einen Patienten auf
-- [ ] Suche Diagnose(n) mit Datum oder Beschreibung
+- [x] ❗Liste alle Diagnosen für einen Patienten auf
+- [x] Suche Diagnose(n) mit Datum oder Beschreibung
 
 #### Aktualisiere Diagnose
 
@@ -85,7 +85,7 @@ Storys für den MVP sind mit ❗ markiert.
 #### Leistungen
 
 - [x] ❗Liste alle Leistungen für einen Patienten auf
-- [ ] Suche Leistung(en) nach einem beliebigen Feld
+- [x] Suche Leistung(en) nach einem beliebigen Feld
 
 #### Aktualisiere Leistung
 
@@ -139,7 +139,7 @@ Storys für den MVP sind mit ❗ markiert.
 - [x] ❗Liste alle Rechnungen auf
 - [x] ❗Liste Rechnungen eines Patienten auf
 - [ ] Liste Rechnungen einer Praxis auf
-- [ ] Suche Rechnung(en) nach einem beliebigen Feld
+- [x] Suche Rechnung(en) nach einem beliebigen Feld
 - [ ] Sortiere nach Status und Datum
 - [ ] Blende bezahlte Rechnungen aus
 

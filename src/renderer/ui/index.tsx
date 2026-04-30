@@ -11,6 +11,7 @@ import { PATIENTENKARTEI_PAGE, PATIENTENKARTEIKARTE_PAGE, RECHNUNGEN_PAGE, START
 const PatientenkarteiPage = lazy(() => import("./pages/patientenkartei"));
 const PatientenkarteikartePage = lazy(() => import("./pages/patientenkarteikarte"));
 const StartseitePage = lazy(() => import("./pages/startseite"));
+const DiagnosenComponent = lazy(() => import("./pages/patientenkarteikarte/diagnosen"));
 const LeistungenComponent = lazy(() => import("./pages/patientenkarteikarte/leistungen"));
 const PatientComponent = lazy(() => import("./pages/patientenkarteikarte/patient"));
 const RechnungenComponent = lazy(() => import("./pages/patientenkarteikarte/rechnungen"));
@@ -24,6 +25,7 @@ export default function App() {
         <Route path={PATIENTENKARTEI_PAGE} element={<PatientenkarteiPage />} />
         <Route path={PATIENTENKARTEIKARTE_PAGE} element={<PatientenkarteikartePage />}>
           <Route path=":nummer?" element={<PatientComponent />} />
+          <Route path="diagnosen" element={<DiagnosenComponent />} />
           <Route path="leistungen" element={<LeistungenComponent />} />
           <Route path="rechnungen" element={<RechnungenComponent />} />
         </Route>

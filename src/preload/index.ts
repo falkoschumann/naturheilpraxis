@@ -3,6 +3,7 @@
 import { contextBridge, ipcRenderer } from "electron/renderer";
 
 import {
+  DIAGNOSEN_CHANNEL,
   LEISTUNGEN_CHANNEL,
   NIMM_PATIENT_AUF_CHANNEL,
   PATIENT_CHANNEL,
@@ -19,6 +20,9 @@ contextBridge.exposeInMainWorld("naturheilpraxis", {
 
   suchePatienten: (query: string): Promise<string> =>
     ipcRenderer.invoke(PATIENTEN_CHANNEL, query),
+
+  sucheDiagnosen: (query: string): Promise<string> =>
+    ipcRenderer.invoke(DIAGNOSEN_CHANNEL, query),
 
   sucheLeistungen: (query: string): Promise<string> =>
     ipcRenderer.invoke(LEISTUNGEN_CHANNEL, query),

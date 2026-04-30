@@ -10,6 +10,7 @@ import {
 } from "electron-devtools-installer";
 
 import "../shared/polyfill";
+import { DiagnosenQueryHandler } from "./application/diagnosen_query_handler";
 import { LeistungenQueryHandler } from "./application/leistungen_query_handler";
 import { NimmPatientAufCommandHandler } from "./application/nimm_patient_auf_command_handler";
 import { PatientenQueryHandler } from "./application/patienten_query_handler";
@@ -21,6 +22,7 @@ import { PatientQuery } from "../shared/domain/patient_query";
 import { PatientenQuery } from "../shared/domain/patienten_query";
 import { RechnungenQuery } from "../shared/domain/rechnungen_query";
 import {
+  DIAGNOSEN_CHANNEL,
   LEISTUNGEN_CHANNEL,
   NIMM_PATIENT_AUF_CHANNEL,
   PATIENT_CHANNEL,
@@ -28,12 +30,14 @@ import {
   RECHNUNGEN_CHANNEL,
 } from "../shared/infrastructure/channels";
 import { DatenbankProvider } from "./infrastructure/datenbank_provider";
+import { DiagnosenRepository } from "./infrastructure/diagnosen_repository";
 import { EinstellungenRepository } from "./infrastructure/einstellungen_repository";
 import { KalenderProvider } from "./infrastructure/kalender_provider";
 import { LeistungenRepository } from "./infrastructure/leistungen_repository";
 import { PatientenRepository } from "./infrastructure/patienten_repository";
 import { RechnungenRepository } from "./infrastructure/rechnungen_repository";
 import icon from "../../build/icon.png?asset";
+import { DiagnosenQuery } from "../shared/domain/diagnosen_query";
 
 // TODO Make the file paths configurable
 const datenbankProvider = DatenbankProvider.create({
@@ -54,6 +58,10 @@ const patientQueryHandler = PatientQueryHandler.create({
 });
 const patientenQueryHandler = PatientenQueryHandler.create({
   patientenRepository,
+});
+const diagnosenRepository = DiagnosenRepository.create({ datenbankProvider });
+const diagnosenQueryHandler = DiagnosenQueryHandler.create({
+  diagnosenRepository,
 });
 const leistungenRepository = LeistungenRepository.create({ datenbankProvider });
 const leistungenQueryHandler = LeistungenQueryHandler.create({
@@ -139,6 +147,12 @@ function createRendererToMainChannels() {
     const dto = JSON.parse(json);
     const query = PatientenQuery.create(dto);
     const result = await patientenQueryHandler.handle(query);
+    return JSON.stringify(result);
+  });
+  ipcMain.handle(DIAGNOSEN_CHANNEL, async (_event, json: string) => {
+    const dto = JSON.parse(json);
+    const query = DiagnosenQuery.create(dto);
+    const result = await diagnosenQueryHandler.handle(query);
     return JSON.stringify(result);
   });
   ipcMain.handle(LEISTUNGEN_CHANNEL, async (_event, json: string) => {

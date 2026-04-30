@@ -7,6 +7,8 @@ export interface Naturheilpraxis {
 
   suchePatienten(query: string): Promise<string>;
 
+  sucheDiagnosen(query: string): Promise<string>;
+
   sucheLeistungen(query: string): Promise<string>;
 
   sucheRechnungen(query: string): Promise<string>;

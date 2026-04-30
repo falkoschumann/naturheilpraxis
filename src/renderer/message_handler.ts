@@ -3,6 +3,10 @@
 import { createCommandStatus } from "@muspellheim/shared";
 
 import {
+  type DiagnosenQuery,
+  DiagnosenQueryResult,
+} from "../shared/domain/diagnosen_query";
+import {
   type LeistungenQuery,
   LeistungenQueryResult,
 } from "../shared/domain/leistungen_query";
@@ -41,6 +45,13 @@ export const messageHandler: MessageHandler = {
     json = await window.naturheilpraxis.suchePatienten(json);
     const dto = JSON.parse(json);
     return PatientenQueryResult.create(dto);
+  },
+
+  async sucheDiagnosen(query: DiagnosenQuery) {
+    let json = JSON.stringify(query);
+    json = await window.naturheilpraxis.sucheDiagnosen(json);
+    const dto = JSON.parse(json);
+    return DiagnosenQueryResult.create(dto);
   },
 
   async sucheLeistungen(query: LeistungenQuery) {

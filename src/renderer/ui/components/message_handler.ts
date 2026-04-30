@@ -1,5 +1,9 @@
 // Copyright (c) 2026 Falko Schumann. All rights reserved. MIT license.
 
+import {
+  type DiagnosenQuery,
+  DiagnosenQueryResult,
+} from "../../../shared/domain/diagnosen_query";
 import type {
   LeistungenQuery,
   LeistungenQueryResult,
@@ -29,6 +33,8 @@ export interface MessageHandler {
   suchePatient(query: PatientQuery): Promise<PatientQueryResult>;
 
   suchePatienten(query: PatientenQuery): Promise<PatientenQueryResult>;
+
+  sucheDiagnosen(query: DiagnosenQuery): Promise<DiagnosenQueryResult>;
 
   sucheLeistungen(query: LeistungenQuery): Promise<LeistungenQueryResult>;
 

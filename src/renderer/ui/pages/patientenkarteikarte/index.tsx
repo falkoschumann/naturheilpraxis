@@ -7,6 +7,7 @@ import type { NimmPatientAufCommand } from "../../../../shared/domain/nimm_patie
 import { PatientQuery, PatientQueryResult } from "../../../../shared/domain/patient_query";
 import { useMessageHandler } from "../../components/message_handler_context";
 import {
+  PATIENTENKARTEIKARTE_DIAGNOSEN_PAGE,
   PATIENTENKARTEIKARTE_LEISTUNGEN_PAGE,
   PATIENTENKARTEIKARTE_PAGE,
   PATIENTENKARTEIKARTE_RECHNUNGEN_PAGE,
@@ -69,6 +70,16 @@ export default function PatientenkarteikartePage() {
               className="nav-link"
             >
               Patient
+            </NavLink>
+          </li>
+          <li className="nav-item">
+            <NavLink
+              to={`${PATIENTENKARTEIKARTE_DIAGNOSEN_PAGE.replace(":nummer", result.patient?.nummer?.toString() || "")}`}
+              replace
+              className={`nav-link ${istAufnahme ? "disabled" : ""}`}
+              aria-disabled={istAufnahme}
+            >
+              Diagnosen
             </NavLink>
           </li>
           <li className="nav-item">
