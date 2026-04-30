@@ -1,6 +1,5 @@
 // Copyright (c) 2026 Falko Schumann. All rights reserved. MIT license.
 
-import type { Einstellungen } from "../../../shared/domain/einstellungen";
 import type {
   LeistungenQuery,
   LeistungenQueryResult,
@@ -34,8 +33,4 @@ export interface MessageHandler {
   sucheLeistungen(query: LeistungenQuery): Promise<LeistungenQueryResult>;
 
   sucheRechnungen(query: RechnungenQuery): Promise<RechnungenQueryResult>;
-
-  ladeEinstellungen(): Promise<Einstellungen>;
-
-  sichereEinstellungen(einstellungen: Einstellungen): Promise<void>;
 }

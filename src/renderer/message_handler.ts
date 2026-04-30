@@ -2,7 +2,6 @@
 
 import { createCommandStatus } from "@muspellheim/shared";
 
-import { Einstellungen } from "../shared/domain/einstellungen";
 import {
   type LeistungenQuery,
   LeistungenQueryResult,
@@ -56,16 +55,5 @@ export const messageHandler: MessageHandler = {
     json = await window.naturheilpraxis.sucheRechnungen(json);
     const dto = JSON.parse(json);
     return RechnungenQueryResult.create(dto);
-  },
-
-  async ladeEinstellungen() {
-    const json = await window.naturheilpraxis.ladeEinstellungen();
-    const dto = JSON.parse(json);
-    return Einstellungen.create(dto);
-  },
-
-  async sichereEinstellungen(einstellungen: Einstellungen) {
-    const json = JSON.stringify(einstellungen);
-    await window.naturheilpraxis.sichereEinstellungen(json);
   },
 };

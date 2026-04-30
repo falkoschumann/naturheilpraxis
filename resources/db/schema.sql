@@ -64,6 +64,8 @@ CREATE TABLE IF NOT EXISTS rechnungen (
 
 CREATE INDEX IF NOT EXISTS rechnungen_patient_id ON rechnungen (patient_id);
 
+-- TODO Verlinke eine oder mehrere Diagnosen in Rechnung
+-- TODO Sollte Diagnose eine Praxis haben?
 CREATE TABLE IF NOT EXISTS diagnosen (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     patient_id INTEGER NOT NULL REFERENCES patienten (nummer),
@@ -73,13 +75,46 @@ CREATE TABLE IF NOT EXISTS diagnosen (
 
 CREATE INDEX IF NOT EXISTS diagnosen_patient_id ON diagnosen (patient_id);
 
-CREATE TABLE IF NOT EXISTS einstellungen (id INTEGER PRIMARY KEY, json TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS praxen (name TEXT PRIMARY KEY);
 
 INSERT INTO
-    einstellungen (id, json)
+    praxen (name)
 VALUES
-    (
-        1,
-        '{"praxen": ["Naturheilpraxis"],"anreden": ["Herr", "Frau"],"familienstände": ["ledig", "verheiratet", "getrennt", "geschieden", "verwitwet"],"schlüsselworte": [],"standardSchlüsselworte": []}'
-    )
+    ('Naturheilpraxis')
+ON CONFLICT DO NOTHING;
+
+CREATE TABLE IF NOT EXISTS anreden (name TEXT PRIMARY KEY);
+
+INSERT INTO
+    anreden (name)
+VALUES
+    ('Frau'),
+    ('Herr')
+ON CONFLICT DO NOTHING;
+
+CREATE TABLE IF NOT EXISTS familienstände (name TEXT PRIMARY KEY);
+
+INSERT INTO
+    familienstände (name)
+VALUES
+    ('ledig'),
+    ('verheiratet'),
+    ('getrennt'),
+    ('geschieden'),
+    ('verwitwet')
+ON CONFLICT DO NOTHING;
+
+CREATE TABLE IF NOT EXISTS schlüsselworte (
+    name TEXT PRIMARY KEY,
+    standard INTEGER DEFAULT 0 NOT NULL
+);
+
+INSERT INTO
+    schlüsselworte (name)
+VALUES
+    ('gesetzlich versichert'),
+    ('privat versichert'),
+    ('Selbstzahler'),
+    ('E-Mail'),
+    ('Werbung')
 ON CONFLICT DO NOTHING;

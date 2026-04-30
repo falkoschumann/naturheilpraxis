@@ -44,10 +44,22 @@ export class PatientQueryResult {
 
   static createTestInstance({
     patient = Patient.createTestInstance(),
-    praxen = ["Praxis 1", "Praxis 2"],
-    anreden = ["Herr", "Frau", "Fräulein"],
-    familienstände = ["ledig", "verheiratet", "geschieden", "verwitwet"],
-    schlüsselworte = ["Aktiv", "Weihnachtskarte", "Geburtstagskarte"],
+    praxen = ["Naturheilpraxis"],
+    anreden = ["Frau", "Herr"],
+    familienstände = [
+      "geschieden",
+      "getrennt",
+      "ledig",
+      "verheiratet",
+      "verwitwet",
+    ],
+    schlüsselworte = [
+      "E-Mail",
+      "Selbstzahler",
+      "Werbung",
+      "gesetzlich versichert",
+      "privat versichert",
+    ],
   }: {
     patient?: Patient;
     praxen?: string[];

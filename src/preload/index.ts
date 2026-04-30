@@ -3,13 +3,11 @@
 import { contextBridge, ipcRenderer } from "electron/renderer";
 
 import {
-  LADE_EINSTELLUNGEN_CHANNEL,
   LEISTUNGEN_CHANNEL,
   NIMM_PATIENT_AUF_CHANNEL,
   PATIENT_CHANNEL,
   PATIENTEN_CHANNEL,
   RECHNUNGEN_CHANNEL,
-  SICHERE_EINSTELLUNGEN_CHANNEL,
 } from "../shared/infrastructure/channels";
 
 contextBridge.exposeInMainWorld("naturheilpraxis", {
@@ -27,10 +25,4 @@ contextBridge.exposeInMainWorld("naturheilpraxis", {
 
   sucheRechnungen: (query: string): Promise<string> =>
     ipcRenderer.invoke(RECHNUNGEN_CHANNEL, query),
-
-  ladeEinstellungen: (): Promise<string> =>
-    ipcRenderer.invoke(LADE_EINSTELLUNGEN_CHANNEL),
-
-  sichereEinstellungen: (settings: string): Promise<void> =>
-    ipcRenderer.invoke(SICHERE_EINSTELLUNGEN_CHANNEL, settings),
 });

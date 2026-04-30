@@ -15,23 +15,20 @@ import { NimmPatientAufCommandHandler } from "./application/nimm_patient_auf_com
 import { PatientenQueryHandler } from "./application/patienten_query_handler";
 import { PatientQueryHandler } from "./application/patient_query_handler";
 import { RechnungenQueryHandler } from "./application/rechnungen_query_handler";
-import { Einstellungen } from "../shared/domain/einstellungen";
 import { LeistungenQuery } from "../shared/domain/leistungen_query";
 import { NimmPatientAufCommand } from "../shared/domain/nimm_patient_auf_command";
 import { PatientQuery } from "../shared/domain/patient_query";
 import { PatientenQuery } from "../shared/domain/patienten_query";
 import { RechnungenQuery } from "../shared/domain/rechnungen_query";
 import {
-  LADE_EINSTELLUNGEN_CHANNEL,
   LEISTUNGEN_CHANNEL,
   NIMM_PATIENT_AUF_CHANNEL,
   PATIENT_CHANNEL,
   PATIENTEN_CHANNEL,
   RECHNUNGEN_CHANNEL,
-  SICHERE_EINSTELLUNGEN_CHANNEL,
 } from "../shared/infrastructure/channels";
 import { DatenbankProvider } from "./infrastructure/datenbank_provider";
-import { EinstellungenProvider } from "./infrastructure/einstellungen_provider";
+import { EinstellungenRepository } from "./infrastructure/einstellungen_repository";
 import { KalenderProvider } from "./infrastructure/kalender_provider";
 import { LeistungenRepository } from "./infrastructure/leistungen_repository";
 import { PatientenRepository } from "./infrastructure/patienten_repository";
@@ -42,7 +39,7 @@ import icon from "../../build/icon.png?asset";
 const datenbankProvider = DatenbankProvider.create({
   datenbankPfad: "data/naturheilpraxis.sqlite",
 });
-const einstellungenProvider = EinstellungenProvider.create({
+const einstellungenRepository = EinstellungenRepository.create({
   datenbankProvider,
 });
 const uhrProvider = KalenderProvider.create();
@@ -52,7 +49,7 @@ const nimmPatientAufCommandHandler = NimmPatientAufCommandHandler.create({
 });
 const patientQueryHandler = PatientQueryHandler.create({
   patientenRepository,
-  einstellungenProvider: einstellungenProvider,
+  einstellungenRepository,
   uhrProvider,
 });
 const patientenQueryHandler = PatientenQueryHandler.create({
@@ -155,15 +152,6 @@ function createRendererToMainChannels() {
     const query = RechnungenQuery.create(dto);
     const result = await rechnungenQueryHandler.handle(query);
     return JSON.stringify(result);
-  });
-  ipcMain.handle(LADE_EINSTELLUNGEN_CHANNEL, () => {
-    const einstellungen = einstellungenProvider.lade();
-    return JSON.stringify(einstellungen);
-  });
-  ipcMain.handle(SICHERE_EINSTELLUNGEN_CHANNEL, (_event, json: string) => {
-    const dto = JSON.parse(json);
-    const einstellungen = Einstellungen.create(dto);
-    einstellungenProvider.sichere(einstellungen);
   });
 }
 

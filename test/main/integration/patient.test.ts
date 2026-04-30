@@ -3,14 +3,13 @@
 import { describe, expect, it } from "vitest";
 
 import { PatientQueryHandler } from "../../../src/main/application/patient_query_handler";
-import { Einstellungen } from "../../../src/shared/domain/einstellungen";
 import { Patient } from "../../../src/shared/domain/patient";
 import {
   PatientQuery,
   PatientQueryResult,
 } from "../../../src/shared/domain/patient_query";
 import { DatenbankProvider } from "../../../src/main/infrastructure/datenbank_provider";
-import { EinstellungenProvider } from "../../../src/main/infrastructure/einstellungen_provider";
+import { EinstellungenRepository } from "../../../src/main/infrastructure/einstellungen_repository";
 import { PatientenRepository } from "../../../src/main/infrastructure/patienten_repository";
 import { KalenderProvider } from "../../../src/main/infrastructure/kalender_provider";
 
@@ -47,8 +46,8 @@ describe("Patient", () => {
         PatientQueryResult.createTestInstance({
           patient: Patient.create({
             annahmejahr: 2026,
-            praxis: "Praxis 1",
-            schlüsselworte: ["Aktiv", "Weihnachtskarte"],
+            praxis: "Naturheilpraxis",
+            schlüsselworte: [],
           }),
         }),
       );
@@ -73,14 +72,13 @@ describe("Patient", () => {
 function configure() {
   const datenbankProvider = DatenbankProvider.create();
   const patientenRepository = PatientenRepository.create({ datenbankProvider });
-  const einstellungenProvider = EinstellungenProvider.create({
+  const einstellungenRepository = EinstellungenRepository.create({
     datenbankProvider,
   });
-  einstellungenProvider.sichere(Einstellungen.createTestInstance());
   const uhrProvider = KalenderProvider.createTestInstance();
   const handler = PatientQueryHandler.create({
     patientenRepository,
-    einstellungenProvider: einstellungenProvider,
+    einstellungenRepository,
     uhrProvider,
   });
   return { handler, patientenRepository };

@@ -4,17 +4,17 @@ import path from "node:path";
 
 import { DatenbankProvider } from "../../src/main/infrastructure/datenbank_provider";
 import { DiagnosenRepository } from "../../src/main/infrastructure/diagnosen_repository";
-import { EinstellungenProvider } from "../../src/main/infrastructure/einstellungen_provider";
+import { EinstellungenRepository } from "../../src/main/infrastructure/einstellungen_repository";
 import { LeistungenRepository } from "../../src/main/infrastructure/leistungen_repository";
 import { PatientenRepository } from "../../src/main/infrastructure/patienten_repository";
 import { RechnungenRepository } from "../../src/main/infrastructure/rechnungen_repository";
 
 import { erstelleDiagnosen } from "./diagnosen";
-import { erstelleEinstellungen } from "./einstellungen";
 import { LegacyDatabaseGateway } from "./legacy_database_gateway";
 import { erstelleLeistungen } from "./leistungen";
 import { erstellePatienten } from "./patienten";
 import { erstelleRechnungen } from "./rechnungen";
+import { erstelleSchlüsselworte } from "./schlüsselworte";
 
 export class Interactions {
   static create({
@@ -37,7 +37,7 @@ export class Interactions {
   }
 
   #legacyDatabase: LegacyDatabaseGateway;
-  #einstellungenProvider: EinstellungenProvider;
+  #einstellungenRepository: EinstellungenRepository;
   #patientenRepository: PatientenRepository;
   #leistungenRepository: LeistungenRepository;
   #rechnungenRepository: RechnungenRepository;
@@ -48,7 +48,7 @@ export class Interactions {
     datenbankProvider: DatenbankProvider,
   ) {
     this.#legacyDatabase = legacyDatabase;
-    this.#einstellungenProvider = EinstellungenProvider.create({
+    this.#einstellungenRepository = EinstellungenRepository.create({
       datenbankProvider,
     });
     this.#patientenRepository = PatientenRepository.create({
@@ -66,34 +66,60 @@ export class Interactions {
   }
 
   migriereDatenbank() {
-    this.#migriereEinstellungen();
+    this.#migrierePraxen();
+    this.#migriereAnreden();
+    this.#migriereFamilienstände();
+    this.#migriereSchlüsselworte();
     this.#migrierePatienten();
     this.#migriereRechnungen();
     this.#migriereLeistungen();
     this.#migriereDiagnosen();
   }
 
-  #migriereEinstellungen() {
+  #migrierePraxen() {
     try {
-      console.log("Migriere Einstellungen ...");
-      const agencies = this.#legacyDatabase.queryAgencies();
-      const titles = this.#legacyDatabase.queryTitles();
-      const familyStatus = this.#legacyDatabase.queryFamilyStatus();
-      const handlings = this.#legacyDatabase.queryHandling();
-      const einstellungen = erstelleEinstellungen({
-        agencies,
-        titles,
-        familyStatus,
-        handlings,
-      });
-      this.#einstellungenProvider.sichere(einstellungen);
-      console.log("  Einstellungen migriert.");
+      console.log("Migriere Praxen ...");
+      const praxen = this.#legacyDatabase.queryAgencies();
+      this.#einstellungenRepository.updatePraxen(praxen);
+      console.log(`  ${praxen.length} Praxen migriert.`);
     } catch (error) {
-      console.error(
-        "  Migration der Einstellungen fehlgeschlagen.",
-        (error as Error).message,
-        error,
+      console.error("  Migration der Praxen fehlgeschlagen.", error);
+    }
+  }
+
+  #migriereAnreden() {
+    try {
+      console.log("Migriere Anreden ...");
+      const anreden = this.#legacyDatabase.queryTitles();
+      this.#einstellungenRepository.updateAnreden(anreden);
+      console.log(`  ${anreden.length} Anreden migriert.`);
+    } catch (error) {
+      console.error("  Migration der Anreden fehlgeschlagen.", error);
+    }
+  }
+
+  #migriereFamilienstände() {
+    try {
+      console.log("Migriere Familienstände ...");
+      const familienstände = this.#legacyDatabase.queryFamilyStatus();
+      this.#einstellungenRepository.updateFamilienstände(familienstände);
+      console.log(`  ${familienstände.length} Familienstände migriert.`);
+    } catch (error) {
+      console.error("  Migration der Familienstände fehlgeschlagen.", error);
+    }
+  }
+
+  #migriereSchlüsselworte() {
+    try {
+      console.log("Migriere Schlüsselworte ...");
+      const handling = this.#legacyDatabase.queryHandling();
+      const schlüsselworte = erstelleSchlüsselworte(handling);
+      this.#einstellungenRepository.updateSchlüsselworte(schlüsselworte);
+      console.log(
+        `  ${Object.keys(schlüsselworte).length} Schlüsselworte migriert.`,
       );
+    } catch (error) {
+      console.error("  Migration der Schlüsselworte fehlgeschlagen.", error);
     }
   }
 

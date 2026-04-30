@@ -8,7 +8,3 @@ export const PATIENT_CHANNEL = "patient";
 export const PATIENTEN_CHANNEL = "patienten";
 export const LEISTUNGEN_CHANNEL = "leistungen";
 export const RECHNUNGEN_CHANNEL = "rechnungen";
-
-// Settings
-export const LADE_EINSTELLUNGEN_CHANNEL = "ladeEinstellungen";
-export const SICHERE_EINSTELLUNGEN_CHANNEL = "sichereEinstellungen";
