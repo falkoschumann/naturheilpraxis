@@ -105,7 +105,7 @@ Storys für den MVP sind mit ❗ markiert.
 #### Erstelle Rechnung
 
 - [ ] ❗Erstelle Rechnung für einen Patienten mit Datum, Leistungen und
-      optionaler Diagnose
+      optionalen Diagnosen
 - [ ] ❗Bestimme Rechnungsnummer aus Patientennummer und Rechnungsdatum:
       NNNN/JJMMDD
 - [ ] ❗Nutze Zahlungsziel und Kontoverbindung als Defaultwert für Rechnungstext
