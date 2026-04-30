@@ -27,7 +27,7 @@ export class EinstellungenRepository {
   updatePraxen(praxen: string[]) {
     const db = this.#datenbankProvider.get();
     db.exec("BEGIN TRANSACTION;");
-    db.exec("TRUNCATE praxen");
+    db.exec("DELETE FROM praxen;");
     const stmt = db.prepare("INSERT INTO praxen (name) VALUES (?);");
     praxen.forEach((praxis) => stmt.run(praxis));
     db.exec("COMMIT TRANSACTION;");
@@ -44,7 +44,7 @@ export class EinstellungenRepository {
   updateAnreden(anreden: string[]) {
     const db = this.#datenbankProvider.get();
     db.exec("BEGIN TRANSACTION;");
-    db.exec("TRUNCATE anreden");
+    db.exec("DELETE FROM anreden;");
     const stmt = db.prepare("INSERT INTO anreden (name) VALUES (?);");
     anreden.forEach((anrede) => stmt.run(anrede));
     db.exec("COMMIT TRANSACTION;");
@@ -61,7 +61,7 @@ export class EinstellungenRepository {
   updateFamilienstände(familienstände: string[]) {
     const db = this.#datenbankProvider.get();
     db.exec("BEGIN TRANSACTION;");
-    db.exec("TRUNCATE familienstände");
+    db.exec("DELETE FROM familienstände;");
     const stmt = db.prepare("INSERT INTO familienstände (name) VALUES (?);");
     familienstände.forEach((familienstand) => stmt.run(familienstand));
     db.exec("COMMIT TRANSACTION;");
@@ -88,7 +88,7 @@ export class EinstellungenRepository {
   updateSchlüsselworte(schlüsselworte: Record<string, boolean>) {
     const db = this.#datenbankProvider.get();
     db.exec("BEGIN TRANSACTION;");
-    db.exec("TRUNCATE schlüsselworte");
+    db.exec("DELETE FROM schlüsselworte;");
     const stmt = db.prepare(
       "INSERT INTO schlüsselworte (name, standard) VALUES (?, ?);",
     );
