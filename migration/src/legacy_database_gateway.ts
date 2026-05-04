@@ -107,7 +107,9 @@ export class LegacyDatabaseGateway {
              invoiceNote AS invoiceNote,
              comment AS comment,
              cleared AS cleared,
-             creditNote AS creditNote
+             creditNote AS creditNote,
+             row_number() OVER (PARTITION BY invoicenumber ORDER BY invoicelist.id) AS invoiceSequence,
+             count(invoicenumber) OVER (PARTITION BY invoicenumber) AS invoiceCount
         FROM invoicelist
         LEFT JOIN agencylist ON invoicelist.agencyid=agencylist.id
     `);
@@ -202,6 +204,8 @@ export interface InvoiceDto {
   comment?: string;
   cleared?: number;
   creditNote?: number;
+  invoiceSequence: number;
+  invoiceCount: number;
 }
 
 export interface DiagnosisDto {

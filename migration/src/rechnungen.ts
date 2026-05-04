@@ -23,6 +23,8 @@ function erstelleRechnung(invoice: InvoiceDto) {
   const kommentar = normalisiereString(invoice.comment);
   const bezahlt = normalisiereBoolean(invoice.cleared);
   const gutschrift = normalisiereBoolean(invoice.creditNote);
+  const sequenz = normalisiereNumber(invoice.invoiceSequence)!;
+  const anzahl = normalisiereNumber(invoice.invoiceCount)!;
   const rechnung = prüfeVollständigkeit({
     rechnung: {
       id,
@@ -34,6 +36,8 @@ function erstelleRechnung(invoice: InvoiceDto) {
       kommentar,
       bezahlt,
       gutschrift,
+      sequenz,
+      anzahl,
     },
     onError: (fehlendeDaten) => {
       const fehlendeDatenString = fehlendeDaten.join(", ");
@@ -59,6 +63,8 @@ function prüfeVollständigkeit({
     kommentar?: string;
     bezahlt?: boolean;
     gutschrift?: boolean;
+    sequenz: number;
+    anzahl: number;
   };
   onError: (fehlendeDaten: string[]) => void;
 }) {
@@ -75,6 +81,8 @@ function prüfeVollständigkeit({
   if (nummer == null) {
     fehlendeDaten.push("Rechnungsnummer");
     nummer = "N/A";
+  } else if (rechnung.anzahl > 1) {
+    nummer = nummer + `-${rechnung.sequenz}`;
   }
   if (datum == null) {
     fehlendeDaten.push("Datum");
