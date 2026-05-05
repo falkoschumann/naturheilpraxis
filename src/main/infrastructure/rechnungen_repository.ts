@@ -2,8 +2,8 @@
 
 import type { SQLInputValue, SQLOutputValue } from "node:sqlite";
 
-import { Rechnung } from "../../shared/domain/rechnung";
-import { mapBoolean, mapNumber, mapString } from "./datenbank_mapper";
+import { Rechnung, type Rechnungszustand } from "../../shared/domain/rechnung";
+import { mapNumber, mapString } from "./datenbank_mapper";
 import { DatenbankProvider } from "./datenbank_provider";
 
 export class RechnungenRepository {
@@ -72,9 +72,9 @@ export class RechnungenRepository {
         .prepare(
           `
           INSERT INTO rechnungen (id, praxis, nummer, datum, patient_id,
-                                  rechnungstext, kommentar, bezahlt, gutschrift)
+                                  rechnungstext, kommentar, zustand)
           VALUES (:id, :praxis, :nummer, :datum, :patient_id,
-                  :rechnungstext, :kommentar, :bezahlt, :gutschrift);
+                  :rechnungstext, :kommentar, :zustand);
         `,
         )
         .run(record);
@@ -99,8 +99,7 @@ function createRecord(rechnung: Rechnung): Record<string, SQLInputValue> {
     patient_id: rechnung.patientId,
     rechnungstext: rechnung.rechnungstext ?? null,
     kommentar: rechnung.kommentar ?? null,
-    bezahlt: rechnung.bezahlt ? 1 : 0,
-    gutschrift: rechnung.gutschrift ? 1 : 0,
+    zustand: rechnung.zustand,
   };
 }
 
@@ -114,8 +113,7 @@ function createRechnung(record: Record<string, SQLOutputValue>) {
     summe: mapNumber(record, "summe"),
     rechnungstext: mapString(record, "rechnungstext"),
     kommentar: mapString(record, "kommentar"),
-    bezahlt: mapBoolean(record, "bezahlt"),
-    gutschrift: mapBoolean(record, "gutschrift"),
+    zustand: mapString(record, "zustand") as Rechnungszustand,
     nachname: mapString(record, "nachname"),
     vorname: mapString(record, "vorname"),
     geburtsdatum: mapString(record, "geburtsdatum"),

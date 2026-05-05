@@ -12,8 +12,7 @@ export class Rechnung {
     summe,
     rechnungstext,
     kommentar,
-    bezahlt = false,
-    gutschrift = false,
+    zustand = Rechnungszustand.ERSTELLT,
     nachname,
     vorname,
     geburtsdatum,
@@ -26,8 +25,7 @@ export class Rechnung {
     summe?: Währung | number;
     rechnungstext?: string;
     kommentar?: string;
-    bezahlt?: boolean;
-    gutschrift?: boolean;
+    zustand?: Rechnungszustand;
     nachname?: string;
     vorname?: string;
     geburtsdatum?: Temporal.PlainDate | string;
@@ -36,8 +34,7 @@ export class Rechnung {
       praxis,
       datum,
       patientId,
-      bezahlt,
-      gutschrift,
+      zustand,
       id,
       nummer,
       rechnungstext,
@@ -58,8 +55,7 @@ export class Rechnung {
     summe,
     rechnungstext = "Bitte überweisen Sie den obigen Rechnungsbetrag auf das Konto DE84 1022 7075 0900 1170 01.",
     kommentar,
-    bezahlt = false,
-    gutschrift = false,
+    zustand = Rechnungszustand.ERSTELLT,
     nachname,
     vorname,
     geburtsdatum,
@@ -72,8 +68,7 @@ export class Rechnung {
     summe?: Währung | number;
     rechnungstext?: string;
     kommentar?: string;
-    bezahlt?: boolean;
-    gutschrift?: boolean;
+    zustand?: Rechnungszustand;
     nachname?: string;
     vorname?: string;
     geburtsdatum?: Temporal.PlainDate | string;
@@ -87,8 +82,7 @@ export class Rechnung {
       summe,
       rechnungstext,
       kommentar,
-      bezahlt,
-      gutschrift,
+      zustand,
       nachname,
       vorname,
       geburtsdatum,
@@ -104,11 +98,7 @@ export class Rechnung {
   readonly summe?: Währung;
   readonly rechnungstext?: string;
   readonly kommentar?: string;
-
-  // TODO merge bezahlt and gutschrift to zustand: erstellt, abgerechnet, bezahlt, annulliert
-  readonly bezahlt: boolean;
-  readonly gutschrift: boolean;
-
+  readonly zustand: Rechnungszustand;
   readonly nachname?: string;
   readonly vorname?: string;
   readonly geburtsdatum?: Temporal.PlainDate;
@@ -117,8 +107,7 @@ export class Rechnung {
     praxis: string,
     datum: Temporal.PlainDate | string,
     patientId: number,
-    bezahlt: boolean,
-    gutschrift: boolean,
+    zustand: Rechnungszustand,
     id?: number,
     nummer?: string,
     rechnungstext?: string,
@@ -143,11 +132,19 @@ export class Rechnung {
     this.summe = summe != null ? Währung.from(summe) : undefined;
     this.rechnungstext = rechnungstext;
     this.kommentar = kommentar;
-    this.bezahlt = bezahlt;
-    this.gutschrift = gutschrift;
+    this.zustand = zustand;
     this.nachname = nachname;
     this.vorname = vorname;
     this.geburtsdatum =
       geburtsdatum != null ? Temporal.PlainDate.from(geburtsdatum) : undefined;
   }
 }
+
+export const Rechnungszustand = Object.freeze({
+  ERSTELLT: "erstellt",
+  ABGERECHNET: "abgerechnet",
+  BEZAHLT: "bezahlt",
+} as const);
+
+export type Rechnungszustand =
+  (typeof Rechnungszustand)[keyof typeof Rechnungszustand];

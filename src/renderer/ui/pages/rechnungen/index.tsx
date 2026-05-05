@@ -75,20 +75,5 @@ const columns = [
   columnHelper.accessor("summe", { header: "Summe", size: 100, sortingFn: sortWährung<Rechnung>("summe") }),
   columnHelper.accessor("rechnungstext", { header: "Rechnungstext", size: 250 }),
   columnHelper.accessor("kommentar", { header: "Kommentar", size: 250 }),
-  columnHelper.accessor("bezahlt", {
-    header: "Bezahlt",
-    size: 80,
-    cell: (info) =>
-      info.getValue() ? (
-        <i className="fa-regular fa-circle-check text-success"></i>
-      ) : (
-        <i className="fa-regular fa-circle"></i>
-      ),
-  }),
-  columnHelper.accessor("gutschrift", {
-    header: "Gutschrift",
-    size: 80,
-    cell: (info) =>
-      info.getValue() ? <i className="fa-regular fa-circle-check"></i> : <i className="fa-regular fa-circle"></i>,
-  }),
+  columnHelper.accessor("zustand", { header: "Zustand", size: 100 }),
 ];

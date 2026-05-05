@@ -2,7 +2,7 @@
 
 import type { InvoiceDto } from "./legacy_database_gateway";
 
-import { Rechnung } from "../../src/shared/domain/rechnung";
+import { Rechnung, Rechnungszustand } from "../../src/shared/domain/rechnung";
 import {
   normalisiereBoolean,
   normalisiereNumber,
@@ -22,7 +22,6 @@ function erstelleRechnung(invoice: InvoiceDto) {
   const rechnungstext = normalisiereString(invoice.invoiceNote);
   const kommentar = normalisiereString(invoice.comment);
   const bezahlt = normalisiereBoolean(invoice.cleared);
-  const gutschrift = normalisiereBoolean(invoice.creditNote);
   const sequenz = normalisiereNumber(invoice.invoiceSequence)!;
   const anzahl = normalisiereNumber(invoice.invoiceCount)!;
   const rechnung = prüfeVollständigkeit({
@@ -35,7 +34,6 @@ function erstelleRechnung(invoice: InvoiceDto) {
       rechnungstext,
       kommentar,
       bezahlt,
-      gutschrift,
       sequenz,
       anzahl,
     },
@@ -62,13 +60,12 @@ function prüfeVollständigkeit({
     rechnungstext?: string;
     kommentar?: string;
     bezahlt?: boolean;
-    gutschrift?: boolean;
     sequenz: number;
     anzahl: number;
   };
   onError: (fehlendeDaten: string[]) => void;
 }) {
-  const { id, rechnungstext, kommentar, bezahlt, gutschrift } = rechnung;
+  const { id, rechnungstext, kommentar, bezahlt } = rechnung;
   let { praxis, nummer, datum, patientId } = rechnung;
   const fehlendeDaten: string[] = [];
   if (id == null) {
@@ -95,6 +92,9 @@ function prüfeVollständigkeit({
   if (fehlendeDaten.length > 0) {
     onError(fehlendeDaten);
   }
+  const zustand = bezahlt
+    ? Rechnungszustand.BEZAHLT
+    : Rechnungszustand.ABGERECHNET;
   return {
     id,
     praxis,
@@ -103,7 +103,6 @@ function prüfeVollständigkeit({
     patientId,
     rechnungstext,
     kommentar,
-    bezahlt,
-    gutschrift,
+    zustand,
   };
 }

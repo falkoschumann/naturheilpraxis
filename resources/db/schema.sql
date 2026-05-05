@@ -57,13 +57,18 @@ CREATE TABLE IF NOT EXISTS rechnungen (
     datum TEXT NOT NULL,
     rechnungstext TEXT,
     kommentar TEXT,
-    bezahlt INTEGER NOT NULL,
-    gutschrift INTEGER NOT NULL
+    zustand TEXT NOT NULL -- enum: erstellt, abgerechnet, bezahlt
 );
 
 CREATE INDEX IF NOT EXISTS rechnungen_patient_id ON rechnungen (patient_id);
 
 -- TODO Verlinke eine oder mehrere Diagnosen in Rechnung
+CREATE TABLE IF NOT EXISTS rechnungsdiagnosen (
+    rechnung_id INTEGER NOT NULL REFERENCES rechnungen (id),
+    diagnose_id INTEGER NOT NULL REFERENCES diagnosen (id),
+    PRIMARY KEY (rechnung_id, diagnose_id)
+);
+
 -- TODO Sollte Diagnose eine Praxis haben?
 CREATE TABLE IF NOT EXISTS diagnosen (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
