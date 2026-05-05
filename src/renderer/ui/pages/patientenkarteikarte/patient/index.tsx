@@ -9,7 +9,7 @@ import {
   aktualisiereFeld,
   bearbeitePatientendaten,
   brichBearbeitungAb,
-  FormularZustand,
+  Formularzustand,
   initialisiereFormular,
   initialState,
   reducer,
@@ -32,12 +32,12 @@ export function PatientComponent() {
   function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    if (state.zustand === FormularZustand.AUFNAHME) {
+    if (state.zustand === Formularzustand.AUFNAHME) {
       dispatch(sendeFormular());
       onNimmPatientAuf(NimmPatientAufCommand.create({ patient: state.patient }));
-    } else if (state.zustand === FormularZustand.ANZEIGE) {
+    } else if (state.zustand === Formularzustand.ANZEIGE) {
       dispatch(bearbeitePatientendaten());
-    } else if (state.zustand === FormularZustand.BEARBEITUNG) {
+    } else if (state.zustand === Formularzustand.BEARBEITUNG) {
       dispatch(sendeFormular());
       // TODO speichere Änderungen
     }
@@ -245,7 +245,7 @@ export function PatientComponent() {
       <aside className="flex-shrink-0 container">
         <div className="btn-toolbar py-3" role="toolbar" aria-label="Aktionen für Patient">
           <div className="me-auto"></div>
-          {state.zustand === FormularZustand.VERARBEITUNG && (
+          {state.zustand === Formularzustand.VERARBEITUNG && (
             <div className="spinner-border text-primary" role="status">
               <span className="visually-hidden">Loading...</span>
             </div>

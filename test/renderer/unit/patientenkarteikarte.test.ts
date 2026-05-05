@@ -7,7 +7,7 @@ import {
   aktualisiereFeld,
   bearbeitePatientendaten,
   brichBearbeitungAb,
-  FormularZustand,
+  Formularzustand,
   initialisiereFormular,
   initialState,
   reducer,
@@ -26,7 +26,7 @@ function erzeugePatient(): Patient {
 const aufnahmeState: State = Object.freeze({
   patient: erzeugePatient(),
   prevPatient: erzeugePatient(),
-  zustand: FormularZustand.AUFNAHME,
+  zustand: Formularzustand.AUFNAHME,
   nurLesen: false,
   sendenText: "Aufnehmen",
   sendenDeaktiviert: true,
@@ -36,7 +36,7 @@ const aufnahmeState: State = Object.freeze({
 const anzeigeState: State = Object.freeze({
   patient: Patient.createTestInstance(),
   prevPatient: Patient.createTestInstance(),
-  zustand: FormularZustand.ANZEIGE,
+  zustand: Formularzustand.ANZEIGE,
   nurLesen: true,
   sendenText: "Bearbeiten",
   sendenDeaktiviert: false,
@@ -46,7 +46,7 @@ const anzeigeState: State = Object.freeze({
 const bearbeitungState: State = Object.freeze({
   patient: Patient.createTestInstance(),
   prevPatient: Patient.createTestInstance(),
-  zustand: FormularZustand.BEARBEITUNG,
+  zustand: Formularzustand.BEARBEITUNG,
   nurLesen: false,
   sendenText: "Speichern",
   sendenDeaktiviert: true,
@@ -56,7 +56,7 @@ const bearbeitungState: State = Object.freeze({
 const verarbeitungState: State = Object.freeze({
   patient: Patient.createTestInstance(),
   prevPatient: Patient.createTestInstance(),
-  zustand: FormularZustand.VERARBEITUNG,
+  zustand: Formularzustand.VERARBEITUNG,
   nurLesen: true,
   sendenText: "Speichern",
   sendenDeaktiviert: true,

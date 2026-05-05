@@ -66,7 +66,7 @@ export type Action =
 // endregion
 // region State
 
-export const FormularZustand = Object.freeze({
+export const Formularzustand = Object.freeze({
   START: "Start",
   AUFNAHME: "Aufnahme",
   VERARBEITUNG: "Verarbeitung",
@@ -74,13 +74,13 @@ export const FormularZustand = Object.freeze({
   BEARBEITUNG: "Bearbeitung",
 } as const);
 
-export type FormularZustand =
-  (typeof FormularZustand)[keyof typeof FormularZustand];
+export type Formularzustand =
+  (typeof Formularzustand)[keyof typeof Formularzustand];
 
 export interface State {
   patient: Patient;
   prevPatient: Patient;
-  zustand: FormularZustand;
+  zustand: Formularzustand;
   nurLesen: boolean;
   sendenText: "Aufnehmen" | "Bearbeiten" | "Speichern";
   sendenDeaktiviert: boolean;
@@ -90,7 +90,7 @@ export interface State {
 export const initialState: State = {
   patient: {},
   prevPatient: {},
-  zustand: FormularZustand.START,
+  zustand: Formularzustand.START,
   nurLesen: true,
   sendenText: "Bearbeiten",
   sendenDeaktiviert: true,
@@ -127,8 +127,8 @@ function doInitialisiereFormular(
     patient: action.payload,
     prevPatient: action.payload,
     zustand: istNeuerPatient
-      ? FormularZustand.AUFNAHME
-      : FormularZustand.ANZEIGE,
+      ? Formularzustand.AUFNAHME
+      : Formularzustand.ANZEIGE,
     nurLesen: !istNeuerPatient,
     sendenText: istNeuerPatient ? "Aufnehmen" : "Bearbeiten",
     sendenDeaktiviert: istNeuerPatient,
@@ -150,7 +150,7 @@ function doAktualisiereFeld(
 function doSendeFormular(state: State): State {
   return {
     ...state,
-    zustand: FormularZustand.VERARBEITUNG,
+    zustand: Formularzustand.VERARBEITUNG,
     nurLesen: true,
     sendenDeaktiviert: true,
     abbrechenDeaktiviert: true,
@@ -163,8 +163,8 @@ function doBrichBearbeitungAb(state: State): State {
     ...state,
     patient: state.prevPatient,
     zustand: istNeuerPatient
-      ? FormularZustand.AUFNAHME
-      : FormularZustand.ANZEIGE,
+      ? Formularzustand.AUFNAHME
+      : Formularzustand.ANZEIGE,
     nurLesen: !istNeuerPatient,
     sendenText: istNeuerPatient ? "Aufnehmen" : "Bearbeiten",
     sendenDeaktiviert: istNeuerPatient,
@@ -175,7 +175,7 @@ function doBrichBearbeitungAb(state: State): State {
 function doBearbeitePatientendaten(state: State): State {
   return {
     ...state,
-    zustand: FormularZustand.BEARBEITUNG,
+    zustand: Formularzustand.BEARBEITUNG,
     nurLesen: false,
     sendenText: "Speichern",
     sendenDeaktiviert: true,
