@@ -178,7 +178,7 @@ Storys für den MVP sind mit ❗ markiert.
 #### Füge Gebühr hinzu
 
 - [ ] Lege eine Gebühr mit Ziffer und Beschreibung an
-- [ ] **Contraint:** Die Ziffer muss eindeutig sein
+- [ ] **Constraint:** Die Ziffer muss eindeutig sein
 
 #### Entferne Gebühr
 
