@@ -1,7 +1,7 @@
 # Naturheilpraxis
 
 Mit dieser App können Heilpraktiker Leistungen für Patienten erfassen, um ihnen
-diese in Rechnung stellen zu können.
+diese in Rechnung stellen zu können. Es werden mehrere Praxen unterstützt.
 
 ## Domain
 
@@ -15,9 +15,8 @@ Storys für den MVP sind mit ❗ markiert.
 
 - [x] ❗Erfasse Informationen wie Name, Geburtsdatum, Praxis, Annahmejahr,
       Anschrift und Kontaktmöglichkeit
-- [ ] Nutze aktuelle Praxis als Standardpraxis
-- [ ] Nutze aktuelles Jahr als Annahmejahr
-- [ ] Unterscheide zwischen gesetzlicher und privater Krankenversicherung
+- [ ] Unterscheide zwischen gesetzlicher und privater Krankenversicherung oder
+      Selbstzahler
 - [ ] Wenn ein Patient mit demselben Nachnamen, Vornamen und Geburtsdatum
       existiert, muss der Nutzer die Aufnahme bestätigen
 - [ ] Wenn eines der Pflichtfelder Nachname, Vorname, Geburtsdatum, Annahmejahr
@@ -26,6 +25,9 @@ Storys für den MVP sind mit ❗ markiert.
 #### Patient
 
 - [x] ❗Suche Patient mit Nummer
+- [ ] Wenn es den Patienten nicht gibt, initialisiere einen neuen Patienten
+- [ ] Nutze aktuelle Praxis als Standard für die Praxis
+- [ ] Nutze aktuelles Jahr als Standard für das Annahmejahr
 
 #### Aktualisiere Patient
 
@@ -33,6 +35,10 @@ Storys für den MVP sind mit ❗ markiert.
 - [ ] Wenn eines der Pflichtfelder Nachname, Vorname, Geburtsdatum, Annahmejahr
       und Praxis nicht ausgefüllt ist, muss der Nutzer die Aktualisierung
       bestätigen
+
+#### Deaktiviere Patient
+
+- [ ] Setze den Status eines Patienten auf inaktiv
 
 #### Patienten
 
@@ -42,26 +48,23 @@ Storys für den MVP sind mit ❗ markiert.
 - [ ] Konfiguriere sichtbare Felder
 - [ ] Blende inaktive Patienten aus
 
-#### Deaktiviere Patient
+#### Exportiere Patientenliste
 
-- [ ] Setze den Status eines Patienten auf inaktiv
-
-#### Exportiere CSV-Datei
-
-- [ ] Exportiere (gefilterte) Liste von Patienten in CSV-Datei
+- [ ] Exportiere (gefilterte) Liste von Patienten in eine CSV-Datei
 
 ### Diagnosen
 
 ![Diagnosen](images/diagnosen.png)
 
-#### Erstelle Diagnose
+#### Stelle Diagnose
 
 - [ ] ❗Erfasse eine Diagnose mit Datum und Beschreibung für einen Patienten
 
-#### Diagnosen
+#### Diagnose
 
-- [x] ❗Liste alle Diagnosen für einen Patienten auf
-- [x] Suche Diagnose(n) mit Datum oder Beschreibung
+- [ ] Suche Diagnose mit ID
+- [ ] Wenn es die Diagnose nicht gibt, initialisiere eine neue Diagnose
+- [ ] Nutze aktuelles Datum als Standard für das Diagnosedatum
 
 #### Aktualisiere Diagnose
 
@@ -73,6 +76,11 @@ Storys für den MVP sind mit ❗ markiert.
 - [ ] **Constraint:** Nur Diagnosen, die nicht in einer Rechnung verwendet
       werden, können entfernt werden
 
+#### Diagnosen
+
+- [x] ❗Liste alle Diagnosen für einen Patienten auf
+- [x] Suche Diagnosen mit Datum oder Beschreibung
+
 ### Leistungen
 
 ![Leistungen](images/leistungen.png)
@@ -82,10 +90,13 @@ Storys für den MVP sind mit ❗ markiert.
 - [ ] ❗Erfasse Leistung für einen Patienten mit Datum, einer Gebühr und
       optionalen Kommentar
 
-#### Leistungen
+#### Leistung
 
-- [x] ❗Liste alle Leistungen für einen Patienten auf
-- [x] Suche Leistung(en) nach einem beliebigen Feld
+- [ ] Suche Leistung mit ID
+- [ ] Wenn es die Leistung nicht gibt, initialisiere eine neue Leistung
+- [ ] Nutze aktuelles Datum als Standard für das Leistungsdatum
+- [ ] Nutze das letzte Leistungsdatum als Standard für das Leistungsdatum wenn
+      mehrere Leistungen hintereinander erfasst werden
 
 #### Aktualisiere Leistung
 
@@ -97,6 +108,11 @@ Storys für den MVP sind mit ❗ markiert.
 
 - [ ] Lösche Leistung
 - [ ] **Constraint:** Nur nicht abgerechnete Leistungen können annulliert werden
+
+#### Leistungen
+
+- [x] ❗Liste alle Leistungen für einen Patienten auf
+- [x] Suche Leistungen nach einem beliebigen Feld
 
 ### Rechnungen
 
@@ -111,8 +127,6 @@ Storys für den MVP sind mit ❗ markiert.
 - [ ] ❗Nutze Zahlungsziel und Kontoverbindung als Defaultwert für Rechnungstext
 - [ ] **Constraint:** Nur nicht abgerechnete Leistungen können einer Rechnung
       hinzugefügt werden
-- [ ] **Constraint:** Patient, Diagnose und Leistungen dürfen nach Fakturierung
-      der Rechnung nicht mehr geändert werden
 
 #### Rechnung
 
@@ -124,43 +138,31 @@ Storys für den MVP sind mit ❗ markiert.
 - [ ] **Constraint:** Nur nicht fakturierte Rechnungen können aktualisiert
       werden
 
+#### Drucke Rechnung
+
+- [ ] Setze Rechnungsstatus auf abgerechnet
+- [ ] Markiere alle enthaltenen Leistungen als abgerechnet
+- [ ] ❗Erstelle PDF der Rechnung
+- [ ] **Constraint:** Patient, Diagnose und Leistungen dürfen nach der
+      Abrechnung nicht mehr geändert werden
+
+#### Rechnung bezahlt
+
+- [ ] Setze Rechnungsstatus auf bezahlt
+
 #### Annulliere Rechnung
 
 - [ ] Lösche eine Rechnung
-- [ ] **Constraint:** Nur nicht fakturierte Rechnungen können annulliert werden
-
-#### Drucke Rechnung
-
-- [ ] ❗Drucke Rechnung mit Leistungsbezeichnung
-- [ ] Drucke Rechnung ohne Leistungsbezeichnung
+- [ ] Frage Nutzer, ob die Rechnung storniert oder gelöscht werden soll
 
 #### Rechnungen
 
 - [x] ❗Liste alle Rechnungen auf
 - [x] ❗Liste Rechnungen eines Patienten auf
 - [ ] Liste Rechnungen einer Praxis auf
-- [x] Suche Rechnung(en) nach einem beliebigen Feld
+- [x] Suche Rechnungen nach einem beliebigen Feld
 - [ ] Sortiere nach Status und Datum
 - [ ] Blende bezahlte Rechnungen aus
-
-#### Fakturiere Rechnung
-
-- [ ] Setze Rechnungsstatus auf fakturiert
-- [ ] Markiere alle enthaltenen Leistungen als abgerechnet
-
-#### Markiere Rechnung als bezahlt
-
-- [ ] Setze Rechnungsstatus auf bezahlt
-
-#### Mahne Rechnung
-
-- [ ] Setze Rechnungsstatus auf gemahnt
-
-#### Storniere Rechnung
-
-- [ ] Setze Rechnungsstatus auf storniert
-- [ ] Frage vor dem Stornieren beim Nutzer nach
-- [ ] Gib alle enthaltenen Leistungen wieder frei
 
 ### Gebühren
 
@@ -169,41 +171,31 @@ Storys für den MVP sind mit ❗ markiert.
 #### Gebühren
 
 - [ ] Liste alle Gebühren auf
-- [ ] Suche Gebühr(en) nach Ziffer oder Beschreibung
-
-#### Aktualisiere Gebühr
-
-- [ ] Sichere die Änderung einer Gebühr
+- [ ] Suche Gebühren nach Ziffer oder Beschreibung
 
 #### Füge Gebühr hinzu
 
 - [ ] Lege eine Gebühr mit Ziffer und Beschreibung an
 - [ ] **Constraint:** Die Ziffer muss eindeutig sein
 
+#### Aktualisiere Gebühr
+
+- [ ] Sichere die Änderung einer Gebühr
+
 #### Entferne Gebühr
 
 - [ ] Lösche eine Gebühr
 
+#### Importiere Gebührenverzeichnis
+
+- [ ] Importiere Gebührenverzeichnis aus einer CSV-Datei
+- [ ] Frage Nutzer, ob bestehende Gebühren ersetzt oder aktualisiert werden
+      sollen
+
+#### Exportiere Gebührenverzeichnis
+
+- [ ] Exportiere Gebührenverzeichnis in eine CSV-Datei
+
 ## Architecture
 
 [Architecture Communication Canvas](https://html-preview.github.io/?url=https://github.com/falkoschumann/naturheilpraxis/blob/main/doc/acc.html)
-
-## Flow
-
-### Patientenkarteikarte
-
-```mermaid
-stateDiagram
-    state ist_neuer_Patient <<choice>>
-    [*] --> ist_neuer_Patient: initialisiere Formular
-    ist_neuer_Patient --> Aufnahme: Patient neu
-    ist_neuer_Patient --> Anzeige: Patient bekannt
-    Aufnahme --> Aufnahme: aktualisiere Feld
-    Aufnahme --> Verarbeitung: sende Formular
-    Aufnahme --> Aufnahme: brich Bearbeitung ab
-    Verarbeitung --> [*]: Verarbeitung abgeschlossen
-    Anzeige --> Bearbeitung: bearbeite Patientendaten
-    Bearbeitung --> Bearbeitung: aktualisiere Feld
-    Bearbeitung --> Verarbeitung: sende Formular
-    Bearbeitung --> Anzeige: brich Bearbeitung ab
-```
