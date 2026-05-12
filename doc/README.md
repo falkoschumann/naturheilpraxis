@@ -95,7 +95,7 @@ Storys für den MVP sind mit ❗ markiert.
 - [ ] Suche Leistung mit ID
 - [ ] Wenn es die Leistung nicht gibt, initialisiere eine neue Leistung
 - [ ] Nutze aktuelles Datum als Standard für das Leistungsdatum
-- [ ] Nutze das letzte Leistungsdatum als Standard für das Leistungsdatum wenn
+- [ ] Nutze das letzte Leistungsdatum als Standard für das Leistungsdatum, wenn
       mehrere Leistungen hintereinander erfasst werden
 
 #### Aktualisiere Leistung
@@ -195,6 +195,16 @@ Storys für den MVP sind mit ❗ markiert.
 #### Exportiere Gebührenverzeichnis
 
 - [ ] Exportiere Gebührenverzeichnis in eine CSV-Datei
+
+### Aktivitäten
+
+![Aktivitäten](images/aktivitaeten.png)
+
+#### Aktivitäten
+
+- [ ] Liste alle Diagnosen, Leistungen und Rechnungen eines Patienten zeitlich
+      geordnet auf
+- [ ] Suche Aktivitäten nach Datum oder Beschreibung
 
 ## Architecture
 
