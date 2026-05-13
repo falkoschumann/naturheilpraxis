@@ -3,7 +3,7 @@
 # Naturheilpraxis
 
 Mit dieser App können Heilpraktiker Leistungen für Patienten erfassen, um ihnen
-diese in Rechnung stellen zu können.
+diese in Rechnung stellen zu können. Es werden mehrere Praxen unterstützt.
 
 ## Installation
 

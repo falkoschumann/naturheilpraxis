@@ -5,20 +5,24 @@ LAYOUT_LEFT_RIGHT()
 
 title "System Context Diagram für Naturheilpraxis System"
 
-Person(heilpraktiker, "Heilpraktiker", "Möchte Patienten erfassen, um für sie Diagnosen zu erstellen, Leistungen zu erbringen und abzurechnen.")
+Person(heilpraktiker, "Heilpraktiker", "Möchte Patienten erfassen, um für sie Diagnosen zu stellen, Leistungen zu erbringen und abzurechnen.")
 Person(patient, "Patient", "Möchte Rechnung für Leistungen erhalten, um sie bei der Krankenkasse oder dem Finanzamt vorzulegen.")
 
 System(naturheilpraxis, "Naturheilpraxis", "Verwaltet Patienten, Diagnosen, Leistungen und Rechnungen.")
 
 SystemDb(patienten, "Patienten", "Patienten die aufgenommen wurden.")
+SystemDb(diagnosen, "Diagnosen", "Diagnosen, die für einen Patienten gestellt wurden.")
 SystemDb(leistungen, "Leistungen", "Leistungen, die für einen Patienten erbracht wurden.")
 SystemDb(rechnungen, "Rechnungen", "Abgerechnete Leistungen.")
+SystemDb(gebuehren, "Gebühren", "Gebührenverzeichnis für Leistungen.")
 
-Rel(heilpraktiker, naturheilpraxis, "Nimm Patient auf, erstelle Diagnose, erbringe Leistungen und erstelle Rechnung")
+Rel(heilpraktiker, naturheilpraxis, "Nimm Patient auf, stelle Diagnose, erbringe Leistungen und erstelle Rechnung")
 Rel(patient, naturheilpraxis, "Erhalte Diagnose und Leistungen sowie Rechnung")
 Rel(naturheilpraxis, patienten, "Nimm Patient auf")
+Rel(naturheilpraxis, diagnosen, "Stelle Diagnose")
 Rel(naturheilpraxis, leistungen, "Erbringe Leistung")
 Rel(naturheilpraxis, rechnungen, "Rechne Leistungen ab")
+Rel(naturheilpraxis, gebuehren, "Verwende Gebührenverzeichnis")
 
-SHOW_LEGEND()
+SHOW_FLOATING_LEGEND()
 @enduml
