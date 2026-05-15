@@ -5,14 +5,14 @@ import { useEffect, useState } from "react";
 import { NavLink, useNavigate } from "react-router";
 
 import type { Patient } from "../../../../shared/domain/patient";
-import { PatientenQueryResult } from "../../../../shared/domain/patienten_query";
-import { PATIENTENKARTEIKARTE_PAGE } from "../../components/pages";
+import { PatientenQuery, PatientenQueryResult } from "../../../../shared/domain/patienten_query";
+import CellComponent from "../../components/cell_component";
+import DefaultPageLayout from "../../layouts/default_page_layout";
 import { useMessageHandler } from "../../components/message_handler_context";
+import { PATIENTENKARTEIKARTE_PAGE } from "../../components/pages";
+import SearchComponent from "../../components/search_component";
 import { filterGlobal, sortPlainDate } from "../../components/table";
 import TableComponent from "../../components/table_component";
-import DefaultPageLayout from "../../layouts/default_page_layout";
-import { PatientQuery } from "../../../../shared/domain/patient_query";
-import { SearchComponent } from "../../components/search_component";
 
 // TODO store table state like search in query params
 
@@ -23,7 +23,7 @@ export function PatientenkarteiPage() {
 
   useEffect(() => {
     async function runAsync() {
-      const result = await messageHandler.suchePatienten(PatientQuery.create());
+      const result = await messageHandler.suchePatienten(PatientenQuery.create());
       setResult(result);
     }
 
@@ -79,7 +79,7 @@ const columns = [
     header: "Geburtsdatum",
     size: 140,
     cell: (info) => info?.getValue()?.toLocaleString("de-DE", { dateStyle: "medium" }),
-    sortingFn: sortPlainDate<Patient>("geburtsdatum"),
+    sortingFn: sortPlainDate,
   }),
   columnHelper.accessor("straße", { header: "Straße", size: 250 }),
   columnHelper.accessor("postleitzahl", { header: "PLZ", size: 80 }),
@@ -88,27 +88,33 @@ const columns = [
     header: "Telefon",
     size: 140,
     cell: (info) => (
-      <a href={`tel:${info.getValue()}`} onClick={(event) => event.stopPropagation()}>
-        {info.getValue()}
-      </a>
+      <CellComponent info={info}>
+        <a href={`tel:${info.getValue()}`} onClick={(event) => event.stopPropagation()}>
+          {info.getValue()}
+        </a>
+      </CellComponent>
     ),
   }),
   columnHelper.accessor("mobil", {
     header: "Mobil",
     size: 140,
     cell: (info) => (
-      <a href={`tel:${info.getValue()}`} onClick={(event) => event.stopPropagation()}>
-        {info.getValue()}
-      </a>
+      <CellComponent info={info}>
+        <a href={`tel:${info.getValue()}`} onClick={(event) => event.stopPropagation()}>
+          {info.getValue()}
+        </a>
+      </CellComponent>
     ),
   }),
   columnHelper.accessor("eMail", {
     header: "E-Mail",
     size: 250,
     cell: (info) => (
-      <a href={`mailto:${info.getValue()}`} onClick={(event) => event.stopPropagation()}>
-        {info.getValue()}
-      </a>
+      <CellComponent info={info}>
+        <a href={`mailto:${info.getValue()}`} onClick={(event) => event.stopPropagation()}>
+          {info.getValue()}
+        </a>
+      </CellComponent>
     ),
   }),
 ];

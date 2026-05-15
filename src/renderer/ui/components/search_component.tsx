@@ -23,3 +23,5 @@ export function SearchComponent({
     </form>
   );
 }
+
+export default SearchComponent;

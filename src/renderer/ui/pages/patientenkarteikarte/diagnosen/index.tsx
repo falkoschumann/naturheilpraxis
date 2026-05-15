@@ -62,7 +62,7 @@ const columns = [
     header: "Datum",
     size: 100,
     cell: (info) => info?.getValue()?.toLocaleString("de-DE", { dateStyle: "medium" }),
-    sortingFn: sortPlainDate<Diagnose>("datum"),
+    sortingFn: sortPlainDate,
   }),
   columnHelper.accessor("beschreibung", { header: "Beschreibung", size: 600 }),
 ];

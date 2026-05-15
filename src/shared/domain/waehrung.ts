@@ -56,7 +56,7 @@ export class Währung {
     return this.cents;
   }
 
-  static compare(one: Währung, two: Währung) {
+  static compare(one: Währung, two: Währung): number {
     if (one.cents < two.cents) {
       return -1;
     } else if (one.cents > two.cents) {
