@@ -5,8 +5,10 @@ import { createRoot } from "react-dom/client";
 
 import "../shared/polyfill";
 import { MessageHandlerContext } from "./ui/components/message_handler_context";
-import { messageHandler } from "./message_handler";
+import { MessageHandlerImpl } from "./message_handler";
 import App from "./ui";
+
+const messageHandler = MessageHandlerImpl.create();
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
