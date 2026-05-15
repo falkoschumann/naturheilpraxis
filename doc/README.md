@@ -43,8 +43,8 @@ Storys für den MVP sind mit ❗ markiert.
 #### Patienten
 
 - [x] ❗Liste alle Patienten auf
-- [x] Suche Patient(en) nach einem beliebigen Feld
-- [x] Sortiere nach einem sichtbaren Feld
+- [x] _Suche Patienten nach einem beliebigen Feld_
+- [x] _Sortiere nach einem Feld_
 - [ ] Konfiguriere sichtbare Felder
 - [ ] Blende inaktive Patienten aus
 
@@ -79,7 +79,7 @@ Storys für den MVP sind mit ❗ markiert.
 #### Diagnosen
 
 - [x] ❗Liste alle Diagnosen für einen Patienten auf
-- [x] Suche Diagnosen mit Datum oder Beschreibung
+- [x] _Suche Diagnosen mit Datum oder Beschreibung_
 
 ### Leistungen
 
@@ -112,7 +112,7 @@ Storys für den MVP sind mit ❗ markiert.
 #### Leistungen
 
 - [x] ❗Liste alle Leistungen für einen Patienten auf
-- [x] Suche Leistungen nach einem beliebigen Feld
+- [x] _Suche Leistungen nach einem beliebigen Feld_
 
 ### Rechnungen
 
@@ -160,7 +160,7 @@ Storys für den MVP sind mit ❗ markiert.
 - [x] ❗Liste alle Rechnungen auf
 - [x] ❗Liste Rechnungen eines Patienten auf
 - [ ] Liste Rechnungen einer Praxis auf
-- [x] Suche Rechnungen nach einem beliebigen Feld
+- [x] _Suche Rechnungen nach einem beliebigen Feld_
 - [ ] Sortiere nach Status und Datum
 - [ ] Blende bezahlte Rechnungen aus
 

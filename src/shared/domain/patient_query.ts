@@ -32,7 +32,6 @@ export class PatientQueryResult {
     familienstände?: string[];
     schlüsselworte?: string[];
   } = {}) {
-    patient = patient && Patient.create(patient);
     return new PatientQueryResult(
       praxen,
       anreden,
@@ -55,7 +54,9 @@ export class PatientQueryResult {
     ],
     schlüsselworte = [
       "E-Mail",
+      "Geburtstagskarte",
       "Selbstzahler",
+      "Weihnachtskarte",
       "Werbung",
       "gesetzlich versichert",
       "privat versichert",
@@ -89,7 +90,7 @@ export class PatientQueryResult {
     schlüsselworte: string[],
     patient?: Patient,
   ) {
-    this.patient = patient;
+    this.patient = patient && Patient.create(patient);
     this.praxen = praxen;
     this.anreden = anreden;
     this.familienstände = familienstände;

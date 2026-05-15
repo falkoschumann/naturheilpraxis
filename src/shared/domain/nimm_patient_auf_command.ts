@@ -6,7 +6,6 @@ import { Patient } from "./patient";
 
 export class NimmPatientAufCommand {
   static create({ patient }: { patient: Patient }) {
-    patient = Patient.create(patient);
     return new NimmPatientAufCommand(patient);
   }
 
@@ -15,15 +14,13 @@ export class NimmPatientAufCommand {
   }: {
     patient?: Patient;
   } = {}) {
-    return NimmPatientAufCommand.create({
-      patient,
-    });
+    return NimmPatientAufCommand.create({ patient });
   }
 
   readonly patient: Patient;
 
   private constructor(patient: Patient) {
-    this.patient = patient;
+    this.patient = Patient.create(patient);
   }
 }
 

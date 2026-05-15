@@ -22,11 +22,10 @@ export class RechnungenQueryHandler {
   }
 
   async handle(query: RechnungenQuery) {
+    const nummer = query.patientennummer;
     const rechnungen =
-      query.patientennummer != null
-        ? this.#rechnungenRepository.findAllByPatientennummer(
-            query.patientennummer,
-          )
+      nummer != null
+        ? this.#rechnungenRepository.findAllByPatientennummer(nummer)
         : this.#rechnungenRepository.findAll();
     return RechnungenQueryResult.create({ rechnungen });
   }

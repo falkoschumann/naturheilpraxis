@@ -17,7 +17,7 @@ export class DatenbankProvider {
   private constructor(datenbankPfad: string, schemaPfad: string) {
     this.#erzeugeVerzeichnisWennNotwendig(datenbankPfad);
     this.#datenbank = new sqlite.DatabaseSync(datenbankPfad);
-    this.#erzeugeSchemaWennNotwendig(schemaPfad);
+    this.#erzeugeSchema(schemaPfad);
   }
 
   get() {
@@ -33,7 +33,7 @@ export class DatenbankProvider {
     fs.mkdirSync(verzeichnis, { recursive: true });
   }
 
-  #erzeugeSchemaWennNotwendig(schemaPfad: string) {
+  #erzeugeSchema(schemaPfad: string) {
     const sql = fs.readFileSync(schemaPfad).toString();
     this.#datenbank.exec(sql);
   }

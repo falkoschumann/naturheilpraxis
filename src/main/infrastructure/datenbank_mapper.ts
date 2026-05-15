@@ -48,7 +48,7 @@ export function mapBoolean(
 ): boolean | undefined {
   const number = mapNumber(record, fieldName);
   if (number == null) {
-    return undefined;
+    return;
   }
 
   return number !== 0;

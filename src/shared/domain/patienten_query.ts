@@ -3,7 +3,7 @@
 import { Patient } from "./patient";
 
 export class PatientenQuery {
-  static create(_other?: PatientenQuery) {
+  static create(_other?: never) {
     return new PatientenQuery();
   }
 
@@ -16,7 +16,6 @@ export class PatientenQuery {
 
 export class PatientenQueryResult {
   static create({ patienten = [] }: { patienten?: Patient[] } = {}) {
-    patienten = patienten.map((patient) => Patient.create(patient));
     return new PatientenQueryResult(patienten);
   }
 
@@ -40,6 +39,6 @@ export class PatientenQueryResult {
   readonly patienten: Patient[];
 
   private constructor(patienten: Patient[]) {
-    this.patienten = patienten;
+    this.patienten = patienten.map((patient) => Patient.create(patient));
   }
 }

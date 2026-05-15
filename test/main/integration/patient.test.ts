@@ -47,7 +47,7 @@ describe("Patient", () => {
           patient: Patient.create({
             annahmejahr: 2026,
             praxis: "Naturheilpraxis",
-            schlüsselworte: [],
+            schlüsselworte: ["Geburtstagskarte", "Weihnachtskarte"],
           }),
         }),
       );

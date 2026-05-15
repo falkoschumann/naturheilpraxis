@@ -114,11 +114,13 @@ CREATE TABLE IF NOT EXISTS schlüsselworte (
 );
 
 INSERT INTO
-    schlüsselworte (name)
+    schlüsselworte (name, standard)
 VALUES
-    ('gesetzlich versichert'),
-    ('privat versichert'),
-    ('Selbstzahler'),
-    ('E-Mail'),
-    ('Werbung')
+    ('gesetzlich versichert', 0),
+    ('privat versichert', 0),
+    ('Selbstzahler', 0),
+    ('Geburtstagskarte', 1),
+    ('Weihnachtskarte', 1),
+    ('E-Mail', 0),
+    ('Werbung', 0)
 ON CONFLICT DO NOTHING;
