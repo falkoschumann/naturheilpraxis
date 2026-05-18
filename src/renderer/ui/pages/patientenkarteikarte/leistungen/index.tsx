@@ -7,7 +7,7 @@ import { useOutletContext } from "react-router";
 import type { Leistung } from "../../../../../shared/domain/leistung";
 import { LeistungenQuery, LeistungenQueryResult } from "../../../../../shared/domain/leistungen_query";
 import { useMessageHandler } from "../../../components/message_handler_context";
-import { filterGlobal, sortPlainDate, sortWährung } from "../../../components/table";
+import { filterGlobal, getPlainDate, getWährung, sortPlainDate, sortWährung } from "../../../components/table";
 import TableComponent from "../../../components/table_component";
 import { SearchComponent } from "../../../components/search_component";
 
@@ -59,25 +59,25 @@ export default LeistungenComponent;
 const columnHelper = createColumnHelper<Leistung>();
 const columns = [
   columnHelper.accessor("praxis", { header: "Praxis", size: 100 }),
-  columnHelper.accessor("datum", {
+  columnHelper.accessor(getPlainDate("datum"), {
+    id: "datum",
     header: "Datum",
     size: 100,
-    cell: (info) => info?.getValue()?.toLocaleString("de-DE", { dateStyle: "medium" }),
     sortingFn: sortPlainDate,
   }),
   columnHelper.accessor("gebührenziffer", { header: "Ziffer", size: 80 }),
   columnHelper.accessor("beschreibung", { header: "Beschreibung", size: 200 }),
-  columnHelper.accessor("einzelpreis", {
+  columnHelper.accessor(getWährung("einzelpreis"), {
+    id: "einzelpreis",
     header: "Einzelpreis",
     size: 100,
-    cell: (info) => info?.getValue()?.toString(),
     sortingFn: sortWährung,
   }),
   columnHelper.accessor("anzahl", { header: "Anzahl", size: 80 }),
-  columnHelper.accessor("summe", {
+  columnHelper.accessor(getWährung("summe"), {
+    id: "summe",
     header: "Summe",
     size: 100,
-    cell: (info) => info?.getValue()?.toString(),
     sortingFn: sortWährung,
   }),
   columnHelper.accessor("kommentar", { header: "Kommentar", size: 200 }),

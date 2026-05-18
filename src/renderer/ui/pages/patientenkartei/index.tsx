@@ -11,7 +11,7 @@ import DefaultPageLayout from "../../layouts/default_page_layout";
 import { useMessageHandler } from "../../components/message_handler_context";
 import { PATIENTENKARTEIKARTE_PAGE } from "../../components/pages";
 import SearchComponent from "../../components/search_component";
-import { filterGlobal, sortPlainDate } from "../../components/table";
+import { filterGlobal, getPlainDate, sortPlainDate } from "../../components/table";
 import TableComponent from "../../components/table_component";
 
 // TODO store table state like search in query params
@@ -75,10 +75,10 @@ const columns = [
   columnHelper.accessor("anrede", { header: "Anrede", size: 80 }),
   columnHelper.accessor("nachname", { header: "Nachname", size: 120 }),
   columnHelper.accessor("vorname", { header: "Vorname", size: 120 }),
-  columnHelper.accessor("geburtsdatum", {
+  columnHelper.accessor(getPlainDate("geburtsdatum"), {
+    id: "geburtsdatum",
     header: "Geburtsdatum",
     size: 140,
-    cell: (info) => info?.getValue()?.toLocaleString("de-DE", { dateStyle: "medium" }),
     sortingFn: sortPlainDate,
   }),
   columnHelper.accessor("straße", { header: "Straße", size: 250 }),

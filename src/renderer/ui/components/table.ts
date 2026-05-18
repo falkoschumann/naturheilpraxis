@@ -4,23 +4,39 @@ import { type Row } from "@tanstack/react-table";
 
 import { Währung } from "../../../shared/domain/waehrung";
 
+export function getPlainDate(columnId: string) {
+  return (rowData: unknown): unknown =>
+    (
+      (rowData as Record<string, unknown>)[columnId] as Temporal.PlainDate
+    )?.toLocaleString("de-DE", {
+      dateStyle: "medium",
+    });
+}
+
+export function getWährung(columnId: string) {
+  return (rowData: unknown): unknown =>
+    ((rowData as Record<string, unknown>)[columnId] as Währung)?.toString();
+}
+
 export function sortPlainDate<TData>(
   rowA: Row<TData>,
   rowB: Row<TData>,
   columnId: string,
 ) {
-  const valueA = rowA.getValue(columnId);
-  const valueB = rowB.getValue(columnId);
-  if (valueA == null && valueB == null) {
-    return 0;
+  const valueA = (rowA.original as Record<string, unknown>)[columnId] as
+    | Temporal.PlainDate
+    | undefined;
+  const valueB = (rowB.original as Record<string, unknown>)[columnId] as
+    | Temporal.PlainDate
+    | undefined;
+  if (valueA != null && valueB != null) {
+    return Temporal.PlainDateTime.compare(valueA, valueB);
   } else if (valueA == null && valueB != null) {
     return 1;
   } else if (valueA != null && valueB == null) {
     return -1;
   } else {
-    const dateTimeA = valueA as Temporal.PlainDate;
-    const dateTimeB = valueB as Temporal.PlainDate;
-    return Temporal.PlainDateTime.compare(dateTimeA, dateTimeB);
+    return 0;
   }
 }
 

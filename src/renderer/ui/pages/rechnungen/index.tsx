@@ -7,7 +7,7 @@ import type { Rechnung } from "../../../../shared/domain/rechnung";
 import { RechnungenQuery, RechnungenQueryResult } from "../../../../shared/domain/rechnungen_query";
 import { SearchComponent } from "../../components/search_component";
 import TableComponent from "../../components/table_component";
-import { filterGlobal, sortPlainDate, sortWährung } from "../../components/table";
+import { filterGlobal, getPlainDate, getWährung, sortPlainDate, sortWährung } from "../../components/table";
 import { useMessageHandler } from "../../components/message_handler_context";
 import DefaultPageLayout from "../../layouts/default_page_layout";
 
@@ -57,22 +57,22 @@ const columnHelper = createColumnHelper<Rechnung>();
 const columns = [
   columnHelper.accessor("praxis", { header: "Praxis", size: 100 }),
   columnHelper.accessor("nummer", { header: "Nummer", size: 120 }),
-  columnHelper.accessor("datum", {
+  columnHelper.accessor(getPlainDate("datum"), {
+    id: "datum",
     header: "Datum",
     size: 100,
-    cell: (info) => info?.getValue()?.toLocaleString("de-DE", { dateStyle: "medium" }),
     sortingFn: sortPlainDate,
   }),
   columnHelper.accessor("patientId", { header: "Patient", size: 60 }),
   columnHelper.accessor("nachname", { header: "Nachname", size: 120 }),
   columnHelper.accessor("vorname", { header: "Vorname", size: 120 }),
-  columnHelper.accessor("geburtsdatum", {
+  columnHelper.accessor(getPlainDate("geburtsdatum"), {
+    id: "geburtsdatum",
     header: "Geburtsdatum",
     size: 140,
-    cell: (info) => info?.getValue()?.toLocaleString("de-DE", { dateStyle: "medium" }),
     sortingFn: sortPlainDate,
   }),
-  columnHelper.accessor("summe", { header: "Summe", size: 100, sortingFn: sortWährung }),
+  columnHelper.accessor(getWährung("summe"), { id: "summe", header: "Summe", size: 100, sortingFn: sortWährung }),
   columnHelper.accessor("rechnungstext", { header: "Rechnungstext", size: 250 }),
   columnHelper.accessor("kommentar", { header: "Kommentar", size: 250 }),
   columnHelper.accessor("zustand", { header: "Zustand", size: 100 }),

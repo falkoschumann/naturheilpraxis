@@ -31,15 +31,23 @@ export function TableComponent<TData>({
 }) {
   "use no memo";
 
-  const [globalFilter, setGlobalFilter] = useState<string[]>([]);
+  const [globalFilter, setGlobalFilter] = useState<string[]>();
   const [sorting, setSorting] = useState<SortingState>(initialSorting);
 
   useEffect(() => {
     const timeoutId = setTimeout(() => {
-      const filter = suchText
-        .split(/\s+/)
-        .map((wort) => wort.trim())
-        .filter((wort) => wort.length > 0);
+      if (suchText == null || suchText.trim() === "") {
+        setGlobalFilter(undefined);
+        return;
+      }
+
+      const regex = /"([^"]*)"|(\S+)/g;
+      const filter = [];
+      let match;
+      while ((match = regex.exec(suchText)) !== null) {
+        const token = match[1] || (match[2] as string);
+        filter.push(token);
+      }
       setGlobalFilter(filter);
     }, 400);
 
