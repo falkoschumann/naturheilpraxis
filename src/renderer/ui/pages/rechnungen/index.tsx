@@ -7,7 +7,13 @@ import type { Rechnung } from "../../../../shared/domain/rechnung";
 import { RechnungenQuery, RechnungenQueryResult } from "../../../../shared/domain/rechnungen_query";
 import { SearchComponent } from "../../components/search_component";
 import TableComponent from "../../components/table_component";
-import { filterGlobal, getPlainDate, getWährung, sortPlainDate, sortWährung } from "../../components/table";
+import {
+  filterIncludesOrMatchesRow,
+  getPlainDate,
+  getWährung,
+  sortPlainDate,
+  sortWährung,
+} from "../../components/table";
 import { useMessageHandler } from "../../components/message_handler_context";
 import DefaultPageLayout from "../../layouts/default_page_layout";
 
@@ -43,7 +49,7 @@ export function RechnungenPage() {
           columns={columns}
           data={result.rechnungen}
           initialSorting={[{ id: "datum", desc: true }]}
-          globalFilterFn={filterGlobal}
+          globalFilterFn={filterIncludesOrMatchesRow}
           suchText={suchtext}
         />
       </main>

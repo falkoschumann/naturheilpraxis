@@ -7,7 +7,13 @@ import { useOutletContext } from "react-router";
 import type { Rechnung } from "../../../../../shared/domain/rechnung";
 import { RechnungenQuery, RechnungenQueryResult } from "../../../../../shared/domain/rechnungen_query";
 import { useMessageHandler } from "../../../components/message_handler_context";
-import { filterGlobal, getPlainDate, getWährung, sortPlainDate, sortWährung } from "../../../components/table";
+import {
+  filterIncludesOrMatchesRow,
+  getPlainDate,
+  getWährung,
+  sortPlainDate,
+  sortWährung,
+} from "../../../components/table";
 import TableComponent from "../../../components/table_component";
 import { SearchComponent } from "../../../components/search_component";
 
@@ -44,7 +50,7 @@ export function RechnungenComponent() {
           columns={columns}
           data={result.rechnungen}
           initialSorting={[{ id: "datum", desc: true }]}
-          globalFilterFn={filterGlobal}
+          globalFilterFn={filterIncludesOrMatchesRow}
           suchText={suchtext}
         />
       </main>

@@ -11,7 +11,7 @@ import DefaultPageLayout from "../../layouts/default_page_layout";
 import { useMessageHandler } from "../../components/message_handler_context";
 import { PATIENTENKARTEIKARTE_PAGE } from "../../components/pages";
 import SearchComponent from "../../components/search_component";
-import { filterGlobal, getPlainDate, sortPlainDate } from "../../components/table";
+import { filterIncludesOrMatchesRow, getPlainDate, sortPlainDate } from "../../components/table";
 import TableComponent from "../../components/table_component";
 
 // TODO store table state like search in query params
@@ -51,7 +51,7 @@ export function PatientenkarteiPage() {
           columns={columns}
           data={result.patienten}
           initialSorting={[{ id: "geburtsdatum", desc: true }]}
-          globalFilterFn={filterGlobal}
+          globalFilterFn={filterIncludesOrMatchesRow}
           suchText={suchtext}
           onSelectRow={handlePatientClick}
         />

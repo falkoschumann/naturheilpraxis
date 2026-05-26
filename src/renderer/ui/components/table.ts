@@ -13,31 +13,29 @@ export function getPlainDate(columnId: string) {
     });
 }
 
-export function getWährung(columnId: string) {
-  return (rowData: unknown): unknown =>
-    ((rowData as Record<string, unknown>)[columnId] as Währung)?.toString();
-}
-
 export function sortPlainDate<TData>(
   rowA: Row<TData>,
   rowB: Row<TData>,
   columnId: string,
 ) {
-  const valueA = (rowA.original as Record<string, unknown>)[columnId] as
-    | Temporal.PlainDate
-    | undefined;
-  const valueB = (rowB.original as Record<string, unknown>)[columnId] as
-    | Temporal.PlainDate
-    | undefined;
-  if (valueA != null && valueB != null) {
-    return Temporal.PlainDateTime.compare(valueA, valueB);
+  const valueA = (rowA.original as Record<string, unknown>)[columnId];
+  const valueB = (rowB.original as Record<string, unknown>)[columnId];
+  if (valueA == null && valueB == null) {
+    return 0;
   } else if (valueA == null && valueB != null) {
     return 1;
   } else if (valueA != null && valueB == null) {
     return -1;
   } else {
-    return 0;
+    const dateTimeA = valueA as Temporal.PlainDateTime;
+    const dateTimeB = valueB as Temporal.PlainDateTime;
+    return Temporal.PlainDateTime.compare(dateTimeA, dateTimeB);
   }
+}
+
+export function getWährung(columnId: string) {
+  return (rowData: unknown): unknown =>
+    ((rowData as Record<string, unknown>)[columnId] as Währung)?.toString();
 }
 
 export function sortWährung<TData>(
@@ -58,15 +56,32 @@ export function sortWährung<TData>(
   }
 }
 
-export function filterGlobal<TData>(
+export function filterIncludesOrMatchesRow<TData>(
   row: Row<TData>,
-  columnId: string,
+  _columnId: string,
   filterValue: string[],
 ) {
   if (filterValue.length === 0) {
     return true;
   }
 
-  const value = String(row.getValue(columnId)).toLowerCase();
-  return filterValue.some((filter) => value.includes(filter.toLowerCase()));
+  return filterValue.every((filter) =>
+    row
+      .getAllCells()
+      .map((cell) => cell.getValue())
+      .some((value) => matchValue(String(value), filter)),
+  );
+}
+
+function matchValue(value: string, filter: string) {
+  if (filter.startsWith("/") && filter.endsWith("/")) {
+    try {
+      const regex = new RegExp(filter.slice(1, -1), "i");
+      return regex.test(String(value));
+    } catch {
+      // ignore regular expression issues and fall back to string matching
+    }
+  }
+
+  return value.toLowerCase().includes(filter.toLowerCase());
 }

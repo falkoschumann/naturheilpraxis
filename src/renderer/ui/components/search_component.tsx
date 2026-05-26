@@ -7,6 +7,8 @@ export function SearchComponent({
   suchtext: string;
   setSuchtext: (suchtext: string) => void;
 }) {
+  // TODO replace with DebouncedInput
+  //  see https://github.com/TanStack/table/blob/main/examples/react/query-router-search-params/src/components/debouncedInput.tsx
   return (
     <form className="d-flex" role="search" onSubmit={(event) => event.preventDefault()}>
       <input

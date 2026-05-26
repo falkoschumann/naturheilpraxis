@@ -26,14 +26,17 @@ export function TableComponent<TData>({
   data: TData[];
   initialSorting?: SortingState;
   globalFilterFn?: FilterFnOption<TData>;
-  suchText?: string;
+  suchText?: string; // TODO use general filter value (unknown)
   onSelectRow?: (row: TData) => void;
 }) {
   "use no memo";
 
+  // TODO store filter and sorting in URL query
   const [globalFilter, setGlobalFilter] = useState<string[]>();
   const [sorting, setSorting] = useState<SortingState>(initialSorting);
 
+  // TODO extract filter (function or hook?)
+  // TODO replace timeout with DebouncedInput
   useEffect(() => {
     const timeoutId = setTimeout(() => {
       if (suchText == null || suchText.trim() === "") {

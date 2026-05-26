@@ -7,7 +7,13 @@ import { useOutletContext } from "react-router";
 import type { Leistung } from "../../../../../shared/domain/leistung";
 import { LeistungenQuery, LeistungenQueryResult } from "../../../../../shared/domain/leistungen_query";
 import { useMessageHandler } from "../../../components/message_handler_context";
-import { filterGlobal, getPlainDate, getWährung, sortPlainDate, sortWährung } from "../../../components/table";
+import {
+  filterIncludesOrMatchesRow,
+  getPlainDate,
+  getWährung,
+  sortPlainDate,
+  sortWährung,
+} from "../../../components/table";
 import TableComponent from "../../../components/table_component";
 import { SearchComponent } from "../../../components/search_component";
 
@@ -46,7 +52,7 @@ export function LeistungenComponent() {
           columns={columns}
           data={result.leistungen}
           initialSorting={[{ id: "datum", desc: true }]}
-          globalFilterFn={filterGlobal}
+          globalFilterFn={filterIncludesOrMatchesRow}
           suchText={suchtext}
         />
       </main>

@@ -7,7 +7,7 @@ import { useOutletContext } from "react-router";
 import type { Diagnose } from "../../../../../shared/domain/diagnose";
 import { DiagnosenQuery, DiagnosenQueryResult } from "../../../../../shared/domain/diagnosen_query";
 import { useMessageHandler } from "../../../components/message_handler_context";
-import { filterGlobal, sortPlainDate } from "../../../components/table";
+import { filterIncludesOrMatchesRow, getPlainDate, sortPlainDate } from "../../../components/table";
 import TableComponent from "../../../components/table_component";
 import { SearchComponent } from "../../../components/search_component";
 
@@ -46,7 +46,7 @@ export function DiagnosenComponent() {
           columns={columns}
           data={result.diagnosen}
           initialSorting={[{ id: "datum", desc: true }]}
-          globalFilterFn={filterGlobal}
+          globalFilterFn={filterIncludesOrMatchesRow}
           suchText={suchtext}
         />
       </main>
@@ -58,10 +58,10 @@ export default DiagnosenComponent;
 
 const columnHelper = createColumnHelper<Diagnose>();
 const columns = [
-  columnHelper.accessor("datum", {
+  columnHelper.accessor(getPlainDate("datum"), {
+    id: "datum",
     header: "Datum",
     size: 100,
-    cell: (info) => info?.getValue()?.toLocaleString("de-DE", { dateStyle: "medium" }),
     sortingFn: sortPlainDate,
   }),
   columnHelper.accessor("beschreibung", { header: "Beschreibung", size: 600 }),
