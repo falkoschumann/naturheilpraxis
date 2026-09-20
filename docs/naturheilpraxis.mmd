@@ -1,0 +1,89 @@
+---
+title: Naturheilpraxis
+---
+erDiagram
+    direction LR
+
+    PATIENT }o--|| PRAXIS : "wird aufgenommen in"
+    PATIENT ||--o| PATIENT : "ist Partner von"
+    PATIENT ||--o| PATIENT : "ist Kind von"
+    PATIENT ||--o{ DIAGNOSE : "erhält"
+    DIAGNOSE }o--|| PRAXIS : "ist gestellt in"
+    PATIENT ||--o{ LEISTUNG : "bekommt"
+    LEISTUNG }o--|| PRAXIS : "ist erbracht in"
+    LEISTUNG |o..|| GEBUEHR : "basiert auf"
+    PATIENT ||--o{ RECHNUNG : "muss bezahlen"
+    RECHNUNG |o--|| DIAGNOSE : "bezieht sich auf"
+    RECHNUNG |o--|{ LEISTUNG : "beinhaltet"
+    RECHNUNG }o--|| PRAXIS : "wird ausgestellt in"
+
+    PRAXIS {
+        number praxis_id PK
+        string name
+        string strasse
+        string zusatz
+        string postleitzahl
+        string ort
+        string staat
+        string telefon
+        string mobiltelefon
+        string email
+        string website
+        string rechnungstext
+    }
+    GEBUEHR {
+        string ziffer PK
+        string bezeichnung
+        number betrag
+    }
+    PATIENT {
+        number nummer PK
+        number praxis_id FK
+        string annahmejahr
+        string geburtsdatum
+        string anrede
+        string titel
+        string vorname
+        string nachname
+        string strasse
+        string zusatz
+        string postleitzahl
+        string ort
+        string staat
+        string telefon
+        string mobiltelefon
+        string email
+        string beruf
+        string familienstand
+        string staatsangehoerigkeit
+        string notizen
+        string[] schluesselworte
+    }
+    DIAGNOSE {
+        number diagnose_id PK
+        number praxis_id FK
+        number patient_id FK
+        string datum
+        string text
+    }
+    LEISTUNG {
+        number leistung_id PK
+        number praxis_id FK
+        number patient_id FK
+        number rechnung_id FK
+        string datum
+        string ziffer
+        string bezeichnung
+        number anzahl
+        number einzelbetrag
+    }
+    RECHNUNG {
+        number rechnung_id PK
+        number praxis_id FK
+        number patient_id FK
+        number diagnose_id FK
+        string nummer UK
+        string datum
+        string text
+        string status
+    }

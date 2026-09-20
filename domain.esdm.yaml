@@ -1,0 +1,7 @@
+# $schema: ./schemas/core/v1.yaml
+apiVersion: schema.esdm.io/core/v1
+kind: domain
+name: naturheilpraxis
+description: >-
+  Mit dieser Applikation können Heilpraktiker Leistungen für Patienten erfassen, um ihnen diese in
+  Rechnung stellen zu können. Es werden mehrere Praxen unterstützt.

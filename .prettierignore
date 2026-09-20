@@ -1,0 +1,5 @@
+# Schema is managed by esdm and must not be changed.
+/schemas/
+
+# Corrupt files for testing purposes
+corrupt.*

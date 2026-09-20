@@ -1,0 +1,90 @@
+# $schema: ../schemas/domain-storytelling/v1.yaml
+apiVersion: schema.esdm.io/domain-storytelling/v1
+kind: domain-story
+name: standardablauf
+description: >-
+  Der Standardablauf von der Aufnahme eines Patienten über die Erbringung von Leistungen bis zu
+  deren Abrechnung.
+scope:
+  domain: naturheilpraxis
+pointInTime: as-is
+granularity: coarse-grained
+domainPurity: pure
+actors:
+  - name: heilpraktiker
+  - name: patient
+sentences:
+  - sequenceNumber: 1
+    edges:
+      - from:
+          actor: heilpraktiker
+        to:
+          workObject: praxis
+        label: legt an
+  - sequenceNumber: 2
+    edges:
+      - from:
+          actor: heilpraktiker
+        to:
+          workObject: patient
+        label: nimmt auf
+  - sequenceNumber: 3
+    edges:
+      - from:
+          actor: heilpraktiker
+        to:
+          workObject: diagnose
+        label: stellt
+      - from:
+          workObject: diagnose
+        to:
+          actor: patient
+        label: für
+  - sequenceNumber: 4
+    edges:
+      - from:
+          actor: heilpraktiker
+        to:
+          workObject: leistung
+        label: erbringt
+      - from:
+          workObject: leistung
+        to:
+          actor: patient
+        label: für
+  - sequenceNumber: 5
+    edges:
+      - from:
+          actor: heilpraktiker
+        to:
+          workObject: rechnung
+        label: erstellt
+      - from:
+          workObject: rechnung
+        to:
+          workObject: leistung
+        label: aus noch nicht abgerechneten
+      - from:
+          workObject: rechnung
+        to:
+          workObject: diagnose
+        label: wegen
+  - sequenceNumber: 6
+    edges:
+      - from:
+          actor: heilpraktiker
+        to:
+          workObject: rechnung
+        label: versendet
+      - from:
+          workObject: rechnung
+        to:
+          actor: patient
+        label: an
+  - sequenceNumber: 7
+    edges:
+      - from:
+          actor: patient
+        to:
+          workObject: rechnung
+        label: bezahlt

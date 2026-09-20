@@ -1,0 +1,36 @@
+# macOS
+.DS_Store
+
+# Visual Studio Code
+.vscode/
+
+# Jetbrains
+.idea/
+out/
+*.iml
+
+# Eclipse
+.settings/
+bin/
+.project
+.classpath
+*.launch
+
+# Node.js
+coverage/
+node_modules/
+
+# Python
+.venv/
+__pycache__/
+
+# Build
+build/
+dist/
+
+# Project files
+data/
+testdata/
+tmp/
+.env.local
+*.log
