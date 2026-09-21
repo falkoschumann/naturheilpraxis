@@ -12,8 +12,6 @@ export default mergeConfig(
   base,
   defineConfig({
     test: {
-      // TODO remove this once there are actual tests to run.
-      passWithNoTests: true,
       projects: [
         {
           extends: true,
