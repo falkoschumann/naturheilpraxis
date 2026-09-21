@@ -1,0 +1,13 @@
+{
+  "extends": "@naturheilpraxis/typescript-config/tsconfig.web.json",
+  "compilerOptions": {
+    "composite": true,
+    "tsBuildInfoFile": "./node_modules/.cache/tsconfig.renderer.tsbuildinfo"
+  },
+  "include": [
+    "src/renderer/**/*.ts",
+    "src/renderer/**/*.tsx",
+    "src/shared/**/*.ts"
+  ],
+  "exclude": ["src/shared/**/*.test.ts", "src/shared/domain/feature-runner.ts"]
+}

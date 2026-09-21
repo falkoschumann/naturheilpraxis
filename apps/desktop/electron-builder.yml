@@ -1,0 +1,34 @@
+appId: de.muspellheim.naturheilpraxis
+# The product name comes from package.json, where Electron reads it as well to
+# name the directory of the user data.
+copyright: © 2026 Falko Schumann. MIT license.
+
+directories:
+  output: dist
+  buildResources: resources
+
+files:
+  - build/**
+  - package.json
+
+# There are no native modules yet, so electron-builder must not invoke a package
+# manager to rebuild them.
+npmRebuild: false
+
+mac:
+  category: public.app-category.medical
+  target: dmg
+  # Notarization needs Apple credentials in the environment. Enable it for
+  # release builds, not for building a DMG locally.
+  notarize: false
+  identity: null
+
+win:
+  target: nsis
+
+linux:
+  category: Office
+  target: AppImage
+  # On Linux the executable is named after the package, and the scope of
+  # "@naturheilpraxis/desktop" is no valid file name.
+  executableName: naturheilpraxis
