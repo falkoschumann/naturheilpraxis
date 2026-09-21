@@ -36,6 +36,23 @@ function electronProcess(name: string, entry: string): EnvironmentOptions {
 
 export default defineConfig({
   base: "./",
+  css: {
+    preprocessorOptions: {
+      // Bootstrap still uses the old Sass API, which warns hundreds of times
+      // per build. The list follows the recommendation of Bootstrap for Vite,
+      // https://getbootstrap.com/docs/5.3/getting-started/vite/, without
+      // "mixed-decls", which Dart Sass has retired in the meantime, and with
+      // "if-function", which it has added since.
+      scss: {
+        silenceDeprecations: [
+          "import",
+          "color-functions",
+          "global-builtin",
+          "if-function",
+        ],
+      },
+    },
+  },
   environments: {
     main: electronProcess("main", "src/main/main.ts"),
     preload: electronProcess("preload", "src/preload/preload.ts"),

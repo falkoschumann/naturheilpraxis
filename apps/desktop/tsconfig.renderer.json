@@ -2,6 +2,7 @@
   "extends": "@naturheilpraxis/typescript-config/tsconfig.web.json",
   "compilerOptions": {
     "composite": true,
+    "types": ["vite/client"],
     "tsBuildInfoFile": "./node_modules/.cache/tsconfig.renderer.tsbuildinfo"
   },
   "include": [

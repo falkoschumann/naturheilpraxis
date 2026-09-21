@@ -1,0 +1,9 @@
+// Copyright (c) 2026 Falko Schumann. MIT license.
+
+// Bootstrap is compiled from its sources because the components have their
+// colors compiled in; overriding the CSS variables alone would not reach them.
+// The green is the primary color of the practice and stays apart from the
+// green of Bootstrap that marks success.
+@use "bootstrap/scss/bootstrap" with (
+  $primary: #2e7d32
+);

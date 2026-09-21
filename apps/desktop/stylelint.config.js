@@ -1,5 +1,5 @@
 // Copyright (c) 2026 Falko Schumann. MIT license.
 
-import { base } from "@naturheilpraxis/stylelint-config";
+import { scss } from "@naturheilpraxis/stylelint-config";
 
-export default base;
+export default scss;
