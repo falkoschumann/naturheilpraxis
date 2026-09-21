@@ -1,5 +1,18 @@
+# see also https://gitignore.io
+
+#
+# OS
+#
+
 # macOS
 .DS_Store
+
+# Windows
+Thumbs.db
+
+#
+# IDEs and editors
+#
 
 # Visual Studio Code
 .vscode/
@@ -16,6 +29,28 @@ bin/
 .classpath
 *.launch
 
+#
+# Build systems
+#
+
+# Gradle
+.gradle/
+build/
+
+# Maven
+target/
+
+# Build
+build/
+dist/
+/RELEASE_NOTES.md
+.env.local
+*.log
+
+#
+# Language-specific
+#
+
 # Node.js
 coverage/
 node_modules/
@@ -24,13 +59,26 @@ node_modules/
 .venv/
 __pycache__/
 
-# Build
-build/
-dist/
+#
+# Tools
+#
 
+# Playwright
+coverage-e2e/
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/
+playwright/.auth/
+
+# Ansible
+.ansible
+/local.yml
+
+#
 # Project files
+#
+
 data/
 testdata/
 tmp/
-.env.local
-*.log

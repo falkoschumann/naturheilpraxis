@@ -15,28 +15,38 @@ distclean: clean
 	rm -rf node_modules apps/*/node_modules packages/*/node_modules
 
 dist: build
+	$(PM) run --workspaces --if-present dist
 
 dev: prepare
+	$(PM) run --parallel --workspaces --if-present dev
 
 esdm-visualizer:
 	docker run --rm --publish 4000:3000 --volume .:/data impierce/esdm-visualizer
 
-check: test
+check: coverage
+	$(PM) run --workspaces --if-present lint
+	$(PM) run --workspaces --if-present check-types
 	$(PM) run format
 	esdm lint
 
 fix:
+	$(PM) run --workspaces --if-present lint:fix
 	$(PM) run format:fix
 
 test: prepare
-
-watch: prepare
+	$(PM) run --workspaces --if-present test
 
 coverage: prepare
+	$(PM) run --workspaces --if-present test:coverage
+
+watch: prepare
+	$(PM) run --workspaces --if-present test:watch
 
 e2e: build
+	$(PM) run --workspaces --if-present test:e2e
 
 build: prepare
+	$(PM) run --workspaces --if-present build
 
 prepare:
 	$(PM) install
@@ -45,5 +55,5 @@ prepare:
 	all clean distclean dist \
 	dev esdm-visualizer \
 	check fix \
-	test watch coverage e2e \
+	test coverage watch  e2e \
 	build prepare

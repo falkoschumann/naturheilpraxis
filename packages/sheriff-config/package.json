@@ -1,0 +1,29 @@
+{
+  "name": "@naturheilpraxis/sheriff-config",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "check-types": "tsc --build tsconfig.json"
+  },
+  "exports": {
+    ".": "./src/base.ts",
+    "./components": "./src/components.ts"
+  },
+  "files": [
+    "README.md",
+    "src/base.ts",
+    "src/components.ts"
+  ],
+  "peerDependencies": {
+    "@softarc/sheriff-core": "^0.19"
+  },
+  "devDependencies": {
+    "@naturheilpraxis/eslint-config": "*",
+    "@naturheilpraxis/typescript-config": "*",
+    "@softarc/sheriff-core": "^0.19.6",
+    "eslint": "^10.10.0",
+    "typescript": "^6"
+  }
+}

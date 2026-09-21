@@ -1,0 +1,6 @@
+[install]
+linker = "hoisted"
+
+[serve.static]
+env = "NATURHEILPRAXIS_*"
+sourcemap = "linked"

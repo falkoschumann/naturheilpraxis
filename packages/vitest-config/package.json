@@ -1,0 +1,32 @@
+{
+  "name": "@naturheilpraxis/vitest-config",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "check-types": "tsc --build tsconfig.json"
+  },
+  "exports": {
+    ".": "./src/mod.ts"
+  },
+  "files": [
+    "README.md",
+    "src/base.ts",
+    "src/mod.ts"
+  ],
+  "dependencies": {
+    "@vitest/coverage-v8": "^5.0.0"
+  },
+  "peerDependencies": {
+    "vitest": "^5"
+  },
+  "devDependencies": {
+    "@naturheilpraxis/eslint-config": "*",
+    "@naturheilpraxis/typescript-config": "*",
+    "@types/node": "^24",
+    "eslint": "^10.10.0",
+    "typescript": "^6",
+    "vitest": "^5.0.0"
+  }
+}

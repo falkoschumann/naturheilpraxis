@@ -1,4 +1,5 @@
 #!/usr/bin/env bun
+
 // Prueft die konkreten Nutzdaten der Given-When-Then-Szenarien gegen die Schemas,
 // die das Modell dafuer vorsieht:
 //

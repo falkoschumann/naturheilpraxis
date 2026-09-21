@@ -1,0 +1,13 @@
+{
+  "name": "@naturheilpraxis/typescript-config",
+  "private": true,
+  "type": "module",
+  "files": [
+    "README.md",
+    "tsconfig.base.json",
+    "tsconfig.bun.json",
+    "tsconfig.electron-preload.json",
+    "tsconfig.node.json",
+    "tsconfig.web.json"
+  ]
+}

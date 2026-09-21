@@ -1,0 +1,31 @@
+{
+  "name": "@naturheilpraxis/stylelint-config",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "check:types": "tsc --build tsconfig.json"
+  },
+  "exports": {
+    ".": "./src/mod.js"
+  },
+  "files": [
+    "README.md",
+    "src/base.js",
+    "src/mod.js"
+  ],
+  "dependencies": {
+    "stylelint-config-standard": "^40.0.0"
+  },
+  "peerDependencies": {
+    "stylelint": "^17"
+  },
+  "devDependencies": {
+    "@naturheilpraxis/eslint-config": "*",
+    "@naturheilpraxis/typescript-config": "*",
+    "@types/node": "^24.13.5",
+    "eslint": "^10.10.0",
+    "typescript": "^6.0.3"
+  }
+}
