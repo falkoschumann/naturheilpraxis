@@ -10,7 +10,5 @@ export const base = defineConfig({
         branches: 85,
       },
     },
-    outputFile: "coverage/junit.xml",
-    reporters: ["default", "junit"],
   },
 });
