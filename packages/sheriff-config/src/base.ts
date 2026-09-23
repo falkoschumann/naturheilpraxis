@@ -21,7 +21,7 @@ export const base: SheriffConfig = {
     "layer:entry": ["layer:*", "ui:entry"],
     "layer:application": ["layer:infrastructure"],
     "layer:domain": noDependencies,
-    "layer:ui": ["ui:*"],
+    "layer:ui": ["layer:application", "ui:*"],
     "layer:*": [sameTag, "layer:domain", "layer:shared"],
     "ui:entry": "ui:*",
     "ui:pages": "ui:layouts",
