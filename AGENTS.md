@@ -39,25 +39,11 @@ The ESDM schema requires names in kebab-case. The source code uses the idiomatic
 style like CamelCase in TypeScript. Values like event names in the domain must
 not be changed when used as event type in code.
 
-Write tests with pattern "_describe_ what _it_ should do something" in English
-or "_describe_ was _it_ sollte etwas tun" in German. Implement tests using the
-pattern Arrange-Act-Assert.
-
 ## Architecture
 
-- Use Domain Driven Design.
-- Implement the functional core, imperative shell pattern with the following
-  layers:
-  - `entry` creates and orchestrates the other layers
-  - `application` orchestrates `domain` and `infrastructure` (object oriented)
-  - `domain` implements the domain logic of the core (pure functional)
-  - `infrastructure` implements the I/O parts of the shell (object oriented)
-  - `ui` implements the user interface parts of the shell (object oriented)
-    - `entry` creates and orchestrates the UI layer
-    - `components` contains reusable components
-    - `layouts` contains reusable layouts built from components
-    - `pages` contains pages, each built from a layout and components
-  - `shared` optional layer with domain-independent code shared between layers
+Use the functional core, imperative shell pattern and domain driven design
+patterns to implement the domain model. The skill `implement-feature` holds the
+workflow and conventions.
 
 ## Commits
 
