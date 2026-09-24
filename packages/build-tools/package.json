@@ -1,0 +1,25 @@
+{
+  "name": "@naturheilpraxis/build-tools",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "check:types": "tsc --build tsconfig.json",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "test:watch": "vitest --watch"
+  },
+  "bin": {
+    "naturheilpraxis-validate-scenarios": "./src/validate_scenarios.ts"
+  },
+  "devDependencies": {
+    "@naturheilpraxis/eslint-config": "*",
+    "@naturheilpraxis/typescript-config": "*",
+    "@naturheilpraxis/vitest-config": "*",
+    "@vitest/coverage-v8": "5.0.1",
+    "eslint": "10.11.0",
+    "typescript": "6.0.3",
+    "vitest": "5.0.1"
+  }
+}

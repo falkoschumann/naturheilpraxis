@@ -23,31 +23,6 @@ When you have enough context, propose the model following the conventions from
 the schemas. After the files are written, ask me to run `esdm lint` and we will
 work through any findings together.
 
-## Checking the model
-
-Run both checks after every change to the model:
-
-```sh
-esdm lint
-bun ${CLAUDE_SKILL_DIR}/scripts/validate-scenarios.mjs
-```
-
-`esdm lint` checks the references between documents and whether every invariant
-is covered by a scenario. It does **not** check the concrete payloads inside the
-scenarios, so a renamed field or a reshaped event payload leaves the scenarios
-silently stale while the lint stays green.
-
-`scripts/validate-scenarios.mjs` closes that gap. It validates `given[].data`
-against `event.data`, `when.data` against `command.data`, `when.parameters`
-against `query.parameters`, `then.events[].data` against `event.data`,
-`then.result` against `query.result`, and `then.readModel` against
-`read-model.schema`. It resolves `$ref` against the `$id` of the value objects
-and entities, so the shape of an embedded value object is checked too. The
-script needs no dependencies; it uses the YAML parser built into Bun.
-
-Whenever you change the payload of an event or a command, expect this script to
-fail and update the scenarios before reporting the change as done.
-
 ## Conventions
 
 Follow these conventions in addition to the schemas:

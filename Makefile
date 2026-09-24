@@ -28,6 +28,7 @@ check: coverage
 	$(PM) run --workspaces --if-present check-types
 	$(PM) run format
 	esdm lint
+	$(RUN) naturheilpraxis-validate-scenarios
 
 fix:
 	$(PM) run --workspaces --if-present lint:fix

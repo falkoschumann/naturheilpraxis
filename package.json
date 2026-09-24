@@ -16,6 +16,7 @@
     "format:fix": "prettier --write ."
   },
   "devDependencies": {
+    "@naturheilpraxis/build-tools": "*",
     "prettier": "^3.9.8"
   }
 }
