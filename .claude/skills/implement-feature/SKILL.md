@@ -1,8 +1,11 @@
 ---
 name: implement-feature
 description:
-  Implements a feature based on the specification and test cases, and generates
-  tests first, followed by the code.
+  Implement a feature from the ESDM domain model (*.esdm.yaml) test-first. Turn
+  the Given-When-Then scenarios of the matching *.feature.esdm.yaml into failing
+  tests, then write the code. Use when an aggregate, DCB, read model or process
+  manager is modeled and needs code, or when asked to implement, code or build a
+  feature or backlog item.
 ---
 
 You are a senior full-stack developer and familiar with domain driven design and
