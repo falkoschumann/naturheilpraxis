@@ -9,7 +9,14 @@ import globals from "globals";
 import ts from "typescript-eslint";
 
 export const base = defineConfig([
-  globalIgnores(["build/**", "coverage/**", "dist/**"]),
+  globalIgnores([
+    "build/**",
+    "coverage/**",
+    "dist/**",
+    "coverage-e2e/**",
+    "playwright-report/**",
+    "test-results/**",
+  ]),
   {
     extends: [js.configs.recommended, ts.configs.recommended, prettierConfig],
     files: ["**/*.{js,jsx,mjs,cjs,ts,tsx}"],
