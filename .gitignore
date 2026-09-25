@@ -76,6 +76,11 @@ playwright/.auth/
 /local.yml
 
 #
+# AI agents
+#
+.claude/worktrees/
+
+#
 # Project files
 #
 

@@ -8,6 +8,7 @@ all: dist check e2e
 clean:
 	rm -rf apps/*/build packages/*/build
 	rm -rf apps/*/coverage packages/*/coverage
+	rm -rf apps/*/coverage-e2e apps/*/playwright-report apps/*/test-results
 	rm -rf node_modules/.cache apps/*/node_modules/.cache packages/*/node_modules/.cache
 
 distclean: clean
@@ -41,7 +42,7 @@ coverage: prepare
 	$(PM) run --workspaces --if-present test:coverage
 
 watch: prepare
-	$(PM) run --workspaces --if-present test:watch
+	$(PM) run --parallel --workspaces --if-present test:watch
 
 e2e: build
 	$(PM) run --workspaces --if-present test:e2e
@@ -49,12 +50,17 @@ e2e: build
 build: prepare
 	$(PM) run --workspaces --if-present build
 
-prepare:
+prepare: version
 	$(PM) install
+
+version:
+	@echo "Use runtime $(JS) version $(shell $(JS) --version)"
+	@echo "Use package manager $(PM) version $(shell $(PM) --version)"
+	@echo "Use package runner $(RUN) version $(shell $(RUN) --version)"
 
 .PHONY: \
 	all clean distclean dist \
 	dev esdm-visualizer \
 	check fix \
 	test coverage watch  e2e \
-	build prepare
+	build prepare version
