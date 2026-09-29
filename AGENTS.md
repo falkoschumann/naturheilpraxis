@@ -33,21 +33,14 @@ The domain model is written with ESDM. Add or update the model, including its
 scenarios, before writing tests and code. The skill `model-domain` holds the
 modeling conventions.
 
-## Code Style
-
-The ESDM schema requires names in kebab-case. The source code uses the idiomatic
-style like CamelCase in TypeScript. Values like event names in the domain must
-not be changed when used as event type in code.
-
 ## Architecture
 
-Use the functional core, imperative shell pattern and domain driven design
-patterns to implement the domain model. The skill `implement-feature` holds the
-workflow and conventions.
+The repository is a monorepo with Bun workspaces, compatible with NPM
+workspaces:
+
+- `apps` contains applications to be delivered.
+- `packages` contains libraries and shared configuration.
 
 ## Commits
 
-Use Conventional Commits (`<type>[optional scope]: <description>`) with the
-types `feat`, `fix`, `refactor`, `test`, `docs`, `build`, `ci` and `ai`, and the
-scopes `desktop` for the app and `model` for the ESDM model. Mark a breaking
-change with a `BREAKING CHANGE:` footer.
+Use the scopes `desktop` for the app and `model` for the ESDM model.

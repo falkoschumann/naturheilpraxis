@@ -19,41 +19,43 @@ the functional core, imperative shell pattern.
 6. Write the code in `src/`.
 7. Iterate until all tests pass (show green).
 
-Do not commit. Provide a commit message instead and ask for approval before
-committing.
-
-## Conventions
-
-- Write tests with the pattern "_describe_ what _it_ should do something" for an
-  English domain and "_describe_ was _it_ sollte etwas tun" for a German domain.
-- Write tests using the Arrange-Act-Assert pattern.
-- A component has the following layers:
-  - Component entry creates and orchestrates the other layers
-  - `application` orchestrates `domain` and `infrastructure` (object oriented)
-  - `domain` implements the domain logic of the core (pure functional)
-  - `infrastructure` implements the I/O parts of the shell (object oriented)
-  - `ui` implements the user interface parts of the shell (object oriented)
-    - UI entry creates and orchestrates the UI layer
-    - `components` contains reusable components
-    - `layouts` contains reusable layouts built from components
-    - `pages` contains pages, each built from a layout and components
-  - `shared` optional layer with domain-independent code shared between layers
-
 ## Domain Code
 
-The domain code must be pure functional without I/O .
+The domain code must be pure functional without I/O.
 
 Commands and Events have a `type` and a `data` property. The `type` is the name
 and `data` is the payload, both from their ESDM definition.
 
+### Types
+
+Map each ESDM schema to a `type` wrapped in `Readonly<>`:
+
+- `object` → `Readonly<{ … }>`, `array` → `readonly T[]`
+- `oneOf` → union, mark the properties of the other alternatives as `?: never`
+- `allOf` → intersection
+- `enum` or `const` → union of literal types
+- `$ref` → the referenced type
+
+```typescript
+type DoSomethingCommand = Readonly<{
+  type: "do-something";
+  data: DoSomethingCommandData;
+}>;
+
+type GetSomethingQueryResult =
+  | Readonly<{ something: SomethingData; errorMessage?: never }>
+  | Readonly<{ something?: never; errorMessage: string }>;
+```
+
 ### Aggregate and DCB
 
-- `decide(state, command) → Event[] | Error` – verifies the invariants (business
-  rules) and decide which events to publish.
+- `decide(state, command) → Result<Event[], Error>` – verifies the invariants
+  (business rules) and decides which events to publish.
 - `evolve(state, event) → state` – applies an event to the state (reducer).
 
 ```typescript
-type Result<T, E> = { ok: true; value: T } | { ok: false; error: E };
+type Result<T, E> =
+  Readonly<{ ok: true; value: T }> | Readonly<{ ok: false; error: E }>;
 
 const ok = <T>(value: T): Result<T, never> => ({ ok: true, value });
 const fail = <E>(error: E): Result<never, E> => ({ ok: false, error });
@@ -88,10 +90,13 @@ function project(readModel: ReadModel, event: Event): ReadModel {
 }
 
 function projectAll(readModel: ReadModel, events: Event[]): ReadModel {
-  return events.reduce(readModel, state);
+  return events.reduce(project, readModel);
 }
 
-function getQuery(readModel: ReadModel, query: QueryParameter): QueryResult {
+function getSomething(
+  readModel: ReadModel,
+  query: GetSomethingQuery,
+): GetSomethingQueryResult {
   // ...
 }
 ```
