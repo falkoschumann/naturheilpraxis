@@ -27,12 +27,6 @@ Use English for all files with the exception of the domain. The domain language
 is German. Idiomatic code conventions like `create` prefix or `Repository`
 suffix stay in English.
 
-## Domain Model
-
-The domain model is written with ESDM. Add or update the model, including its
-scenarios, before writing tests and code. The skill `model-domain` holds the
-modeling conventions.
-
 ## Architecture
 
 The repository is a monorepo with Bun workspaces, compatible with NPM
