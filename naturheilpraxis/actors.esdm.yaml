@@ -1,0 +1,15 @@
+# $schema: ../schemas/core/v1.yaml
+apiVersion: schema.esdm.io/core/v1
+kind: actor
+name: heilpraktiker
+description: >-
+  Der Heilpraktiker oder die Heilpraktikerin als Rolle in der Anwendung.
+scope:
+  domain: naturheilpraxis
+  boundedContext: naturheilpraxis
+type: human
+responsibilities:
+  - Verwaltet Praxen und das Gebührenverzeichnis.
+  - Nimmt Patienten auf und pflegt deren Stammdaten.
+  - Stellt Diagnosen und erbringt Leistungen für Patienten.
+  - Erstellt Rechnungen für erbrachte Leistungen und erfasst den Zahlungseingang.

@@ -1,0 +1,52 @@
+# $schema: ../schemas/core/v1.yaml
+apiVersion: schema.esdm.io/core/v1
+kind: bounded-context
+name: naturheilpraxis
+description: >-
+  Der einzige Bounded Context der Anwendung umfasst die Verwaltung von Stammdaten, Leistungen und
+  Abrechnungen.
+scope:
+  domain: naturheilpraxis
+language: de
+ubiquitousLanguage:
+  - term: Diagnose
+    definition: >-
+      Das Ergebnis der Feststellung oder Bestimmung einer Krankheit bei einem Patienten. Dient als
+      Grundlage für die Erbringung von Leistungen und muss auf einer Rechnung angegeben werden.
+  - term: Gebührenverzeichnis für Heilpraktiker (GebüH)
+    definition: >-
+      Das offizielle Gebührenverzeichnis für Heilpraktiker in Deutschland, das die Gebührenziffern,
+      Bezeichnungen und Beträge für die Abrechnung von Leistungen festlegt.
+  - term: Heilpraktiker
+    definition: >-
+      Eine Person, die Diagnosen stellt, Behandlungen durchführt und diese Leistungen in Rechnung
+      stellt. Der einzige Akteur der Anwendung.
+  - term: Leistung
+    definition: >-
+      Eine vom Heilpraktiker erbrachte Leistung für einen Patienten an einem bestimmten Datum in
+      einer Praxis. Sie wird in der Regel auf einer Gebührenziffer des Gebührenverzeichnisses für
+      Heilpraktiker (GebüH) basieren und auf einer Rechnung abgerechnet.
+  - term: Patient
+    definition: >-
+      Eine Person, die vom Heilpraktiker behandelt wird. Ist kein Akteur der Anwendung und existiert
+      nur als Datum. Wird durch die Patientennummer eindeutig identifiziert.
+  - term: Patientennummer
+    definition: >-
+      Eine eindeutige Nummer, die einem Patienten bei der Aufnahme zugewiesen wird und zur
+      Identifikation dient. Die Patientennummer ist eine fortlaufende Zahl, beginnend bei 1 und wird
+      nicht erneut vergeben.
+  - term: Praxis
+    definition: >-
+      Der Ort, an dem ein Heilpraktiker tätig ist. Ein Patient wird in einer Praxis aufgenommen und
+      kann in mehreren Praxen behandelt werden. Eine Rechnung wird für eine Praxis erstellt.
+  - term: Rechnung
+    definition: >-
+      Die Forderung an einen Patienten über die noch nicht abgerechneten Leistungen. Sie wird als
+      Entwurf erstellt, dann versendet und schließlich bezahlt. Die Rechnung basiert auf einer
+      Diagnose. Leistungen müssen nicht in der selben Praxis erbracht worden sein. Wird durch die
+      Rechnungsnummer eindeutig identifiziert, die beim Versand der Rechnung vergeben wird.
+  - term: Rechnungsnummer
+    definition: >-
+      Die Identität einer Rechnung, gebildet aus Patientennummer 1234 und Rechnungsdatum 20.09.2026
+      wird etwa "1234/260920". Fällt an einem Tag mehr als eine Rechnung für denselben Patienten an,
+      wird ab der zweiten Rechnung eine fortlaufende Zahl angehängt, etwa "1234/260920-2".
