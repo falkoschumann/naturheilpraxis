@@ -1,0 +1,111 @@
+# $schema: ../schemas/core/v1.yaml
+apiVersion: schema.esdm.io/core/v1
+kind: dynamic-consistency-boundary
+name: praxisverwaltung
+description: >-
+  Das Praxiskürzel muss eindeutig sein. Dafür reicht es alle Ereignisse mit dem gleichen
+  Praxiskürzel zu betrachten.
+scope:
+  domain: naturheilpraxis
+  boundedContext: naturheilpraxis
+identifiedBy:
+  - name: praxis
+    source: command-payload
+    field: praxiskuerzel
+consults:
+  - boundedContext: naturheilpraxis
+    event: praxis-angelegt
+    criteria: Alle Events mit demselben Kürzel wie im auslösenden Command.
+  - boundedContext: naturheilpraxis
+    event: praxisdaten-geaendert
+    criteria: Alle Events mit demselben Kürzel wie im auslösenden Command.
+
+---
+# $schema: ../schemas/core/v1.yaml
+apiVersion: schema.esdm.io/core/v1
+kind: command
+name: praxis-anlegen
+scope:
+  domain: naturheilpraxis
+  boundedContext: naturheilpraxis
+  dynamicConsistencyBoundary: praxisverwaltung
+data:
+  type: object
+  properties:
+    praxiskuerzel:
+      type: string
+      format: uuid
+    name:
+      type: string
+      minLength: 1
+    anschrift:
+      $ref: urn:esdm:naturheilpraxis:naturheilpraxis:anschrift
+    kontakt:
+      $ref: urn:esdm:naturheilpraxis:naturheilpraxis:kontakt
+    rechnungstext:
+      type: string
+  required:
+    - praxiskuerzel
+    - name
+    - anschrift
+  additionalProperties: false
+publishes:
+  - praxis-angelegt
+actors:
+  - heilpraktiker
+
+---
+# $schema: ../schemas/core/v1.yaml
+apiVersion: schema.esdm.io/core/v1
+kind: event
+name: praxis-angelegt
+scope:
+  domain: naturheilpraxis
+  boundedContext: naturheilpraxis
+data:
+  $ref: urn:esdm:naturheilpraxis:naturheilpraxis:praxis
+
+---
+# $schema: ../schemas/core/v1.yaml
+apiVersion: schema.esdm.io/core/v1
+kind: command
+name: praxisdaten-aendern
+scope:
+  domain: naturheilpraxis
+  boundedContext: naturheilpraxis
+  dynamicConsistencyBoundary: praxisverwaltung
+data:
+  type: object
+  properties:
+    praxiskuerzel:
+      type: string
+      format: uuid
+    name:
+      type: string
+      minLength: 1
+    anschrift:
+      $ref: urn:esdm:naturheilpraxis:naturheilpraxis:anschrift
+    kontakt:
+      $ref: urn:esdm:naturheilpraxis:naturheilpraxis:kontakt
+    rechnungstext:
+      type: string
+  required:
+    - praxiskuerzel
+    - name
+    - anschrift
+  additionalProperties: false
+publishes:
+  - praxisdaten-geaendert
+actors:
+  - heilpraktiker
+
+---
+# $schema: ../schemas/core/v1.yaml
+apiVersion: schema.esdm.io/core/v1
+kind: event
+name: praxisdaten-geaendert
+scope:
+  domain: naturheilpraxis
+  boundedContext: naturheilpraxis
+data:
+  $ref: urn:esdm:naturheilpraxis:naturheilpraxis:praxis

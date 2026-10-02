@@ -1,0 +1,42 @@
+# $schema: ../schemas/core/v1.yaml
+apiVersion: schema.esdm.io/core/v1
+kind: read-model
+name: praxenansicht
+description: >-
+  Die aktuelle Liste der Praxen des Heilpraktikers.
+scope:
+  domain: naturheilpraxis
+  boundedContext: naturheilpraxis
+paradigm: tabular
+projections:
+  - boundedContext: naturheilpraxis
+    event: praxis-angelegt
+    rule: Füge eine Praxis hinzu.
+  - boundedContext: naturheilpraxis
+    event: praxisdaten-geaendert
+    rule: Aktualisiere die Praxis.
+schema:
+  type: array
+  items:
+    $ref: urn:esdm:naturheilpraxis:naturheilpraxis:praxis
+
+---
+# $schema: ../schemas/core/v1.yaml
+apiVersion: schema.esdm.io/core/v1
+kind: query
+name: praxen-ermitteln
+description: Ermittelt alle Praxen des Heilpraktikers.
+scope:
+  domain: naturheilpraxis
+  boundedContext: naturheilpraxis
+readModel: praxenansicht
+paradigm: tabular
+result:
+  type: array
+  items:
+    $ref: urn:esdm:naturheilpraxis:naturheilpraxis:praxis
+actors:
+  - heilpraktiker
+constraints:
+  - name: nach-kuerzel-sortiert
+    rule: Die Praxen sind alphanumerisch aufsteigend nach Praxiskürzel sortiert.
