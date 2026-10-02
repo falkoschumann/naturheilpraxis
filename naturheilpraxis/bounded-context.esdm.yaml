@@ -39,6 +39,11 @@ ubiquitousLanguage:
     definition: >-
       Der Ort, an dem ein Heilpraktiker tätig ist. Ein Patient wird in einer Praxis aufgenommen und
       kann in mehreren Praxen behandelt werden. Eine Rechnung wird für eine Praxis erstellt.
+  - term: Praxiskürzel
+    definition: >-
+      Ein eindeutiges Kürzel, das eine Praxis identifiziert. Es sollte kürzer sein, als der
+      vollständige Name der Praxis. Wenn die Praxen den gleichen Namen haben und sich nur in der
+      Anschrift unterscheiden, bleibt das Praxiskürzel eindeutig.
   - term: Rechnung
     definition: >-
       Die Forderung an einen Patienten über die noch nicht abgerechneten Leistungen. Sie wird als
