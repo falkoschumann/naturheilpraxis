@@ -7,8 +7,8 @@ erDiagram
     direction LR
 
     PATIENT }o--|| PRAXIS : "wird aufgenommen in"
-    PATIENT ||--o| PATIENT : "ist Partner von"
-    PATIENT ||--o| PATIENT : "ist Kind von"
+    PATIENT |o--o| PATIENT : "ist Partner von"
+    PATIENT }o--o| PATIENT : "ist Kind von"
     PATIENT ||--o{ DIAGNOSE : "erhält"
     DIAGNOSE }o--|| PRAXIS : "ist gestellt in"
     PATIENT ||--o{ LEISTUNG : "bekommt"
