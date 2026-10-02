@@ -3,8 +3,7 @@ apiVersion: schema.esdm.io/core/v1
 kind: read-model
 name: gebuehrenansicht
 description: >-
-  Das Gebührenverzeichnis mit seinem aktuellen Stand. Dient dem Auswählen einer Gebühr beim Erfassen
-  einer Leistung und dem Pflegen des Verzeichnisses.
+  Der aktuelle Stand des Gebührenverzeichnisses.
 scope:
   domain: naturheilpraxis
   boundedContext: naturheilpraxis
@@ -12,13 +11,13 @@ paradigm: tabular
 projections:
   - boundedContext: naturheilpraxis
     event: gebuehr-angelegt
-    rule: Fügt die Gebühr hinzu.
+    rule: Füge die Gebühr hinzu.
   - boundedContext: naturheilpraxis
     event: gebuehr-geaendert
-    rule: Aktualisiert die Gebühr.
+    rule: Aktualisiere die Gebühr.
   - boundedContext: naturheilpraxis
     event: gebuehr-entfernt
-    rule: Entfernt die Gebühr.
+    rule: Entferne die Gebühr.
 schema:
   type: array
   items:
@@ -30,18 +29,12 @@ apiVersion: schema.esdm.io/core/v1
 kind: query
 name: gebuehren-ermitteln
 description: >-
-  Ermittelt die Gebühren des Verzeichnisses, wahlweise eingeschränkt auf einen Suchbegriff.
+  Ermittelt die Gebühren des Verzeichnisses.
 scope:
   domain: naturheilpraxis
   boundedContext: naturheilpraxis
 readModel: gebuehrenansicht
 paradigm: tabular
-parameters:
-  type: object
-  properties:
-    suchbegriff:
-      type: string
-  additionalProperties: false
 result:
   type: array
   items:
@@ -51,7 +44,3 @@ actors:
 constraints:
   - name: nach-ziffer-sortiert
     rule: Die Gebühren sind alphanumerisch aufsteigend nach Ziffer sortiert.
-  - name: suchbegriff-trifft-ziffer-und-bezeichnung
-    rule: >-
-      Ist ein Suchbegriff angegeben, bleiben nur Gebühren übrig, deren Ziffer oder Bezeichnung den
-      Begriff enthält. Groß- und Kleinschreibung spielen keine Rolle.
