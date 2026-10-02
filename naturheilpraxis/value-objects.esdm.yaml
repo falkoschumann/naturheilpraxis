@@ -1,0 +1,151 @@
+# $schema: ../schemas/core/v1.yaml
+apiVersion: schema.esdm.io/core/v1
+kind: value-object
+name: personenname
+scope:
+  domain: naturheilpraxis
+  boundedContext: naturheilpraxis
+schema:
+  $id: urn:esdm:naturheilpraxis:naturheilpraxis:personenname
+  type: object
+  properties:
+    anrede:
+      type: string
+    titel:
+      type: string
+    vorname:
+      type: string
+    nachname:
+      type: string
+  required:
+    - vorname
+    - nachname
+  additionalProperties: false
+
+---
+# $schema: ../schemas/core/v1.yaml
+apiVersion: schema.esdm.io/core/v1
+kind: value-object
+name: anschrift
+scope:
+  domain: naturheilpraxis
+  boundedContext: naturheilpraxis
+schema:
+  $id: urn:esdm:naturheilpraxis:naturheilpraxis:anschrift
+  type: object
+  properties:
+    strasse:
+      type: string
+    zusatz:
+      type: string
+    postleitzahl:
+      type: string
+    ort:
+      type: string
+    staat:
+      type: string
+  required:
+    - strasse
+    - postleitzahl
+    - ort
+  additionalProperties: false
+
+---
+# $schema: ../schemas/core/v1.yaml
+apiVersion: schema.esdm.io/core/v1
+kind: value-object
+name: kontakt
+scope:
+  domain: naturheilpraxis
+  boundedContext: naturheilpraxis
+schema:
+  $id: urn:esdm:naturheilpraxis:naturheilpraxis:kontakt
+  type: object
+  properties:
+    telefon:
+      type: string
+    mobiltelefon:
+      type: string
+    email:
+      type: string
+      format: email
+    website:
+      type: string
+      format: uri
+  additionalProperties: false
+
+---
+# $schema: ../schemas/core/v1.yaml
+apiVersion: schema.esdm.io/core/v1
+kind: value-object
+name: euro
+description: >-
+  Um Rundungsfehler zu vermeiden, wird der Wert eines Geldbetrags als Ganzzahl in der kleinsten
+  Währungseinheit angegeben.
+scope:
+  domain: naturheilpraxis
+  boundedContext: naturheilpraxis
+schema:
+  $id: urn:esdm:naturheilpraxis:naturheilpraxis:euro
+  type: object
+  properties:
+    cents:
+      type: integer
+  required:
+    - cents
+  additionalProperties: false
+invariants:
+  - name: betrag-ist-nicht-negativ
+    rule: Der Betrag darf nicht kleiner als Null sein.
+
+---
+# $schema: ../schemas/core/v1.yaml
+apiVersion: schema.esdm.io/core/v1
+kind: value-object
+name: patientennummer
+description: >-
+  Die Patientennummer ist eine fortlaufende Nummer beginnend bei 1, die einen Patienten über alle
+  Praxen eindeutig identifiziert.
+scope:
+  domain: naturheilpraxis
+  boundedContext: naturheilpraxis
+schema:
+  $id: urn:esdm:naturheilpraxis:naturheilpraxis:patientennummer
+  type: integer
+  minimum: 1
+
+---
+# $schema: ../schemas/core/v1.yaml
+apiVersion: schema.esdm.io/core/v1
+kind: value-object
+name: rechnungsnummer
+description: >-
+  Die Rechnungsnummer ist eine eindeutige Kennung für eine Rechnung über alle Praxen hinweg. Sie
+  kann nicht als Identifikator verwendet werden, weil sie erst beim Versand der Rechnung vergeben
+  wird und somit beim Entwurf der Rechnung noch nicht feststeht.
+
+  Die Rechnungsnummer besteht aus der Patientennummer, dem Rechnungsdatum und einer optionalen
+  laufenden Zahl: P/JJMMTT(-N). Die erste Rechnung eines Tages für einen Patienten trägt keine
+  angehängte Zahl, jede weitere eine fortlaufende Zahl beginnend bei 2.
+scope:
+  domain: naturheilpraxis
+  boundedContext: naturheilpraxis
+schema:
+  $id: urn:esdm:naturheilpraxis:naturheilpraxis:rechnungsnummer
+  type: string
+  pattern: "^[1-9][0-9]*/[0-9]{6}(-[2-9][0-9]*)?$"
+
+---
+# $schema: ../schemas/core/v1.yaml
+apiVersion: schema.esdm.io/core/v1
+kind: value-object
+name: gebuehrenziffer
+description: >-
+  Die Gebühr ist durch eine eindeutige Ziffer im Gebührenverzeichnis definiert. Die Ziffer ist über
+  alle Praxen hinweg eindeutig.
+scope:
+  domain: naturheilpraxis
+  boundedContext: naturheilpraxis
+schema:
+  $id: urn:esdm:naturheilpraxis:naturheilpraxis:gebuehrenziffer
+  type: string

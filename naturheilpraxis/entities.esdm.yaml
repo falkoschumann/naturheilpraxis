@@ -1,0 +1,248 @@
+# $schema: ../schemas/core/v1.yaml
+apiVersion: schema.esdm.io/core/v1
+kind: entity
+name: praxis
+scope:
+  domain: naturheilpraxis
+  boundedContext: naturheilpraxis
+schema:
+  $id: urn:esdm:naturheilpraxis:naturheilpraxis:praxis
+  type: object
+  properties:
+    praxisId:
+      type: string
+      format: uuid
+    name:
+      type: string
+    anschrift:
+      $ref: urn:esdm:naturheilpraxis:naturheilpraxis:anschrift
+    kontakt:
+      $ref: urn:esdm:naturheilpraxis:naturheilpraxis:kontakt
+    rechnungstext:
+      type: string
+  required:
+    - praxisId
+    - name
+    - anschrift
+  additionalProperties: false
+identifiedBy:
+  source: schema
+  field: praxisId
+
+---
+# $schema: ../schemas/core/v1.yaml
+apiVersion: schema.esdm.io/core/v1
+kind: entity
+name: gebuehr
+scope:
+  domain: naturheilpraxis
+  boundedContext: naturheilpraxis
+schema:
+  $id: urn:esdm:naturheilpraxis:naturheilpraxis:gebuehr
+  type: object
+  properties:
+    ziffer:
+      $ref: urn:esdm:naturheilpraxis:naturheilpraxis:gebuehrenziffer
+    bezeichnung:
+      type: string
+    betrag:
+      $ref: urn:esdm:naturheilpraxis:naturheilpraxis:euro
+  required:
+    - ziffer
+    - bezeichnung
+    - betrag
+  additionalProperties: false
+identifiedBy:
+  source: schema
+  field: ziffer
+
+---
+# $schema: ../schemas/core/v1.yaml
+apiVersion: schema.esdm.io/core/v1
+kind: entity
+name: patient
+scope:
+  domain: naturheilpraxis
+  boundedContext: naturheilpraxis
+schema:
+  $id: urn:esdm:naturheilpraxis:naturheilpraxis:patient
+  type: object
+  properties:
+    patientennummer:
+      $ref: urn:esdm:naturheilpraxis:naturheilpraxis:patientennummer
+    praxisId:
+      type: string
+      format: uuid
+    annahmejahr:
+      type: integer
+    geburtsdatum:
+      type: string
+      format: date
+    name:
+      $ref: urn:esdm:naturheilpraxis:naturheilpraxis:personenname
+    anschrift:
+      $ref: urn:esdm:naturheilpraxis:naturheilpraxis:anschrift
+    kontakt:
+      $ref: urn:esdm:naturheilpraxis:naturheilpraxis:kontakt
+    beruf:
+      type: string
+    familienstand:
+      type: string
+    staatsangehoerigkeit:
+      type: string
+    notizen:
+      type: string
+    partnerVon:
+      $ref: urn:esdm:naturheilpraxis:naturheilpraxis:patientennummer
+    kindVon:
+      $ref: urn:esdm:naturheilpraxis:naturheilpraxis:patientennummer
+    schluesselworte:
+      type: array
+      items:
+        type: string
+  required:
+    - patientennummer
+    - praxisId
+    - annahmejahr
+    - name
+    - geburtsdatum
+  additionalProperties: false
+identifiedBy:
+  source: schema
+  field: patientennummer
+invariants:
+  - name: patient-ist-nicht-sein-eigener-partner-oder-kind
+    rule: Ein Patient kann weder Partner noch Kind von sich selbst sein.
+
+---
+# $schema: ../schemas/core/v1.yaml
+apiVersion: schema.esdm.io/core/v1
+kind: entity
+name: diagnose
+scope:
+  domain: naturheilpraxis
+  boundedContext: naturheilpraxis
+schema:
+  $id: urn:esdm:naturheilpraxis:naturheilpraxis:diagnose
+  type: object
+  properties:
+    diagnoseId:
+      type: string
+      format: uuid
+    praxisId:
+      type: string
+      format: uuid
+    patientennummer:
+      $ref: urn:esdm:naturheilpraxis:naturheilpraxis:patientennummer
+    datum:
+      type: string
+      format: date
+    text:
+      type: string
+  required:
+    - diagnoseId
+    - praxisId
+    - patientennummer
+    - datum
+    - text
+  additionalProperties: false
+identifiedBy:
+  source: schema
+  field: diagnoseId
+
+---
+# $schema: ../schemas/core/v1.yaml
+apiVersion: schema.esdm.io/core/v1
+kind: entity
+name: leistung
+scope:
+  domain: naturheilpraxis
+  boundedContext: naturheilpraxis
+schema:
+  $id: urn:esdm:naturheilpraxis:naturheilpraxis:leistung
+  type: object
+  properties:
+    leistungId:
+      type: string
+      format: uuid
+    praxisId:
+      type: string
+      format: uuid
+    patientennummer:
+      $ref: urn:esdm:naturheilpraxis:naturheilpraxis:patientennummer
+    rechnungId:
+      type: string
+      format: uuid
+    datum:
+      type: string
+      format: date
+    ziffer:
+      $ref: urn:esdm:naturheilpraxis:naturheilpraxis:gebuehrenziffer
+    bezeichnung:
+      type: string
+    anzahl:
+      type: integer
+      minimum: 1
+    einzelbetrag:
+      $ref: urn:esdm:naturheilpraxis:naturheilpraxis:euro
+  required:
+    - leistungId
+    - praxisId
+    - patientennummer
+    - datum
+    - ziffer
+    - bezeichnung
+    - anzahl
+    - einzelbetrag
+  additionalProperties: false
+identifiedBy:
+  source: schema
+  field: leistungId
+
+---
+# $schema: ../schemas/core/v1.yaml
+apiVersion: schema.esdm.io/core/v1
+kind: entity
+name: rechnung
+scope:
+  domain: naturheilpraxis
+  boundedContext: naturheilpraxis
+schema:
+  $id: urn:esdm:naturheilpraxis:naturheilpraxis:rechnung
+  type: object
+  properties:
+    rechnungId:
+      type: string
+      format: uuid
+    praxisId:
+      type: string
+      format: uuid
+    patientennummer:
+      $ref: urn:esdm:naturheilpraxis:naturheilpraxis:patientennummer
+    diagnoseId:
+      type: string
+      format: uuid
+    rechnungsnummer:
+      $ref: urn:esdm:naturheilpraxis:naturheilpraxis:rechnungsnummer
+    datum:
+      type: string
+      format: date
+    text:
+      type: string
+    status:
+      type: string
+      enum:
+        - entwurf
+        - versendet
+        - bezahlt
+      default: entwurf
+  required:
+    - rechnungId
+    - praxisId
+    - patientennummer
+    - diagnoseId
+    - status
+  additionalProperties: false
+identifiedBy:
+  source: schema
+  field: rechnungId
