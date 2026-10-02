@@ -1,0 +1,142 @@
+# $schema: ../schemas/core/v1.yaml
+apiVersion: schema.esdm.io/core/v1
+kind: dynamic-consistency-boundary
+name: gebuehrenverzeichnis
+description: >-
+  Die Gebührenziffer muss im Gebührenverzeichnis eindeutig sein. Dafür reicht es alle Ereignisse mit
+  der gleichen Ziffer zu betrachten.
+scope:
+  domain: naturheilpraxis
+  boundedContext: naturheilpraxis
+identifiedBy:
+  - name: gebuehrenverzeichnis
+    source: command-payload
+    field: ziffer
+consults:
+  - boundedContext: naturheilpraxis
+    event: gebuehr-angelegt
+    criteria: Alle Ereignisse mit der gleichen Ziffer.
+  - boundedContext: naturheilpraxis
+    event: gebuehr-geaendert
+    criteria: Alle Ereignisse mit der gleichen Ziffer.
+  - boundedContext: naturheilpraxis
+    event: gebuehr-entfernt
+    criteria: Alle Ereignisse mit der gleichen Ziffer.
+
+---
+# $schema: ../schemas/core/v1.yaml
+apiVersion: schema.esdm.io/core/v1
+kind: command
+name: gebuehr-anlegen
+scope:
+  domain: naturheilpraxis
+  boundedContext: naturheilpraxis
+  dynamicConsistencyBoundary: gebuehrenverzeichnis
+data:
+  type: object
+  properties:
+    ziffer:
+      $ref: urn:esdm:naturheilpraxis:naturheilpraxis:gebuehrenziffer
+    bezeichnung:
+      type: string
+    betrag:
+      $ref: urn:esdm:naturheilpraxis:naturheilpraxis:euro
+  required:
+    - ziffer
+    - bezeichnung
+    - betrag
+  additionalProperties: false
+
+publishes:
+  - gebuehr-angelegt
+actors:
+  - heilpraktiker
+
+---
+# $schema: ../schemas/core/v1.yaml
+apiVersion: schema.esdm.io/core/v1
+kind: event
+name: gebuehr-angelegt
+scope:
+  domain: naturheilpraxis
+  boundedContext: naturheilpraxis
+data:
+  $ref: urn:esdm:naturheilpraxis:naturheilpraxis:gebuehr
+
+---
+# $schema: ../schemas/core/v1.yaml
+apiVersion: schema.esdm.io/core/v1
+kind: command
+name: gebuehr-aendern
+scope:
+  domain: naturheilpraxis
+  boundedContext: naturheilpraxis
+  dynamicConsistencyBoundary: gebuehrenverzeichnis
+data:
+  type: object
+  properties:
+    ziffer:
+      $ref: urn:esdm:naturheilpraxis:naturheilpraxis:gebuehrenziffer
+    bezeichnung:
+      type: string
+    betrag:
+      $ref: urn:esdm:naturheilpraxis:naturheilpraxis:euro
+  required:
+    - ziffer
+    - bezeichnung
+    - betrag
+  additionalProperties: false
+publishes:
+  - gebuehr-geaendert
+actors:
+  - heilpraktiker
+
+---
+# $schema: ../schemas/core/v1.yaml
+apiVersion: schema.esdm.io/core/v1
+kind: event
+name: gebuehr-geaendert
+scope:
+  domain: naturheilpraxis
+  boundedContext: naturheilpraxis
+data:
+  $ref: urn:esdm:naturheilpraxis:naturheilpraxis:gebuehr
+
+---
+# $schema: ../schemas/core/v1.yaml
+apiVersion: schema.esdm.io/core/v1
+kind: command
+name: gebuehr-entfernen
+scope:
+  domain: naturheilpraxis
+  boundedContext: naturheilpraxis
+  dynamicConsistencyBoundary: gebuehrenverzeichnis
+data:
+  type: object
+  properties:
+    ziffer:
+      $ref: urn:esdm:naturheilpraxis:naturheilpraxis:gebuehrenziffer
+  required:
+    - ziffer
+  additionalProperties: false
+publishes:
+  - gebuehr-entfernt
+actors:
+  - heilpraktiker
+
+---
+# $schema: ../schemas/core/v1.yaml
+apiVersion: schema.esdm.io/core/v1
+kind: event
+name: gebuehr-entfernt
+scope:
+  domain: naturheilpraxis
+  boundedContext: naturheilpraxis
+data:
+  type: object
+  properties:
+    ziffer:
+      $ref: urn:esdm:naturheilpraxis:naturheilpraxis:gebuehrenziffer
+  required:
+    - ziffer
+  additionalProperties: false
