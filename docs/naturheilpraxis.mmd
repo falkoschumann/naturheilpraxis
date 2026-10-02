@@ -20,7 +20,7 @@ erDiagram
     RECHNUNG }o--|| PRAXIS : "wird ausgestellt in"
 
     PRAXIS {
-        number praxis_id PK
+        string kuerzel PK
         string name
         string strasse
         string zusatz
@@ -40,7 +40,7 @@ erDiagram
     }
     PATIENT {
         number nummer PK
-        number praxis_id FK
+        string praxiskuerzel FK
         string annahmejahr
         string geburtsdatum
         string anrede
@@ -65,14 +65,14 @@ erDiagram
     }
     DIAGNOSE {
         number diagnose_id PK
-        number praxis_id FK
+        string praxiskuerzel FK
         number patient_id FK
         string datum
         string text
     }
     LEISTUNG {
         number leistung_id PK
-        number praxis_id FK
+        string praxiskuerzel FK
         number patient_id FK
         number rechnung_id FK
         string datum
@@ -83,7 +83,7 @@ erDiagram
     }
     RECHNUNG {
         number rechnung_id PK
-        number praxis_id FK
+        string praxiskuerzel FK
         number patient_id FK
         number diagnose_id FK
         string nummer UK

@@ -9,7 +9,7 @@ schema:
   $id: urn:esdm:naturheilpraxis:naturheilpraxis:praxis
   type: object
   properties:
-    praxisId:
+    praxiskuerzel:
       type: string
       format: uuid
     name:
@@ -21,13 +21,13 @@ schema:
     rechnungstext:
       type: string
   required:
-    - praxisId
+    - praxiskuerzel
     - name
     - anschrift
   additionalProperties: false
 identifiedBy:
   source: schema
-  field: praxisId
+  field: praxiskuerzel
 
 ---
 # $schema: ../schemas/core/v1.yaml
@@ -70,7 +70,7 @@ schema:
   properties:
     patientennummer:
       $ref: urn:esdm:naturheilpraxis:naturheilpraxis:patientennummer
-    praxisId:
+    praxiskuerzel:
       type: string
       format: uuid
     annahmejahr:
@@ -102,7 +102,7 @@ schema:
         type: string
   required:
     - patientennummer
-    - praxisId
+    - praxiskuerzel
     - annahmejahr
     - name
     - geburtsdatum
@@ -129,7 +129,7 @@ schema:
     diagnoseId:
       type: string
       format: uuid
-    praxisId:
+    praxiskuerzel:
       type: string
       format: uuid
     patientennummer:
@@ -141,7 +141,7 @@ schema:
       type: string
   required:
     - diagnoseId
-    - praxisId
+    - praxiskuerzel
     - patientennummer
     - datum
     - text
@@ -165,7 +165,7 @@ schema:
     leistungId:
       type: string
       format: uuid
-    praxisId:
+    praxiskuerzel:
       type: string
       format: uuid
     patientennummer:
@@ -187,7 +187,7 @@ schema:
       $ref: urn:esdm:naturheilpraxis:naturheilpraxis:euro
   required:
     - leistungId
-    - praxisId
+    - praxiskuerzel
     - patientennummer
     - datum
     - ziffer
@@ -214,7 +214,7 @@ schema:
     rechnungId:
       type: string
       format: uuid
-    praxisId:
+    praxiskuerzel:
       type: string
       format: uuid
     patientennummer:
@@ -238,7 +238,7 @@ schema:
       default: entwurf
   required:
     - rechnungId
-    - praxisId
+    - praxiskuerzel
     - patientennummer
     - diagnoseId
     - status
