@@ -1,0 +1,126 @@
+# $schema: ../schemas/core/v1.yaml
+apiVersion: schema.esdm.io/core/v1
+kind: read-model
+name: behandlungsansicht
+description: >-
+  Die Behandlungshistorie eines Patienten: gestellte Diagnosen und erbrachte Leistungen in
+  zeitlicher Folge, jeweils in ihrem aktuellen Stand. Gelöschte Diagnosen und Leistungen erscheinen
+  nicht mehr.
+scope:
+  domain: naturheilpraxis
+  boundedContext: naturheilpraxis
+paradigm: tabular
+projections:
+  - boundedContext: naturheilpraxis
+    event: diagnose-gestellt
+    rule: Füge die Diagnose hinzu.
+  - boundedContext: naturheilpraxis
+    event: diagnose-geaendert
+    rule: Aktualisiere die Diagnose.
+  - boundedContext: naturheilpraxis
+    event: diagnose-geloescht
+    rule: Entferne die Diagnose.
+  - boundedContext: naturheilpraxis
+    event: leistung-erbracht
+    rule: Füge die Leistung hinzu.
+  - boundedContext: naturheilpraxis
+    event: leistung-geaendert
+    rule: Aktualisiere die Leistung.
+  - boundedContext: naturheilpraxis
+    event: leistung-geloescht
+    rule: Entferne die Leistung.
+schema:
+  type: array
+  items:
+    type: object
+    properties:
+      art:
+        type: string
+        enum:
+          - diagnose
+          - leistung
+      eintrag:
+        if:
+          properties:
+            art:
+              const: diagnose
+          required:
+            - art
+        then:
+          $ref: urn:esdm:naturheilpraxis:naturheilpraxis:diagnose
+        else:
+          if:
+            properties:
+              art:
+                const: leistung
+            required:
+              - art
+          then:
+            $ref: urn:esdm:naturheilpraxis:naturheilpraxis:leistung
+    required:
+      - art
+      - eintrag
+    additionalProperties: false
+
+---
+# $schema: ../schemas/core/v1.yaml
+apiVersion: schema.esdm.io/core/v1
+kind: query
+name: behandlungen-ermitteln
+description: >-
+  Ermittelt die Behandlungshistorie eines Patienten.
+scope:
+  domain: naturheilpraxis
+  boundedContext: naturheilpraxis
+readModel: behandlungsansicht
+paradigm: tabular
+parameters:
+  type: object
+  properties:
+    patientennummer:
+      $ref: urn:esdm:naturheilpraxis:naturheilpraxis:patientennummer
+  required:
+    - patientennummer
+  additionalProperties: false
+result:
+  type: array
+  items:
+    type: object
+    properties:
+      art:
+        type: string
+        enum:
+          - diagnose
+          - leistung
+      eintrag:
+        if:
+          properties:
+            art:
+              const: diagnose
+          required:
+            - art
+        then:
+          $ref: urn:esdm:naturheilpraxis:naturheilpraxis:diagnose
+        else:
+          if:
+            properties:
+              art:
+                const: leistung
+            required:
+              - art
+          then:
+            $ref: urn:esdm:naturheilpraxis:naturheilpraxis:leistung
+    required:
+      - art
+      - eintrag
+    additionalProperties: false
+actors:
+  - heilpraktiker
+constraints:
+  - name: nur-eintraege-des-patienten
+    rule: >-
+      Enthält nur Einträge zu der gegebenen Patientennummer.
+  - name: neueste-zuerst
+    rule: >-
+      Die Einträge sind absteigend nach Datum sortiert; bei gleichem Datum steht die Diagnose vor
+      den Leistungen.
