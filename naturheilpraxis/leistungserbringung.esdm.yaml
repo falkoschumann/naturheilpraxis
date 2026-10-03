@@ -39,7 +39,6 @@ data:
       format: uuid
     praxiskuerzel:
       type: string
-      format: uuid
     patientennummer:
       $ref: urn:esdm:naturheilpraxis:naturheilpraxis:patientennummer
     datum:
@@ -96,7 +95,6 @@ data:
       format: uuid
     praxiskuerzel:
       type: string
-      format: uuid
     patientennummer:
       $ref: urn:esdm:naturheilpraxis:naturheilpraxis:patientennummer
     datum:

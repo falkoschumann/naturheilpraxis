@@ -34,7 +34,6 @@ data:
   properties:
     praxiskuerzel:
       type: string
-      format: uuid
     name:
       type: string
       minLength: 1
@@ -79,7 +78,6 @@ data:
   properties:
     praxiskuerzel:
       type: string
-      format: uuid
     name:
       type: string
       minLength: 1

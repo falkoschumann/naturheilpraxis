@@ -37,7 +37,6 @@ data:
       $ref: urn:esdm:naturheilpraxis:naturheilpraxis:patientennummer
     praxiskuerzel:
       type: string
-      format: uuid
     annahmejahr:
       type: integer
     geburtsdatum:

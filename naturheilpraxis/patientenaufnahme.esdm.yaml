@@ -36,7 +36,6 @@ data:
   properties:
     praxiskuerzel:
       type: string
-      format: uuid
     annahmejahr:
       type: integer
     geburtsdatum:
