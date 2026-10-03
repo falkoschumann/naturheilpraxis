@@ -1,0 +1,93 @@
+# $schema: ../schemas/core/v1.yaml
+apiVersion: schema.esdm.io/core/v1
+kind: dynamic-consistency-boundary
+name: patientenaufnahme
+description: >-
+  Die Patientennummer muss eindeutig sein. Dafür reicht es, alle Ereignisse mit der gleichen
+  Patientennummer zu betrachten. Die Patientenaufnahme und die Patientenkartei müssen getrennt
+  voneinander behandelt werden, weil bei der Aufnahme die Patientennummer automatisch vergeben wird
+  und in der Kartei bekannt sein muss.
+scope:
+  domain: naturheilpraxis
+  boundedContext: naturheilpraxis
+identifiedBy:
+  - name: patientenaufnahme
+    source: static
+    value: patientennummer
+consults:
+  - boundedContext: naturheilpraxis
+    event: patient-aufgenommen
+    criteria: Alle Ereignisse mit derselben Nummer wie im auslösenden Befehl.
+
+---
+# $schema: ../schemas/core/v1.yaml
+apiVersion: schema.esdm.io/core/v1
+kind: command
+name: patient-aufnehmen
+description: >-
+  Im Befehl fehlt die Patientennummer, da diese automatisch vergeben wird und im veröffentlichten
+  Ereignis enthalten ist.
+scope:
+  domain: naturheilpraxis
+  boundedContext: naturheilpraxis
+  dynamicConsistencyBoundary: patientenaufnahme
+data:
+  type: object
+  properties:
+    praxiskuerzel:
+      type: string
+      format: uuid
+    annahmejahr:
+      type: integer
+    geburtsdatum:
+      type: string
+      format: date
+    name:
+      $ref: urn:esdm:naturheilpraxis:naturheilpraxis:personenname
+    anschrift:
+      $ref: urn:esdm:naturheilpraxis:naturheilpraxis:anschrift
+    kontakt:
+      $ref: urn:esdm:naturheilpraxis:naturheilpraxis:kontakt
+    beruf:
+      type: string
+    familienstand:
+      type: string
+    staatsangehoerigkeit:
+      type: string
+    notizen:
+      type: string
+    partnerVon:
+      $ref: urn:esdm:naturheilpraxis:naturheilpraxis:patientennummer
+    kindVon:
+      $ref: urn:esdm:naturheilpraxis:naturheilpraxis:patientennummer
+    schluesselworte:
+      type: array
+      items:
+        type: string
+  required:
+    - praxiskuerzel
+    - annahmejahr
+    - name
+    - geburtsdatum
+  additionalProperties: false
+publishes:
+  - patient-aufgenommen
+actors:
+  - heilpraktiker
+constraints:
+  - name: patientennummer-fortlaufend-ab-eins
+    rule: >-
+      Im Ereignis wird die vergebene Patientennummer angegeben. Die neue Patientennummer ist um eins
+      größer als die höchste bisher vergebene Nummer. Der erste Patient überhaupt erhält die Nummer
+      1.
+
+---
+# $schema: ../schemas/core/v1.yaml
+apiVersion: schema.esdm.io/core/v1
+kind: event
+name: patient-aufgenommen
+scope:
+  domain: naturheilpraxis
+  boundedContext: naturheilpraxis
+data:
+  $ref: urn:esdm:naturheilpraxis:naturheilpraxis:patient

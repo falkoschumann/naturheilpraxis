@@ -1,0 +1,81 @@
+# $schema: ../schemas/core/v1.yaml
+apiVersion: schema.esdm.io/core/v1
+kind: read-model
+name: patientenansicht
+description: >-
+  Die aktuelle Liste aller Patienten des Heilpraktikers.
+scope:
+  domain: naturheilpraxis
+  boundedContext: naturheilpraxis
+paradigm: tabular
+projections:
+  - boundedContext: naturheilpraxis
+    event: patient-aufgenommen
+    rule: Fügt einen Patienten hinzu.
+  - boundedContext: naturheilpraxis
+    event: patientendaten-geaendert
+    rule: Aktualisiert die Stammdaten des Patienten.
+schema:
+  type: array
+  items:
+    $ref: urn:esdm:naturheilpraxis:naturheilpraxis:patient
+
+---
+# $schema: ../schemas/core/v1.yaml
+apiVersion: schema.esdm.io/core/v1
+kind: query
+name: patienten-ermitteln
+description: >-
+  Ermittelt Patienten, wahlweise eingeschränkt auf einen Suchbegriff.
+scope:
+  domain: naturheilpraxis
+  boundedContext: naturheilpraxis
+readModel: patientenansicht
+paradigm: tabular
+parameters:
+  type: object
+  properties:
+    suchbegriff:
+      type: string
+  additionalProperties: false
+result:
+  type: array
+  items:
+    $ref: urn:esdm:naturheilpraxis:naturheilpraxis:patient
+actors:
+  - heilpraktiker
+constraints:
+  - name: nach-nummer-sortiert
+    rule: >-
+      Die Patienten sind absteigend nach Patientennummer sortiert. Das bedeutet, dass die neuesten
+      Patienten zuerst erscheinen.
+  - name: suchbegriff-trifft
+    rule: >-
+      Ist ein Suchbegriff angegeben, bleiben nur die Patienten übrig, bei denen der Suchbegriff in
+      einem beliebigen Feld vorkommt. Besteht der Suchbegriff aus mehreren Wörtern, müssen alle
+      Wörter vorkommen, aber nicht zwingend im gleichen Feld. Enthält ein Suchwort Leerzeichen, muss
+      es in Anführungszeichen gesetzt werden. Groß- und Kleinschreibung spielen keine Rolle.
+
+---
+# $schema: ../schemas/core/v1.yaml
+apiVersion: schema.esdm.io/core/v1
+kind: query
+name: patient-ermitteln
+description: Ermittelt die Patientenkarteikarte eines Patienten anhand seiner Patientennummer.
+scope:
+  domain: naturheilpraxis
+  boundedContext: naturheilpraxis
+readModel: patientenansicht
+paradigm: tabular
+parameters:
+  type: object
+  properties:
+    patientennummer:
+      $ref: urn:esdm:naturheilpraxis:naturheilpraxis:patientennummer
+  required:
+    - patientennummer
+  additionalProperties: false
+result:
+  $ref: urn:esdm:naturheilpraxis:naturheilpraxis:patient
+actors:
+  - heilpraktiker

@@ -1,0 +1,89 @@
+# $schema: ../schemas/core/v1.yaml
+apiVersion: schema.esdm.io/core/v1
+kind: dynamic-consistency-boundary
+name: patientenkartei
+description: >-
+  Die Patientenaufnahme und die Patientenkartei müssen getrennt voneinander behandelt werden, weil
+  bei der Aufnahme die Patientennummer automatisch vergeben wird und in der Kartei bekannt sein
+  muss.
+scope:
+  domain: naturheilpraxis
+  boundedContext: naturheilpraxis
+identifiedBy:
+  - name: patient
+    source: command-payload
+    field: patientennummer
+consults:
+  - boundedContext: naturheilpraxis
+    event: patient-aufgenommen
+    criteria: Alle Ereignisse mit derselben Nummer wie im auslösenden Befehl.
+  - boundedContext: naturheilpraxis
+    event: patientendaten-geaendert
+    criteria: Alle Ereignisse mit derselben Nummer wie im auslösenden Befehl.
+
+---
+# $schema: ../schemas/core/v1.yaml
+apiVersion: schema.esdm.io/core/v1
+kind: command
+name: patientendaten-aendern
+scope:
+  domain: naturheilpraxis
+  boundedContext: naturheilpraxis
+  dynamicConsistencyBoundary: patientenkartei
+data:
+  type: object
+  properties:
+    patientennummer:
+      $ref: urn:esdm:naturheilpraxis:naturheilpraxis:patientennummer
+    praxiskuerzel:
+      type: string
+      format: uuid
+    annahmejahr:
+      type: integer
+    geburtsdatum:
+      type: string
+      format: date
+    name:
+      $ref: urn:esdm:naturheilpraxis:naturheilpraxis:personenname
+    anschrift:
+      $ref: urn:esdm:naturheilpraxis:naturheilpraxis:anschrift
+    kontakt:
+      $ref: urn:esdm:naturheilpraxis:naturheilpraxis:kontakt
+    beruf:
+      type: string
+    familienstand:
+      type: string
+    staatsangehoerigkeit:
+      type: string
+    notizen:
+      type: string
+    partnerVon:
+      $ref: urn:esdm:naturheilpraxis:naturheilpraxis:patientennummer
+    kindVon:
+      $ref: urn:esdm:naturheilpraxis:naturheilpraxis:patientennummer
+    schluesselworte:
+      type: array
+      items:
+        type: string
+  required:
+    - patientennummer
+    - praxiskuerzel
+    - annahmejahr
+    - name
+    - geburtsdatum
+  additionalProperties: false
+publishes:
+  - patientendaten-geaendert
+actors:
+  - heilpraktiker
+
+---
+# $schema: ../schemas/core/v1.yaml
+apiVersion: schema.esdm.io/core/v1
+kind: event
+name: patientendaten-geaendert
+scope:
+  domain: naturheilpraxis
+  boundedContext: naturheilpraxis
+data:
+  $ref: urn:esdm:naturheilpraxis:naturheilpraxis:patient
