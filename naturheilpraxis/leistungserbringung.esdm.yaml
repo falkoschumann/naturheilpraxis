@@ -1,0 +1,178 @@
+# $schema: ../schemas/core/v1.yaml
+apiVersion: schema.esdm.io/core/v1
+kind: dynamic-consistency-boundary
+name: leistungserbringung
+description: >-
+  Verwaltet die Leistungen.
+scope:
+  domain: naturheilpraxis
+  boundedContext: naturheilpraxis
+identifiedBy:
+  - name: leistung
+    source: command-payload
+    field: leistungId
+consults:
+  - boundedContext: naturheilpraxis
+    event: leistung-erbracht
+    criteria: Alle Ereignisse mit derselben ID wie im auslösenden Befehl.
+  - boundedContext: naturheilpraxis
+    event: leistung-geaendert
+    criteria: Alle Ereignisse mit derselben ID wie im auslösenden Befehl.
+  - boundedContext: naturheilpraxis
+    event: leistung-geloescht
+    criteria: Alle Ereignisse mit derselben ID wie im auslösenden Befehl.
+
+---
+# $schema: ../schemas/core/v1.yaml
+apiVersion: schema.esdm.io/core/v1
+kind: command
+name: leistung-erbringen
+scope:
+  domain: naturheilpraxis
+  boundedContext: naturheilpraxis
+  dynamicConsistencyBoundary: leistungserbringung
+data:
+  type: object
+  properties:
+    leistungId:
+      type: string
+      format: uuid
+    praxiskuerzel:
+      type: string
+      format: uuid
+    patientennummer:
+      $ref: urn:esdm:naturheilpraxis:naturheilpraxis:patientennummer
+    datum:
+      type: string
+      format: date
+    ziffer:
+      $ref: urn:esdm:naturheilpraxis:naturheilpraxis:gebuehrenziffer
+    bezeichnung:
+      type: string
+    anzahl:
+      type: integer
+      minimum: 1
+    einzelbetrag:
+      $ref: urn:esdm:naturheilpraxis:naturheilpraxis:betrag
+  required:
+    - leistungId
+    - praxiskuerzel
+    - patientennummer
+    - datum
+    - bezeichnung
+    - anzahl
+    - einzelbetrag
+  additionalProperties: false
+publishes:
+  - leistung-erbracht
+actors:
+  - heilpraktiker
+
+---
+# $schema: ../schemas/core/v1.yaml
+apiVersion: schema.esdm.io/core/v1
+kind: event
+name: leistung-erbracht
+scope:
+  domain: naturheilpraxis
+  boundedContext: naturheilpraxis
+data:
+  $ref: urn:esdm:naturheilpraxis:naturheilpraxis:leistung
+
+---
+# $schema: ../schemas/core/v1.yaml
+apiVersion: schema.esdm.io/core/v1
+kind: command
+name: leistung-aendern
+scope:
+  domain: naturheilpraxis
+  boundedContext: naturheilpraxis
+  dynamicConsistencyBoundary: leistungserbringung
+data:
+  type: object
+  properties:
+    leistungId:
+      type: string
+      format: uuid
+    praxiskuerzel:
+      type: string
+      format: uuid
+    patientennummer:
+      $ref: urn:esdm:naturheilpraxis:naturheilpraxis:patientennummer
+    datum:
+      type: string
+      format: date
+    ziffer:
+      $ref: urn:esdm:naturheilpraxis:naturheilpraxis:gebuehrenziffer
+    bezeichnung:
+      type: string
+    anzahl:
+      type: integer
+      minimum: 1
+    einzelbetrag:
+      $ref: urn:esdm:naturheilpraxis:naturheilpraxis:betrag
+  required:
+    - leistungId
+    - praxiskuerzel
+    - patientennummer
+    - datum
+    - bezeichnung
+    - anzahl
+    - einzelbetrag
+  additionalProperties: false
+publishes:
+  - leistung-geaendert
+actors:
+  - heilpraktiker
+
+---
+# $schema: ../schemas/core/v1.yaml
+apiVersion: schema.esdm.io/core/v1
+kind: event
+name: leistung-geaendert
+scope:
+  domain: naturheilpraxis
+  boundedContext: naturheilpraxis
+data:
+  $ref: urn:esdm:naturheilpraxis:naturheilpraxis:leistung
+
+---
+# $schema: ../schemas/core/v1.yaml
+apiVersion: schema.esdm.io/core/v1
+kind: command
+name: leistung-loeschen
+scope:
+  domain: naturheilpraxis
+  boundedContext: naturheilpraxis
+  dynamicConsistencyBoundary: leistungserbringung
+data:
+  type: object
+  properties:
+    leistungId:
+      type: string
+      format: uuid
+  required:
+    - leistungId
+  additionalProperties: false
+publishes:
+  - leistung-geloescht
+actors:
+  - heilpraktiker
+
+---
+# $schema: ../schemas/core/v1.yaml
+apiVersion: schema.esdm.io/core/v1
+kind: event
+name: leistung-geloescht
+scope:
+  domain: naturheilpraxis
+  boundedContext: naturheilpraxis
+data:
+  type: object
+  properties:
+    leistungId:
+      type: string
+      format: uuid
+  required:
+    - leistungId
+  additionalProperties: false

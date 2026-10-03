@@ -20,3 +20,6 @@ Jeder Eintrag beginnt mit Kategorie und Umfang:
 - [ ] **Diagnose, XS** Eine Diagnose darf nicht mehr geändert oder gelöscht
       werden, wenn diese in einer Rechnung auftaucht. Gilt dass bereits für den
       Entwurf, oder muss die Rechnung dafür versandt sein?
+- [ ] **Leistung, XS** Eine Leistung darf nicht mehr geändert oder gelöscht
+      werden, wenn diese in einer Rechnung auftaucht. Gilt dass bereits für den
+      Entwurf, oder muss die Rechnung dafür versandt sein?
