@@ -16,3 +16,7 @@ Jeder Eintrag beginnt mit Kategorie und Umfang:
 **Umfang:** `XS`, `S`, `M`, `L`, `XL` – relativ zu den anderen Aufgaben
 
 ## Aufgaben
+
+- [ ] **Diagnose, XS** Eine Diagnose darf nicht mehr geändert oder gelöscht
+      werden, wenn diese in einer Rechnung auftaucht. Gilt dass bereits für den
+      Entwurf, oder muss die Rechnung dafür versandt sein?

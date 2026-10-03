@@ -1,0 +1,160 @@
+# $schema: ../schemas/core/v1.yaml
+apiVersion: schema.esdm.io/core/v1
+kind: dynamic-consistency-boundary
+name: diagnosestellung
+description: >-
+  Verwaltet die Diagnosen.
+scope:
+  domain: naturheilpraxis
+  boundedContext: naturheilpraxis
+identifiedBy:
+  - name: diagnose
+    source: command-payload
+    field: diagnoseId
+consults:
+  - boundedContext: naturheilpraxis
+    event: diagnose-gestellt
+    criteria: Alle Ereignisse mit derselben ID wie im auslösenden Befehl.
+  - boundedContext: naturheilpraxis
+    event: diagnose-geaendert
+    criteria: Alle Ereignisse mit derselben ID wie im auslösenden Befehl.
+  - boundedContext: naturheilpraxis
+    event: diagnose-geloescht
+    criteria: Alle Ereignisse mit derselben ID wie im auslösenden Befehl.
+
+---
+# $schema: ../schemas/core/v1.yaml
+apiVersion: schema.esdm.io/core/v1
+kind: command
+name: diagnose-stellen
+scope:
+  domain: naturheilpraxis
+  boundedContext: naturheilpraxis
+  dynamicConsistencyBoundary: diagnosestellung
+data:
+  type: object
+  properties:
+    diagnoseId:
+      type: string
+      format: uuid
+    praxiskuerzel:
+      type: string
+      format: uuid
+    patientennummer:
+      $ref: urn:esdm:naturheilpraxis:naturheilpraxis:patientennummer
+    datum:
+      type: string
+      format: date
+    text:
+      type: string
+  required:
+    - diagnoseId
+    - praxiskuerzel
+    - patientennummer
+    - datum
+    - text
+  additionalProperties: false
+publishes:
+  - diagnose-gestellt
+actors:
+  - heilpraktiker
+
+---
+# $schema: ../schemas/core/v1.yaml
+apiVersion: schema.esdm.io/core/v1
+kind: event
+name: diagnose-gestellt
+scope:
+  domain: naturheilpraxis
+  boundedContext: naturheilpraxis
+data:
+  $ref: urn:esdm:naturheilpraxis:naturheilpraxis:diagnose
+
+---
+# $schema: ../schemas/core/v1.yaml
+apiVersion: schema.esdm.io/core/v1
+kind: command
+name: diagnose-aendern
+scope:
+  domain: naturheilpraxis
+  boundedContext: naturheilpraxis
+  dynamicConsistencyBoundary: diagnosestellung
+data:
+  type: object
+  properties:
+    diagnoseId:
+      type: string
+      format: uuid
+    praxiskuerzel:
+      type: string
+      format: uuid
+    patientennummer:
+      $ref: urn:esdm:naturheilpraxis:naturheilpraxis:patientennummer
+    datum:
+      type: string
+      format: date
+    text:
+      type: string
+  required:
+    - diagnoseId
+    - praxiskuerzel
+    - patientennummer
+    - datum
+    - text
+  additionalProperties: false
+publishes:
+  - diagnose-geaendert
+actors:
+  - heilpraktiker
+
+---
+# $schema: ../schemas/core/v1.yaml
+apiVersion: schema.esdm.io/core/v1
+kind: event
+name: diagnose-geaendert
+scope:
+  domain: naturheilpraxis
+  boundedContext: naturheilpraxis
+data:
+  $ref: urn:esdm:naturheilpraxis:naturheilpraxis:diagnose
+
+---
+# $schema: ../schemas/core/v1.yaml
+apiVersion: schema.esdm.io/core/v1
+kind: command
+name: diagnose-loeschen
+scope:
+  domain: naturheilpraxis
+  boundedContext: naturheilpraxis
+  dynamicConsistencyBoundary: diagnosestellung
+data:
+  type: object
+  properties:
+    diagnoseId:
+      type: string
+      format: uuid
+  required:
+    - diagnoseId
+  additionalProperties: false
+publishes:
+  - diagnose-geloescht
+actors:
+  - heilpraktiker
+
+---
+# $schema: ../schemas/core/v1.yaml
+apiVersion: schema.esdm.io/core/v1
+kind: event
+name: diagnose-geloescht
+scope:
+  domain: naturheilpraxis
+  boundedContext: naturheilpraxis
+data:
+  type: object
+  properties:
+    diagnoseId:
+      type: string
+      format: uuid
+  required:
+    - diagnoseId
+  additionalProperties: false
