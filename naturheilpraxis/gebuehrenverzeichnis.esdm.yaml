@@ -3,25 +3,25 @@ apiVersion: schema.esdm.io/core/v1
 kind: dynamic-consistency-boundary
 name: gebuehrenverzeichnis
 description: >-
-  Die Gebührenziffer muss im Gebührenverzeichnis eindeutig sein. Dafür reicht es alle Ereignisse mit
-  der gleichen Ziffer zu betrachten.
+  Die Gebührenziffer muss im Gebührenverzeichnis eindeutig sein. Dafür reicht es, alle Ereignisse
+  mit der gleichen Ziffer zu betrachten.
 scope:
   domain: naturheilpraxis
   boundedContext: naturheilpraxis
 identifiedBy:
-  - name: gebuehrenverzeichnis
+  - name: gebuehr
     source: command-payload
     field: ziffer
 consults:
   - boundedContext: naturheilpraxis
     event: gebuehr-angelegt
-    criteria: Alle Events mit der gleichen Ziffer wie im auslösenden Command.
+    criteria: Alle Ereignisse mit der gleichen Ziffer wie im auslösenden Befehl.
   - boundedContext: naturheilpraxis
     event: gebuehr-geaendert
-    criteria: Alle Events mit der gleichen Ziffer wie im auslösenden Command.
+    criteria: Alle Ereignisse mit der gleichen Ziffer wie im auslösenden Befehl.
   - boundedContext: naturheilpraxis
     event: gebuehr-entfernt
-    criteria: Alle Events mit der gleichen Ziffer wie im auslösenden Command.
+    criteria: Alle Ereignisse mit der gleichen Ziffer wie im auslösenden Befehl.
 
 ---
 # $schema: ../schemas/core/v1.yaml

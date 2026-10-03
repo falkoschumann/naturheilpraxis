@@ -3,7 +3,7 @@ apiVersion: schema.esdm.io/core/v1
 kind: dynamic-consistency-boundary
 name: praxisverwaltung
 description: >-
-  Das Praxiskürzel muss eindeutig sein. Dafür reicht es alle Ereignisse mit dem gleichen
+  Das Praxiskürzel muss eindeutig sein. Dafür reicht es, alle Ereignisse mit dem gleichen
   Praxiskürzel zu betrachten.
 scope:
   domain: naturheilpraxis
@@ -15,10 +15,10 @@ identifiedBy:
 consults:
   - boundedContext: naturheilpraxis
     event: praxis-angelegt
-    criteria: Alle Events mit demselben Kürzel wie im auslösenden Command.
+    criteria: Alle Ereignisse mit demselben Kürzel wie im auslösenden Befehl.
   - boundedContext: naturheilpraxis
     event: praxisdaten-geaendert
-    criteria: Alle Events mit demselben Kürzel wie im auslösenden Command.
+    criteria: Alle Ereignisse mit demselben Kürzel wie im auslösenden Befehl.
 
 ---
 # $schema: ../schemas/core/v1.yaml

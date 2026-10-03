@@ -14,7 +14,7 @@ projections:
     rule: Füge eine Praxis hinzu.
   - boundedContext: naturheilpraxis
     event: praxisdaten-geaendert
-    rule: Aktualisiere die Praxis.
+    rule: Aktualisiere die Stammdaten der Praxis.
 schema:
   type: array
   items:
