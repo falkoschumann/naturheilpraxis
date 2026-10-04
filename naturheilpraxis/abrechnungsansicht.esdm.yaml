@@ -1,0 +1,139 @@
+# $schema: ../schemas/core/v1.yaml
+apiVersion: schema.esdm.io/core/v1
+kind: read-model
+name: abrechnungsansicht
+description: >-
+  Die abrechnungsrelevanten Informationen aller Patienten, jeweils in ihrem aktuellen Stand.
+  Gelöschte Rechnungen und Leistungen erscheinen nicht mehr.
+scope:
+  domain: naturheilpraxis
+  boundedContext: naturheilpraxis
+paradigm: tabular
+projections:
+  - boundedContext: naturheilpraxis
+    event: rechnung-erstellt
+    rule: Füge die Rechnung hinzu.
+  - boundedContext: naturheilpraxis
+    event: rechnung-geaendert
+    rule: Aktualisiere die Rechnung.
+  - boundedContext: naturheilpraxis
+    event: entwurf-geloescht
+    rule: Entferne die Rechnung.
+  - boundedContext: naturheilpraxis
+    event: rechnung-versendet
+    rule: Markiere die Rechnung als versendet.
+  - boundedContext: naturheilpraxis
+    event: rechnung-bezahlt
+    rule: Markiere die Rechnung als bezahlt.
+  - boundedContext: naturheilpraxis
+    event: rechnungszahlung-zurueckgenommen
+    rule: Markiere die Rechnung als versendet.
+  - boundedContext: naturheilpraxis
+    event: rechnungsversand-zurueckgenommen
+    rule: Markiere die Rechnung als Entwurf.
+  - boundedContext: naturheilpraxis
+    event: leistung-erbracht
+    rule: Füge die Leistung hinzu.
+  - boundedContext: naturheilpraxis
+    event: leistung-geaendert
+    rule: Aktualisiere die Leistung.
+  - boundedContext: naturheilpraxis
+    event: leistung-geloescht
+    rule: Entferne die Leistung.
+schema:
+  type: object
+  properties:
+    rechnungen:
+      type: array
+      items:
+        $ref: urn:esdm:naturheilpraxis:naturheilpraxis:rechnung
+    leistungen:
+      type: array
+      items:
+        $ref: urn:esdm:naturheilpraxis:naturheilpraxis:leistung
+  required:
+    - rechnungen
+    - leistungen
+  additionalProperties: false
+
+---
+# $schema: ../schemas/core/v1.yaml
+apiVersion: schema.esdm.io/core/v1
+kind: query
+name: nicht-abgerechnete-leistungen-ermitteln
+description: >-
+  Ermittelt für einen Patienten die nicht abgerechneten Leistungen.
+scope:
+  domain: naturheilpraxis
+  boundedContext: naturheilpraxis
+readModel: abrechnungsansicht
+paradigm: tabular
+parameters:
+  type: object
+  properties:
+    patientennummer:
+      $ref: urn:esdm:naturheilpraxis:naturheilpraxis:patientennummer
+  required:
+    - patientennummer
+  additionalProperties: false
+result:
+  type: object
+  properties:
+    leistungen:
+      type: array
+      items:
+        $ref: urn:esdm:naturheilpraxis:naturheilpraxis:leistung
+  required:
+    - leistungen
+  additionalProperties: false
+actors:
+  - heilpraktiker
+constraints:
+  - name: nur-eintraege-des-patienten
+    rule: >-
+      Enthält nur Einträge zu der gegebenen Patientennummer.
+  - name: nur-nicht-abgerechnete-leistungen
+    rule: >-
+      Enthält nur Leistungen, die nicht in einer Rechnung enthalten sind.
+  - name: aelteste-zuerst
+    rule: >-
+      Die Einträge sind aufsteigend nach Datum sortiert.
+
+---
+# $schema: ../schemas/core/v1.yaml
+apiVersion: schema.esdm.io/core/v1
+kind: query
+name: rechnungen-ermitteln
+description: >-
+  Ermittelt alle Rechnungen und optional nur die zu einem Patienten.
+scope:
+  domain: naturheilpraxis
+  boundedContext: naturheilpraxis
+readModel: abrechnungsansicht
+paradigm: tabular
+parameters:
+  type: object
+  properties:
+    patientennummer:
+      $ref: urn:esdm:naturheilpraxis:naturheilpraxis:patientennummer
+  additionalProperties: false
+result:
+  type: object
+  properties:
+    rechnungen:
+      type: array
+      items:
+        $ref: urn:esdm:naturheilpraxis:naturheilpraxis:rechnung
+  required:
+    - rechnungen
+  additionalProperties: false
+actors:
+  - heilpraktiker
+constraints:
+  - name: nur-rechnungen-des-patienten
+    rule: >-
+      Ist eine Patientennummer angegeben, sind nur Rechnungen enthalten, die zu der gegebenen
+      Patientennummer gehören.
+  - name: neueste-zuerst
+    rule: >-
+      Die Einträge sind absteigend nach Datum sortiert.
