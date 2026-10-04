@@ -76,9 +76,9 @@ actors:
 constraints:
   - name: patientennummer-fortlaufend-ab-eins
     rule: >-
-      Im Ereignis wird die vergebene Patientennummer angegeben. Die neue Patientennummer ist um eins
-      größer als die höchste bisher vergebene Nummer. Der erste Patient überhaupt erhält die Nummer
-      1.
+      Im Ereignis `patient-aufgenommen` wird die vergebene Patientennummer angegeben. Die neue
+      Patientennummer ist um eins größer als die höchste bisher vergebene Nummer. Der erste Patient
+      überhaupt erhält die Nummer 1.
 
 ---
 # $schema: ../schemas/core/v1.yaml

@@ -125,7 +125,7 @@ description: >-
   wird und somit beim Entwurf der Rechnung noch nicht feststeht.
 
   Die Rechnungsnummer besteht aus der Patientennummer, dem Rechnungsdatum und einer optionalen
-  laufenden Zahl: P/JJMMTT(-N). Die erste Rechnung eines Tages für einen Patienten trägt keine
+  laufenden Zahl: `P/JJMMTT[-N]`. Die erste Rechnung eines Tages für einen Patienten trägt keine
   angehängte Zahl, jede weitere eine fortlaufende Zahl beginnend bei 2.
 scope:
   domain: naturheilpraxis
