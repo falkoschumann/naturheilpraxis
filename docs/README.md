@@ -1,3 +1,12 @@
+# Naturheilpraxis
+
+[Architecture Communication Canvas](https://html-preview.github.io/?url=https://github.com/falkoschumann/naturheilpraxis/blob/main/docs/acc.html)
+
+## Migration
+
+### Target database schema
+
+```mermaid
 ---
 title: Naturheilpraxis
 config:
@@ -91,3 +100,4 @@ erDiagram
         string text
         string status
     }
+```
