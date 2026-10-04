@@ -7,7 +7,7 @@ description: >-
 scope:
   domain: naturheilpraxis
   boundedContext: naturheilpraxis
-paradigm: tabular
+paradigm: key-value
 projections:
   - boundedContext: naturheilpraxis
     event: patient-aufgenommen
@@ -41,7 +41,76 @@ parameters:
 result:
   type: array
   items:
-    $ref: urn:esdm:naturheilpraxis:naturheilpraxis:patient
+    type: object
+    properties:
+      patientennummer:
+        $ref: urn:esdm:naturheilpraxis:naturheilpraxis:patientennummer
+      praxiskuerzel:
+        type: string
+      annahmejahr:
+        type: integer
+      geburtsdatum:
+        type: string
+        format: date
+      anrede:
+        type: string
+      titel:
+        type: string
+      vorname:
+        type: string
+      nachname:
+        type: string
+      strasse:
+        type: string
+      zusatz:
+        type: string
+      postleitzahl:
+        type: string
+      ort:
+        type: string
+      staat:
+        type: string
+      telefon:
+        type: string
+      mobiltelefon:
+        type: string
+      email:
+        type: string
+        format: email
+      website:
+        type: string
+        format: uri
+      beruf:
+        type: string
+      familienstand:
+        type: string
+      staatsangehoerigkeit:
+        type: string
+      notizen:
+        type: string
+      partnerVon:
+        $ref: urn:esdm:naturheilpraxis:naturheilpraxis:patientennummer
+      partnerVonName:
+        type: string
+      kindVon:
+        $ref: urn:esdm:naturheilpraxis:naturheilpraxis:patientennummer
+      kindVonName:
+        type: string
+      schluesselworte:
+        type: array
+        items:
+          type: string
+    required:
+      - patientennummer
+      - praxiskuerzel
+      - annahmejahr
+      - vorname
+      - nachname
+      - strasse
+      - postleitzahl
+      - ort
+      - geburtsdatum
+    additionalProperties: false
 actors:
   - heilpraktiker
 constraints:
@@ -66,7 +135,7 @@ scope:
   domain: naturheilpraxis
   boundedContext: naturheilpraxis
 readModel: patientenansicht
-paradigm: tabular
+paradigm: document
 parameters:
   type: object
   properties:
@@ -76,6 +145,50 @@ parameters:
     - patientennummer
   additionalProperties: false
 result:
-  $ref: urn:esdm:naturheilpraxis:naturheilpraxis:patient
+  patientennummer:
+    $ref: urn:esdm:naturheilpraxis:naturheilpraxis:patientennummer
+  praxiskuerzel:
+    type: string
+  annahmejahr:
+    type: integer
+  geburtsdatum:
+    type: string
+    format: date
+  name:
+    $ref: urn:esdm:naturheilpraxis:naturheilpraxis:personenname
+  anschrift:
+    $ref: urn:esdm:naturheilpraxis:naturheilpraxis:anschrift
+  kontakt:
+    $ref: urn:esdm:naturheilpraxis:naturheilpraxis:kontakt
+  beruf:
+    type: string
+  familienstand:
+    type: string
+  staatsangehoerigkeit:
+    type: string
+  notizen:
+    type: string
+  partnerVon:
+    $ref: urn:esdm:naturheilpraxis:naturheilpraxis:patientennummer
+  partnerVonName:
+    type: string
+  kindVon:
+    $ref: urn:esdm:naturheilpraxis:naturheilpraxis:patientennummer
+  kindVonName:
+    type: string
+  schluesselworte:
+    type: array
+    items:
+      type: string
+  required:
+    - patientennummer
+    - praxiskuerzel
+    - annahmejahr
+    - name
+    - geburtsdatum
+  additionalProperties: false
 actors:
   - heilpraktiker
+constraints:
+  - name: nach-patientennummer-eingrenzen
+    rule: Es wird nur der Patient mit der angegebenen Patientennummer zurückgegeben.

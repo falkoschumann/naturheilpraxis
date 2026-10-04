@@ -8,7 +8,7 @@ description: >-
 scope:
   domain: naturheilpraxis
   boundedContext: naturheilpraxis
-paradigm: tabular
+paradigm: time-series
 projections:
   - boundedContext: naturheilpraxis
     event: diagnose-gestellt
@@ -72,7 +72,7 @@ scope:
   domain: naturheilpraxis
   boundedContext: naturheilpraxis
 readModel: behandlungsansicht
-paradigm: tabular
+paradigm: time-series
 parameters:
   type: object
   properties:
@@ -85,33 +85,31 @@ result:
   type: array
   items:
     type: object
+    if:
+      properties:
+        eintragstyp:
+          const: diagnose
+      required:
+        - eintragstyp
+    then:
+      $ref: urn:esdm:naturheilpraxis:naturheilpraxis:diagnose
+    else:
+      if:
+        properties:
+          eintragstyp:
+            const: leistung
+        required:
+          - eintragstyp
+      then:
+        $ref: urn:esdm:naturheilpraxis:naturheilpraxis:leistung
     properties:
-      art:
+      eintragstyp:
         type: string
         enum:
           - diagnose
           - leistung
-      eintrag:
-        if:
-          properties:
-            art:
-              const: diagnose
-          required:
-            - art
-        then:
-          $ref: urn:esdm:naturheilpraxis:naturheilpraxis:diagnose
-        else:
-          if:
-            properties:
-              art:
-                const: leistung
-            required:
-              - art
-          then:
-            $ref: urn:esdm:naturheilpraxis:naturheilpraxis:leistung
     required:
-      - art
-      - eintrag
+      - eintragstyp
     additionalProperties: false
 actors:
   - heilpraktiker

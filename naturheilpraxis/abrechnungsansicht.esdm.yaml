@@ -8,7 +8,7 @@ description: >-
 scope:
   domain: naturheilpraxis
   boundedContext: naturheilpraxis
-paradigm: tabular
+paradigm: key-value
 projections:
   - boundedContext: naturheilpraxis
     event: rechnung-erstellt
@@ -77,15 +77,9 @@ parameters:
     - patientennummer
   additionalProperties: false
 result:
-  type: object
-  properties:
-    leistungen:
-      type: array
-      items:
-        $ref: urn:esdm:naturheilpraxis:naturheilpraxis:leistung
-  required:
-    - leistungen
-  additionalProperties: false
+  type: array
+  items:
+    $ref: urn:esdm:naturheilpraxis:naturheilpraxis:leistung
 actors:
   - heilpraktiker
 constraints:
@@ -118,15 +112,43 @@ parameters:
       $ref: urn:esdm:naturheilpraxis:naturheilpraxis:patientennummer
   additionalProperties: false
 result:
-  type: object
-  properties:
-    rechnungen:
-      type: array
-      items:
-        $ref: urn:esdm:naturheilpraxis:naturheilpraxis:rechnung
-  required:
-    - rechnungen
-  additionalProperties: false
+  type: array
+  items:
+    type: object
+    properties:
+      rechnungId:
+        type: string
+        format: uuid
+      praxiskuerzel:
+        type: string
+      patientennummer:
+        $ref: urn:esdm:naturheilpraxis:naturheilpraxis:patientennummer
+      patientenname:
+        type: string
+      diagnosetext:
+        type: string
+      rechnungsnummer:
+        $ref: urn:esdm:naturheilpraxis:naturheilpraxis:rechnungsnummer
+      datum:
+        type: string
+        format: date
+      rechnungstext:
+        type: string
+      status:
+        type: string
+        enum:
+          - entwurf
+          - versendet
+          - bezahlt
+        default: entwurf
+    required:
+      - rechnungId
+      - praxiskuerzel
+      - patientennummer
+      - diagnosetext
+      - rechnungstext
+      - status
+    additionalProperties: false
 actors:
   - heilpraktiker
 constraints:

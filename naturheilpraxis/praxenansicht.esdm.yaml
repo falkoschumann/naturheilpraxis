@@ -7,7 +7,7 @@ description: >-
 scope:
   domain: naturheilpraxis
   boundedContext: naturheilpraxis
-paradigm: tabular
+paradigm: key-value
 projections:
   - boundedContext: naturheilpraxis
     event: praxis-angelegt
@@ -34,9 +34,70 @@ paradigm: tabular
 result:
   type: array
   items:
-    $ref: urn:esdm:naturheilpraxis:naturheilpraxis:praxis
+    type: object
+    properties:
+      praxiskuerzel:
+        type: string
+      name:
+        type: string
+      strasse:
+        type: string
+      zusatz:
+        type: string
+      postleitzahl:
+        type: string
+      ort:
+        type: string
+      staat:
+        type: string
+      telefon:
+        type: string
+      mobiltelefon:
+        type: string
+      email:
+        type: string
+        format: email
+      website:
+        type: string
+        format: uri
+      rechnungstext:
+        type: string
+    required:
+      - praxiskuerzel
+      - name
+      - strasse
+      - postleitzahl
+      - ort
+    additionalProperties: false
 actors:
   - heilpraktiker
 constraints:
   - name: nach-kuerzel-sortiert
     rule: Die Praxen sind alphanumerisch aufsteigend nach Praxiskürzel sortiert.
+
+---
+# $schema: ../schemas/core/v1.yaml
+apiVersion: schema.esdm.io/core/v1
+kind: query
+name: praxis-ermitteln
+description: Ermittelt eine Praxis.
+scope:
+  domain: naturheilpraxis
+  boundedContext: naturheilpraxis
+readModel: praxenansicht
+paradigm: document
+parameters:
+  type: object
+  properties:
+    kuerzel:
+      $ref: urn:esdm:naturheilpraxis:naturheilpraxis:praxiskuerzel
+  required:
+    - kuerzel
+  additionalProperties: false
+result:
+  $ref: urn:esdm:naturheilpraxis:naturheilpraxis:praxis
+actors:
+  - heilpraktiker
+constraints:
+  - name: nach-kuerzel-eingrenzen
+    rule: Es wird nur die Praxis mit dem angegebenen Kürzel zurückgegeben.
