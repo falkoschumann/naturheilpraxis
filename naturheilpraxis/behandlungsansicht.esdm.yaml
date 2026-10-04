@@ -3,9 +3,8 @@ apiVersion: schema.esdm.io/core/v1
 kind: read-model
 name: behandlungsansicht
 description: >-
-  Die Behandlungshistorie eines Patienten: gestellte Diagnosen und erbrachte Leistungen in
-  zeitlicher Folge, jeweils in ihrem aktuellen Stand. Gelöschte Diagnosen und Leistungen erscheinen
-  nicht mehr.
+  Die Behandlungshistorie aller Patienten in Form von gestellte Diagnosen und erbrachte Leistungen,
+  jeweils in ihrem aktuellen Stand. Gelöschte Diagnosen und Leistungen erscheinen nicht mehr.
 scope:
   domain: naturheilpraxis
   boundedContext: naturheilpraxis
@@ -124,3 +123,37 @@ constraints:
     rule: >-
       Die Einträge sind absteigend nach Datum sortiert; bei gleichem Datum steht die Diagnose vor
       den Leistungen.
+
+---
+# $schema: ../schemas/core/v1.yaml
+apiVersion: schema.esdm.io/core/v1
+kind: query
+name: diagnosen-ermitteln
+description: >-
+  Ermittelt die Diagnosen eines Patienten.
+scope:
+  domain: naturheilpraxis
+  boundedContext: naturheilpraxis
+readModel: behandlungsansicht
+paradigm: tabular
+parameters:
+  type: object
+  properties:
+    patientennummer:
+      $ref: urn:esdm:naturheilpraxis:naturheilpraxis:patientennummer
+  required:
+    - patientennummer
+  additionalProperties: false
+result:
+  type: array
+  items:
+    $ref: urn:esdm:naturheilpraxis:naturheilpraxis:diagnose
+actors:
+  - heilpraktiker
+constraints:
+  - name: nur-eintraege-des-patienten
+    rule: >-
+      Enthält nur Einträge zu der gegebenen Patientennummer.
+  - name: neueste-zuerst
+    rule: >-
+      Die Diagnosen sind absteigend nach Datum sortiert.
