@@ -1,0 +1,36 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+LAYOUT_LANDSCAPE()
+
+title "Container Diagram für Naturheilpraxis System"
+
+Person(heilpraktiker, "Heilpraktiker", "Möchte Patienten erfassen, um für sie Diagnosen zu erstellen, Leistungen zu erbringen und abzurechnen.")
+Person(patient, "Patient", "Möchte Rechnung für Leistungen erhalten, um sie bei der Krankenkasse oder dem Finanzamt vorzulegen.")
+
+System_Boundary(naturheilpraxis, "Naturheilpraxis System") {
+  Container_Ext(electron, "Electron", "Electron, Node.js", "Container für die Web-Anwendung und Proxy für native Funktionen.")
+  Container(rendererProcess, "Renderer Process", "TypeScript, React", "Rendert die Benutzeroberfläche und gibt Nutzereingaben als Nachrichten an den Main Process weiter.")
+  Container(mainProcess, "Main Process", "TypeScript", "Verarbeitet die Nachrichten des Renderer Process' und gibt Antwortnachrichten zurück.")
+  ContainerDb(patienten, "Patienten", "Sqlite", "Patienten die aufgenommen wurden.")
+  ContainerDb(diagnosen, "Diagnosen", "Sqlite", "Diagnosen, die für einen Patienten gestellt wurden.")
+  ContainerDb(leistungen, "Leistungen", "Sqlite", "Leistungen, die für einen Patienten erbracht wurden.")
+  ContainerDb(rechnungen, "Rechnungen", "Sqlite", "Abgerechnete Leistungen.")
+  ContainerDb(gebuehren, "Gebühren", "Sqlite", "Gebührenverzeichnis für Leistungen.")
+
+
+  Rel(electron, rendererProcess, "Stelle Benutzeroberfläche bereit", "HTML, CSS, JavaScript")
+  Rel(electron, mainProcess, "Verwalte den Lebenszyklus der Applikation", "Node.js, JavaScript")
+  Rel_Up(rendererProcess, mainProcess, "Sende und empfange Nachrichten", "IPC channels")
+  Rel(mainProcess, patienten, "Nimm Patient auf", "SQL")
+  Rel(mainProcess, diagnosen, "Stelle Diagnose", "SQL")
+  Rel(mainProcess, leistungen, "Erbringe Leistung", "SQL")
+  Rel(mainProcess, rechnungen, "Rechne Leistungen ab", "SQL")
+  Rel(mainProcess, gebuehren, "Verwende Gebührenverzeichnis", "SQL")
+}
+
+Rel(heilpraktiker, electron, "Nimm Patient auf, stelle Diagnose, erbringe Leistungen und erstelle Rechnung")
+Rel(patient, electron, "Erhalte Diagnose und Leistungen sowie Rechnung")
+
+SHOW_FLOATING_LEGEND()
+@enduml

@@ -3,7 +3,14 @@ JS := bun
 PM := bun
 RUN := bunx
 
-all: dist check e2e
+# PlantUML configuration
+PLANTUML_FILES=$(wildcard doc/images/*.puml)
+DIAGRAM_FILES=$(subst .puml,.png,$(PLANTUML_FILES))
+
+# Make configuration
+SHELL:=/bin/bash
+
+all: dist check e2e doc
 
 clean:
 	rm -rf apps/*/build packages/*/build
@@ -20,6 +27,8 @@ dist: build
 
 dev: prepare
 	$(PM) run --parallel --workspaces --if-present dev
+
+doc: $(DIAGRAM_FILES)
 
 esdm-visualizer:
 	docker run --rm --publish 4000:3000 --volume .:/data impierce/esdm-visualizer
@@ -58,9 +67,16 @@ version:
 	@echo "Use package manager $(PM) version $(shell $(PM) --version)"
 	@echo "Use package runner $(RUN) version $(shell $(RUN) --version)"
 
+# Do not generate diagrams in CI environment, because changes to the diagrams
+# would not be committed
+$(DIAGRAM_FILES): %.png: %.puml
+ifndef CI
+	plantuml $^
+endif
+
 .PHONY: \
 	all clean distclean dist \
-	dev esdm-visualizer \
+	dev doc esdm-visualizer \
 	check fix \
 	test coverage watch  e2e \
 	build prepare version
