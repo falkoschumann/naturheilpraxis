@@ -214,15 +214,14 @@ schema:
       type: string
     patientennummer:
       $ref: urn:esdm:naturheilpraxis:naturheilpraxis:patientennummer
-    diagnoseId:
+    diagnosetext:
       type: string
-      format: uuid
     rechnungsnummer:
       $ref: urn:esdm:naturheilpraxis:naturheilpraxis:rechnungsnummer
     datum:
       type: string
       format: date
-    text:
+    rechnungstext:
       type: string
     status:
       type: string
@@ -235,7 +234,8 @@ schema:
     - rechnungId
     - praxiskuerzel
     - patientennummer
-    - diagnoseId
+    - diagnosetext
+    - rechnungstext
     - status
   additionalProperties: false
 identifiedBy:
