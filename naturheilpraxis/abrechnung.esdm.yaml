@@ -14,25 +14,25 @@ identifiedBy:
 consults:
   - boundedContext: naturheilpraxis
     event: rechnung-erstellt
-    criteria: Alle Ereignisse mit derselben ID wie im auslösenden Befehl.
+    criteria: Die ID ist die gleiche wie im auslösenden Befehl.
   - boundedContext: naturheilpraxis
     event: rechnung-geaendert
-    criteria: Alle Ereignisse mit derselben ID wie im auslösenden Befehl.
+    criteria: Die ID ist die gleiche wie im auslösenden Befehl.
   - boundedContext: naturheilpraxis
     event: entwurf-geloescht
-    criteria: Alle Ereignisse mit derselben ID wie im auslösenden Befehl.
+    criteria: Die ID ist die gleiche wie im auslösenden Befehl.
   - boundedContext: naturheilpraxis
     event: rechnung-versendet
-    criteria: Alle Ereignisse mit derselben ID wie im auslösenden Befehl.
+    criteria: Die ID ist die gleiche wie im auslösenden Befehl.
   - boundedContext: naturheilpraxis
     event: rechnung-bezahlt
-    criteria: Alle Ereignisse mit derselben ID wie im auslösenden Befehl.
+    criteria: Die ID ist die gleiche wie im auslösenden Befehl.
   - boundedContext: naturheilpraxis
     event: rechnungszahlung-zurueckgenommen
-    criteria: Alle Ereignisse mit derselben ID wie im auslösenden Befehl.
+    criteria: Die ID ist die gleiche wie im auslösenden Befehl.
   - boundedContext: naturheilpraxis
     event: rechnungsversand-zurueckgenommen
-    criteria: Alle Ereignisse mit derselben ID wie im auslösenden Befehl.
+    criteria: Die ID ist die gleiche wie im auslösenden Befehl.
 
 ---
 # $schema: ../schemas/core/v1.yaml

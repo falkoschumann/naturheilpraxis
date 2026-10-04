@@ -14,31 +14,28 @@ identifiedBy:
 consults:
   - boundedContext: naturheilpraxis
     event: leistung-erbracht
-    criteria: Alle Ereignisse mit derselben ID wie im auslösenden Befehl.
+    criteria: Die ID ist die gleiche wie im auslösenden Befehl.
   - boundedContext: naturheilpraxis
     event: leistung-geaendert
-    criteria: Alle Ereignisse mit derselben ID wie im auslösenden Befehl.
+    criteria: Die ID ist die gleiche wie im auslösenden Befehl.
   - boundedContext: naturheilpraxis
     event: leistung-geloescht
-    criteria: Alle Ereignisse mit derselben ID wie im auslösenden Befehl.
+    criteria: Die ID ist die gleiche wie im auslösenden Befehl.
   - boundedContext: naturheilpraxis
     event: rechnung-erstellt
-    criteria: Leistung ist in Rechnung enthalten.
+    criteria: Die Leistung ist in der Rechnung enthalten.
   - boundedContext: naturheilpraxis
     event: rechnung-geaendert
-    criteria: Leistung ist oder war in Rechnung enthalten.
+    criteria: Die Leistung ist oder war in der Rechnung enthalten.
   - boundedContext: naturheilpraxis
     event: entwurf-geloescht
-    criteria: Leistung ist in Rechnung enthalten.
+    criteria: Die Leistung war in der Rechnung enthalten.
   - boundedContext: naturheilpraxis
     event: rechnung-versendet
-    criteria: Leistung ist in Rechnung enthalten.
+    criteria: Die Leistung ist in der Rechnung enthalten.
   - boundedContext: naturheilpraxis
-    event: rechnung-bezahlt
-    criteria: Leistung ist in Rechnung enthalten.
-  - boundedContext: naturheilpraxis
-    event: rechnungszahlung-zurueckgenommen
-    criteria: Leistung ist in Rechnung enthalten.
+    event: rechnungsversand-zurueckgenommen
+    criteria: Die Leistung ist in der Rechnung enthalten.
 
 ---
 # $schema: ../schemas/core/v1.yaml

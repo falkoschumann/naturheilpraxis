@@ -15,10 +15,10 @@ identifiedBy:
 consults:
   - boundedContext: naturheilpraxis
     event: praxis-angelegt
-    criteria: Alle Ereignisse mit demselben Kürzel wie im auslösenden Befehl.
+    criteria: Das Kürzel ist das gleiche wie im auslösenden Befehl.
   - boundedContext: naturheilpraxis
     event: praxisdaten-geaendert
-    criteria: Alle Ereignisse mit demselben Kürzel wie im auslösenden Befehl.
+    criteria: Das Kürzel ist das gleiche wie im auslösenden Befehl.
 
 ---
 # $schema: ../schemas/core/v1.yaml

@@ -14,13 +14,13 @@ identifiedBy:
 consults:
   - boundedContext: naturheilpraxis
     event: diagnose-gestellt
-    criteria: Alle Ereignisse mit derselben ID wie im auslösenden Befehl.
+    criteria: Die ID ist die gleiche wie im auslösenden Befehl.
   - boundedContext: naturheilpraxis
     event: diagnose-geaendert
-    criteria: Alle Ereignisse mit derselben ID wie im auslösenden Befehl.
+    criteria: Die ID ist die gleiche wie im auslösenden Befehl.
   - boundedContext: naturheilpraxis
     event: diagnose-geloescht
-    criteria: Alle Ereignisse mit derselben ID wie im auslösenden Befehl.
+    criteria: Die ID ist die gleiche wie im auslösenden Befehl.
 
 ---
 # $schema: ../schemas/core/v1.yaml

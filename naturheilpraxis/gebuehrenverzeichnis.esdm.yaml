@@ -15,13 +15,13 @@ identifiedBy:
 consults:
   - boundedContext: naturheilpraxis
     event: gebuehr-angelegt
-    criteria: Alle Ereignisse mit der gleichen Ziffer wie im auslösenden Befehl.
+    criteria: Die Ziffer ist die gleiche wie im auslösenden Befehl.
   - boundedContext: naturheilpraxis
     event: gebuehr-geaendert
-    criteria: Alle Ereignisse mit der gleichen Ziffer wie im auslösenden Befehl.
+    criteria: Die Ziffer ist die gleiche wie im auslösenden Befehl.
   - boundedContext: naturheilpraxis
     event: gebuehr-entfernt
-    criteria: Alle Ereignisse mit der gleichen Ziffer wie im auslösenden Befehl.
+    criteria: Die Ziffer ist die gleiche wie im auslösenden Befehl.
 
 ---
 # $schema: ../schemas/core/v1.yaml
