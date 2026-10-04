@@ -21,7 +21,7 @@ projections:
 schema:
   type: array
   items:
-    $ref: urn:esdm:naturheilpraxis:naturheilpraxis:gebuehr
+    $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/entity=gebuehr
 
 ---
 # $schema: ../schemas/core/v1.yaml
@@ -38,7 +38,7 @@ paradigm: tabular
 result:
   type: array
   items:
-    $ref: urn:esdm:naturheilpraxis:naturheilpraxis:gebuehr
+    $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/entity=gebuehr
 actors:
   - heilpraktiker
 constraints:

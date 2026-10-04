@@ -18,7 +18,7 @@ projections:
 schema:
   type: array
   items:
-    $ref: urn:esdm:naturheilpraxis:naturheilpraxis:praxis
+    $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/entity=praxis
 
 ---
 # $schema: ../schemas/core/v1.yaml
@@ -90,12 +90,12 @@ parameters:
   type: object
   properties:
     kuerzel:
-      $ref: urn:esdm:naturheilpraxis:naturheilpraxis:praxiskuerzel
+      $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/value-object=praxiskuerzel
   required:
     - kuerzel
   additionalProperties: false
 result:
-  $ref: urn:esdm:naturheilpraxis:naturheilpraxis:praxis
+  $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/entity=praxis
 actors:
   - heilpraktiker
 constraints:

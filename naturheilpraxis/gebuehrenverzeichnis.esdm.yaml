@@ -33,20 +33,10 @@ scope:
   boundedContext: naturheilpraxis
   dynamicConsistencyBoundary: gebuehrenverzeichnis
 data:
-  type: object
+  $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/entity=gebuehr
   properties:
     ziffer:
-      $ref: urn:esdm:naturheilpraxis:naturheilpraxis:gebuehrenziffer
-    bezeichnung:
-      type: string
-    betrag:
-      $ref: urn:esdm:naturheilpraxis:naturheilpraxis:euro
-  required:
-    - ziffer
-    - bezeichnung
-    - betrag
-  additionalProperties: false
-
+      $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/value-object=gebuehrenziffer
 publishes:
   - gebuehr-angelegt
 actors:
@@ -61,7 +51,7 @@ scope:
   domain: naturheilpraxis
   boundedContext: naturheilpraxis
 data:
-  $ref: urn:esdm:naturheilpraxis:naturheilpraxis:gebuehr
+  $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/entity=gebuehr
 
 ---
 # $schema: ../schemas/core/v1.yaml
@@ -73,19 +63,10 @@ scope:
   boundedContext: naturheilpraxis
   dynamicConsistencyBoundary: gebuehrenverzeichnis
 data:
-  type: object
+  $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/entity=gebuehr
   properties:
     ziffer:
-      $ref: urn:esdm:naturheilpraxis:naturheilpraxis:gebuehrenziffer
-    bezeichnung:
-      type: string
-    betrag:
-      $ref: urn:esdm:naturheilpraxis:naturheilpraxis:euro
-  required:
-    - ziffer
-    - bezeichnung
-    - betrag
-  additionalProperties: false
+      $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/value-object=gebuehrenziffer
 publishes:
   - gebuehr-geaendert
 actors:
@@ -100,7 +81,7 @@ scope:
   domain: naturheilpraxis
   boundedContext: naturheilpraxis
 data:
-  $ref: urn:esdm:naturheilpraxis:naturheilpraxis:gebuehr
+  $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/entity=gebuehr
 
 ---
 # $schema: ../schemas/core/v1.yaml
@@ -115,7 +96,7 @@ data:
   type: object
   properties:
     ziffer:
-      $ref: urn:esdm:naturheilpraxis:naturheilpraxis:gebuehrenziffer
+      $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/value-object=gebuehrenziffer
   required:
     - ziffer
   additionalProperties: false
@@ -136,7 +117,7 @@ data:
   type: object
   properties:
     ziffer:
-      $ref: urn:esdm:naturheilpraxis:naturheilpraxis:gebuehrenziffer
+      $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/value-object=gebuehrenziffer
   required:
     - ziffer
   additionalProperties: false

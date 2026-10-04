@@ -52,7 +52,7 @@ data:
     praxiskuerzel:
       type: string
     patientennummer:
-      $ref: urn:esdm:naturheilpraxis:naturheilpraxis:patientennummer
+      $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/value-object=patientennummer
     diagnosetext:
       type: string
     rechnungstext:
@@ -93,7 +93,7 @@ data:
     praxiskuerzel:
       type: string
     patientennummer:
-      $ref: urn:esdm:naturheilpraxis:naturheilpraxis:patientennummer
+      $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/value-object=patientennummer
     diagnosetext:
       type: string
     rechnungstext:
@@ -274,7 +274,7 @@ data:
     type: string
     format: uuid
   rechnungsnummer:
-    $ref: urn:esdm:naturheilpraxis:naturheilpraxis:rechnungsnummer
+    $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/value-object=rechnungsnummer
   datum:
     type: string
     format: date

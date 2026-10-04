@@ -30,24 +30,10 @@ scope:
   boundedContext: naturheilpraxis
   dynamicConsistencyBoundary: praxisverwaltung
 data:
-  type: object
+  $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/entity=praxis
   properties:
     praxiskuerzel:
       type: string
-    name:
-      type: string
-      minLength: 1
-    anschrift:
-      $ref: urn:esdm:naturheilpraxis:naturheilpraxis:anschrift
-    kontakt:
-      $ref: urn:esdm:naturheilpraxis:naturheilpraxis:kontakt
-    rechnungstext:
-      type: string
-  required:
-    - praxiskuerzel
-    - name
-    - anschrift
-  additionalProperties: false
 publishes:
   - praxis-angelegt
 actors:
@@ -62,7 +48,7 @@ scope:
   domain: naturheilpraxis
   boundedContext: naturheilpraxis
 data:
-  $ref: urn:esdm:naturheilpraxis:naturheilpraxis:praxis
+  $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/entity=praxis
 
 ---
 # $schema: ../schemas/core/v1.yaml
@@ -74,24 +60,10 @@ scope:
   boundedContext: naturheilpraxis
   dynamicConsistencyBoundary: praxisverwaltung
 data:
-  type: object
+  $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/entity=praxis
   properties:
     praxiskuerzel:
       type: string
-    name:
-      type: string
-      minLength: 1
-    anschrift:
-      $ref: urn:esdm:naturheilpraxis:naturheilpraxis:anschrift
-    kontakt:
-      $ref: urn:esdm:naturheilpraxis:naturheilpraxis:kontakt
-    rechnungstext:
-      type: string
-  required:
-    - praxiskuerzel
-    - name
-    - anschrift
-  additionalProperties: false
 publishes:
   - praxisdaten-geaendert
 actors:
@@ -106,4 +78,4 @@ scope:
   domain: naturheilpraxis
   boundedContext: naturheilpraxis
 data:
-  $ref: urn:esdm:naturheilpraxis:naturheilpraxis:praxis
+  $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/entity=praxis

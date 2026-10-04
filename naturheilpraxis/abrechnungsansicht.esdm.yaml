@@ -46,11 +46,11 @@ schema:
     rechnungen:
       type: array
       items:
-        $ref: urn:esdm:naturheilpraxis:naturheilpraxis:rechnung
+        $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/entity=rechnung
     leistungen:
       type: array
       items:
-        $ref: urn:esdm:naturheilpraxis:naturheilpraxis:leistung
+        $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/entity=leistung
   required:
     - rechnungen
     - leistungen
@@ -72,14 +72,14 @@ parameters:
   type: object
   properties:
     patientennummer:
-      $ref: urn:esdm:naturheilpraxis:naturheilpraxis:patientennummer
+      $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/value-object=patientennummer
   required:
     - patientennummer
   additionalProperties: false
 result:
   type: array
   items:
-    $ref: urn:esdm:naturheilpraxis:naturheilpraxis:leistung
+    $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/entity=leistung
 actors:
   - heilpraktiker
 constraints:
@@ -109,7 +109,7 @@ parameters:
   type: object
   properties:
     patientennummer:
-      $ref: urn:esdm:naturheilpraxis:naturheilpraxis:patientennummer
+      $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/value-object=patientennummer
   additionalProperties: false
 result:
   type: array
@@ -122,13 +122,13 @@ result:
       praxiskuerzel:
         type: string
       patientennummer:
-        $ref: urn:esdm:naturheilpraxis:naturheilpraxis:patientennummer
+        $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/value-object=patientennummer
       patientenname:
         type: string
       diagnosetext:
         type: string
       rechnungsnummer:
-        $ref: urn:esdm:naturheilpraxis:naturheilpraxis:rechnungsnummer
+        $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/value-object=rechnungsnummer
       datum:
         type: string
         format: date

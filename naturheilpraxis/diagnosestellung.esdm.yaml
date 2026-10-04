@@ -40,7 +40,7 @@ data:
     praxiskuerzel:
       type: string
     patientennummer:
-      $ref: urn:esdm:naturheilpraxis:naturheilpraxis:patientennummer
+      $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/value-object=patientennummer
     datum:
       type: string
       format: date
@@ -67,7 +67,7 @@ scope:
   domain: naturheilpraxis
   boundedContext: naturheilpraxis
 data:
-  $ref: urn:esdm:naturheilpraxis:naturheilpraxis:diagnose
+  $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/entity=diagnose
 
 ---
 # $schema: ../schemas/core/v1.yaml
@@ -87,7 +87,7 @@ data:
     praxiskuerzel:
       type: string
     patientennummer:
-      $ref: urn:esdm:naturheilpraxis:naturheilpraxis:patientennummer
+      $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/value-object=patientennummer
     datum:
       type: string
       format: date
@@ -114,7 +114,7 @@ scope:
   domain: naturheilpraxis
   boundedContext: naturheilpraxis
 data:
-  $ref: urn:esdm:naturheilpraxis:naturheilpraxis:diagnose
+  $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/entity=diagnose
 
 ---
 # $schema: ../schemas/core/v1.yaml

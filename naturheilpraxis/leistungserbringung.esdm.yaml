@@ -55,19 +55,19 @@ data:
     praxiskuerzel:
       type: string
     patientennummer:
-      $ref: urn:esdm:naturheilpraxis:naturheilpraxis:patientennummer
+      $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/value-object=patientennummer
     datum:
       type: string
       format: date
     ziffer:
-      $ref: urn:esdm:naturheilpraxis:naturheilpraxis:gebuehrenziffer
+      $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/value-object=gebuehrenziffer
     bezeichnung:
       type: string
     anzahl:
       type: integer
       minimum: 1
     einzelbetrag:
-      $ref: urn:esdm:naturheilpraxis:naturheilpraxis:betrag
+      $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/value-object=euro
   required:
     - leistungId
     - praxiskuerzel
@@ -91,7 +91,7 @@ scope:
   domain: naturheilpraxis
   boundedContext: naturheilpraxis
 data:
-  $ref: urn:esdm:naturheilpraxis:naturheilpraxis:leistung
+  $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/entity=leistung
 
 ---
 # $schema: ../schemas/core/v1.yaml
@@ -111,19 +111,19 @@ data:
     praxiskuerzel:
       type: string
     patientennummer:
-      $ref: urn:esdm:naturheilpraxis:naturheilpraxis:patientennummer
+      $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/value-object=patientennummer
     datum:
       type: string
       format: date
     ziffer:
-      $ref: urn:esdm:naturheilpraxis:naturheilpraxis:gebuehrenziffer
+      $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/value-object=gebuehrenziffer
     bezeichnung:
       type: string
     anzahl:
       type: integer
       minimum: 1
     einzelbetrag:
-      $ref: urn:esdm:naturheilpraxis:naturheilpraxis:betrag
+      $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/value-object=euro
   required:
     - leistungId
     - praxiskuerzel
@@ -147,7 +147,7 @@ scope:
   domain: naturheilpraxis
   boundedContext: naturheilpraxis
 data:
-  $ref: urn:esdm:naturheilpraxis:naturheilpraxis:leistung
+  $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/entity=leistung
 
 ---
 # $schema: ../schemas/core/v1.yaml

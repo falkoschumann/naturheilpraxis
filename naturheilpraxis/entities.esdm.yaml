@@ -6,7 +6,6 @@ scope:
   domain: naturheilpraxis
   boundedContext: naturheilpraxis
 schema:
-  $id: urn:esdm:naturheilpraxis:naturheilpraxis:praxis
   type: object
   properties:
     praxiskuerzel:
@@ -14,9 +13,9 @@ schema:
     name:
       type: string
     anschrift:
-      $ref: urn:esdm:naturheilpraxis:naturheilpraxis:anschrift
+      $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/value-object=anschrift
     kontakt:
-      $ref: urn:esdm:naturheilpraxis:naturheilpraxis:kontakt
+      $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/value-object=kontakt
     rechnungstext:
       type: string
   required:
@@ -37,15 +36,14 @@ scope:
   domain: naturheilpraxis
   boundedContext: naturheilpraxis
 schema:
-  $id: urn:esdm:naturheilpraxis:naturheilpraxis:gebuehr
   type: object
   properties:
     ziffer:
-      $ref: urn:esdm:naturheilpraxis:naturheilpraxis:gebuehrenziffer
+      $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/value-object=gebuehrenziffer
     bezeichnung:
       type: string
     betrag:
-      $ref: urn:esdm:naturheilpraxis:naturheilpraxis:euro
+      $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/value-object=euro
   required:
     - ziffer
     - bezeichnung
@@ -64,11 +62,10 @@ scope:
   domain: naturheilpraxis
   boundedContext: naturheilpraxis
 schema:
-  $id: urn:esdm:naturheilpraxis:naturheilpraxis:patient
   type: object
   properties:
     patientennummer:
-      $ref: urn:esdm:naturheilpraxis:naturheilpraxis:patientennummer
+      $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/value-object=patientennummer
     praxiskuerzel:
       type: string
     annahmejahr:
@@ -77,11 +74,11 @@ schema:
       type: string
       format: date
     name:
-      $ref: urn:esdm:naturheilpraxis:naturheilpraxis:personenname
+      $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/value-object=personenname
     anschrift:
-      $ref: urn:esdm:naturheilpraxis:naturheilpraxis:anschrift
+      $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/value-object=anschrift
     kontakt:
-      $ref: urn:esdm:naturheilpraxis:naturheilpraxis:kontakt
+      $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/value-object=kontakt
     beruf:
       type: string
     familienstand:
@@ -91,9 +88,9 @@ schema:
     notizen:
       type: string
     partnerVon:
-      $ref: urn:esdm:naturheilpraxis:naturheilpraxis:patientennummer
+      $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/value-object=patientennummer
     kindVon:
-      $ref: urn:esdm:naturheilpraxis:naturheilpraxis:patientennummer
+      $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/value-object=patientennummer
     schluesselworte:
       type: array
       items:
@@ -121,7 +118,6 @@ scope:
   domain: naturheilpraxis
   boundedContext: naturheilpraxis
 schema:
-  $id: urn:esdm:naturheilpraxis:naturheilpraxis:diagnose
   type: object
   properties:
     diagnoseId:
@@ -130,7 +126,7 @@ schema:
     praxiskuerzel:
       type: string
     patientennummer:
-      $ref: urn:esdm:naturheilpraxis:naturheilpraxis:patientennummer
+      $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/value-object=patientennummer
     datum:
       type: string
       format: date
@@ -156,7 +152,6 @@ scope:
   domain: naturheilpraxis
   boundedContext: naturheilpraxis
 schema:
-  $id: urn:esdm:naturheilpraxis:naturheilpraxis:leistung
   type: object
   properties:
     leistungId:
@@ -165,7 +160,7 @@ schema:
     praxiskuerzel:
       type: string
     patientennummer:
-      $ref: urn:esdm:naturheilpraxis:naturheilpraxis:patientennummer
+      $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/value-object=patientennummer
     rechnungId:
       type: string
       format: uuid
@@ -173,14 +168,14 @@ schema:
       type: string
       format: date
     ziffer:
-      $ref: urn:esdm:naturheilpraxis:naturheilpraxis:gebuehrenziffer
+      $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/value-object=gebuehrenziffer
     bezeichnung:
       type: string
     anzahl:
       type: integer
       minimum: 1
     einzelbetrag:
-      $ref: urn:esdm:naturheilpraxis:naturheilpraxis:euro
+      $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/value-object=euro
   required:
     - leistungId
     - praxiskuerzel
@@ -204,7 +199,6 @@ scope:
   domain: naturheilpraxis
   boundedContext: naturheilpraxis
 schema:
-  $id: urn:esdm:naturheilpraxis:naturheilpraxis:rechnung
   type: object
   properties:
     rechnungId:
@@ -213,11 +207,11 @@ schema:
     praxiskuerzel:
       type: string
     patientennummer:
-      $ref: urn:esdm:naturheilpraxis:naturheilpraxis:patientennummer
+      $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/value-object=patientennummer
     diagnosetext:
       type: string
     rechnungsnummer:
-      $ref: urn:esdm:naturheilpraxis:naturheilpraxis:rechnungsnummer
+      $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/value-object=rechnungsnummer
     datum:
       type: string
       format: date

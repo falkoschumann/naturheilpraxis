@@ -18,7 +18,7 @@ projections:
 schema:
   type: array
   items:
-    $ref: urn:esdm:naturheilpraxis:naturheilpraxis:patient
+    $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/entity=patient
 
 ---
 # $schema: ../schemas/core/v1.yaml
@@ -44,7 +44,7 @@ result:
     type: object
     properties:
       patientennummer:
-        $ref: urn:esdm:naturheilpraxis:naturheilpraxis:patientennummer
+        $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/value-object=patientennummer
       praxiskuerzel:
         type: string
       annahmejahr:
@@ -89,11 +89,11 @@ result:
       notizen:
         type: string
       partnerVon:
-        $ref: urn:esdm:naturheilpraxis:naturheilpraxis:patientennummer
+        $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/value-object=patientennummer
       partnerVonName:
         type: string
       kindVon:
-        $ref: urn:esdm:naturheilpraxis:naturheilpraxis:patientennummer
+        $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/value-object=patientennummer
       kindVonName:
         type: string
       schluesselworte:
@@ -140,13 +140,13 @@ parameters:
   type: object
   properties:
     patientennummer:
-      $ref: urn:esdm:naturheilpraxis:naturheilpraxis:patientennummer
+      $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/value-object=patientennummer
   required:
     - patientennummer
   additionalProperties: false
 result:
   patientennummer:
-    $ref: urn:esdm:naturheilpraxis:naturheilpraxis:patientennummer
+    $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/value-object=patientennummer
   praxiskuerzel:
     type: string
   annahmejahr:
@@ -155,11 +155,11 @@ result:
     type: string
     format: date
   name:
-    $ref: urn:esdm:naturheilpraxis:naturheilpraxis:personenname
+    $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/value-object=personenname
   anschrift:
-    $ref: urn:esdm:naturheilpraxis:naturheilpraxis:anschrift
+    $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/value-object=anschrift
   kontakt:
-    $ref: urn:esdm:naturheilpraxis:naturheilpraxis:kontakt
+    $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/value-object=kontakt
   beruf:
     type: string
   familienstand:
@@ -169,11 +169,11 @@ result:
   notizen:
     type: string
   partnerVon:
-    $ref: urn:esdm:naturheilpraxis:naturheilpraxis:patientennummer
+    $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/value-object=patientennummer
   partnerVonName:
     type: string
   kindVon:
-    $ref: urn:esdm:naturheilpraxis:naturheilpraxis:patientennummer
+    $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/value-object=patientennummer
   kindVonName:
     type: string
   schluesselworte:

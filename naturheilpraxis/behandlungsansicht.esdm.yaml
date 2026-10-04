@@ -46,7 +46,7 @@ schema:
           required:
             - art
         then:
-          $ref: urn:esdm:naturheilpraxis:naturheilpraxis:diagnose
+          $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/entity=diagnose
         else:
           if:
             properties:
@@ -55,7 +55,7 @@ schema:
             required:
               - art
           then:
-            $ref: urn:esdm:naturheilpraxis:naturheilpraxis:leistung
+            $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/entity=leistung
     required:
       - art
       - eintrag
@@ -77,7 +77,7 @@ parameters:
   type: object
   properties:
     patientennummer:
-      $ref: urn:esdm:naturheilpraxis:naturheilpraxis:patientennummer
+      $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/value-object=patientennummer
   required:
     - patientennummer
   additionalProperties: false
@@ -92,7 +92,7 @@ result:
       required:
         - eintragstyp
     then:
-      $ref: urn:esdm:naturheilpraxis:naturheilpraxis:diagnose
+      $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/entity=diagnose
     else:
       if:
         properties:
@@ -101,7 +101,7 @@ result:
         required:
           - eintragstyp
       then:
-        $ref: urn:esdm:naturheilpraxis:naturheilpraxis:leistung
+        $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/entity=leistung
     properties:
       eintragstyp:
         type: string
@@ -138,14 +138,14 @@ parameters:
   type: object
   properties:
     patientennummer:
-      $ref: urn:esdm:naturheilpraxis:naturheilpraxis:patientennummer
+      $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/value-object=patientennummer
   required:
     - patientennummer
   additionalProperties: false
 result:
   type: array
   items:
-    $ref: urn:esdm:naturheilpraxis:naturheilpraxis:diagnose
+    $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/entity=diagnose
 actors:
   - heilpraktiker
 constraints:

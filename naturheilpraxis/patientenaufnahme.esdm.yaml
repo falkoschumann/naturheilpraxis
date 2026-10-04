@@ -42,11 +42,11 @@ data:
       type: string
       format: date
     name:
-      $ref: urn:esdm:naturheilpraxis:naturheilpraxis:personenname
+      $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/value-object=personenname
     anschrift:
-      $ref: urn:esdm:naturheilpraxis:naturheilpraxis:anschrift
+      $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/value-object=anschrift
     kontakt:
-      $ref: urn:esdm:naturheilpraxis:naturheilpraxis:kontakt
+      $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/value-object=kontakt
     beruf:
       type: string
     familienstand:
@@ -56,9 +56,9 @@ data:
     notizen:
       type: string
     partnerVon:
-      $ref: urn:esdm:naturheilpraxis:naturheilpraxis:patientennummer
+      $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/value-object=patientennummer
     kindVon:
-      $ref: urn:esdm:naturheilpraxis:naturheilpraxis:patientennummer
+      $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/value-object=patientennummer
     schluesselworte:
       type: array
       items:
@@ -89,4 +89,4 @@ scope:
   domain: naturheilpraxis
   boundedContext: naturheilpraxis
 data:
-  $ref: urn:esdm:naturheilpraxis:naturheilpraxis:patient
+  $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/entity=patient
