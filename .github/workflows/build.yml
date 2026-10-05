@@ -5,6 +5,10 @@ on: push
 permissions:
   contents: read
 
+env:
+  ESDM_VERSION: 0.15.0
+  ESDM_SHA256: db76e45729e5318023120143356df461dbddfbedf2108111c0d8b7b595f42a84
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -19,5 +23,14 @@ jobs:
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: "lts/*"
+      - name: Install esdm CLI
+        run: |
+          mkdir -p "$RUNNER_TEMP/bin"
+          curl --fail --silent --show-error --location \
+            --output "$RUNNER_TEMP/bin/esdm" \
+            "https://esdm.s3.fr-par.scw.cloud/$ESDM_VERSION/esdm-linux-amd64"
+          echo "$ESDM_SHA256  $RUNNER_TEMP/bin/esdm" | sha256sum --check
+          chmod a+x "$RUNNER_TEMP/bin/esdm"
+          echo "$RUNNER_TEMP/bin" >> "$GITHUB_PATH"
       - name: Build
         run: make
