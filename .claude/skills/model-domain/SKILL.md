@@ -35,9 +35,13 @@ Follow these conventions in addition to the schemas:
   with optional Fugenlaut.
 - **Queries** are named in the imperative form with the fix prefix "get-" in
   English and in the infinitive form with the fix suffix "-ermitteln" in German.
-- **Value objects** are referenced with `$ref` instead of repeating their
-  schema. The value object carries `$id` inside its `schema`. The identifier is
-  a URN of the form `urn:esdm:<domain>:<bounded-context>:<name>`.
+- **Entities** and **Value objects** are referenced with `$ref` instead of
+  repeating their schema using the URI
+  `esdm:domain=<domain-name>/bounded-context=<bounded-context-name>/entity=<entity-name>`
+  for entities and
+  `esdm:domain=<domain-name>/bounded-context=<bounded-context-name>/value-object=<value-object-name>`
+  for value objects. When necessary, add identity property as property in the
+  schema.
 - Apply `additionalProperties: false` as default for JSON Schemas.
 - Use `data: {}` as an empty payload.
 - Create a separate file for each aggregate, DCB, and read model with their
