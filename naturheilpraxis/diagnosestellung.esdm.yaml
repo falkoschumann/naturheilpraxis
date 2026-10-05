@@ -32,27 +32,11 @@ scope:
   boundedContext: naturheilpraxis
   dynamicConsistencyBoundary: diagnosestellung
 data:
-  type: object
+  $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/entity=diagnose
   properties:
     diagnoseId:
       type: string
       format: uuid
-    praxiskuerzel:
-      type: string
-    patientennummer:
-      $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/value-object=patientennummer
-    datum:
-      type: string
-      format: date
-    text:
-      type: string
-  required:
-    - diagnoseId
-    - praxiskuerzel
-    - patientennummer
-    - datum
-    - text
-  additionalProperties: false
 publishes:
   - diagnose-gestellt
 actors:
@@ -79,27 +63,11 @@ scope:
   boundedContext: naturheilpraxis
   dynamicConsistencyBoundary: diagnosestellung
 data:
-  type: object
+  $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/entity=diagnose
   properties:
     diagnoseId:
       type: string
       format: uuid
-    praxiskuerzel:
-      type: string
-    patientennummer:
-      $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/value-object=patientennummer
-    datum:
-      type: string
-      format: date
-    text:
-      type: string
-  required:
-    - diagnoseId
-    - praxiskuerzel
-    - patientennummer
-    - datum
-    - text
-  additionalProperties: false
 publishes:
   - diagnose-geaendert
 actors:
