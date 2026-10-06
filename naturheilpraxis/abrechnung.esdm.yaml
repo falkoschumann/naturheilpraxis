@@ -259,7 +259,9 @@ constraints:
       Im Ereignis `rechnung-versendet` wird die vergebene Rechnungsnummer angegeben. Die neue
       Rechnungsnummer hat das Format `P/JJMMTT[-N]` und besteht aus der Patientennummer `P` und dem
       Rechnungsdatum `JJMMTT`. Gibt es mehr als eine Rechnung für denselben Patienten an einem Tag,
-      wird eine fortlaufende Zahl `-N` angehängt, beginnend bei 2.
+      wird eine fortlaufende Zahl `-N` angehängt, beginnend bei 2. Vergeben sind nur die Nummern
+      versendeter und bezahlter Rechnungen; eine durch Zurücknahme des Versands frei gewordene
+      Nummer kann wieder vergeben werden. Es wird immer die niedrigste freie Nummer vergeben.
 
 ---
 # $schema: ../schemas/core/v1.yaml
@@ -357,6 +359,10 @@ constraints:
       Es wird immer genau eines der beiden Ereignisse emittiert: im Status `bezahlt` das Ereignis
       `rechnungszahlung-zurueckgenommen`, im Status `versendet` das Ereignis
       `rechnungsversand-zurueckgenommen`.
+  - name: versand-zuruecknehmen-entfernt-nummer
+    rule: >-
+      Wird der Versand zurückgenommen, verliert die Rechnung Rechnungsnummer und Rechnungsdatum.
+      Beide werden beim erneuten Versand neu vergeben.
 
 ---
 # $schema: ../schemas/core/v1.yaml
@@ -381,6 +387,8 @@ data:
 apiVersion: schema.esdm.io/core/v1
 kind: event
 name: rechnungsversand-zurueckgenommen
+description: >-
+  Die Rechnung ist wieder ein Entwurf und hat keine Rechnungsnummer und kein Rechnungsdatum mehr.
 scope:
   domain: naturheilpraxis
   boundedContext: naturheilpraxis

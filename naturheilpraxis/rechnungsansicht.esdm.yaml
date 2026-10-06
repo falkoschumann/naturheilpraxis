@@ -65,8 +65,8 @@ projections:
   - boundedContext: naturheilpraxis
     event: rechnungsversand-zurueckgenommen
     rule: >-
-      Markiere die Rechnung als Entwurf und übernimm wieder den aktuellen Stand von Praxis, Patient
-      und Leistungen.
+      Markiere die Rechnung als Entwurf, entferne Rechnungsnummer und Rechnungsdatum und übernimm
+      wieder den aktuellen Stand von Praxis, Patient und Leistungen.
 schema:
   type: object
   properties:

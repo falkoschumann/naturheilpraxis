@@ -31,7 +31,7 @@ projections:
     rule: Markiere die Rechnung als versendet.
   - boundedContext: naturheilpraxis
     event: rechnungsversand-zurueckgenommen
-    rule: Markiere die Rechnung als Entwurf.
+    rule: Markiere die Rechnung als Entwurf und entferne Rechnungsnummer und Rechnungsdatum.
   - boundedContext: naturheilpraxis
     event: leistung-erbracht
     rule: Füge die Leistung hinzu.

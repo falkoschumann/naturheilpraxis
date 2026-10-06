@@ -50,11 +50,14 @@ ubiquitousLanguage:
   - term: Rechnung
     definition: >-
       Die Forderung an einen Patienten über die noch nicht abgerechneten Leistungen. Sie wird als
-      Entwurf erstellt, dann versendet und schließlich bezahlt. Die Rechnung basiert auf einer
-      Diagnose. Leistungen müssen nicht in der selben Praxis erbracht worden sein. Wird durch die
-      Rechnungsnummer eindeutig identifiziert, die beim Versand der Rechnung vergeben wird.
+      Entwurf erstellt, dann versendet und schließlich bezahlt. Der Diagnosetext wird aus einer
+      Diagnose des Patienten übernommen und kann für die Rechnung bearbeitet werden. Leistungen
+      müssen nicht in der selben Praxis erbracht worden sein. Wird durch die Rechnungsnummer
+      eindeutig gekennzeichnet, die beim Versand der Rechnung vergeben wird. Wird der Versand
+      zurückgenommen, verliert die Rechnung Rechnungsnummer und Rechnungsdatum wieder.
   - term: Rechnungsnummer
     definition: >-
-      Die Identität einer Rechnung, gebildet aus Patientennummer 1234 und Rechnungsdatum 20.09.2026
-      wird etwa "1234/260920". Fällt an einem Tag mehr als eine Rechnung für denselben Patienten an,
-      wird ab der zweiten Rechnung eine fortlaufende Zahl angehängt, etwa "1234/260920-2".
+      Die eindeutige Kennung einer Rechnung, gebildet aus Patientennummer 1234 und Rechnungsdatum
+      20.09.2026 wird etwa "1234/260920". Fällt an einem Tag mehr als eine Rechnung für denselben
+      Patienten an, wird ab der zweiten Rechnung eine fortlaufende Zahl angehängt, etwa
+      "1234/260920-2".
