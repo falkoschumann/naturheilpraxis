@@ -89,10 +89,10 @@ paradigm: document
 parameters:
   type: object
   properties:
-    kuerzel:
-      $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/value-object=praxiskuerzel
+    praxiskuerzel:
+      type: string
   required:
-    - kuerzel
+    - praxiskuerzel
   additionalProperties: false
 result:
   $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/entity=praxis

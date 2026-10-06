@@ -145,41 +145,43 @@ parameters:
     - patientennummer
   additionalProperties: false
 result:
-  patientennummer:
-    $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/value-object=patientennummer
-  praxiskuerzel:
-    type: string
-  annahmejahr:
-    type: integer
-  geburtsdatum:
-    type: string
-    format: date
-  name:
-    $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/value-object=personenname
-  anschrift:
-    $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/value-object=anschrift
-  kontakt:
-    $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/value-object=kontakt
-  beruf:
-    type: string
-  familienstand:
-    type: string
-  staatsangehoerigkeit:
-    type: string
-  notizen:
-    type: string
-  partnerVon:
-    $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/value-object=patientennummer
-  partnerVonName:
-    type: string
-  kindVon:
-    $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/value-object=patientennummer
-  kindVonName:
-    type: string
-  schluesselworte:
-    type: array
-    items:
+  type: object
+  properties:
+    patientennummer:
+      $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/value-object=patientennummer
+    praxiskuerzel:
       type: string
+    annahmejahr:
+      type: integer
+    geburtsdatum:
+      type: string
+      format: date
+    name:
+      $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/value-object=personenname
+    anschrift:
+      $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/value-object=anschrift
+    kontakt:
+      $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/value-object=kontakt
+    beruf:
+      type: string
+    familienstand:
+      type: string
+    staatsangehoerigkeit:
+      type: string
+    notizen:
+      type: string
+    partnerVon:
+      $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/value-object=patientennummer
+    partnerVonName:
+      type: string
+    kindVon:
+      $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/value-object=patientennummer
+    kindVonName:
+      type: string
+    schluesselworte:
+      type: array
+      items:
+        type: string
   required:
     - patientennummer
     - praxiskuerzel

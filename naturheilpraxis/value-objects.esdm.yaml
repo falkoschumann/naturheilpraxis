@@ -127,7 +127,7 @@ scope:
   boundedContext: naturheilpraxis
 schema:
   type: string
-  pattern: "^[1-9][0-9]*/[0-9]{6}(-[2-9][0-9]*)?$"
+  pattern: "^[1-9][0-9]*/[0-9]{6}(-([2-9]|[1-9][0-9]+))?$"
 
 ---
 # $schema: ../schemas/core/v1.yaml
