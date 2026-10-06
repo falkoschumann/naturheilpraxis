@@ -15,3 +15,5 @@ Jeder Eintrag beginnt mit einer Kategorie:
 (FURPS+).
 
 ## Aufgaben
+
+- [x] **Änderbarkeit** Configure dependabot
