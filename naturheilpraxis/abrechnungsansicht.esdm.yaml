@@ -4,7 +4,8 @@ kind: read-model
 name: abrechnungsansicht
 description: >-
   Die abrechnungsrelevanten Informationen aller Patienten, jeweils in ihrem aktuellen Stand.
-  Gelöschte Rechnungen und Leistungen erscheinen nicht mehr.
+  Gelöschte Rechnungen und Leistungen erscheinen nicht mehr. Von den Patienten werden nur Name und
+  Geburtsdatum geführt, um sie zu den Rechnungen anzeigen zu können.
 scope:
   domain: naturheilpraxis
   boundedContext: naturheilpraxis
@@ -40,6 +41,12 @@ projections:
   - boundedContext: naturheilpraxis
     event: leistung-geloescht
     rule: Entferne die Leistung.
+  - boundedContext: naturheilpraxis
+    event: patient-aufgenommen
+    rule: Füge Name und Geburtsdatum des Patienten hinzu.
+  - boundedContext: naturheilpraxis
+    event: patientendaten-geaendert
+    rule: Aktualisiere Name und Geburtsdatum des Patienten.
 schema:
   type: object
   properties:
@@ -51,9 +58,27 @@ schema:
       type: array
       items:
         $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/entity=leistung
+    patienten:
+      type: array
+      items:
+        type: object
+        properties:
+          patientennummer:
+            $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/value-object=patientennummer
+          name:
+            $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/value-object=personenname
+          geburtsdatum:
+            type: string
+            format: date
+        required:
+          - patientennummer
+          - name
+          - geburtsdatum
+        additionalProperties: false
   required:
     - rechnungen
     - leistungen
+    - patienten
   additionalProperties: false
 
 ---
@@ -152,6 +177,11 @@ result:
 actors:
   - heilpraktiker
 constraints:
+  - name: patientenname-zusammensetzen
+    rule: >-
+      Der Patientenname hat das Muster `<Nachname>, <Vorname> (Nr. <Patientennummer>), geboren am
+      <Geburtsdatum>`, etwa "Mustermann, Max (Nr. 1234), geboren am 20.09.1980". Das Geburtsdatum
+      wird im Format `TT.MM.JJJJ` angegeben.
   - name: nur-rechnungen-des-patienten
     rule: >-
       Ist eine Patientennummer angegeben, sind nur Rechnungen enthalten, die zu der gegebenen
