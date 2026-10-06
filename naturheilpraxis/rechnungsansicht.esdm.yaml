@@ -1,0 +1,241 @@
+# $schema: ../schemas/core/v1.yaml
+apiVersion: schema.esdm.io/core/v1
+kind: read-model
+name: rechnungsansicht
+description: >-
+  Die Rechnungen mit allen Angaben, die zum Drucken benötigt werden. Ein Entwurf zeigt immer den
+  aktuellen Stand von Praxis, Patient und Leistungen. Ab dem Versand zeigt die Rechnung den Stand
+  zum Zeitpunkt des Versands, damit ein Nachdruck dem versendeten Original entspricht.
+scope:
+  domain: naturheilpraxis
+  boundedContext: naturheilpraxis
+paradigm: key-value
+projections:
+  - boundedContext: naturheilpraxis
+    event: praxis-angelegt
+    rule: Füge die Praxis hinzu.
+  - boundedContext: naturheilpraxis
+    event: praxisdaten-geaendert
+    rule: >-
+      Aktualisiere die Praxis. Übernimm die Änderung in alle Entwürfe der Praxis, nicht aber in
+      versendete oder bezahlte Rechnungen.
+  - boundedContext: naturheilpraxis
+    event: patient-aufgenommen
+    rule: Füge Name, Geburtsdatum und Anschrift des Patienten hinzu.
+  - boundedContext: naturheilpraxis
+    event: patientendaten-geaendert
+    rule: >-
+      Aktualisiere Name, Geburtsdatum und Anschrift des Patienten. Übernimm die Änderung in alle
+      Entwürfe des Patienten, nicht aber in versendete oder bezahlte Rechnungen.
+  - boundedContext: naturheilpraxis
+    event: leistung-erbracht
+    rule: Füge die Leistung hinzu.
+  - boundedContext: naturheilpraxis
+    event: leistung-geaendert
+    rule: >-
+      Aktualisiere die Leistung. Übernimm die Änderung in einen Entwurf, der die Leistung enthält,
+      nicht aber in eine versendete oder bezahlte Rechnung.
+  - boundedContext: naturheilpraxis
+    event: leistung-geloescht
+    rule: Entferne die Leistung.
+  - boundedContext: naturheilpraxis
+    event: rechnung-erstellt
+    rule: >-
+      Füge die Rechnung als Entwurf hinzu, mit dem aktuellen Stand von Praxis, Patient und den
+      enthaltenen Leistungen.
+  - boundedContext: naturheilpraxis
+    event: rechnung-geaendert
+    rule: >-
+      Aktualisiere den Entwurf, mit dem aktuellen Stand der gegebenenfalls geänderten Praxis und der
+      nun enthaltenen Leistungen.
+  - boundedContext: naturheilpraxis
+    event: entwurf-geloescht
+    rule: Entferne die Rechnung.
+  - boundedContext: naturheilpraxis
+    event: rechnung-versendet
+    rule: >-
+      Markiere die Rechnung als versendet und setze Rechnungsnummer und Rechnungsdatum. Ab jetzt
+      bleiben Praxis, Patient und Leistungen der Rechnung auf diesem Stand.
+  - boundedContext: naturheilpraxis
+    event: rechnung-bezahlt
+    rule: Markiere die Rechnung als bezahlt.
+  - boundedContext: naturheilpraxis
+    event: rechnungszahlung-zurueckgenommen
+    rule: Markiere die Rechnung als versendet.
+  - boundedContext: naturheilpraxis
+    event: rechnungsversand-zurueckgenommen
+    rule: >-
+      Markiere die Rechnung als Entwurf und übernimm wieder den aktuellen Stand von Praxis, Patient
+      und Leistungen.
+schema:
+  type: object
+  properties:
+    praxen:
+      type: array
+      items:
+        $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/entity=praxis
+    patienten:
+      type: array
+      items:
+        type: object
+        properties:
+          patientennummer:
+            $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/value-object=patientennummer
+          name:
+            $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/value-object=personenname
+          geburtsdatum:
+            type: string
+            format: date
+          anschrift:
+            $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/value-object=anschrift
+        required:
+          - patientennummer
+          - name
+          - geburtsdatum
+        additionalProperties: false
+    leistungen:
+      type: array
+      items:
+        $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/entity=leistung
+    rechnungen:
+      type: array
+      items:
+        $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/entity=rechnung
+  required:
+    - praxen
+    - patienten
+    - leistungen
+    - rechnungen
+  additionalProperties: false
+
+---
+# $schema: ../schemas/core/v1.yaml
+apiVersion: schema.esdm.io/core/v1
+kind: query
+name: rechnung-ermitteln
+description: >-
+  Ermittelt eine einzelne Rechnung mit allen Angaben, die zum Drucken benötigt werden.
+scope:
+  domain: naturheilpraxis
+  boundedContext: naturheilpraxis
+readModel: rechnungsansicht
+paradigm: document
+parameters:
+  type: object
+  properties:
+    rechnungId:
+      type: string
+      format: uuid
+  required:
+    - rechnungId
+  additionalProperties: false
+result:
+  type: object
+  properties:
+    rechnungId:
+      type: string
+      format: uuid
+    rechnungsnummer:
+      $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/value-object=rechnungsnummer
+    datum:
+      type: string
+      format: date
+    status:
+      type: string
+      enum:
+        - entwurf
+        - versendet
+        - bezahlt
+    praxis:
+      type: object
+      properties:
+        praxiskuerzel:
+          type: string
+        name:
+          type: string
+        anschrift:
+          $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/value-object=anschrift
+        kontakt:
+          $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/value-object=kontakt
+      required:
+        - praxiskuerzel
+        - name
+        - anschrift
+      additionalProperties: false
+    patient:
+      type: object
+      properties:
+        patientennummer:
+          $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/value-object=patientennummer
+        name:
+          $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/value-object=personenname
+        geburtsdatum:
+          type: string
+          format: date
+        anschrift:
+          $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/value-object=anschrift
+      required:
+        - patientennummer
+        - name
+        - geburtsdatum
+      additionalProperties: false
+    diagnosetext:
+      type: string
+    rechnungstext:
+      type: string
+    positionen:
+      type: array
+      minItems: 1
+      items:
+        type: object
+        properties:
+          datum:
+            type: string
+            format: date
+          ziffer:
+            $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/value-object=gebuehrenziffer
+          bezeichnung:
+            type: string
+          anzahl:
+            type: integer
+            minimum: 1
+          einzelbetrag:
+            $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/value-object=euro
+          betrag:
+            $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/value-object=euro
+        required:
+          - datum
+          - ziffer
+          - bezeichnung
+          - anzahl
+          - einzelbetrag
+          - betrag
+        additionalProperties: false
+    gesamtbetrag:
+      $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/value-object=euro
+  required:
+    - rechnungId
+    - status
+    - praxis
+    - patient
+    - diagnosetext
+    - rechnungstext
+    - positionen
+    - gesamtbetrag
+  additionalProperties: false
+actors:
+  - heilpraktiker
+constraints:
+  - name: nach-rechnung-eingrenzen
+    rule: Es wird nur die Rechnung mit der angegebenen ID zurückgegeben.
+  - name: entwurf-ohne-nummer
+    rule: >-
+      Ein Entwurf hat noch keine Rechnungsnummer und kein Rechnungsdatum. Beides ist erst ab dem
+      Versand angegeben.
+  - name: positionen-aelteste-zuerst
+    rule: >-
+      Die Positionen sind die Leistungen der Rechnung, aufsteigend nach Datum sortiert.
+  - name: betraege-berechnen
+    rule: >-
+      Der Betrag einer Position ist Anzahl mal Einzelbetrag. Der Gesamtbetrag ist die Summe der
+      Beträge aller Positionen.
