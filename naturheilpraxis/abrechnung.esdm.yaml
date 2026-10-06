@@ -5,7 +5,9 @@ name: abrechnung
 description: >-
   Verwaltet die Rechnungen. Für die Rechnungsnummer beim Versand müssen zusätzlich die versendeten
   Rechnungen desselben Patienten am selben Rechnungsdatum betrachtet werden, um die niedrigste freie
-  Nummer zu kennen.
+  Nummer zu kennen. Beim Erstellen und Ändern einer Rechnung müssen zusätzlich die genannten
+  Leistungen und alle Rechnungen betrachtet werden, die eine dieser Leistungen enthalten oder
+  enthielten, damit keine Leistung doppelt abgerechnet wird.
 scope:
   domain: naturheilpraxis
   boundedContext: naturheilpraxis
@@ -16,13 +18,20 @@ identifiedBy:
 consults:
   - boundedContext: naturheilpraxis
     event: rechnung-erstellt
-    criteria: Die ID ist die gleiche wie im auslösenden Befehl.
+    criteria: >-
+      Die ID ist die gleiche wie im auslösenden Befehl. Beim Erstellen und Ändern zusätzlich alle
+      Ereignisse, die eine der im Befehl genannten Leistungen enthalten.
   - boundedContext: naturheilpraxis
     event: rechnung-geaendert
-    criteria: Die ID ist die gleiche wie im auslösenden Befehl.
+    criteria: >-
+      Die ID ist die gleiche wie im auslösenden Befehl. Beim Erstellen und Ändern zusätzlich alle
+      Ereignisse der Rechnungen, die eine der im Befehl genannten Leistungen enthalten oder
+      enthielten.
   - boundedContext: naturheilpraxis
     event: entwurf-geloescht
-    criteria: Die ID ist die gleiche wie im auslösenden Befehl.
+    criteria: >-
+      Die ID ist die gleiche wie im auslösenden Befehl. Beim Erstellen und Ändern zusätzlich alle
+      Ereignisse der Rechnungen, die eine der im Befehl genannten Leistungen enthielten.
   - boundedContext: naturheilpraxis
     event: rechnung-versendet
     criteria: >-
@@ -39,6 +48,15 @@ consults:
     criteria: >-
       Die ID ist die gleiche wie im auslösenden Befehl. Beim Versenden zusätzlich alle Ereignisse,
       deren Patientennummer und Datum die gleichen wie im auslösenden Befehl sind.
+  - boundedContext: naturheilpraxis
+    event: leistung-erbracht
+    criteria: Beim Erstellen und Ändern die Ereignisse der im Befehl genannten Leistungen.
+  - boundedContext: naturheilpraxis
+    event: leistung-geaendert
+    criteria: Beim Erstellen und Ändern die Ereignisse der im Befehl genannten Leistungen.
+  - boundedContext: naturheilpraxis
+    event: leistung-geloescht
+    criteria: Beim Erstellen und Ändern die Ereignisse der im Befehl genannten Leistungen.
 
 ---
 # $schema: ../schemas/core/v1.yaml
@@ -81,6 +99,15 @@ publishes:
   - rechnung-erstellt
 actors:
   - heilpraktiker
+constraints:
+  - name: leistungen-existieren
+    rule: Jede genannte Leistung wurde erbracht und ist nicht gelöscht.
+  - name: leistungen-des-patienten
+    rule: Jede genannte Leistung gehört zum Patienten der Rechnung.
+  - name: leistungen-nicht-abgerechnet
+    rule: >-
+      Keine der genannten Leistungen ist bereits in einer anderen Rechnung enthalten, unabhängig von
+      deren Status.
 
 ---
 # $schema: ../schemas/core/v1.yaml
@@ -157,6 +184,15 @@ publishes:
   - rechnung-geaendert
 actors:
   - heilpraktiker
+constraints:
+  - name: leistungen-existieren
+    rule: Jede genannte Leistung wurde erbracht und ist nicht gelöscht.
+  - name: leistungen-des-patienten
+    rule: Jede genannte Leistung gehört zum Patienten der Rechnung.
+  - name: leistungen-nicht-abgerechnet
+    rule: >-
+      Keine der genannten Leistungen ist bereits in einer anderen Rechnung enthalten, unabhängig von
+      deren Status.
 
 ---
 # $schema: ../schemas/core/v1.yaml
