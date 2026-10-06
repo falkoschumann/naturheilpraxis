@@ -59,7 +59,11 @@ build: prepare
 	$(PM) run --workspaces --if-present build
 
 prepare: version
+ifdef CI
+	$(PM) ci
+else
 	$(PM) install
+endif
 
 version:
 	@echo "Use runtime $(JS) version $(shell $(JS) --version)"
