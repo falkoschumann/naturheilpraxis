@@ -73,6 +73,7 @@ data:
     - praxiskuerzel
     - patientennummer
     - datum
+    - ziffer
     - bezeichnung
     - anzahl
     - einzelbetrag
@@ -129,6 +130,7 @@ data:
     - praxiskuerzel
     - patientennummer
     - datum
+    - ziffer
     - bezeichnung
     - anzahl
     - einzelbetrag

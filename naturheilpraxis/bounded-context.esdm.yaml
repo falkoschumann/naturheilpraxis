@@ -24,8 +24,11 @@ ubiquitousLanguage:
   - term: Leistung
     definition: >-
       Eine vom Heilpraktiker erbrachte Leistung für einen Patienten an einem bestimmten Datum in
-      einer Praxis. Sie wird in der Regel auf einer Gebührenziffer des Gebührenverzeichnisses für
-      Heilpraktiker (GebüH) basieren und auf einer Rechnung abgerechnet.
+      einer Praxis. Sie trägt immer eine Gebührenziffer, die in der Regel aus dem
+      Gebührenverzeichnis für Heilpraktiker (GebüH) stammt. Ziffer, Bezeichnung und Betrag werden
+      aus dem Gebührenverzeichnis übernommen und können für die Leistung geändert werden; die Ziffer
+      muss dann nicht im Gebührenverzeichnis enthalten sein. Die Leistung wird auf einer Rechnung
+      abgerechnet.
   - term: Patient
     definition: >-
       Eine Person, die vom Heilpraktiker behandelt wird. Ist kein Akteur der Anwendung und existiert
