@@ -161,9 +161,6 @@ schema:
       type: string
     patientennummer:
       $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/value-object=patientennummer
-    rechnungId:
-      type: string
-      format: uuid
     datum:
       type: string
       format: date

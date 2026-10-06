@@ -3,7 +3,9 @@ apiVersion: schema.esdm.io/core/v1
 kind: dynamic-consistency-boundary
 name: leistungserbringung
 description: >-
-  Verwaltet die Leistungen.
+  Verwaltet die Leistungen. Ob eine Leistung geändert oder gelöscht werden darf, hängt davon ab, ob
+  sie in einer Rechnung enthalten ist und in welchem Status diese Rechnung ist. Deshalb werden auch
+  die Ereignisse der Rechnungen betrachtet, die die Leistung enthalten oder enthielten.
 scope:
   domain: naturheilpraxis
   boundedContext: naturheilpraxis
@@ -23,19 +25,19 @@ consults:
     criteria: Die ID ist die gleiche wie im auslösenden Befehl.
   - boundedContext: naturheilpraxis
     event: rechnung-erstellt
-    criteria: Die Leistung ist in der Rechnung enthalten.
+    criteria: Die Ereignisse der Rechnungen, die die Leistung enthalten oder enthielten.
   - boundedContext: naturheilpraxis
     event: rechnung-geaendert
-    criteria: Die Leistung ist oder war in der Rechnung enthalten.
+    criteria: Die Ereignisse der Rechnungen, die die Leistung enthalten oder enthielten.
   - boundedContext: naturheilpraxis
     event: entwurf-geloescht
-    criteria: Die Leistung war in der Rechnung enthalten.
+    criteria: Die Ereignisse der Rechnungen, die die Leistung enthielten.
   - boundedContext: naturheilpraxis
     event: rechnung-versendet
-    criteria: Die Leistung ist in der Rechnung enthalten.
+    criteria: Die Ereignisse der Rechnungen, die die Leistung enthalten oder enthielten.
   - boundedContext: naturheilpraxis
     event: rechnungsversand-zurueckgenommen
-    criteria: Die Leistung ist in der Rechnung enthalten.
+    criteria: Die Ereignisse der Rechnungen, die die Leistung enthalten oder enthielten.
 
 ---
 # $schema: ../schemas/core/v1.yaml
@@ -139,6 +141,12 @@ publishes:
   - leistung-geaendert
 actors:
   - heilpraktiker
+constraints:
+  - name: nur-im-entwurf-aendern
+    rule: >-
+      Ist die Leistung in einer versendeten oder bezahlten Rechnung enthalten, wird die Änderung
+      abgelehnt. Ist sie in einem Entwurf enthalten, darf sie geändert werden, aber nicht einem
+      anderen Patienten zugeordnet werden.
 
 ---
 # $schema: ../schemas/core/v1.yaml
@@ -173,6 +181,11 @@ publishes:
   - leistung-geloescht
 actors:
   - heilpraktiker
+constraints:
+  - name: nur-ohne-rechnung-loeschen
+    rule: >-
+      Ist die Leistung in einer Rechnung enthalten, unabhängig von deren Status, wird das Löschen
+      abgelehnt. Eine Leistung in einem Entwurf muss zuerst aus dem Entwurf entfernt werden.
 
 ---
 # $schema: ../schemas/core/v1.yaml
