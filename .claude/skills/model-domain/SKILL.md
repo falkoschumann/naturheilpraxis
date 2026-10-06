@@ -42,7 +42,9 @@ Follow these conventions in addition to the schemas:
   `esdm:domain=<domain-name>/bounded-context=<bounded-context-name>/value-object=<value-object-name>`
   for value objects. When necessary, add identity property as property in the
   schema.
-- Apply `additionalProperties: false` as default for JSON Schemas.
+- Apply `additionalProperties: false` as default for JSON Schemas. Use
+  `unevaluatedProperties: false` instead when the properties are declared in
+  subschemas like `oneOf` or `allOf`, so they need not be repeated.
 - Use `data: {}` as an empty payload.
 - Create a separate file for each aggregate, DCB, and read model with their
   corresponding commands, events, and queries.
