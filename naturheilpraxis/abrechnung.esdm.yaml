@@ -3,7 +3,9 @@ apiVersion: schema.esdm.io/core/v1
 kind: dynamic-consistency-boundary
 name: abrechnung
 description: >-
-  Verwaltet die Rechnungen.
+  Verwaltet die Rechnungen. Für die Rechnungsnummer beim Versand müssen zusätzlich die versendeten
+  Rechnungen desselben Patienten am selben Rechnungsdatum betrachtet werden, um die niedrigste freie
+  Nummer zu kennen.
 scope:
   domain: naturheilpraxis
   boundedContext: naturheilpraxis
@@ -23,7 +25,9 @@ consults:
     criteria: Die ID ist die gleiche wie im auslösenden Befehl.
   - boundedContext: naturheilpraxis
     event: rechnung-versendet
-    criteria: Die ID ist die gleiche wie im auslösenden Befehl.
+    criteria: >-
+      Die ID ist die gleiche wie im auslösenden Befehl. Beim Versenden zusätzlich alle Ereignisse,
+      deren Patientennummer und Datum die gleichen wie im auslösenden Befehl sind.
   - boundedContext: naturheilpraxis
     event: rechnung-bezahlt
     criteria: Die ID ist die gleiche wie im auslösenden Befehl.
@@ -32,7 +36,9 @@ consults:
     criteria: Die ID ist die gleiche wie im auslösenden Befehl.
   - boundedContext: naturheilpraxis
     event: rechnungsversand-zurueckgenommen
-    criteria: Die ID ist die gleiche wie im auslösenden Befehl.
+    criteria: >-
+      Die ID ist die gleiche wie im auslösenden Befehl. Beim Versenden zusätzlich alle Ereignisse,
+      deren Patientennummer und Datum die gleichen wie im auslösenden Befehl sind.
 
 ---
 # $schema: ../schemas/core/v1.yaml
@@ -242,11 +248,14 @@ data:
     rechnungId:
       type: string
       format: uuid
+    patientennummer:
+      $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/value-object=patientennummer
     datum:
       type: string
       format: date
   required:
     - rechnungId
+    - patientennummer
     - datum
   additionalProperties: false
 publishes:
@@ -262,6 +271,10 @@ constraints:
       wird eine fortlaufende Zahl `-N` angehängt, beginnend bei 2. Vergeben sind nur die Nummern
       versendeter und bezahlter Rechnungen; eine durch Zurücknahme des Versands frei gewordene
       Nummer kann wieder vergeben werden. Es wird immer die niedrigste freie Nummer vergeben.
+  - name: patient-der-rechnung
+    rule: >-
+      Die Patientennummer im Befehl muss die des Patienten der Rechnung sein. Sie wird benötigt, um
+      die Rechnungen desselben Patienten am selben Tag zu betrachten.
 
 ---
 # $schema: ../schemas/core/v1.yaml
@@ -277,6 +290,8 @@ data:
     rechnungId:
       type: string
       format: uuid
+    patientennummer:
+      $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/value-object=patientennummer
     rechnungsnummer:
       $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/value-object=rechnungsnummer
     datum:
@@ -284,6 +299,7 @@ data:
       format: date
   required:
     - rechnungId
+    - patientennummer
     - rechnungsnummer
     - datum
   additionalProperties: false
@@ -389,6 +405,7 @@ kind: event
 name: rechnungsversand-zurueckgenommen
 description: >-
   Die Rechnung ist wieder ein Entwurf und hat keine Rechnungsnummer und kein Rechnungsdatum mehr.
+  Das Ereignis nennt die frei gewordene Rechnungsnummer und das bisherige Rechnungsdatum.
 scope:
   domain: naturheilpraxis
   boundedContext: naturheilpraxis
@@ -398,6 +415,16 @@ data:
     rechnungId:
       type: string
       format: uuid
+    patientennummer:
+      $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/value-object=patientennummer
+    rechnungsnummer:
+      $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/value-object=rechnungsnummer
+    datum:
+      type: string
+      format: date
   required:
     - rechnungId
+    - patientennummer
+    - rechnungsnummer
+    - datum
   additionalProperties: false
