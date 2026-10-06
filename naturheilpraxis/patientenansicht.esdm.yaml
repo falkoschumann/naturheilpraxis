@@ -114,6 +114,11 @@ result:
 actors:
   - heilpraktiker
 constraints:
+  - name: angehoerigennamen-zusammensetzen
+    rule: >-
+      Die Namen `partnerVonName` und `kindVonName` haben das Muster `<Nachname>, <Vorname> (Nr.
+      <Patientennummer>), geboren am <Geburtsdatum>`, etwa "Mustermann, Max (Nr. 1234), geboren am
+      20.09.1980". Das Geburtsdatum wird im Format `TT.MM.JJJJ` angegeben.
   - name: nach-nummer-sortiert
     rule: >-
       Die Patienten sind absteigend nach Patientennummer sortiert. Das bedeutet, dass die neuesten
@@ -192,5 +197,10 @@ result:
 actors:
   - heilpraktiker
 constraints:
+  - name: angehoerigennamen-zusammensetzen
+    rule: >-
+      Die Namen `partnerVonName` und `kindVonName` haben das Muster `<Nachname>, <Vorname> (Nr.
+      <Patientennummer>), geboren am <Geburtsdatum>`, etwa "Mustermann, Max (Nr. 1234), geboren am
+      20.09.1980". Das Geburtsdatum wird im Format `TT.MM.JJJJ` angegeben.
   - name: nach-patientennummer-eingrenzen
     rule: Es wird nur der Patient mit der angegebenen Patientennummer zurückgegeben.
