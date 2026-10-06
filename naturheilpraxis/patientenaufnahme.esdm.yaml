@@ -3,10 +3,11 @@ apiVersion: schema.esdm.io/core/v1
 kind: dynamic-consistency-boundary
 name: patientenaufnahme
 description: >-
-  Die Patientennummer muss eindeutig sein. Dafür reicht es, alle Ereignisse mit der gleichen
-  Patientennummer zu betrachten. Die Patientenaufnahme und die Patientenkartei müssen getrennt
-  voneinander behandelt werden, weil bei der Aufnahme die Patientennummer automatisch vergeben wird
-  und in der Kartei bekannt sein muss.
+  Die Patientennummer muss eindeutig sein und fortlaufend vergeben werden. Dafür müssen alle
+  Ereignisse über aufgenommene Patienten betrachtet werden, um die höchste bisher vergebene Nummer
+  zu kennen. Die Patientenaufnahme und die Patientenkartei müssen getrennt voneinander behandelt
+  werden, weil bei der Aufnahme die Patientennummer automatisch vergeben wird und in der Kartei
+  bekannt sein muss.
 scope:
   domain: naturheilpraxis
   boundedContext: naturheilpraxis
@@ -17,7 +18,7 @@ identifiedBy:
 consults:
   - boundedContext: naturheilpraxis
     event: patient-aufgenommen
-    criteria: Die Nummer ist die gleiche wie im auslösenden Befehl.
+    criteria: Alle Ereignisse, unabhängig von der Patientennummer.
 
 ---
 # $schema: ../schemas/core/v1.yaml
