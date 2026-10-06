@@ -5,7 +5,9 @@ import { defineConfig } from "eslint/config";
 
 export const sheriff = defineConfig([
   {
-    ...sheriffPlugin.configs.all,
+    .../** @type {import("eslint").Linter.Config} */ (
+      sheriffPlugin.configs.all
+    ),
     files: ["**/*.{js,jsx,ts,tsx}"],
     ignores: ["**/*.test.*"],
   },

@@ -22,8 +22,8 @@
   "devDependencies": {
     "@naturheilpraxis/eslint-config": "*",
     "@naturheilpraxis/typescript-config": "*",
-    "@softarc/sheriff-core": "^0.19.6",
-    "eslint": "^10.10.0",
-    "typescript": "^6"
+    "@softarc/sheriff-core": "0.20.0",
+    "eslint": "10.12.0",
+    "typescript": "6.0.3"
   }
 }
