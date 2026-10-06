@@ -1,8 +1,0 @@
-{
-  "extends": "@naturheilpraxis/typescript-config/tsconfig.bun.json",
-  "compilerOptions": {
-    "composite": true,
-    "tsBuildInfoFile": "./node_modules/.cache/tsconfig.build-tools.tsbuildinfo"
-  },
-  "include": ["src", "*.ts", "*.js"]
-}
