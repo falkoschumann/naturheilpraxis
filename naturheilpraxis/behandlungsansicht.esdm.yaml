@@ -32,34 +32,21 @@ schema:
   type: array
   items:
     type: object
-    properties:
-      art:
-        type: string
-        enum:
-          - diagnose
-          - leistung
-      eintrag:
-        if:
-          properties:
-            art:
-              const: diagnose
-          required:
-            - art
-        then:
-          $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/entity=diagnose
-        else:
-          if:
-            properties:
-              art:
-                const: leistung
-            required:
-              - art
-          then:
+    oneOf:
+      - properties:
+          art:
+            const: diagnose
+          eintrag:
+            $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/entity=diagnose
+      - properties:
+          art:
+            const: leistung
+          eintrag:
             $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/entity=leistung
     required:
       - art
       - eintrag
-    additionalProperties: false
+    unevaluatedProperties: false
 
 ---
 # $schema: ../schemas/core/v1.yaml
@@ -85,32 +72,21 @@ result:
   type: array
   items:
     type: object
-    if:
-      properties:
-        eintragstyp:
-          const: diagnose
-      required:
-        - eintragstyp
-    then:
-      $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/entity=diagnose
-    else:
-      if:
-        properties:
-          eintragstyp:
+    oneOf:
+      - properties:
+          art:
+            const: diagnose
+          eintrag:
+            $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/entity=diagnose
+      - properties:
+          art:
             const: leistung
-        required:
-          - eintragstyp
-      then:
-        $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/entity=leistung
-    properties:
-      eintragstyp:
-        type: string
-        enum:
-          - diagnose
-          - leistung
+          eintrag:
+            $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/entity=leistung
     required:
-      - eintragstyp
-    additionalProperties: false
+      - art
+      - eintrag
+    unevaluatedProperties: false
 actors:
   - heilpraktiker
 constraints:
