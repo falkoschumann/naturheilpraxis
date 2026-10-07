@@ -38,6 +38,14 @@ consults:
   - boundedContext: naturheilpraxis
     event: rechnungsversand-zurueckgenommen
     criteria: Die Ereignisse der Rechnungen, die die Leistung enthalten oder enthielten.
+  - boundedContext: naturheilpraxis
+    event: praxis-angelegt
+    criteria: >-
+      Beim Erbringen und Ändern die Ereignisse der Praxis mit dem Kürzel aus dem Befehl.
+  - boundedContext: naturheilpraxis
+    event: patient-aufgenommen
+    criteria: >-
+      Beim Erbringen die Ereignisse des Patienten mit der Nummer aus dem Befehl.
 
 ---
 # $schema: ../schemas/core/v1.yaml
@@ -84,6 +92,13 @@ publishes:
   - leistung-erbracht
 actors:
   - heilpraktiker
+constraints:
+  - name: praxis-existiert
+    rule: >-
+      Die Praxis mit dem angegebenen Kürzel muss angelegt sein, sonst wird der Befehl abgelehnt.
+  - name: patient-existiert
+    rule: >-
+      Der Patient mit der angegebenen Nummer muss aufgenommen sein, sonst wird der Befehl abgelehnt.
 
 ---
 # $schema: ../schemas/core/v1.yaml
@@ -101,6 +116,9 @@ data:
 apiVersion: schema.esdm.io/core/v1
 kind: command
 name: leistung-aendern
+description: >-
+  Der Patient einer Leistung kann nicht geändert werden, deshalb fehlt die Patientennummer im
+  Befehl. Das veröffentlichte Ereignis enthält die bisherige Patientennummer.
 scope:
   domain: naturheilpraxis
   boundedContext: naturheilpraxis
@@ -113,8 +131,6 @@ data:
       format: uuid
     praxiskuerzel:
       type: string
-    patientennummer:
-      $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/value-object=patientennummer
     datum:
       type: string
       format: date
@@ -130,7 +146,6 @@ data:
   required:
     - leistungId
     - praxiskuerzel
-    - patientennummer
     - datum
     - ziffer
     - bezeichnung
@@ -142,11 +157,13 @@ publishes:
 actors:
   - heilpraktiker
 constraints:
+  - name: praxis-existiert
+    rule: >-
+      Die Praxis mit dem angegebenen Kürzel muss angelegt sein, sonst wird der Befehl abgelehnt.
   - name: nur-im-entwurf-aendern
     rule: >-
       Ist die Leistung in einer versendeten oder bezahlten Rechnung enthalten, wird die Änderung
-      abgelehnt. Ist sie in einem Entwurf enthalten, darf sie geändert werden, aber nicht einem
-      anderen Patienten zugeordnet werden.
+      abgelehnt. Ist sie in einem Entwurf enthalten, darf sie geändert werden.
 
 ---
 # $schema: ../schemas/core/v1.yaml

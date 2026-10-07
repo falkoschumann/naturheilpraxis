@@ -21,6 +21,14 @@ consults:
   - boundedContext: naturheilpraxis
     event: diagnose-geloescht
     criteria: Die ID ist die gleiche wie im auslösenden Befehl.
+  - boundedContext: naturheilpraxis
+    event: praxis-angelegt
+    criteria: >-
+      Beim Stellen und Ändern die Ereignisse der Praxis mit dem Kürzel aus dem Befehl.
+  - boundedContext: naturheilpraxis
+    event: patient-aufgenommen
+    criteria: >-
+      Beim Stellen die Ereignisse des Patienten mit der Nummer aus dem Befehl.
 
 ---
 # $schema: ../schemas/core/v1.yaml
@@ -41,6 +49,13 @@ publishes:
   - diagnose-gestellt
 actors:
   - heilpraktiker
+constraints:
+  - name: praxis-existiert
+    rule: >-
+      Die Praxis mit dem angegebenen Kürzel muss angelegt sein, sonst wird der Befehl abgelehnt.
+  - name: patient-existiert
+    rule: >-
+      Der Patient mit der angegebenen Nummer muss aufgenommen sein, sonst wird der Befehl abgelehnt.
 
 ---
 # $schema: ../schemas/core/v1.yaml
@@ -58,20 +73,40 @@ data:
 apiVersion: schema.esdm.io/core/v1
 kind: command
 name: diagnose-aendern
+description: >-
+  Der Patient einer Diagnose kann nicht geändert werden, deshalb fehlt die Patientennummer im
+  Befehl. Das veröffentlichte Ereignis enthält die bisherige Patientennummer.
 scope:
   domain: naturheilpraxis
   boundedContext: naturheilpraxis
   dynamicConsistencyBoundary: diagnosestellung
 data:
-  $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/entity=diagnose
+  type: object
   properties:
     diagnoseId:
       type: string
       format: uuid
+    praxiskuerzel:
+      type: string
+    datum:
+      type: string
+      format: date
+    text:
+      type: string
+  required:
+    - diagnoseId
+    - praxiskuerzel
+    - datum
+    - text
+  additionalProperties: false
 publishes:
   - diagnose-geaendert
 actors:
   - heilpraktiker
+constraints:
+  - name: praxis-existiert
+    rule: >-
+      Die Praxis mit dem angegebenen Kürzel muss angelegt sein, sonst wird der Befehl abgelehnt.
 
 ---
 # $schema: ../schemas/core/v1.yaml

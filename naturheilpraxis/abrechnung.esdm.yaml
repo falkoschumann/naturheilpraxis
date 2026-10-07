@@ -57,6 +57,14 @@ consults:
   - boundedContext: naturheilpraxis
     event: leistung-geloescht
     criteria: Beim Erstellen und Ändern die Ereignisse der im Befehl genannten Leistungen.
+  - boundedContext: naturheilpraxis
+    event: praxis-angelegt
+    criteria: >-
+      Beim Erstellen und Ändern die Ereignisse der Praxis mit dem Kürzel aus dem Befehl.
+  - boundedContext: naturheilpraxis
+    event: patient-aufgenommen
+    criteria: >-
+      Beim Erstellen die Ereignisse des Patienten mit der Nummer aus dem Befehl.
 
 ---
 # $schema: ../schemas/core/v1.yaml
@@ -100,6 +108,12 @@ publishes:
 actors:
   - heilpraktiker
 constraints:
+  - name: praxis-existiert
+    rule: >-
+      Die Praxis mit dem angegebenen Kürzel muss angelegt sein, sonst wird der Befehl abgelehnt.
+  - name: patient-existiert
+    rule: >-
+      Der Patient mit der angegebenen Nummer muss aufgenommen sein, sonst wird der Befehl abgelehnt.
   - name: leistungen-existieren
     rule: Jede genannte Leistung wurde erbracht und ist nicht gelöscht.
   - name: leistungen-des-patienten
@@ -185,6 +199,9 @@ publishes:
 actors:
   - heilpraktiker
 constraints:
+  - name: praxis-existiert
+    rule: >-
+      Die Praxis mit dem angegebenen Kürzel muss angelegt sein, sonst wird der Befehl abgelehnt.
   - name: nur-im-entwurf-aendern
     rule: >-
       Ist die Rechnung versendet oder bezahlt, wird die Änderung abgelehnt.

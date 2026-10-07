@@ -19,6 +19,10 @@ consults:
   - boundedContext: naturheilpraxis
     event: patient-aufgenommen
     criteria: Alle Ereignisse, unabhängig von der Patientennummer.
+  - boundedContext: naturheilpraxis
+    event: praxis-angelegt
+    criteria: >-
+      Die Ereignisse der Praxis mit dem Kürzel aus dem Befehl.
 
 ---
 # $schema: ../schemas/core/v1.yaml
@@ -75,6 +79,13 @@ publishes:
 actors:
   - heilpraktiker
 constraints:
+  - name: praxis-existiert
+    rule: >-
+      Die Praxis mit dem angegebenen Kürzel muss angelegt sein, sonst wird der Befehl abgelehnt.
+  - name: angehoerige-existieren
+    rule: >-
+      Die Patienten, die in `partnerVon` und `kindVon` angegeben sind, müssen aufgenommen sein,
+      sonst wird der Befehl abgelehnt.
   - name: patientennummer-fortlaufend-ab-eins
     rule: >-
       Im Ereignis `patient-aufgenommen` wird die vergebene Patientennummer angegeben. Die neue
