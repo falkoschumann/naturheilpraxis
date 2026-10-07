@@ -49,6 +49,12 @@ Follow these conventions in addition to the schemas:
 - Do not add constraints that follow from identity: a create command needs no
   rule that the ID is unused, other commands need no rule that the entity
   exists. Delete commands are idempotent, deleting a missing entity succeeds.
+- Place each rule by the data it needs:
+  - A rule that needs only the data of one value or one instance is an invariant
+    of the value object or entity. Unit tests verify it.
+  - A rule that rejects a command based on other events or objects is an
+    invariant of the aggregate or DCB. Scenarios verify it with a rejection.
+  - A rule about what a command emits stays a constraint of the command.
 - Create a separate file for each aggregate, DCB, and read model with their
   corresponding commands, events, and queries.
 - Create a feature file for each aggregate, DCB, process manager, and read model
