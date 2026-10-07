@@ -186,6 +186,8 @@ constraints:
     rule: >-
       Ist eine Patientennummer angegeben, sind nur Rechnungen enthalten, die zu der gegebenen
       Patientennummer gehören.
-  - name: neueste-zuerst
+  - name: entwuerfe-zuerst-dann-neueste
     rule: >-
-      Die Einträge sind absteigend nach Datum sortiert.
+      Entwürfe stehen zuerst, sortiert nach Nachname, Vorname und Patientennummer des Patienten.
+      Danach folgen die versendeten und bezahlten Rechnungen absteigend nach Rechnungsdatum, bei
+      gleichem Datum absteigend nach Rechnungsnummer.
