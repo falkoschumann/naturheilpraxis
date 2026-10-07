@@ -46,6 +46,9 @@ Follow these conventions in addition to the schemas:
   `unevaluatedProperties: false` instead when the properties are declared in
   subschemas like `oneOf` or `allOf`, so they need not be repeated.
 - Use `data: {}` as an empty payload.
+- Do not add constraints that follow from identity: a create command needs no
+  rule that the ID is unused, other commands need no rule that the entity
+  exists. Delete commands are idempotent, deleting a missing entity succeeds.
 - Create a separate file for each aggregate, DCB, and read model with their
   corresponding commands, events, and queries.
 - Create a feature file for each aggregate, DCB, process manager, and read model
