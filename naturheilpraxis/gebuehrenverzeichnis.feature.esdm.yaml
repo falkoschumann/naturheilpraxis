@@ -1,0 +1,75 @@
+# $schema: ../schemas/given-when-then/v1.yaml
+apiVersion: schema.esdm.io/given-when-then/v1
+kind: feature
+name: gebuehrenverzeichnis
+description: Der Heilpraktiker pflegt die Gebühren des Gebührenverzeichnisses.
+scope:
+  domain: naturheilpraxis
+  boundedContext: naturheilpraxis
+  dynamicConsistencyBoundary: gebuehrenverzeichnis
+scenarios:
+  - name: gebuehr-anlegen
+    given: []
+    when:
+      command: gebuehr-anlegen
+      data:
+        ziffer: "1"
+        bezeichnung: Eingehende Untersuchung
+        betrag: { cents: 2050 }
+    then:
+      events:
+        - event: gebuehr-angelegt
+          data:
+            ziffer: "1"
+            bezeichnung: Eingehende Untersuchung
+            betrag: { cents: 2050 }
+
+  - name: gebuehr-aendern
+    given:
+      - boundedContext: naturheilpraxis
+        event: gebuehr-angelegt
+        data:
+          ziffer: "1"
+          bezeichnung: Eingehende Untersuchung
+          betrag: { cents: 2050 }
+    when:
+      command: gebuehr-aendern
+      data:
+        ziffer: "1"
+        bezeichnung: Eingehende Untersuchung
+        betrag: { cents: 2300 }
+    then:
+      events:
+        - event: gebuehr-geaendert
+          data:
+            ziffer: "1"
+            bezeichnung: Eingehende Untersuchung
+            betrag: { cents: 2300 }
+
+  - name: gebuehr-entfernen
+    given:
+      - boundedContext: naturheilpraxis
+        event: gebuehr-angelegt
+        data:
+          ziffer: "1"
+          bezeichnung: Eingehende Untersuchung
+          betrag: { cents: 2050 }
+    when:
+      command: gebuehr-entfernen
+      data:
+        ziffer: "1"
+    then:
+      events:
+        - event: gebuehr-entfernt
+          data:
+            ziffer: "1"
+
+  - name: nicht-vorhandene-gebuehr-entfernen
+    description: Entfernen ist idempotent. Eine nicht vorhandene Gebühr zu entfernen, ändert nichts.
+    given: []
+    when:
+      command: gebuehr-entfernen
+      data:
+        ziffer: "1"
+    then:
+      events: []

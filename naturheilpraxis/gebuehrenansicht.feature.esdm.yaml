@@ -1,0 +1,63 @@
+# $schema: ../schemas/given-when-then/v1.yaml
+apiVersion: schema.esdm.io/given-when-then/v1
+kind: feature
+name: gebuehrenansicht
+description: Der Heilpraktiker sieht das Gebührenverzeichnis im aktuellen Stand.
+scope:
+  domain: naturheilpraxis
+  boundedContext: naturheilpraxis
+  readModel: gebuehrenansicht
+scenarios:
+  - name: gebuehren-nach-ziffer-sortiert-ermitteln
+    description: >-
+      Die Ziffern sind natürlich sortiert, sodass 4 vor 20.1 steht. Geänderte Gebühren erscheinen im
+      aktuellen Stand, entfernte erscheinen nicht.
+    given:
+      - boundedContext: naturheilpraxis
+        event: gebuehr-angelegt
+        data:
+          ziffer: "4"
+          bezeichnung: Kurze Information
+          betrag: { cents: 820 }
+      - boundedContext: naturheilpraxis
+        event: gebuehr-angelegt
+        data:
+          ziffer: "20.1"
+          bezeichnung: Akupunktur
+          betrag: { cents: 1530 }
+      - boundedContext: naturheilpraxis
+        event: gebuehr-angelegt
+        data:
+          ziffer: "1"
+          bezeichnung: Eingehende Untersuchung
+          betrag: { cents: 2050 }
+      - boundedContext: naturheilpraxis
+        event: gebuehr-angelegt
+        data:
+          ziffer: "3"
+          bezeichnung: Beratung
+          betrag: { cents: 1230 }
+      - boundedContext: naturheilpraxis
+        event: gebuehr-geaendert
+        data:
+          ziffer: "1"
+          bezeichnung: Eingehende Untersuchung
+          betrag: { cents: 2300 }
+      - boundedContext: naturheilpraxis
+        event: gebuehr-entfernt
+        data:
+          ziffer: "3"
+    when:
+      query: gebuehren-ermitteln
+      parameters: {}
+    then:
+      result:
+        - ziffer: "1"
+          bezeichnung: Eingehende Untersuchung
+          betrag: { cents: 2300 }
+        - ziffer: "4"
+          bezeichnung: Kurze Information
+          betrag: { cents: 820 }
+        - ziffer: "20.1"
+          bezeichnung: Akupunktur
+          betrag: { cents: 1530 }

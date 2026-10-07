@@ -1,0 +1,157 @@
+# $schema: ../schemas/given-when-then/v1.yaml
+apiVersion: schema.esdm.io/given-when-then/v1
+kind: feature
+name: behandlungsansicht
+description: Der Heilpraktiker sieht die Behandlungshistorie eines Patienten.
+scope:
+  domain: naturheilpraxis
+  boundedContext: naturheilpraxis
+  readModel: behandlungsansicht
+scenarios:
+  - name: behandlungen-neueste-zuerst-ermitteln
+    description: >-
+      Bei gleichem Datum steht die Diagnose vor den Leistungen. Gelöschte Einträge und Einträge
+      anderer Patienten erscheinen nicht.
+    given:
+      - boundedContext: naturheilpraxis
+        event: diagnose-gestellt
+        data:
+          diagnoseId: 11111111-1111-4111-8111-111111111111
+          praxiskuerzel: NHP
+          patientennummer: 1
+          datum: "2026-09-14"
+          text: Chronische Rückenschmerzen
+      - boundedContext: naturheilpraxis
+        event: leistung-erbracht
+        data:
+          leistungId: 22222222-2222-4222-8222-222222222222
+          praxiskuerzel: NHP
+          patientennummer: 1
+          datum: "2026-09-14"
+          ziffer: "1"
+          bezeichnung: Eingehende Untersuchung
+          anzahl: 1
+          einzelbetrag: { cents: 2050 }
+      - boundedContext: naturheilpraxis
+        event: leistung-erbracht
+        data:
+          leistungId: 23232323-2323-4323-8323-232323232323
+          praxiskuerzel: NHP
+          patientennummer: 1
+          datum: "2026-09-21"
+          ziffer: "20.1"
+          bezeichnung: Akupunktur
+          anzahl: 2
+          einzelbetrag: { cents: 1530 }
+      - boundedContext: naturheilpraxis
+        event: leistung-erbracht
+        data:
+          leistungId: 24242424-2424-4424-8424-242424242424
+          praxiskuerzel: NHP
+          patientennummer: 1
+          datum: "2026-09-21"
+          ziffer: "4"
+          bezeichnung: Kurze Information
+          anzahl: 1
+          einzelbetrag: { cents: 820 }
+      - boundedContext: naturheilpraxis
+        event: leistung-geloescht
+        data:
+          leistungId: 24242424-2424-4424-8424-242424242424
+      - boundedContext: naturheilpraxis
+        event: diagnose-gestellt
+        data:
+          diagnoseId: 12121212-1212-4212-8212-121212121212
+          praxiskuerzel: NHP
+          patientennummer: 2
+          datum: "2026-09-21"
+          text: Akute Bronchitis
+    when:
+      query: behandlungen-ermitteln
+      parameters:
+        patientennummer: 1
+    then:
+      result:
+        - art: leistung
+          eintrag:
+            leistungId: 23232323-2323-4323-8323-232323232323
+            praxiskuerzel: NHP
+            patientennummer: 1
+            datum: "2026-09-21"
+            ziffer: "20.1"
+            bezeichnung: Akupunktur
+            anzahl: 2
+            einzelbetrag: { cents: 1530 }
+        - art: diagnose
+          eintrag:
+            diagnoseId: 11111111-1111-4111-8111-111111111111
+            praxiskuerzel: NHP
+            patientennummer: 1
+            datum: "2026-09-14"
+            text: Chronische Rückenschmerzen
+        - art: leistung
+          eintrag:
+            leistungId: 22222222-2222-4222-8222-222222222222
+            praxiskuerzel: NHP
+            patientennummer: 1
+            datum: "2026-09-14"
+            ziffer: "1"
+            bezeichnung: Eingehende Untersuchung
+            anzahl: 1
+            einzelbetrag: { cents: 2050 }
+
+  - name: diagnosen-neueste-zuerst-ermitteln
+    description: Geänderte Diagnosen erscheinen im aktuellen Stand, gelöschte erscheinen nicht.
+    given:
+      - boundedContext: naturheilpraxis
+        event: diagnose-gestellt
+        data:
+          diagnoseId: 11111111-1111-4111-8111-111111111111
+          praxiskuerzel: NHP
+          patientennummer: 1
+          datum: "2026-09-14"
+          text: Chronische Rückenschmerzen
+      - boundedContext: naturheilpraxis
+        event: diagnose-gestellt
+        data:
+          diagnoseId: 13131313-1313-4313-8313-131313131313
+          praxiskuerzel: NHP
+          patientennummer: 1
+          datum: "2026-09-21"
+          text: Spannungskopfschmerz
+      - boundedContext: naturheilpraxis
+        event: diagnose-gestellt
+        data:
+          diagnoseId: 14141414-1414-4414-8414-141414141414
+          praxiskuerzel: NHP
+          patientennummer: 1
+          datum: "2026-09-28"
+          text: Verdacht auf Migräne
+      - boundedContext: naturheilpraxis
+        event: diagnose-geaendert
+        data:
+          diagnoseId: 11111111-1111-4111-8111-111111111111
+          praxiskuerzel: NHP
+          patientennummer: 1
+          datum: "2026-09-14"
+          text: Chronische Rückenschmerzen im Lendenwirbelbereich
+      - boundedContext: naturheilpraxis
+        event: diagnose-geloescht
+        data:
+          diagnoseId: 14141414-1414-4414-8414-141414141414
+    when:
+      query: diagnosen-ermitteln
+      parameters:
+        patientennummer: 1
+    then:
+      result:
+        - diagnoseId: 13131313-1313-4313-8313-131313131313
+          praxiskuerzel: NHP
+          patientennummer: 1
+          datum: "2026-09-21"
+          text: Spannungskopfschmerz
+        - diagnoseId: 11111111-1111-4111-8111-111111111111
+          praxiskuerzel: NHP
+          patientennummer: 1
+          datum: "2026-09-14"
+          text: Chronische Rückenschmerzen im Lendenwirbelbereich

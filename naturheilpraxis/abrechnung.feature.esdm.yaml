@@ -1,0 +1,869 @@
+# $schema: ../schemas/given-when-then/v1.yaml
+apiVersion: schema.esdm.io/given-when-then/v1
+kind: feature
+name: abrechnung
+description: >-
+  Der Heilpraktiker erstellt Rechnungen aus noch nicht abgerechneten Leistungen, versendet sie und
+  erfasst die Zahlung.
+scope:
+  domain: naturheilpraxis
+  boundedContext: naturheilpraxis
+  dynamicConsistencyBoundary: abrechnung
+scenarios:
+  - name: rechnung-erstellen
+    given:
+      - boundedContext: naturheilpraxis
+        event: praxis-angelegt
+        data:
+          praxiskuerzel: NHP
+          name: Naturheilpraxis am Markt
+          anschrift: { strasse: Marktplatz 1, postleitzahl: "12345", ort: Musterstadt }
+      - boundedContext: naturheilpraxis
+        event: patient-aufgenommen
+        data:
+          patientennummer: 1
+          praxiskuerzel: NHP
+          aufnahmejahr: 2026
+          geburtsdatum: "1980-09-20"
+          name: { vorname: Max, nachname: Mustermann }
+      - boundedContext: naturheilpraxis
+        event: leistung-erbracht
+        data:
+          leistungId: 22222222-2222-4222-8222-222222222222
+          praxiskuerzel: NHP
+          patientennummer: 1
+          datum: "2026-09-14"
+          ziffer: "1"
+          bezeichnung: Eingehende Untersuchung
+          anzahl: 1
+          einzelbetrag: { cents: 2050 }
+    when:
+      command: rechnung-erstellen
+      data:
+        rechnungId: 33333333-3333-4333-8333-333333333333
+        praxiskuerzel: NHP
+        patientennummer: 1
+        diagnosetext: Chronische Rückenschmerzen
+        rechnungstext: Bitte überweisen Sie den Betrag innerhalb von 14 Tagen.
+        leistungen:
+          - 22222222-2222-4222-8222-222222222222
+    then:
+      events:
+        - event: rechnung-erstellt
+          data:
+            rechnungId: 33333333-3333-4333-8333-333333333333
+            praxiskuerzel: NHP
+            patientennummer: 1
+            diagnosetext: Chronische Rückenschmerzen
+            rechnungstext: Bitte überweisen Sie den Betrag innerhalb von 14 Tagen.
+            leistungen:
+              - 22222222-2222-4222-8222-222222222222
+
+  - name: rechnung-fuer-unbekannte-praxis-erstellen
+    given:
+      - boundedContext: naturheilpraxis
+        event: patient-aufgenommen
+        data:
+          patientennummer: 1
+          praxiskuerzel: NHP
+          aufnahmejahr: 2026
+          geburtsdatum: "1980-09-20"
+          name: { vorname: Max, nachname: Mustermann }
+      - boundedContext: naturheilpraxis
+        event: leistung-erbracht
+        data:
+          leistungId: 22222222-2222-4222-8222-222222222222
+          praxiskuerzel: NHP
+          patientennummer: 1
+          datum: "2026-09-14"
+          ziffer: "1"
+          bezeichnung: Eingehende Untersuchung
+          anzahl: 1
+          einzelbetrag: { cents: 2050 }
+    when:
+      command: rechnung-erstellen
+      data:
+        rechnungId: 33333333-3333-4333-8333-333333333333
+        praxiskuerzel: XYZ
+        patientennummer: 1
+        diagnosetext: Chronische Rückenschmerzen
+        rechnungstext: Bitte überweisen Sie den Betrag innerhalb von 14 Tagen.
+        leistungen:
+          - 22222222-2222-4222-8222-222222222222
+    then:
+      rejection:
+        invariant: praxis-existiert
+
+  - name: rechnung-fuer-unbekannten-patienten-erstellen
+    given:
+      - boundedContext: naturheilpraxis
+        event: praxis-angelegt
+        data:
+          praxiskuerzel: NHP
+          name: Naturheilpraxis am Markt
+          anschrift: { strasse: Marktplatz 1, postleitzahl: "12345", ort: Musterstadt }
+      - boundedContext: naturheilpraxis
+        event: leistung-erbracht
+        data:
+          leistungId: 22222222-2222-4222-8222-222222222222
+          praxiskuerzel: NHP
+          patientennummer: 1
+          datum: "2026-09-14"
+          ziffer: "1"
+          bezeichnung: Eingehende Untersuchung
+          anzahl: 1
+          einzelbetrag: { cents: 2050 }
+    when:
+      command: rechnung-erstellen
+      data:
+        rechnungId: 33333333-3333-4333-8333-333333333333
+        praxiskuerzel: NHP
+        patientennummer: 7
+        diagnosetext: Chronische Rückenschmerzen
+        rechnungstext: Bitte überweisen Sie den Betrag innerhalb von 14 Tagen.
+        leistungen:
+          - 22222222-2222-4222-8222-222222222222
+    then:
+      rejection:
+        invariant: patient-existiert
+
+  - name: rechnung-mit-geloeschter-leistung-erstellen
+    given:
+      - boundedContext: naturheilpraxis
+        event: praxis-angelegt
+        data:
+          praxiskuerzel: NHP
+          name: Naturheilpraxis am Markt
+          anschrift: { strasse: Marktplatz 1, postleitzahl: "12345", ort: Musterstadt }
+      - boundedContext: naturheilpraxis
+        event: patient-aufgenommen
+        data:
+          patientennummer: 1
+          praxiskuerzel: NHP
+          aufnahmejahr: 2026
+          geburtsdatum: "1980-09-20"
+          name: { vorname: Max, nachname: Mustermann }
+      - boundedContext: naturheilpraxis
+        event: leistung-erbracht
+        data:
+          leistungId: 22222222-2222-4222-8222-222222222222
+          praxiskuerzel: NHP
+          patientennummer: 1
+          datum: "2026-09-14"
+          ziffer: "1"
+          bezeichnung: Eingehende Untersuchung
+          anzahl: 1
+          einzelbetrag: { cents: 2050 }
+      - boundedContext: naturheilpraxis
+        event: leistung-geloescht
+        data:
+          leistungId: 22222222-2222-4222-8222-222222222222
+    when:
+      command: rechnung-erstellen
+      data:
+        rechnungId: 33333333-3333-4333-8333-333333333333
+        praxiskuerzel: NHP
+        patientennummer: 1
+        diagnosetext: Chronische Rückenschmerzen
+        rechnungstext: Bitte überweisen Sie den Betrag innerhalb von 14 Tagen.
+        leistungen:
+          - 22222222-2222-4222-8222-222222222222
+    then:
+      rejection:
+        invariant: leistungen-existieren
+
+  - name: rechnung-mit-leistung-eines-anderen-patienten-erstellen
+    given:
+      - boundedContext: naturheilpraxis
+        event: praxis-angelegt
+        data:
+          praxiskuerzel: NHP
+          name: Naturheilpraxis am Markt
+          anschrift: { strasse: Marktplatz 1, postleitzahl: "12345", ort: Musterstadt }
+      - boundedContext: naturheilpraxis
+        event: patient-aufgenommen
+        data:
+          patientennummer: 1
+          praxiskuerzel: NHP
+          aufnahmejahr: 2026
+          geburtsdatum: "1980-09-20"
+          name: { vorname: Max, nachname: Mustermann }
+      - boundedContext: naturheilpraxis
+        event: leistung-erbracht
+        data:
+          leistungId: 22222222-2222-4222-8222-222222222222
+          praxiskuerzel: NHP
+          patientennummer: 2
+          datum: "2026-09-14"
+          ziffer: "1"
+          bezeichnung: Eingehende Untersuchung
+          anzahl: 1
+          einzelbetrag: { cents: 2050 }
+    when:
+      command: rechnung-erstellen
+      data:
+        rechnungId: 33333333-3333-4333-8333-333333333333
+        praxiskuerzel: NHP
+        patientennummer: 1
+        diagnosetext: Chronische Rückenschmerzen
+        rechnungstext: Bitte überweisen Sie den Betrag innerhalb von 14 Tagen.
+        leistungen:
+          - 22222222-2222-4222-8222-222222222222
+    then:
+      rejection:
+        invariant: leistungen-des-patienten
+
+  - name: bereits-abgerechnete-leistung-erneut-abrechnen
+    given:
+      - boundedContext: naturheilpraxis
+        event: praxis-angelegt
+        data:
+          praxiskuerzel: NHP
+          name: Naturheilpraxis am Markt
+          anschrift: { strasse: Marktplatz 1, postleitzahl: "12345", ort: Musterstadt }
+      - boundedContext: naturheilpraxis
+        event: patient-aufgenommen
+        data:
+          patientennummer: 1
+          praxiskuerzel: NHP
+          aufnahmejahr: 2026
+          geburtsdatum: "1980-09-20"
+          name: { vorname: Max, nachname: Mustermann }
+      - boundedContext: naturheilpraxis
+        event: leistung-erbracht
+        data:
+          leistungId: 22222222-2222-4222-8222-222222222222
+          praxiskuerzel: NHP
+          patientennummer: 1
+          datum: "2026-09-14"
+          ziffer: "1"
+          bezeichnung: Eingehende Untersuchung
+          anzahl: 1
+          einzelbetrag: { cents: 2050 }
+      - boundedContext: naturheilpraxis
+        event: rechnung-erstellt
+        data:
+          rechnungId: 33333333-3333-4333-8333-333333333333
+          praxiskuerzel: NHP
+          patientennummer: 1
+          diagnosetext: Chronische Rückenschmerzen
+          rechnungstext: Bitte überweisen Sie den Betrag innerhalb von 14 Tagen.
+          leistungen:
+            - 22222222-2222-4222-8222-222222222222
+    when:
+      command: rechnung-erstellen
+      data:
+        rechnungId: 34343434-3434-4434-8434-343434343434
+        praxiskuerzel: NHP
+        patientennummer: 1
+        diagnosetext: Chronische Rückenschmerzen
+        rechnungstext: Bitte überweisen Sie den Betrag innerhalb von 14 Tagen.
+        leistungen:
+          - 22222222-2222-4222-8222-222222222222
+    then:
+      rejection:
+        invariant: leistungen-nicht-abgerechnet
+
+  - name: leistung-nach-loeschen-des-entwurfs-erneut-abrechnen
+    description: Wird ein Entwurf gelöscht, können seine Leistungen wieder abgerechnet werden.
+    given:
+      - boundedContext: naturheilpraxis
+        event: praxis-angelegt
+        data:
+          praxiskuerzel: NHP
+          name: Naturheilpraxis am Markt
+          anschrift: { strasse: Marktplatz 1, postleitzahl: "12345", ort: Musterstadt }
+      - boundedContext: naturheilpraxis
+        event: patient-aufgenommen
+        data:
+          patientennummer: 1
+          praxiskuerzel: NHP
+          aufnahmejahr: 2026
+          geburtsdatum: "1980-09-20"
+          name: { vorname: Max, nachname: Mustermann }
+      - boundedContext: naturheilpraxis
+        event: leistung-erbracht
+        data:
+          leistungId: 22222222-2222-4222-8222-222222222222
+          praxiskuerzel: NHP
+          patientennummer: 1
+          datum: "2026-09-14"
+          ziffer: "1"
+          bezeichnung: Eingehende Untersuchung
+          anzahl: 1
+          einzelbetrag: { cents: 2050 }
+      - boundedContext: naturheilpraxis
+        event: rechnung-erstellt
+        data:
+          rechnungId: 33333333-3333-4333-8333-333333333333
+          praxiskuerzel: NHP
+          patientennummer: 1
+          diagnosetext: Chronische Rückenschmerzen
+          rechnungstext: Bitte überweisen Sie den Betrag innerhalb von 14 Tagen.
+          leistungen:
+            - 22222222-2222-4222-8222-222222222222
+      - boundedContext: naturheilpraxis
+        event: entwurf-geloescht
+        data:
+          rechnungId: 33333333-3333-4333-8333-333333333333
+    when:
+      command: rechnung-erstellen
+      data:
+        rechnungId: 34343434-3434-4434-8434-343434343434
+        praxiskuerzel: NHP
+        patientennummer: 1
+        diagnosetext: Chronische Rückenschmerzen
+        rechnungstext: Bitte überweisen Sie den Betrag innerhalb von 14 Tagen.
+        leistungen:
+          - 22222222-2222-4222-8222-222222222222
+    then:
+      events:
+        - event: rechnung-erstellt
+          data:
+            rechnungId: 34343434-3434-4434-8434-343434343434
+            praxiskuerzel: NHP
+            patientennummer: 1
+            diagnosetext: Chronische Rückenschmerzen
+            rechnungstext: Bitte überweisen Sie den Betrag innerhalb von 14 Tagen.
+            leistungen:
+              - 22222222-2222-4222-8222-222222222222
+
+  - name: entwurf-aendern
+    given:
+      - boundedContext: naturheilpraxis
+        event: praxis-angelegt
+        data:
+          praxiskuerzel: NHP
+          name: Naturheilpraxis am Markt
+          anschrift: { strasse: Marktplatz 1, postleitzahl: "12345", ort: Musterstadt }
+      - boundedContext: naturheilpraxis
+        event: leistung-erbracht
+        data:
+          leistungId: 22222222-2222-4222-8222-222222222222
+          praxiskuerzel: NHP
+          patientennummer: 1
+          datum: "2026-09-14"
+          ziffer: "1"
+          bezeichnung: Eingehende Untersuchung
+          anzahl: 1
+          einzelbetrag: { cents: 2050 }
+      - boundedContext: naturheilpraxis
+        event: rechnung-erstellt
+        data:
+          rechnungId: 33333333-3333-4333-8333-333333333333
+          praxiskuerzel: NHP
+          patientennummer: 1
+          diagnosetext: Chronische Rückenschmerzen
+          rechnungstext: Bitte überweisen Sie den Betrag innerhalb von 14 Tagen.
+          leistungen:
+            - 22222222-2222-4222-8222-222222222222
+    when:
+      command: rechnung-aendern
+      data:
+        rechnungId: 33333333-3333-4333-8333-333333333333
+        praxiskuerzel: NHP
+        diagnosetext: Chronische Rückenschmerzen im Lendenwirbelbereich
+        rechnungstext: Bitte überweisen Sie den Betrag innerhalb von 14 Tagen.
+        leistungen:
+          - 22222222-2222-4222-8222-222222222222
+    then:
+      events:
+        - event: rechnung-geaendert
+          data:
+            rechnungId: 33333333-3333-4333-8333-333333333333
+            praxiskuerzel: NHP
+            diagnosetext: Chronische Rückenschmerzen im Lendenwirbelbereich
+            rechnungstext: Bitte überweisen Sie den Betrag innerhalb von 14 Tagen.
+            leistungen:
+              - 22222222-2222-4222-8222-222222222222
+
+  - name: versendete-rechnung-aendern
+    given:
+      - boundedContext: naturheilpraxis
+        event: praxis-angelegt
+        data:
+          praxiskuerzel: NHP
+          name: Naturheilpraxis am Markt
+          anschrift: { strasse: Marktplatz 1, postleitzahl: "12345", ort: Musterstadt }
+      - boundedContext: naturheilpraxis
+        event: leistung-erbracht
+        data:
+          leistungId: 22222222-2222-4222-8222-222222222222
+          praxiskuerzel: NHP
+          patientennummer: 1
+          datum: "2026-09-14"
+          ziffer: "1"
+          bezeichnung: Eingehende Untersuchung
+          anzahl: 1
+          einzelbetrag: { cents: 2050 }
+      - boundedContext: naturheilpraxis
+        event: rechnung-erstellt
+        data:
+          rechnungId: 33333333-3333-4333-8333-333333333333
+          praxiskuerzel: NHP
+          patientennummer: 1
+          diagnosetext: Chronische Rückenschmerzen
+          rechnungstext: Bitte überweisen Sie den Betrag innerhalb von 14 Tagen.
+          leistungen:
+            - 22222222-2222-4222-8222-222222222222
+      - boundedContext: naturheilpraxis
+        event: rechnung-versendet
+        data:
+          rechnungId: 33333333-3333-4333-8333-333333333333
+          patientennummer: 1
+          rechnungsnummer: 1/260920
+          datum: "2026-09-20"
+    when:
+      command: rechnung-aendern
+      data:
+        rechnungId: 33333333-3333-4333-8333-333333333333
+        praxiskuerzel: NHP
+        diagnosetext: Chronische Rückenschmerzen im Lendenwirbelbereich
+        rechnungstext: Bitte überweisen Sie den Betrag innerhalb von 14 Tagen.
+        leistungen:
+          - 22222222-2222-4222-8222-222222222222
+    then:
+      rejection:
+        invariant: nur-im-entwurf-aendern
+
+  - name: entwurf-loeschen
+    given:
+      - boundedContext: naturheilpraxis
+        event: rechnung-erstellt
+        data:
+          rechnungId: 33333333-3333-4333-8333-333333333333
+          praxiskuerzel: NHP
+          patientennummer: 1
+          diagnosetext: Chronische Rückenschmerzen
+          rechnungstext: Bitte überweisen Sie den Betrag innerhalb von 14 Tagen.
+          leistungen:
+            - 22222222-2222-4222-8222-222222222222
+    when:
+      command: entwurf-loeschen
+      data:
+        rechnungId: 33333333-3333-4333-8333-333333333333
+    then:
+      events:
+        - event: entwurf-geloescht
+          data:
+            rechnungId: 33333333-3333-4333-8333-333333333333
+
+  - name: versendete-rechnung-loeschen
+    given:
+      - boundedContext: naturheilpraxis
+        event: rechnung-erstellt
+        data:
+          rechnungId: 33333333-3333-4333-8333-333333333333
+          praxiskuerzel: NHP
+          patientennummer: 1
+          diagnosetext: Chronische Rückenschmerzen
+          rechnungstext: Bitte überweisen Sie den Betrag innerhalb von 14 Tagen.
+          leistungen:
+            - 22222222-2222-4222-8222-222222222222
+      - boundedContext: naturheilpraxis
+        event: rechnung-versendet
+        data:
+          rechnungId: 33333333-3333-4333-8333-333333333333
+          patientennummer: 1
+          rechnungsnummer: 1/260920
+          datum: "2026-09-20"
+    when:
+      command: entwurf-loeschen
+      data:
+        rechnungId: 33333333-3333-4333-8333-333333333333
+    then:
+      rejection:
+        invariant: nur-im-entwurf-loeschen
+
+  - name: erste-rechnung-des-tages-versenden
+    given:
+      - boundedContext: naturheilpraxis
+        event: patient-aufgenommen
+        data:
+          patientennummer: 1
+          praxiskuerzel: NHP
+          aufnahmejahr: 2026
+          geburtsdatum: "1980-09-20"
+          name: { vorname: Max, nachname: Mustermann }
+          anschrift: { strasse: Lindenweg 5, postleitzahl: "12345", ort: Musterstadt }
+      - boundedContext: naturheilpraxis
+        event: rechnung-erstellt
+        data:
+          rechnungId: 33333333-3333-4333-8333-333333333333
+          praxiskuerzel: NHP
+          patientennummer: 1
+          diagnosetext: Chronische Rückenschmerzen
+          rechnungstext: Bitte überweisen Sie den Betrag innerhalb von 14 Tagen.
+          leistungen:
+            - 22222222-2222-4222-8222-222222222222
+    when:
+      command: rechnung-versenden
+      data:
+        rechnungId: 33333333-3333-4333-8333-333333333333
+        patientennummer: 1
+        datum: "2026-09-20"
+    then:
+      events:
+        - event: rechnung-versendet
+          data:
+            rechnungId: 33333333-3333-4333-8333-333333333333
+            patientennummer: 1
+            rechnungsnummer: 1/260920
+            datum: "2026-09-20"
+
+  - name: zweite-rechnung-des-tages-versenden
+    given:
+      - boundedContext: naturheilpraxis
+        event: patient-aufgenommen
+        data:
+          patientennummer: 1
+          praxiskuerzel: NHP
+          aufnahmejahr: 2026
+          geburtsdatum: "1980-09-20"
+          name: { vorname: Max, nachname: Mustermann }
+          anschrift: { strasse: Lindenweg 5, postleitzahl: "12345", ort: Musterstadt }
+      - boundedContext: naturheilpraxis
+        event: rechnung-erstellt
+        data:
+          rechnungId: 33333333-3333-4333-8333-333333333333
+          praxiskuerzel: NHP
+          patientennummer: 1
+          diagnosetext: Chronische Rückenschmerzen
+          rechnungstext: Bitte überweisen Sie den Betrag innerhalb von 14 Tagen.
+          leistungen:
+            - 22222222-2222-4222-8222-222222222222
+      - boundedContext: naturheilpraxis
+        event: rechnung-versendet
+        data:
+          rechnungId: 33333333-3333-4333-8333-333333333333
+          patientennummer: 1
+          rechnungsnummer: 1/260920
+          datum: "2026-09-20"
+      - boundedContext: naturheilpraxis
+        event: rechnung-erstellt
+        data:
+          rechnungId: 34343434-3434-4434-8434-343434343434
+          praxiskuerzel: NHP
+          patientennummer: 1
+          diagnosetext: Akute Bronchitis
+          rechnungstext: Bitte überweisen Sie den Betrag innerhalb von 14 Tagen.
+          leistungen:
+            - 23232323-2323-4323-8323-232323232323
+    when:
+      command: rechnung-versenden
+      data:
+        rechnungId: 34343434-3434-4434-8434-343434343434
+        patientennummer: 1
+        datum: "2026-09-20"
+    then:
+      events:
+        - event: rechnung-versendet
+          data:
+            rechnungId: 34343434-3434-4434-8434-343434343434
+            patientennummer: 1
+            rechnungsnummer: 1/260920-2
+            datum: "2026-09-20"
+
+  - name: frei-gewordene-rechnungsnummer-erneut-vergeben
+    description: >-
+      Die erste Rechnung des Tages wurde zurückgenommen. Ihre Nummer ist frei und wird als
+      niedrigste freie Nummer erneut vergeben.
+    given:
+      - boundedContext: naturheilpraxis
+        event: patient-aufgenommen
+        data:
+          patientennummer: 1
+          praxiskuerzel: NHP
+          aufnahmejahr: 2026
+          geburtsdatum: "1980-09-20"
+          name: { vorname: Max, nachname: Mustermann }
+          anschrift: { strasse: Lindenweg 5, postleitzahl: "12345", ort: Musterstadt }
+      - boundedContext: naturheilpraxis
+        event: rechnung-erstellt
+        data:
+          rechnungId: 33333333-3333-4333-8333-333333333333
+          praxiskuerzel: NHP
+          patientennummer: 1
+          diagnosetext: Chronische Rückenschmerzen
+          rechnungstext: Bitte überweisen Sie den Betrag innerhalb von 14 Tagen.
+          leistungen:
+            - 22222222-2222-4222-8222-222222222222
+      - boundedContext: naturheilpraxis
+        event: rechnung-versendet
+        data:
+          rechnungId: 33333333-3333-4333-8333-333333333333
+          patientennummer: 1
+          rechnungsnummer: 1/260920
+          datum: "2026-09-20"
+      - boundedContext: naturheilpraxis
+        event: rechnung-erstellt
+        data:
+          rechnungId: 34343434-3434-4434-8434-343434343434
+          praxiskuerzel: NHP
+          patientennummer: 1
+          diagnosetext: Akute Bronchitis
+          rechnungstext: Bitte überweisen Sie den Betrag innerhalb von 14 Tagen.
+          leistungen:
+            - 23232323-2323-4323-8323-232323232323
+      - boundedContext: naturheilpraxis
+        event: rechnung-versendet
+        data:
+          rechnungId: 34343434-3434-4434-8434-343434343434
+          patientennummer: 1
+          rechnungsnummer: 1/260920-2
+          datum: "2026-09-20"
+      - boundedContext: naturheilpraxis
+        event: rechnungsversand-zurueckgenommen
+        data:
+          rechnungId: 33333333-3333-4333-8333-333333333333
+          patientennummer: 1
+          rechnungsnummer: 1/260920
+          datum: "2026-09-20"
+    when:
+      command: rechnung-versenden
+      data:
+        rechnungId: 33333333-3333-4333-8333-333333333333
+        patientennummer: 1
+        datum: "2026-09-20"
+    then:
+      events:
+        - event: rechnung-versendet
+          data:
+            rechnungId: 33333333-3333-4333-8333-333333333333
+            patientennummer: 1
+            rechnungsnummer: 1/260920
+            datum: "2026-09-20"
+
+  - name: versendete-rechnung-erneut-versenden
+    given:
+      - boundedContext: naturheilpraxis
+        event: patient-aufgenommen
+        data:
+          patientennummer: 1
+          praxiskuerzel: NHP
+          aufnahmejahr: 2026
+          geburtsdatum: "1980-09-20"
+          name: { vorname: Max, nachname: Mustermann }
+          anschrift: { strasse: Lindenweg 5, postleitzahl: "12345", ort: Musterstadt }
+      - boundedContext: naturheilpraxis
+        event: rechnung-erstellt
+        data:
+          rechnungId: 33333333-3333-4333-8333-333333333333
+          praxiskuerzel: NHP
+          patientennummer: 1
+          diagnosetext: Chronische Rückenschmerzen
+          rechnungstext: Bitte überweisen Sie den Betrag innerhalb von 14 Tagen.
+          leistungen:
+            - 22222222-2222-4222-8222-222222222222
+      - boundedContext: naturheilpraxis
+        event: rechnung-versendet
+        data:
+          rechnungId: 33333333-3333-4333-8333-333333333333
+          patientennummer: 1
+          rechnungsnummer: 1/260920
+          datum: "2026-09-20"
+    when:
+      command: rechnung-versenden
+      data:
+        rechnungId: 33333333-3333-4333-8333-333333333333
+        patientennummer: 1
+        datum: "2026-09-21"
+    then:
+      rejection:
+        invariant: nur-entwurf-versenden
+
+  - name: rechnung-mit-falschem-patienten-versenden
+    given:
+      - boundedContext: naturheilpraxis
+        event: patient-aufgenommen
+        data:
+          patientennummer: 1
+          praxiskuerzel: NHP
+          aufnahmejahr: 2026
+          geburtsdatum: "1980-09-20"
+          name: { vorname: Max, nachname: Mustermann }
+          anschrift: { strasse: Lindenweg 5, postleitzahl: "12345", ort: Musterstadt }
+      - boundedContext: naturheilpraxis
+        event: rechnung-erstellt
+        data:
+          rechnungId: 33333333-3333-4333-8333-333333333333
+          praxiskuerzel: NHP
+          patientennummer: 1
+          diagnosetext: Chronische Rückenschmerzen
+          rechnungstext: Bitte überweisen Sie den Betrag innerhalb von 14 Tagen.
+          leistungen:
+            - 22222222-2222-4222-8222-222222222222
+    when:
+      command: rechnung-versenden
+      data:
+        rechnungId: 33333333-3333-4333-8333-333333333333
+        patientennummer: 2
+        datum: "2026-09-20"
+    then:
+      rejection:
+        invariant: patient-der-rechnung
+
+  - name: rechnung-ohne-rechnungsanschrift-versenden
+    given:
+      - boundedContext: naturheilpraxis
+        event: patient-aufgenommen
+        data:
+          patientennummer: 1
+          praxiskuerzel: NHP
+          aufnahmejahr: 2026
+          geburtsdatum: "1980-09-20"
+          name: { vorname: Max, nachname: Mustermann }
+      - boundedContext: naturheilpraxis
+        event: rechnung-erstellt
+        data:
+          rechnungId: 33333333-3333-4333-8333-333333333333
+          praxiskuerzel: NHP
+          patientennummer: 1
+          diagnosetext: Chronische Rückenschmerzen
+          rechnungstext: Bitte überweisen Sie den Betrag innerhalb von 14 Tagen.
+          leistungen:
+            - 22222222-2222-4222-8222-222222222222
+    when:
+      command: rechnung-versenden
+      data:
+        rechnungId: 33333333-3333-4333-8333-333333333333
+        patientennummer: 1
+        datum: "2026-09-20"
+    then:
+      rejection:
+        invariant: rechnungsanschrift-vorhanden
+
+  - name: zahlung-erfassen
+    given:
+      - boundedContext: naturheilpraxis
+        event: rechnung-erstellt
+        data:
+          rechnungId: 33333333-3333-4333-8333-333333333333
+          praxiskuerzel: NHP
+          patientennummer: 1
+          diagnosetext: Chronische Rückenschmerzen
+          rechnungstext: Bitte überweisen Sie den Betrag innerhalb von 14 Tagen.
+          leistungen:
+            - 22222222-2222-4222-8222-222222222222
+      - boundedContext: naturheilpraxis
+        event: rechnung-versendet
+        data:
+          rechnungId: 33333333-3333-4333-8333-333333333333
+          patientennummer: 1
+          rechnungsnummer: 1/260920
+          datum: "2026-09-20"
+    when:
+      command: zahlung-erfassen
+      data:
+        rechnungId: 33333333-3333-4333-8333-333333333333
+    then:
+      events:
+        - event: rechnung-bezahlt
+          data:
+            rechnungId: 33333333-3333-4333-8333-333333333333
+
+  - name: zahlung-fuer-entwurf-erfassen
+    given:
+      - boundedContext: naturheilpraxis
+        event: rechnung-erstellt
+        data:
+          rechnungId: 33333333-3333-4333-8333-333333333333
+          praxiskuerzel: NHP
+          patientennummer: 1
+          diagnosetext: Chronische Rückenschmerzen
+          rechnungstext: Bitte überweisen Sie den Betrag innerhalb von 14 Tagen.
+          leistungen:
+            - 22222222-2222-4222-8222-222222222222
+    when:
+      command: zahlung-erfassen
+      data:
+        rechnungId: 33333333-3333-4333-8333-333333333333
+    then:
+      rejection:
+        invariant: nur-versendete-bezahlen
+
+  - name: zahlung-zuruecknehmen
+    given:
+      - boundedContext: naturheilpraxis
+        event: rechnung-erstellt
+        data:
+          rechnungId: 33333333-3333-4333-8333-333333333333
+          praxiskuerzel: NHP
+          patientennummer: 1
+          diagnosetext: Chronische Rückenschmerzen
+          rechnungstext: Bitte überweisen Sie den Betrag innerhalb von 14 Tagen.
+          leistungen:
+            - 22222222-2222-4222-8222-222222222222
+      - boundedContext: naturheilpraxis
+        event: rechnung-versendet
+        data:
+          rechnungId: 33333333-3333-4333-8333-333333333333
+          patientennummer: 1
+          rechnungsnummer: 1/260920
+          datum: "2026-09-20"
+      - boundedContext: naturheilpraxis
+        event: rechnung-bezahlt
+        data:
+          rechnungId: 33333333-3333-4333-8333-333333333333
+    when:
+      command: rechnung-zurueckstufen
+      data:
+        rechnungId: 33333333-3333-4333-8333-333333333333
+    then:
+      events:
+        - event: rechnungszahlung-zurueckgenommen
+          data:
+            rechnungId: 33333333-3333-4333-8333-333333333333
+
+  - name: versand-zuruecknehmen
+    description: Die Rechnung verliert Rechnungsnummer und Rechnungsdatum.
+    given:
+      - boundedContext: naturheilpraxis
+        event: rechnung-erstellt
+        data:
+          rechnungId: 33333333-3333-4333-8333-333333333333
+          praxiskuerzel: NHP
+          patientennummer: 1
+          diagnosetext: Chronische Rückenschmerzen
+          rechnungstext: Bitte überweisen Sie den Betrag innerhalb von 14 Tagen.
+          leistungen:
+            - 22222222-2222-4222-8222-222222222222
+      - boundedContext: naturheilpraxis
+        event: rechnung-versendet
+        data:
+          rechnungId: 33333333-3333-4333-8333-333333333333
+          patientennummer: 1
+          rechnungsnummer: 1/260920
+          datum: "2026-09-20"
+    when:
+      command: rechnung-zurueckstufen
+      data:
+        rechnungId: 33333333-3333-4333-8333-333333333333
+    then:
+      events:
+        - event: rechnungsversand-zurueckgenommen
+          data:
+            rechnungId: 33333333-3333-4333-8333-333333333333
+            patientennummer: 1
+            rechnungsnummer: 1/260920
+            datum: "2026-09-20"
+
+  - name: entwurf-zurueckstufen
+    given:
+      - boundedContext: naturheilpraxis
+        event: rechnung-erstellt
+        data:
+          rechnungId: 33333333-3333-4333-8333-333333333333
+          praxiskuerzel: NHP
+          patientennummer: 1
+          diagnosetext: Chronische Rückenschmerzen
+          rechnungstext: Bitte überweisen Sie den Betrag innerhalb von 14 Tagen.
+          leistungen:
+            - 22222222-2222-4222-8222-222222222222
+    when:
+      command: rechnung-zurueckstufen
+      data:
+        rechnungId: 33333333-3333-4333-8333-333333333333
+    then:
+      rejection:
+        invariant: entwurf-nicht-zurueckstufen

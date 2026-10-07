@@ -1,0 +1,154 @@
+# $schema: ../schemas/given-when-then/v1.yaml
+apiVersion: schema.esdm.io/given-when-then/v1
+kind: feature
+name: patientenansicht
+description: Der Heilpraktiker sucht Patienten und sieht ihre Karteikarte.
+scope:
+  domain: naturheilpraxis
+  boundedContext: naturheilpraxis
+  readModel: patientenansicht
+scenarios:
+  - name: patienten-neueste-zuerst-ermitteln
+    description: >-
+      Die Patienten erscheinen im aktuellen Stand. Der Name des Partners folgt dem Muster
+      `<Nachname>, <Vorname> (Nr. <Patientennummer>), geboren am <Geburtsdatum>`.
+    given:
+      - boundedContext: naturheilpraxis
+        event: patient-aufgenommen
+        data:
+          patientennummer: 1
+          praxiskuerzel: NHP
+          aufnahmejahr: 2026
+          geburtsdatum: "1980-09-20"
+          name: { vorname: Max, nachname: Mustermann }
+          anschrift: { strasse: Lindenweg 5, postleitzahl: "12345", ort: Musterstadt }
+      - boundedContext: naturheilpraxis
+        event: patient-aufgenommen
+        data:
+          patientennummer: 2
+          praxiskuerzel: NHP
+          aufnahmejahr: 2026
+          geburtsdatum: "1982-03-14"
+          name: { vorname: Erika, nachname: Mustermann }
+          anschrift: { strasse: Lindenweg 5, postleitzahl: "12345", ort: Musterstadt }
+          partnerVon: 1
+      - boundedContext: naturheilpraxis
+        event: patientendaten-geaendert
+        data:
+          patientennummer: 1
+          praxiskuerzel: NHP
+          aufnahmejahr: 2026
+          geburtsdatum: "1980-09-20"
+          name: { vorname: Max, nachname: Mustermann }
+          anschrift: { strasse: Lindenweg 5, postleitzahl: "12345", ort: Musterstadt }
+          kontakt: { mobiltelefon: "0170 1234567" }
+    when:
+      query: patienten-ermitteln
+      parameters: {}
+    then:
+      result:
+        - patientennummer: 2
+          praxiskuerzel: NHP
+          aufnahmejahr: 2026
+          geburtsdatum: "1982-03-14"
+          vorname: Erika
+          nachname: Mustermann
+          strasse: Lindenweg 5
+          postleitzahl: "12345"
+          ort: Musterstadt
+          partnerVon: 1
+          partnerVonName: Mustermann, Max (Nr. 1), geboren am 20.09.1980
+        - patientennummer: 1
+          praxiskuerzel: NHP
+          aufnahmejahr: 2026
+          geburtsdatum: "1980-09-20"
+          vorname: Max
+          nachname: Mustermann
+          strasse: Lindenweg 5
+          postleitzahl: "12345"
+          ort: Musterstadt
+          mobiltelefon: "0170 1234567"
+
+  - name: patienten-mit-suchbegriff-ermitteln
+    description: >-
+      Alle Wörter des Suchbegriffs müssen vorkommen, nicht zwingend im gleichen Feld. Ein Suchwort
+      mit Leerzeichen steht in Anführungszeichen. Groß- und Kleinschreibung spielen keine Rolle.
+    given:
+      - boundedContext: naturheilpraxis
+        event: patient-aufgenommen
+        data:
+          patientennummer: 1
+          praxiskuerzel: NHP
+          aufnahmejahr: 2026
+          geburtsdatum: "1980-09-20"
+          name: { vorname: Max, nachname: Mustermann }
+          anschrift: { strasse: Lindenweg 5, postleitzahl: "12345", ort: Musterstadt }
+      - boundedContext: naturheilpraxis
+        event: patient-aufgenommen
+        data:
+          patientennummer: 2
+          praxiskuerzel: NHP
+          aufnahmejahr: 2026
+          geburtsdatum: "1982-03-14"
+          name: { vorname: Erika, nachname: Mustermann }
+          anschrift: { strasse: Lindenweg 15, postleitzahl: "12345", ort: Musterstadt }
+      - boundedContext: naturheilpraxis
+        event: patient-aufgenommen
+        data:
+          patientennummer: 3
+          praxiskuerzel: NHP
+          aufnahmejahr: 2026
+          geburtsdatum: "1975-01-02"
+          name: { vorname: Max, nachname: Beispiel }
+          anschrift: { strasse: Lindenweg 5, postleitzahl: "54321", ort: Beispielstadt }
+    when:
+      query: patienten-ermitteln
+      parameters:
+        suchbegriff: mustermann "LINDENWEG 5"
+    then:
+      result:
+        - patientennummer: 1
+          praxiskuerzel: NHP
+          aufnahmejahr: 2026
+          geburtsdatum: "1980-09-20"
+          vorname: Max
+          nachname: Mustermann
+          strasse: Lindenweg 5
+          postleitzahl: "12345"
+          ort: Musterstadt
+
+  - name: patient-ermitteln
+    given:
+      - boundedContext: naturheilpraxis
+        event: patient-aufgenommen
+        data:
+          patientennummer: 1
+          praxiskuerzel: NHP
+          aufnahmejahr: 2026
+          geburtsdatum: "1980-09-20"
+          name: { vorname: Max, nachname: Mustermann }
+          anschrift: { strasse: Lindenweg 5, postleitzahl: "12345", ort: Musterstadt }
+      - boundedContext: naturheilpraxis
+        event: patient-aufgenommen
+        data:
+          patientennummer: 2
+          praxiskuerzel: NHP
+          aufnahmejahr: 2026
+          geburtsdatum: "2010-05-01"
+          name: { vorname: Paul, nachname: Mustermann }
+          anschrift: { strasse: Lindenweg 5, postleitzahl: "12345", ort: Musterstadt }
+          kindVon: 1
+    when:
+      query: patient-ermitteln
+      parameters:
+        patientennummer: 2
+    then:
+      result:
+        patientennummer: 2
+        praxiskuerzel: NHP
+        aufnahmejahr: 2026
+        geburtsdatum: "2010-05-01"
+        name: { vorname: Paul, nachname: Mustermann }
+        anschrift: { strasse: Lindenweg 5, postleitzahl: "12345", ort: Musterstadt }
+        kindVon: 1
+        kindVonName: Mustermann, Max (Nr. 1), geboren am 20.09.1980

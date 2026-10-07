@@ -1,0 +1,53 @@
+# $schema: ../schemas/given-when-then/v1.yaml
+apiVersion: schema.esdm.io/given-when-then/v1
+kind: feature
+name: praxisverwaltung
+description: Der Heilpraktiker legt Praxen an und pflegt ihre Stammdaten.
+scope:
+  domain: naturheilpraxis
+  boundedContext: naturheilpraxis
+  dynamicConsistencyBoundary: praxisverwaltung
+scenarios:
+  - name: praxis-anlegen
+    given: []
+    when:
+      command: praxis-anlegen
+      data:
+        praxiskuerzel: NHP
+        name: Naturheilpraxis am Markt
+        anschrift: { strasse: Marktplatz 1, postleitzahl: "12345", ort: Musterstadt }
+        kontakt: { telefon: "0123 456789", email: praxis@example.com }
+        rechnungstext: Bitte überweisen Sie den Betrag innerhalb von 14 Tagen.
+    then:
+      events:
+        - event: praxis-angelegt
+          data:
+            praxiskuerzel: NHP
+            name: Naturheilpraxis am Markt
+            anschrift: { strasse: Marktplatz 1, postleitzahl: "12345", ort: Musterstadt }
+            kontakt: { telefon: "0123 456789", email: praxis@example.com }
+            rechnungstext: Bitte überweisen Sie den Betrag innerhalb von 14 Tagen.
+
+  - name: praxisdaten-aendern
+    given:
+      - boundedContext: naturheilpraxis
+        event: praxis-angelegt
+        data:
+          praxiskuerzel: NHP
+          name: Naturheilpraxis am Markt
+          anschrift: { strasse: Marktplatz 1, postleitzahl: "12345", ort: Musterstadt }
+    when:
+      command: praxisdaten-aendern
+      data:
+        praxiskuerzel: NHP
+        name: Naturheilpraxis am Markt
+        anschrift: { strasse: Bahnhofstraße 7, postleitzahl: "12345", ort: Musterstadt }
+        kontakt: { telefon: "0123 987654" }
+    then:
+      events:
+        - event: praxisdaten-geaendert
+          data:
+            praxiskuerzel: NHP
+            name: Naturheilpraxis am Markt
+            anschrift: { strasse: Bahnhofstraße 7, postleitzahl: "12345", ort: Musterstadt }
+            kontakt: { telefon: "0123 987654" }
