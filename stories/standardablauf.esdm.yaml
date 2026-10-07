@@ -13,6 +13,8 @@ domainPurity: pure
 actors:
   - name: heilpraktiker
   - name: patient
+    annotation: >-
+      Ist an der Behandlung beteiligt, bedient aber nicht die Anwendung.
 sentences:
   - sequenceNumber: 1
     edges:
@@ -26,8 +28,13 @@ sentences:
       - from:
           actor: heilpraktiker
         to:
-          workObject: patient
-        label: nimmt auf
+          workObject: patientenkarteikarte
+        label: legt an
+      - from:
+          workObject: patientenkarteikarte
+        to:
+          actor: patient
+        label: für
   - sequenceNumber: 3
     edges:
       - from:
@@ -88,3 +95,15 @@ sentences:
         to:
           workObject: rechnung
         label: bezahlt
+  - sequenceNumber: 8
+    edges:
+      - from:
+          actor: heilpraktiker
+        to:
+          workObject: zahlungseingang
+        label: vermerkt
+      - from:
+          workObject: zahlungseingang
+        to:
+          workObject: rechnung
+        label: auf
