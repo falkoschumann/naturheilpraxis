@@ -68,7 +68,7 @@ schema:
       $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/value-object=patientennummer
     praxiskuerzel:
       type: string
-    annahmejahr:
+    aufnahmejahr:
       type: integer
     geburtsdatum:
       type: string
@@ -98,7 +98,7 @@ schema:
   required:
     - patientennummer
     - praxiskuerzel
-    - annahmejahr
+    - aufnahmejahr
     - name
     - geburtsdatum
   additionalProperties: false

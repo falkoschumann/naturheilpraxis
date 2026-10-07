@@ -41,7 +41,7 @@ data:
   properties:
     praxiskuerzel:
       type: string
-    annahmejahr:
+    aufnahmejahr:
       type: integer
     geburtsdatum:
       type: string
@@ -70,7 +70,7 @@ data:
         type: string
   required:
     - praxiskuerzel
-    - annahmejahr
+    - aufnahmejahr
     - name
     - geburtsdatum
   additionalProperties: false

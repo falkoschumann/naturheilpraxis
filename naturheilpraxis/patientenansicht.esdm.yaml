@@ -47,7 +47,7 @@ result:
         $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/value-object=patientennummer
       praxiskuerzel:
         type: string
-      annahmejahr:
+      aufnahmejahr:
         type: integer
       geburtsdatum:
         type: string
@@ -103,7 +103,7 @@ result:
     required:
       - patientennummer
       - praxiskuerzel
-      - annahmejahr
+      - aufnahmejahr
       - vorname
       - nachname
       - strasse
@@ -156,7 +156,7 @@ result:
       $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/value-object=patientennummer
     praxiskuerzel:
       type: string
-    annahmejahr:
+    aufnahmejahr:
       type: integer
     geburtsdatum:
       type: string
@@ -190,7 +190,7 @@ result:
   required:
     - patientennummer
     - praxiskuerzel
-    - annahmejahr
+    - aufnahmejahr
     - name
     - geburtsdatum
   additionalProperties: false
