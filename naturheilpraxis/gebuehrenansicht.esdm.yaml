@@ -43,4 +43,6 @@ actors:
   - heilpraktiker
 constraints:
   - name: nach-ziffer-sortiert
-    rule: Die Gebühren sind alphanumerisch aufsteigend nach Ziffer sortiert.
+    rule: >-
+      Die Gebühren sind aufsteigend nach Ziffer natürlich sortiert. Zahlen in der Ziffer werden
+      numerisch verglichen, sodass etwa `3` vor `20.1` steht.

@@ -64,7 +64,11 @@ consults:
   - boundedContext: naturheilpraxis
     event: patient-aufgenommen
     criteria: >-
-      Beim Erstellen die Ereignisse des Patienten mit der Nummer aus dem Befehl.
+      Beim Erstellen und Versenden die Ereignisse des Patienten mit der Nummer aus dem Befehl.
+  - boundedContext: naturheilpraxis
+    event: patientendaten-geaendert
+    criteria: >-
+      Beim Versenden die Ereignisse des Patienten mit der Nummer aus dem Befehl.
 invariants:
   - name: praxis-existiert
     rule: >-
@@ -100,6 +104,10 @@ invariants:
   - name: entwurf-nicht-zurueckstufen
     rule: >-
       Ein Entwurf kann nicht zurückgestuft werden.
+  - name: rechnungsanschrift-vorhanden
+    rule: >-
+      Eine Rechnung kann nur versendet werden, wenn der Patient eine Anschrift mit Straße,
+      Postleitzahl und Ort hat.
 
 ---
 # $schema: ../schemas/core/v1.yaml

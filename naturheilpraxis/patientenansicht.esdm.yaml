@@ -106,9 +106,6 @@ result:
       - aufnahmejahr
       - vorname
       - nachname
-      - strasse
-      - postleitzahl
-      - ort
       - geburtsdatum
     additionalProperties: false
 actors:
