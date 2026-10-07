@@ -46,6 +46,21 @@ consults:
     event: patient-aufgenommen
     criteria: >-
       Beim Erbringen die Ereignisse des Patienten mit der Nummer aus dem Befehl.
+invariants:
+  - name: praxis-existiert
+    rule: >-
+      Die Praxis einer Leistung muss angelegt sein.
+  - name: patient-existiert
+    rule: >-
+      Beim Erbringen einer Leistung muss der Patient aufgenommen sein.
+  - name: nur-im-entwurf-aendern
+    rule: >-
+      Eine Leistung in einer versendeten oder bezahlten Rechnung kann nicht geändert werden. In
+      einem Entwurf darf sie geändert werden.
+  - name: nur-ohne-rechnung-loeschen
+    rule: >-
+      Eine Leistung, die in einer Rechnung enthalten ist, kann unabhängig von deren Status nicht
+      gelöscht werden. Eine Leistung in einem Entwurf muss zuerst aus dem Entwurf entfernt werden.
 
 ---
 # $schema: ../schemas/core/v1.yaml
@@ -92,13 +107,6 @@ publishes:
   - leistung-erbracht
 actors:
   - heilpraktiker
-constraints:
-  - name: praxis-existiert
-    rule: >-
-      Die Praxis mit dem angegebenen Kürzel muss angelegt sein, sonst wird der Befehl abgelehnt.
-  - name: patient-existiert
-    rule: >-
-      Der Patient mit der angegebenen Nummer muss aufgenommen sein, sonst wird der Befehl abgelehnt.
 
 ---
 # $schema: ../schemas/core/v1.yaml
@@ -156,14 +164,6 @@ publishes:
   - leistung-geaendert
 actors:
   - heilpraktiker
-constraints:
-  - name: praxis-existiert
-    rule: >-
-      Die Praxis mit dem angegebenen Kürzel muss angelegt sein, sonst wird der Befehl abgelehnt.
-  - name: nur-im-entwurf-aendern
-    rule: >-
-      Ist die Leistung in einer versendeten oder bezahlten Rechnung enthalten, wird die Änderung
-      abgelehnt. Ist sie in einem Entwurf enthalten, darf sie geändert werden.
 
 ---
 # $schema: ../schemas/core/v1.yaml
@@ -198,11 +198,6 @@ publishes:
   - leistung-geloescht
 actors:
   - heilpraktiker
-constraints:
-  - name: nur-ohne-rechnung-loeschen
-    rule: >-
-      Ist die Leistung in einer Rechnung enthalten, unabhängig von deren Status, wird das Löschen
-      abgelehnt. Eine Leistung in einem Entwurf muss zuerst aus dem Entwurf entfernt werden.
 
 ---
 # $schema: ../schemas/core/v1.yaml

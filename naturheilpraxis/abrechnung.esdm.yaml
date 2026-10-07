@@ -65,6 +65,41 @@ consults:
     event: patient-aufgenommen
     criteria: >-
       Beim Erstellen die Ereignisse des Patienten mit der Nummer aus dem Befehl.
+invariants:
+  - name: praxis-existiert
+    rule: >-
+      Die Praxis einer Rechnung muss angelegt sein.
+  - name: patient-existiert
+    rule: >-
+      Der Patient einer Rechnung muss aufgenommen sein.
+  - name: leistungen-existieren
+    rule: >-
+      Eine Rechnung enthält nur Leistungen, die erbracht und nicht gelöscht sind.
+  - name: leistungen-des-patienten
+    rule: >-
+      Eine Rechnung enthält nur Leistungen ihres Patienten.
+  - name: leistungen-nicht-abgerechnet
+    rule: >-
+      Eine Leistung ist in höchstens einer Rechnung enthalten, unabhängig von deren Status.
+  - name: nur-im-entwurf-aendern
+    rule: >-
+      Eine versendete oder bezahlte Rechnung kann nicht geändert werden.
+  - name: nur-im-entwurf-loeschen
+    rule: >-
+      Eine versendete oder bezahlte Rechnung kann nicht gelöscht werden.
+  - name: nur-entwurf-versenden
+    rule: >-
+      Eine bereits versendete oder bezahlte Rechnung kann nicht erneut versendet werden.
+  - name: patient-der-rechnung
+    rule: >-
+      Beim Versenden muss die Patientennummer im Befehl die des Patienten der Rechnung sein. Sie
+      wird benötigt, um die Rechnungen desselben Patienten am selben Tag zu betrachten.
+  - name: nur-versendete-bezahlen
+    rule: >-
+      Nur eine versendete Rechnung kann bezahlt werden.
+  - name: entwurf-nicht-zurueckstufen
+    rule: >-
+      Ein Entwurf kann nicht zurückgestuft werden.
 
 ---
 # $schema: ../schemas/core/v1.yaml
@@ -107,21 +142,6 @@ publishes:
   - rechnung-erstellt
 actors:
   - heilpraktiker
-constraints:
-  - name: praxis-existiert
-    rule: >-
-      Die Praxis mit dem angegebenen Kürzel muss angelegt sein, sonst wird der Befehl abgelehnt.
-  - name: patient-existiert
-    rule: >-
-      Der Patient mit der angegebenen Nummer muss aufgenommen sein, sonst wird der Befehl abgelehnt.
-  - name: leistungen-existieren
-    rule: Jede genannte Leistung wurde erbracht und ist nicht gelöscht.
-  - name: leistungen-des-patienten
-    rule: Jede genannte Leistung gehört zum Patienten der Rechnung.
-  - name: leistungen-nicht-abgerechnet
-    rule: >-
-      Keine der genannten Leistungen ist bereits in einer anderen Rechnung enthalten, unabhängig von
-      deren Status.
 
 ---
 # $schema: ../schemas/core/v1.yaml
@@ -198,21 +218,6 @@ publishes:
   - rechnung-geaendert
 actors:
   - heilpraktiker
-constraints:
-  - name: praxis-existiert
-    rule: >-
-      Die Praxis mit dem angegebenen Kürzel muss angelegt sein, sonst wird der Befehl abgelehnt.
-  - name: nur-im-entwurf-aendern
-    rule: >-
-      Ist die Rechnung versendet oder bezahlt, wird die Änderung abgelehnt.
-  - name: leistungen-existieren
-    rule: Jede genannte Leistung wurde erbracht und ist nicht gelöscht.
-  - name: leistungen-des-patienten
-    rule: Jede genannte Leistung gehört zum Patienten der Rechnung.
-  - name: leistungen-nicht-abgerechnet
-    rule: >-
-      Keine der genannten Leistungen ist bereits in einer anderen Rechnung enthalten, unabhängig von
-      deren Status.
 
 ---
 # $schema: ../schemas/core/v1.yaml
@@ -270,10 +275,6 @@ publishes:
   - entwurf-geloescht
 actors:
   - heilpraktiker
-constraints:
-  - name: nur-im-entwurf-loeschen
-    rule: >-
-      Ist die Rechnung versendet oder bezahlt, wird das Löschen abgelehnt.
 
 ---
 # $schema: ../schemas/core/v1.yaml
@@ -323,9 +324,6 @@ publishes:
 actors:
   - heilpraktiker
 constraints:
-  - name: nur-entwurf-versenden
-    rule: >-
-      Ist die Rechnung bereits versendet oder bezahlt, wird der Versand abgelehnt.
   - name: rechnungsnummer-erstellen
     rule: >-
       Im Ereignis `rechnung-versendet` wird die vergebene Rechnungsnummer angegeben. Die neue
@@ -334,10 +332,6 @@ constraints:
       wird eine fortlaufende Zahl `-N` angehängt, beginnend bei 2. Vergeben sind nur die Nummern
       versendeter und bezahlter Rechnungen; eine durch Zurücknahme des Versands frei gewordene
       Nummer kann wieder vergeben werden. Es wird immer die niedrigste freie Nummer vergeben.
-  - name: patient-der-rechnung
-    rule: >-
-      Die Patientennummer im Befehl muss die des Patienten der Rechnung sein. Sie wird benötigt, um
-      die Rechnungen desselben Patienten am selben Tag zu betrachten.
 
 ---
 # $schema: ../schemas/core/v1.yaml
@@ -389,10 +383,6 @@ publishes:
   - rechnung-bezahlt
 actors:
   - heilpraktiker
-constraints:
-  - name: nur-versendete-bezahlen
-    rule: >-
-      Ist die Rechnung ein Entwurf oder bereits bezahlt, wird die Zahlung abgelehnt.
 
 ---
 # $schema: ../schemas/core/v1.yaml
@@ -437,9 +427,6 @@ publishes:
 actors:
   - heilpraktiker
 constraints:
-  - name: entwurf-nicht-zurueckstufen
-    rule: >-
-      Ist die Rechnung ein Entwurf, wird das Zurückstufen abgelehnt.
   - name: ereignis-haengt-vom-status-ab
     rule: >-
       Es wird immer genau eines der beiden Ereignisse emittiert: im Status `bezahlt` das Ereignis

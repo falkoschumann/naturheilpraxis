@@ -29,6 +29,13 @@ consults:
     event: patient-aufgenommen
     criteria: >-
       Beim Stellen die Ereignisse des Patienten mit der Nummer aus dem Befehl.
+invariants:
+  - name: praxis-existiert
+    rule: >-
+      Die Praxis einer Diagnose muss angelegt sein.
+  - name: patient-existiert
+    rule: >-
+      Beim Stellen einer Diagnose muss der Patient aufgenommen sein.
 
 ---
 # $schema: ../schemas/core/v1.yaml
@@ -49,13 +56,6 @@ publishes:
   - diagnose-gestellt
 actors:
   - heilpraktiker
-constraints:
-  - name: praxis-existiert
-    rule: >-
-      Die Praxis mit dem angegebenen Kürzel muss angelegt sein, sonst wird der Befehl abgelehnt.
-  - name: patient-existiert
-    rule: >-
-      Der Patient mit der angegebenen Nummer muss aufgenommen sein, sonst wird der Befehl abgelehnt.
 
 ---
 # $schema: ../schemas/core/v1.yaml
@@ -103,10 +103,6 @@ publishes:
   - diagnose-geaendert
 actors:
   - heilpraktiker
-constraints:
-  - name: praxis-existiert
-    rule: >-
-      Die Praxis mit dem angegebenen Kürzel muss angelegt sein, sonst wird der Befehl abgelehnt.
 
 ---
 # $schema: ../schemas/core/v1.yaml
