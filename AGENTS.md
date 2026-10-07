@@ -7,8 +7,8 @@ um ihnen diese in Rechnung stellen zu können. Es werden mehrere Praxen
 unterstützt.
 
 Es gibt eine RDBMS-basierte Anwendung die ersetzt werden soll. Das
-Entity-Relationship-Model liegt in `docs/naturheilpraxis.mmd` und soll als Basis
-für die neue Anwendung dienen.
+Entity-Relationship-Model liegt im Abschnitt „Migration“ von `docs/README.md`
+und soll als Basis für die neue Anwendung dienen.
 
 ## Build and Test Commands
 
