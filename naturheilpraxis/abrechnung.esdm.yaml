@@ -185,6 +185,9 @@ publishes:
 actors:
   - heilpraktiker
 constraints:
+  - name: nur-im-entwurf-aendern
+    rule: >-
+      Ist die Rechnung versendet oder bezahlt, wird die Änderung abgelehnt.
   - name: leistungen-existieren
     rule: Jede genannte Leistung wurde erbracht und ist nicht gelöscht.
   - name: leistungen-des-patienten
@@ -250,6 +253,10 @@ publishes:
   - entwurf-geloescht
 actors:
   - heilpraktiker
+constraints:
+  - name: nur-im-entwurf-loeschen
+    rule: >-
+      Ist die Rechnung versendet oder bezahlt, wird das Löschen abgelehnt.
 
 ---
 # $schema: ../schemas/core/v1.yaml
@@ -299,6 +306,9 @@ publishes:
 actors:
   - heilpraktiker
 constraints:
+  - name: nur-entwurf-versenden
+    rule: >-
+      Ist die Rechnung bereits versendet oder bezahlt, wird der Versand abgelehnt.
   - name: rechnungsnummer-erstellen
     rule: >-
       Im Ereignis `rechnung-versendet` wird die vergebene Rechnungsnummer angegeben. Die neue
@@ -362,6 +372,10 @@ publishes:
   - rechnung-bezahlt
 actors:
   - heilpraktiker
+constraints:
+  - name: nur-versendete-bezahlen
+    rule: >-
+      Ist die Rechnung ein Entwurf oder bereits bezahlt, wird die Zahlung abgelehnt.
 
 ---
 # $schema: ../schemas/core/v1.yaml
@@ -406,6 +420,9 @@ publishes:
 actors:
   - heilpraktiker
 constraints:
+  - name: entwurf-nicht-zurueckstufen
+    rule: >-
+      Ist die Rechnung ein Entwurf, wird das Zurückstufen abgelehnt.
   - name: ereignis-haengt-vom-status-ab
     rule: >-
       Es wird immer genau eines der beiden Ereignisse emittiert: im Status `bezahlt` das Ereignis
