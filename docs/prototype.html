@@ -1,0 +1,1730 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Naturheilpraxis Prototyp</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel="stylesheet" />
+    <style>
+      /* Primary color of the app, see apps/desktop/src/renderer/ui/theme.scss */
+      :root {
+        --bs-primary: #2e7d32;
+        --bs-primary-rgb: 46, 125, 50;
+        --bs-link-color: #2e7d32;
+        --bs-link-color-rgb: 46, 125, 50;
+        --bs-link-hover-color: #1b5e20;
+        --bs-link-hover-color-rgb: 27, 94, 32;
+        --bs-primary-bg-subtle: #e3f1e4;
+        --bs-primary-text-emphasis: #1b5e20;
+        --bs-primary-border-subtle: #a5d6a7;
+      }
+      body {
+        background: var(--bs-tertiary-bg);
+      }
+      .btn-primary {
+        --bs-btn-bg: #2e7d32;
+        --bs-btn-border-color: #2e7d32;
+        --bs-btn-hover-bg: #256628;
+        --bs-btn-hover-border-color: #256628;
+        --bs-btn-active-bg: #1b5e20;
+        --bs-btn-active-border-color: #1b5e20;
+        --bs-btn-disabled-bg: #2e7d32;
+        --bs-btn-disabled-border-color: #2e7d32;
+        --bs-btn-focus-shadow-rgb: 46, 125, 50;
+      }
+      .btn-outline-primary {
+        --bs-btn-color: #2e7d32;
+        --bs-btn-border-color: #2e7d32;
+        --bs-btn-hover-bg: #2e7d32;
+        --bs-btn-hover-border-color: #2e7d32;
+        --bs-btn-active-bg: #1b5e20;
+        --bs-btn-active-border-color: #1b5e20;
+        --bs-btn-focus-shadow-rgb: 46, 125, 50;
+      }
+      .nav-pills,
+      .nav-tabs {
+        --bs-nav-pills-link-active-bg: #2e7d32;
+        --bs-nav-link-color: #2e7d32;
+        --bs-nav-link-hover-color: #1b5e20;
+      }
+      .form-control:focus,
+      .form-select:focus,
+      .btn:focus-visible {
+        border-color: #81c784;
+        box-shadow: 0 0 0 0.25rem rgba(46, 125, 50, 0.3);
+      }
+      .form-check-input:checked {
+        background-color: #2e7d32;
+        border-color: #2e7d32;
+      }
+      .navbar.bg-primary {
+        background-color: #2e7d32 !important;
+      }
+      .required::after {
+        content: " *";
+        color: var(--bs-danger);
+      }
+      tr.clickable {
+        cursor: pointer;
+      }
+      .timeline-date {
+        position: sticky;
+        top: 0;
+        z-index: 1;
+        background: var(--bs-body-bg);
+      }
+      .entry-icon {
+        width: 2rem;
+        height: 2rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        flex-shrink: 0;
+      }
+      .invoice {
+        max-width: 50rem;
+        font-size: 0.95rem;
+      }
+      .proto-banner {
+        font-size: 0.8rem;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="proto-banner bg-warning-subtle text-warning-emphasis text-center py-1">
+      Prototyp mit Beispieldaten – Änderungen gehen beim Neuladen verloren.
+    </div>
+
+    <nav class="navbar navbar-expand-md bg-primary" data-bs-theme="dark" aria-label="Hauptnavigation">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="#/patienten">
+          <i class="fa-solid fa-leaf me-2" aria-hidden="true"></i>Naturheilpraxis
+        </a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#main-nav"
+          aria-controls="main-nav"
+          aria-expanded="false"
+          aria-label="Navigation umschalten"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="main-nav">
+          <ul class="navbar-nav me-auto">
+            <li class="nav-item">
+              <a class="nav-link" data-nav="patienten" href="#/patienten">
+                <i class="fa-solid fa-address-card me-1" aria-hidden="true"></i>Patienten
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" data-nav="abrechnung" href="#/abrechnung">
+                <i class="fa-solid fa-file-invoice-dollar me-1" aria-hidden="true"></i>Abrechnung
+              </a>
+            </li>
+            <li class="nav-item dropdown">
+              <a
+                class="nav-link dropdown-toggle"
+                data-nav="stammdaten"
+                href="#"
+                role="button"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+              >
+                <i class="fa-solid fa-gear me-1" aria-hidden="true"></i>Stammdaten
+              </a>
+              <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="#/praxen">Praxen</a></li>
+                <li><a class="dropdown-item" href="#/gebuehren">Gebührenverzeichnis</a></li>
+              </ul>
+            </li>
+          </ul>
+          <div class="d-flex align-items-center gap-2">
+            <label for="aktuelle-praxis" class="text-white small text-nowrap">Aktuelle Praxis</label>
+            <select id="aktuelle-praxis" class="form-select form-select-sm" data-bs-theme="light"></select>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <main id="app" class="container-xl py-4" tabindex="-1"></main>
+
+    <div class="modal fade" id="dialog" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-scrollable">
+        <div class="modal-content"></div>
+      </div>
+    </div>
+
+    <div class="toast-container position-fixed bottom-0 end-0 p-3" id="toasts" aria-live="polite"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      // ----------------------------------------------------------------------
+      // Beispieldaten
+      // ----------------------------------------------------------------------
+
+      const HEUTE = "2026-10-08";
+
+      const state = {
+        aktuellePraxis: "PARK",
+        praxen: [
+          {
+            praxiskuerzel: "PARK",
+            name: "Naturheilpraxis am Park",
+            anschrift: { strasse: "Parkstraße 12", zusatz: "", postleitzahl: "10115", ort: "Berlin", staat: "" },
+            kontakt: { telefon: "030 1234567", mobiltelefon: "", email: "info@praxis-am-park.de", website: "" },
+            rechnungstext:
+              "Bitte überweisen Sie den Rechnungsbetrag innerhalb von 14 Tagen auf das unten genannte Konto. Vielen Dank für Ihr Vertrauen.",
+          },
+          {
+            praxiskuerzel: "LAND",
+            name: "Naturheilpraxis Landhaus",
+            anschrift: { strasse: "Dorfstraße 3", zusatz: "", postleitzahl: "14552", ort: "Michendorf", staat: "" },
+            kontakt: { telefon: "033205 9876", mobiltelefon: "", email: "landhaus@example.org", website: "" },
+            rechnungstext: "Zahlbar innerhalb von 14 Tagen ohne Abzug.",
+          },
+        ],
+        // Beispielwerte, nicht die amtlichen Beträge des GebüH
+        gebuehren: [
+          { ziffer: "1", bezeichnung: "Eingehende, das gewöhnliche Maß übersteigende Untersuchung", betrag: 2300 },
+          { ziffer: "4", bezeichnung: "Erhebung der Anamnese", betrag: 1250 },
+          { ziffer: "5", bezeichnung: "Beratung, auch telefonisch", betrag: 1100 },
+          { ziffer: "7", bezeichnung: "Vollständige körperliche Untersuchung", betrag: 2600 },
+          { ziffer: "20.1", bezeichnung: "Akupunktur einschließlich Pulsdiagnose", betrag: 3500 },
+          { ziffer: "21.1", bezeichnung: "Schröpfen, unblutig", betrag: 1650 },
+          { ziffer: "25.4", bezeichnung: "Intravenöse Injektion", betrag: 1200 },
+          { ziffer: "26.1", bezeichnung: "Neuraltherapie", betrag: 2000 },
+          { ziffer: "33", bezeichnung: "Homöopathische Erstanamnese", betrag: 6000 },
+          { ziffer: "35.4", bezeichnung: "Massage einzelner Körperteile", betrag: 1500 },
+        ],
+        patienten: [
+          patient(1001, "PARK", 2021, "1968-03-14", "Frau", "", "Anna", "Becker", "Lindenallee 5", "10117", "Berlin", [
+            "Rücken",
+            "Migräne",
+          ]),
+          patient(
+            1002,
+            "PARK",
+            2021,
+            "1965-11-02",
+            "Herr",
+            "Dr.",
+            "Martin",
+            "Becker",
+            "Lindenallee 5",
+            "10117",
+            "Berlin",
+            [],
+          ),
+          patient(
+            1003,
+            "LAND",
+            2022,
+            "1990-06-21",
+            "Frau",
+            "",
+            "Sophie",
+            "Krüger",
+            "Am Feld 8",
+            "14552",
+            "Michendorf",
+            ["Allergie"],
+          ),
+          patient(
+            1004,
+            "PARK",
+            2023,
+            "1979-01-30",
+            "Herr",
+            "",
+            "Jonas",
+            "Wagner",
+            "Torstraße 101",
+            "10119",
+            "Berlin",
+            [],
+          ),
+          patient(1005, "LAND", 2024, "2012-09-09", "", "", "Lena", "Krüger", "Am Feld 8", "14552", "Michendorf", []),
+          patient(1006, "PARK", 2026, "1985-04-17", "Frau", "", "Mira", "Hoffmann", "", "", "", ["Erschöpfung"]),
+        ],
+        diagnosen: [
+          {
+            diagnoseId: "d1",
+            praxiskuerzel: "PARK",
+            patientennummer: 1001,
+            datum: "2026-09-02",
+            text: "Lumbalgie, chronisch rezidivierend",
+          },
+          {
+            diagnoseId: "d2",
+            praxiskuerzel: "PARK",
+            patientennummer: 1001,
+            datum: "2026-06-11",
+            text: "Spannungskopfschmerz",
+          },
+          { diagnoseId: "d3", praxiskuerzel: "LAND", patientennummer: 1003, datum: "2026-08-20", text: "Pollinosis" },
+          {
+            diagnoseId: "d4",
+            praxiskuerzel: "PARK",
+            patientennummer: 1006,
+            datum: "2026-10-01",
+            text: "Erschöpfungssyndrom",
+          },
+          {
+            diagnoseId: "d5",
+            praxiskuerzel: "PARK",
+            patientennummer: 1004,
+            datum: "2026-07-15",
+            text: "Zervikalsyndrom",
+          },
+        ],
+        leistungen: [
+          leistung("l1", "PARK", 1001, "2026-06-11", "1", 1),
+          leistung("l2", "PARK", 1001, "2026-06-11", "20.1", 1),
+          leistung("l3", "PARK", 1001, "2026-09-02", "1", 1),
+          leistung("l4", "PARK", 1001, "2026-09-02", "21.1", 2),
+          leistung("l5", "LAND", 1001, "2026-09-16", "20.1", 1),
+          leistung("l6", "PARK", 1001, "2026-10-06", "35.4", 1),
+          leistung("l7", "LAND", 1003, "2026-08-20", "33", 1),
+          leistung("l8", "LAND", 1003, "2026-09-03", "5", 1),
+          leistung("l9", "PARK", 1006, "2026-10-01", "4", 1),
+          leistung("l10", "PARK", 1006, "2026-10-01", "25.4", 1),
+          leistung("l11", "PARK", 1004, "2026-07-15", "7", 1),
+          leistung("l12", "PARK", 1004, "2026-07-15", "26.1", 1),
+        ],
+        rechnungen: [
+          {
+            rechnungId: "r1",
+            praxiskuerzel: "PARK",
+            patientennummer: 1001,
+            diagnosetext: "Spannungskopfschmerz",
+            rechnungsnummer: "1001/260630",
+            datum: "2026-06-30",
+            rechnungstext:
+              "Bitte überweisen Sie den Rechnungsbetrag innerhalb von 14 Tagen auf das unten genannte Konto.",
+            status: "bezahlt",
+            leistungIds: ["l1", "l2"],
+          },
+          {
+            rechnungId: "r2",
+            praxiskuerzel: "PARK",
+            patientennummer: 1004,
+            diagnosetext: "Zervikalsyndrom",
+            rechnungsnummer: "1004/260801",
+            datum: "2026-08-01",
+            rechnungstext:
+              "Bitte überweisen Sie den Rechnungsbetrag innerhalb von 14 Tagen auf das unten genannte Konto.",
+            status: "versendet",
+            leistungIds: ["l11", "l12"],
+          },
+          {
+            rechnungId: "r3",
+            praxiskuerzel: "LAND",
+            patientennummer: 1003,
+            diagnosetext: "Pollinosis",
+            rechnungsnummer: null,
+            datum: null,
+            rechnungstext: "Zahlbar innerhalb von 14 Tagen ohne Abzug.",
+            status: "entwurf",
+            leistungIds: ["l7"],
+          },
+        ],
+      };
+      state.patienten[0].partnerVon = 1002;
+      state.patienten[4].kindVon = 1003;
+
+      function patient(nr, praxis, jahr, geb, anrede, titel, vorname, nachname, strasse, plz, ort, schluesselworte) {
+        return {
+          patientennummer: nr,
+          praxiskuerzel: praxis,
+          aufnahmejahr: jahr,
+          geburtsdatum: geb,
+          name: { anrede, titel, vorname, nachname },
+          anschrift: { strasse, zusatz: "", postleitzahl: plz, ort, staat: "" },
+          kontakt: { telefon: "", mobiltelefon: "", email: "", website: "" },
+          beruf: "",
+          familienstand: "",
+          staatsangehoerigkeit: "",
+          notizen: "",
+          partnerVon: null,
+          kindVon: null,
+          schluesselworte,
+        };
+      }
+
+      function leistung(id, praxis, nr, datum, ziffer, anzahl) {
+        return {
+          leistungId: id,
+          praxiskuerzel: praxis,
+          patientennummer: nr,
+          datum,
+          ziffer,
+          anzahl,
+          bezeichnung: null,
+          einzelbetrag: null,
+        };
+      }
+      // Fill Bezeichnung and Betrag from the Gebührenverzeichnis like the app would do.
+      for (const l of state.leistungen) {
+        const g = state.gebuehren.find((g) => g.ziffer === l.ziffer);
+        l.bezeichnung = g.bezeichnung;
+        l.einzelbetrag = g.betrag;
+      }
+
+      // ----------------------------------------------------------------------
+      // Helfer
+      // ----------------------------------------------------------------------
+
+      const euroFormat = new Intl.NumberFormat("de-DE", { style: "currency", currency: "EUR" });
+      const euro = (cents) => euroFormat.format(cents / 100);
+      const datum = (iso) =>
+        iso
+          ? new Date(iso + "T00:00:00").toLocaleDateString("de-DE", {
+              day: "2-digit",
+              month: "2-digit",
+              year: "numeric",
+            })
+          : "–";
+      const datumLang = (iso) =>
+        new Date(iso + "T00:00:00").toLocaleDateString("de-DE", {
+          weekday: "long",
+          day: "numeric",
+          month: "long",
+          year: "numeric",
+        });
+      const esc = (s) =>
+        String(s ?? "").replace(
+          /[&<>"']/g,
+          (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c],
+        );
+      const uid = () => Math.random().toString(36).slice(2, 10);
+
+      function parseEuro(text) {
+        const normalized = String(text).trim().replace(/\s|€/g, "").replace(/\./g, "").replace(",", ".");
+        if (!/^\d+(\.\d{1,2})?$/.test(normalized)) return null;
+        return Math.round(parseFloat(normalized) * 100);
+      }
+      const euroInput = (cents) => (cents == null ? "" : (cents / 100).toFixed(2).replace(".", ","));
+
+      const findPatient = (nr) => state.patienten.find((p) => p.patientennummer === Number(nr));
+      const findPraxis = (k) => state.praxen.find((p) => p.praxiskuerzel === k);
+      const findRechnung = (id) => state.rechnungen.find((r) => r.rechnungId === id);
+      const vollerName = (p) => [p.name.titel, p.name.vorname, p.name.nachname].filter(Boolean).join(" ");
+      const listenName = (p) => `${p.name.nachname}, ${p.name.vorname}`;
+      const alter = (geb) => {
+        const h = new Date(HEUTE),
+          g = new Date(geb);
+        let a = h.getFullYear() - g.getFullYear();
+        if (h.getMonth() < g.getMonth() || (h.getMonth() === g.getMonth() && h.getDate() < g.getDate())) a--;
+        return a;
+      };
+      const hatAnschrift = (p) => p.anschrift.strasse && p.anschrift.postleitzahl && p.anschrift.ort;
+
+      const rechnungZuLeistung = (leistungId) => state.rechnungen.find((r) => r.leistungIds.includes(leistungId));
+      const summe = (leistungen) => leistungen.reduce((s, l) => s + l.anzahl * l.einzelbetrag, 0);
+      const leistungenDerRechnung = (r) => state.leistungen.filter((l) => r.leistungIds.includes(l.leistungId));
+      const offeneLeistungen = (nr) =>
+        state.leistungen.filter((l) => l.patientennummer === Number(nr) && !rechnungZuLeistung(l.leistungId));
+
+      const STATUS = {
+        offen: { label: "Offen", cls: "text-bg-warning" },
+        entwurf: { label: "Entwurf", cls: "text-bg-secondary" },
+        versendet: { label: "Versendet", cls: "text-bg-info" },
+        bezahlt: { label: "Bezahlt", cls: "text-bg-success" },
+      };
+      const statusBadge = (s) => `<span class="badge ${STATUS[s].cls}">${STATUS[s].label}</span>`;
+      const praxisBadge = (k) =>
+        `<span class="badge rounded-pill bg-primary-subtle text-primary-emphasis border border-primary-subtle" title="${esc(findPraxis(k)?.name)}">${esc(k)}</span>`;
+
+      function rechnungsnummerVergeben(r) {
+        const d = HEUTE.slice(2).replaceAll("-", "");
+        const basis = `${r.patientennummer}/${d}`;
+        const gleicheTage = state.rechnungen.filter(
+          (x) => x.rechnungsnummer && x.rechnungsnummer.split("-")[0] === basis,
+        ).length;
+        return gleicheTage === 0 ? basis : `${basis}-${gleicheTage + 1}`;
+      }
+
+      // ----------------------------------------------------------------------
+      // Feedback: Toasts, Dialoge, Bestätigungen
+      // ----------------------------------------------------------------------
+
+      function toast(message, { type = "success", undo } = {}) {
+        const id = "t" + uid();
+        const icon =
+          type === "success"
+            ? "fa-circle-check text-success"
+            : type === "danger"
+              ? "fa-circle-exclamation text-danger"
+              : "fa-circle-info text-info";
+        document.getElementById("toasts").insertAdjacentHTML(
+          "beforeend",
+          `<div id="${id}" class="toast align-items-center" role="status">
+            <div class="d-flex">
+              <div class="toast-body"><i class="fa-solid ${icon} me-2" aria-hidden="true"></i>${message}</div>
+              ${undo ? `<button type="button" class="btn btn-link btn-sm me-1" data-undo>Rückgängig</button>` : ""}
+              <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Schließen"></button>
+            </div>
+          </div>`,
+        );
+        const el = document.getElementById(id);
+        if (undo) {
+          el.querySelector("[data-undo]").addEventListener("click", () => {
+            undo();
+            bootstrap.Toast.getInstance(el).hide();
+            toast("Rückgängig gemacht.", { type: "info" });
+          });
+        }
+        el.addEventListener("hidden.bs.toast", () => el.remove());
+        new bootstrap.Toast(el, { delay: undo ? 8000 : 4000 }).show();
+      }
+
+      const dialogEl = document.getElementById("dialog");
+      const dialog = new bootstrap.Modal(dialogEl);
+      let lastFocus = null;
+
+      function openDialog({ title, body, footer, size = "", onSubmit, onShown }) {
+        lastFocus = document.activeElement;
+        dialogEl.querySelector(".modal-dialog").className = `modal-dialog modal-dialog-scrollable ${size}`;
+        dialogEl.querySelector(".modal-content").innerHTML = `
+          <form novalidate>
+            <div class="modal-header">
+              <h2 class="modal-title fs-5">${title}</h2>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
+            </div>
+            <div class="modal-body">${body}</div>
+            <div class="modal-footer">${footer}</div>
+          </form>`;
+        const form = dialogEl.querySelector("form");
+        form.addEventListener("submit", (e) => {
+          e.preventDefault();
+          onSubmit?.(form, e.submitter);
+        });
+        dialogEl.addEventListener(
+          "shown.bs.modal",
+          () => {
+            (
+              form.querySelector("[autofocus]") || form.querySelector("input, select, textarea, button.btn-primary")
+            )?.focus();
+            onShown?.(form);
+          },
+          { once: true },
+        );
+        dialog.show();
+        return form;
+      }
+      dialogEl.addEventListener("hidden.bs.modal", () => lastFocus?.focus?.());
+
+      function confirmDialog({ title, message, confirmLabel, danger = true, onConfirm }) {
+        openDialog({
+          title,
+          body: `<p class="mb-0">${message}</p>`,
+          footer: `<button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Abbrechen</button>
+                   <button type="submit" class="btn ${danger ? "btn-danger" : "btn-primary"}" autofocus>${confirmLabel}</button>`,
+          onSubmit: () => {
+            dialog.hide();
+            onConfirm();
+          },
+        });
+      }
+
+      /** Validates required fields, keeps input, focuses the first error. */
+      function validate(form, extra = []) {
+        let firstInvalid = null;
+        form.querySelectorAll(".is-invalid").forEach((el) => el.classList.remove("is-invalid"));
+        form.querySelectorAll("[required]").forEach((el) => {
+          if (!el.value.trim()) {
+            el.classList.add("is-invalid");
+            firstInvalid ??= el;
+          }
+        });
+        for (const [name, check] of extra) {
+          const el = form.elements[name];
+          if (el && el.value.trim() && !check(el.value)) {
+            el.classList.add("is-invalid");
+            firstInvalid ??= el;
+          }
+        }
+        const summary = form.querySelector("[data-error-summary]");
+        if (summary) summary.classList.toggle("d-none", !firstInvalid);
+        firstInvalid?.focus();
+        return !firstInvalid;
+      }
+
+      const errorSummary = `<div class="alert alert-danger d-none" role="alert" data-error-summary>
+          <i class="fa-solid fa-circle-exclamation me-2" aria-hidden="true"></i>Bitte prüfen Sie die markierten Felder. Ihre Eingaben bleiben erhalten.
+        </div>`;
+
+      function field({
+        name,
+        label,
+        value = "",
+        type = "text",
+        required = false,
+        col = "col-12",
+        feedback,
+        help,
+        attrs = "",
+      }) {
+        const id = "f-" + name;
+        return `<div class="${col}">
+          <label for="${id}" class="form-label ${required ? "required" : ""}">${label}</label>
+          <input id="${id}" name="${name}" type="${type}" class="form-control" value="${esc(value)}" ${required ? "required" : ""} ${attrs}
+            ${help ? `aria-describedby="${id}-help"` : ""}>
+          ${help ? `<div id="${id}-help" class="form-text">${help}</div>` : ""}
+          <div class="invalid-feedback">${feedback || `Bitte geben Sie ${label} an.`}</div>
+        </div>`;
+      }
+
+      function praxisSelect(name, selected, required = true, col = "col-12") {
+        return `<div class="${col}">
+          <label for="f-${name}" class="form-label ${required ? "required" : ""}">Praxis</label>
+          <select id="f-${name}" name="${name}" class="form-select" ${required ? "required" : ""}>
+            ${state.praxen.map((p) => `<option value="${p.praxiskuerzel}" ${p.praxiskuerzel === selected ? "selected" : ""}>${esc(p.name)} (${p.praxiskuerzel})</option>`).join("")}
+          </select>
+          <div class="invalid-feedback">Bitte wählen Sie eine Praxis.</div>
+        </div>`;
+      }
+
+      // ----------------------------------------------------------------------
+      // Router
+      // ----------------------------------------------------------------------
+
+      const app = document.getElementById("app");
+
+      function route() {
+        const parts = (location.hash || "#/patienten").slice(2).split("/");
+        const [seite, id, reiter] = parts;
+        document.querySelectorAll("[data-nav]").forEach((a) => {
+          const active =
+            a.dataset.nav === seite ||
+            (a.dataset.nav === "stammdaten" && ["praxen", "gebuehren"].includes(seite)) ||
+            (a.dataset.nav === "abrechnung" && seite === "rechnungen");
+          a.classList.toggle("active", active);
+          active ? a.setAttribute("aria-current", "page") : a.removeAttribute("aria-current");
+        });
+        if (seite === "patienten" && id) renderPatient(id, reiter || "behandlung");
+        else if (seite === "rechnungen" && id) renderRechnung(id);
+        else if (seite === "abrechnung") renderAbrechnung();
+        else if (seite === "praxen") renderPraxen();
+        else if (seite === "gebuehren") renderGebuehren();
+        else renderPatienten();
+      }
+      window.addEventListener("hashchange", () => {
+        route();
+        app.focus({ preventScroll: true });
+        window.scrollTo(0, 0);
+      });
+      const rerender = () => route();
+
+      const aktuellePraxisSelect = document.getElementById("aktuelle-praxis");
+      function renderPraxisAuswahl() {
+        aktuellePraxisSelect.innerHTML = state.praxen
+          .map(
+            (p) =>
+              `<option value="${p.praxiskuerzel}" ${p.praxiskuerzel === state.aktuellePraxis ? "selected" : ""}>${esc(p.name)}</option>`,
+          )
+          .join("");
+      }
+      aktuellePraxisSelect.addEventListener("change", (e) => {
+        state.aktuellePraxis = e.target.value;
+        toast(`Neue Einträge werden jetzt in der Praxis „${esc(findPraxis(e.target.value).name)}“ erfasst.`, {
+          type: "info",
+        });
+      });
+
+      // ----------------------------------------------------------------------
+      // Seite: Patientenliste
+      // ----------------------------------------------------------------------
+
+      let suchbegriff = "";
+
+      function renderPatienten() {
+        app.innerHTML = `
+          <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+            <h1 class="h3 mb-0">Patienten</h1>
+            <button class="btn btn-primary" data-action="patient-aufnehmen"><i class="fa-solid fa-user-plus me-1" aria-hidden="true"></i>Patient aufnehmen</button>
+          </div>
+          <div class="card shadow-sm">
+            <div class="card-body border-bottom">
+              <label for="suche" class="form-label visually-hidden">Patienten suchen</label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i></span>
+                <input id="suche" type="search" class="form-control" placeholder="Suchen nach Name, Patientennummer, Ort oder Schlüsselwort …" value="${esc(suchbegriff)}" autocomplete="off">
+                <span class="input-group-text small text-body-secondary d-none d-md-inline-flex"><kbd>/</kbd></span>
+              </div>
+            </div>
+            <div class="table-responsive">
+              <table class="table table-hover align-middle mb-0">
+                <thead>
+                  <tr><th scope="col">Nr.</th><th scope="col">Name</th><th scope="col">Geburtsdatum</th><th scope="col">Ort</th><th scope="col">Praxis</th><th scope="col" class="text-end">Offene Leistungen</th></tr>
+                </thead>
+                <tbody id="patienten-rows"></tbody>
+              </table>
+            </div>
+          </div>`;
+        const input = document.getElementById("suche");
+        input.addEventListener("input", () => {
+          suchbegriff = input.value;
+          renderPatientenRows();
+        });
+        renderPatientenRows();
+      }
+
+      function renderPatientenRows() {
+        const q = suchbegriff.trim().toLowerCase();
+        const treffer = state.patienten
+          .filter((p) => {
+            if (!q) return true;
+            const heu = [p.patientennummer, p.name.vorname, p.name.nachname, p.anschrift.ort, ...p.schluesselworte]
+              .join(" ")
+              .toLowerCase();
+            return q.split(/\s+/).every((t) => heu.includes(t));
+          })
+          .sort((a, b) => listenName(a).localeCompare(listenName(b), "de"));
+        const tbody = document.getElementById("patienten-rows");
+        if (!treffer.length) {
+          tbody.innerHTML = `<tr><td colspan="6" class="text-center text-body-secondary py-4">Kein Patient gefunden. Prüfen Sie die Schreibweise oder <button class="btn btn-link p-0 align-baseline" data-action="patient-aufnehmen">nehmen Sie einen neuen Patienten auf</button>.</td></tr>`;
+          return;
+        }
+        tbody.innerHTML = treffer
+          .map((p) => {
+            const offen = offeneLeistungen(p.patientennummer);
+            return `<tr class="clickable" data-href="#/patienten/${p.patientennummer}">
+              <td class="text-body-secondary">${p.patientennummer}</td>
+              <td><a href="#/patienten/${p.patientennummer}" class="fw-semibold text-decoration-none">${esc(listenName(p))}</a>
+                ${p.schluesselworte.map((s) => `<span class="badge text-bg-light border ms-1">${esc(s)}</span>`).join("")}</td>
+              <td>${datum(p.geburtsdatum)} <span class="text-body-secondary small">(${alter(p.geburtsdatum)})</span></td>
+              <td>${esc(p.anschrift.ort) || `<span class="text-body-secondary">–</span>`}</td>
+              <td>${praxisBadge(p.praxiskuerzel)}</td>
+              <td class="text-end">${offen.length ? `${offen.length} · ${euro(summe(offen))}` : `<span class="text-body-secondary">–</span>`}</td>
+            </tr>`;
+          })
+          .join("");
+      }
+
+      // ----------------------------------------------------------------------
+      // Seite: Patient (Behandlung, Rechnungen, Stammdaten)
+      // ----------------------------------------------------------------------
+
+      let nurOffene = false;
+
+      function renderPatient(nr, reiter) {
+        const p = findPatient(nr);
+        if (!p) {
+          app.innerHTML = `<div class="alert alert-warning">Den Patienten mit der Nummer ${esc(nr)} gibt es nicht. <a href="#/patienten">Zurück zur Patientenliste</a></div>`;
+          return;
+        }
+        const offen = offeneLeistungen(nr);
+        const reiterLink = (key, label, icon) =>
+          `<li class="nav-item"><a class="nav-link ${reiter === key ? "active" : ""}" ${reiter === key ? 'aria-current="page"' : ""} href="#/patienten/${nr}/${key}"><i class="fa-solid ${icon} me-1" aria-hidden="true"></i>${label}</a></li>`;
+        const rechnungenAnzahl = state.rechnungen.filter((r) => r.patientennummer === p.patientennummer).length;
+        app.innerHTML = `
+          <nav aria-label="Brotkrümel"><ol class="breadcrumb mb-2"><li class="breadcrumb-item"><a href="#/patienten">Patienten</a></li><li class="breadcrumb-item active" aria-current="page">${esc(listenName(p))}</li></ol></nav>
+          <div class="card shadow-sm mb-3">
+            <div class="card-body d-flex flex-wrap gap-3 align-items-center">
+              <div class="entry-icon bg-primary-subtle text-primary-emphasis fs-4" style="width:3.5rem;height:3.5rem"><i class="fa-solid fa-user" aria-hidden="true"></i></div>
+              <div class="me-auto">
+                <h1 class="h4 mb-1">${esc(vollerName(p))}</h1>
+                <div class="text-body-secondary small">
+                  Nr. ${p.patientennummer} · geb. ${datum(p.geburtsdatum)} (${alter(p.geburtsdatum)} J.) · ${praxisBadge(p.praxiskuerzel)} seit ${p.aufnahmejahr}
+                  ${hatAnschrift(p) ? ` · ${esc(p.anschrift.strasse)}, ${esc(p.anschrift.postleitzahl)} ${esc(p.anschrift.ort)}` : ` · <span class="text-warning-emphasis"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i> keine Anschrift</span>`}
+                </div>
+              </div>
+              <div class="d-flex flex-wrap gap-2">
+                <button class="btn btn-outline-primary" data-action="diagnose-stellen" data-nr="${nr}"><i class="fa-solid fa-stethoscope me-1" aria-hidden="true"></i>Diagnose stellen</button>
+                <button class="btn btn-primary" data-action="leistung-erbringen" data-nr="${nr}"><i class="fa-solid fa-plus me-1" aria-hidden="true"></i>Leistung erfassen</button>
+              </div>
+            </div>
+            ${
+              offen.length
+                ? `<div class="card-footer bg-warning-subtle d-flex flex-wrap align-items-center gap-2">
+                    <span><strong>${offen.length}</strong> noch nicht abgerechnete Leistung${offen.length > 1 ? "en" : ""} über <strong>${euro(summe(offen))}</strong></span>
+                    <button class="btn btn-sm btn-outline-dark ms-auto" data-action="rechnung-erstellen" data-nr="${nr}"><i class="fa-solid fa-file-invoice me-1" aria-hidden="true"></i>Rechnung erstellen</button>
+                  </div>`
+                : ""
+            }
+          </div>
+          <ul class="nav nav-tabs mb-3">
+            ${reiterLink("behandlung", "Behandlung", "fa-notes-medical")}
+            ${reiterLink("rechnungen", `Rechnungen <span class="badge text-bg-light border">${rechnungenAnzahl}</span>`, "fa-file-invoice")}
+            ${reiterLink("stammdaten", "Stammdaten", "fa-id-card")}
+          </ul>
+          <section id="reiter"></section>`;
+        const section = document.getElementById("reiter");
+        if (reiter === "rechnungen") renderPatientRechnungen(section, p);
+        else if (reiter === "stammdaten") renderPatientStammdaten(section, p);
+        else renderBehandlung(section, p);
+      }
+
+      function renderBehandlung(section, p) {
+        const nr = p.patientennummer;
+        let eintraege = [
+          ...state.diagnosen.filter((d) => d.patientennummer === nr).map((d) => ({ art: "diagnose", eintrag: d })),
+          ...state.leistungen.filter((l) => l.patientennummer === nr).map((l) => ({ art: "leistung", eintrag: l })),
+        ];
+        if (nurOffene)
+          eintraege = eintraege.filter((e) => e.art === "leistung" && !rechnungZuLeistung(e.eintrag.leistungId));
+        const tage = [...new Set(eintraege.map((e) => e.eintrag.datum))].sort().reverse();
+
+        const zeile = ({ art, eintrag: e }) => {
+          if (art === "diagnose") {
+            return `<li class="list-group-item d-flex gap-3 align-items-start">
+              <span class="entry-icon bg-info-subtle text-info-emphasis"><i class="fa-solid fa-stethoscope" aria-hidden="true"></i><span class="visually-hidden">Diagnose</span></span>
+              <div class="me-auto"><div class="small text-body-secondary">Diagnose ${praxisBadge(e.praxiskuerzel)}</div><div class="fw-semibold">${esc(e.text)}</div></div>
+              <div class="btn-group btn-group-sm">
+                <button class="btn btn-outline-secondary" data-action="diagnose-aendern" data-id="${e.diagnoseId}" aria-label="Diagnose bearbeiten" title="Bearbeiten"><i class="fa-solid fa-pen" aria-hidden="true"></i></button>
+                <button class="btn btn-outline-danger" data-action="diagnose-loeschen" data-id="${e.diagnoseId}" aria-label="Diagnose löschen" title="Löschen"><i class="fa-solid fa-trash" aria-hidden="true"></i></button>
+              </div>
+            </li>`;
+          }
+          const r = rechnungZuLeistung(e.leistungId);
+          const status = r ? r.status : "offen";
+          const aenderbar = !r || r.status === "entwurf";
+          return `<li class="list-group-item d-flex gap-3 align-items-start">
+            <span class="entry-icon bg-primary-subtle text-primary-emphasis"><i class="fa-solid fa-hand-holding-medical" aria-hidden="true"></i><span class="visually-hidden">Leistung</span></span>
+            <div class="me-auto">
+              <div class="small text-body-secondary">Leistung · Ziffer ${esc(e.ziffer)} ${praxisBadge(e.praxiskuerzel)} ${statusBadge(status)}
+                ${r ? `<a href="#/rechnungen/${r.rechnungId}" class="ms-1">${r.rechnungsnummer ? "Rechnung " + esc(r.rechnungsnummer) : "Rechnungsentwurf"}</a>` : ""}</div>
+              <div>${esc(e.bezeichnung)}</div>
+            </div>
+            <div class="text-end text-nowrap"><div class="fw-semibold">${euro(e.anzahl * e.einzelbetrag)}</div><div class="small text-body-secondary">${e.anzahl} × ${euro(e.einzelbetrag)}</div></div>
+            <div class="btn-group btn-group-sm">
+              <button class="btn btn-outline-secondary" data-action="leistung-aendern" data-id="${e.leistungId}" ${aenderbar ? "" : "disabled"} aria-label="Leistung bearbeiten"
+                title="${aenderbar ? "Bearbeiten" : "Leistungen in versendeten oder bezahlten Rechnungen können nicht geändert werden."}"><i class="fa-solid fa-pen" aria-hidden="true"></i></button>
+              <button class="btn btn-outline-danger" data-action="leistung-loeschen" data-id="${e.leistungId}" ${r ? "disabled" : ""} aria-label="Leistung löschen"
+                title="${r ? "Leistungen in einer Rechnung können nicht gelöscht werden. Entfernen Sie die Leistung zuerst aus dem Rechnungsentwurf." : "Löschen"}"><i class="fa-solid fa-trash" aria-hidden="true"></i></button>
+            </div>
+          </li>`;
+        };
+
+        section.innerHTML = `
+          <div class="d-flex flex-wrap align-items-center gap-3 mb-3">
+            <h2 class="h5 mb-0 me-auto">Behandlungsverlauf</h2>
+            <div class="form-check form-switch mb-0">
+              <input class="form-check-input" type="checkbox" role="switch" id="nur-offene" ${nurOffene ? "checked" : ""}>
+              <label class="form-check-label" for="nur-offene">Nur nicht abgerechnete Leistungen</label>
+            </div>
+          </div>
+          ${
+            tage.length
+              ? tage
+                  .map((tag) => {
+                    const tagesEintraege = eintraege
+                      .filter((e) => e.eintrag.datum === tag)
+                      .sort((a) => (a.art === "diagnose" ? -1 : 1));
+                    const tagesLeistungen = tagesEintraege.filter((e) => e.art === "leistung").map((e) => e.eintrag);
+                    return `<div class="card shadow-sm mb-3">
+                      <div class="card-header timeline-date d-flex justify-content-between">
+                        <h3 class="h6 mb-0">${datumLang(tag)}</h3>
+                        ${tagesLeistungen.length ? `<span class="small text-body-secondary">Summe ${euro(summe(tagesLeistungen))}</span>` : ""}
+                      </div>
+                      <ul class="list-group list-group-flush">${tagesEintraege.map(zeile).join("")}</ul>
+                    </div>`;
+                  })
+                  .join("")
+              : `<div class="text-center text-body-secondary border rounded bg-body p-5">
+                  ${nurOffene ? "Alle Leistungen sind abgerechnet." : "Für diesen Patienten wurde noch nichts erfasst. Beginnen Sie mit <em>Diagnose stellen</em> oder <em>Leistung erfassen</em>."}
+                </div>`
+          }`;
+        section.querySelector("#nur-offene").addEventListener("change", (e) => {
+          nurOffene = e.target.checked;
+          renderBehandlung(section, p);
+        });
+      }
+
+      function rechnungenTabelle(rechnungen, mitPatient) {
+        if (!rechnungen.length)
+          return `<div class="text-center text-body-secondary border rounded bg-body p-5">Keine Rechnungen vorhanden.</div>`;
+        return `<div class="card shadow-sm"><div class="table-responsive"><table class="table table-hover align-middle mb-0">
+          <thead><tr>
+            <th scope="col">Rechnungsnr.</th><th scope="col">Datum</th>${mitPatient ? `<th scope="col">Patient</th>` : ""}<th scope="col">Diagnose</th><th scope="col">Praxis</th><th scope="col">Status</th><th scope="col" class="text-end">Betrag</th>
+          </tr></thead>
+          <tbody>${rechnungen
+            .map((r) => {
+              const p = findPatient(r.patientennummer);
+              return `<tr class="clickable" data-href="#/rechnungen/${r.rechnungId}">
+                <td><a href="#/rechnungen/${r.rechnungId}" class="text-decoration-none">${r.rechnungsnummer ? esc(r.rechnungsnummer) : `<em class="text-body-secondary">noch keine</em>`}</a></td>
+                <td>${datum(r.datum)}</td>
+                ${mitPatient ? `<td>${esc(listenName(p))}</td>` : ""}
+                <td>${esc(r.diagnosetext)}</td>
+                <td>${praxisBadge(r.praxiskuerzel)}</td>
+                <td>${statusBadge(r.status)}</td>
+                <td class="text-end">${euro(summe(leistungenDerRechnung(r)))}</td>
+              </tr>`;
+            })
+            .join("")}</tbody></table></div></div>`;
+      }
+
+      function renderPatientRechnungen(section, p) {
+        const rechnungen = state.rechnungen.filter((r) => r.patientennummer === p.patientennummer);
+        section.innerHTML = rechnungenTabelle(rechnungen, false);
+      }
+
+      function patientFormular(p, { neu = false } = {}) {
+        const n = p?.name ?? {};
+        const a = p?.anschrift ?? {};
+        const k = p?.kontakt ?? {};
+        const nr = p?.patientennummer ?? Math.max(...state.patienten.map((x) => x.patientennummer)) + 1;
+        const andere = state.patienten
+          .filter((x) => x.patientennummer !== p?.patientennummer)
+          .sort((x, y) => listenName(x).localeCompare(listenName(y), "de"));
+        const angehoeriger = (name, label, value) => `<div class="col-md-6">
+            <label for="f-${name}" class="form-label">${label}</label>
+            <select id="f-${name}" name="${name}" class="form-select">
+              <option value="">– keine Angabe –</option>
+              ${andere.map((x) => `<option value="${x.patientennummer}" ${x.patientennummer === value ? "selected" : ""}>${esc(listenName(x))} (${x.patientennummer})</option>`).join("")}
+            </select></div>`;
+        return `
+          ${errorSummary}
+          <fieldset class="mb-4">
+            <legend class="fs-6 fw-semibold border-bottom pb-1">Aufnahme</legend>
+            <div class="row g-3">
+              <div class="col-md-3"><label class="form-label" for="f-nr">Patientennummer</label><input id="f-nr" class="form-control-plaintext" readonly value="${nr}${neu ? " (wird vergeben)" : ""}"></div>
+              ${praxisSelect("praxiskuerzel", p?.praxiskuerzel ?? state.aktuellePraxis, true, "col-md-6")}
+              ${field({ name: "aufnahmejahr", label: "Aufnahmejahr", value: p?.aufnahmejahr ?? HEUTE.slice(0, 4), type: "number", required: true, col: "col-md-3", attrs: 'min="1990" max="2100"' })}
+            </div>
+          </fieldset>
+          <fieldset class="mb-4">
+            <legend class="fs-6 fw-semibold border-bottom pb-1">Person</legend>
+            <div class="row g-3">
+              <div class="col-md-2"><label for="f-anrede" class="form-label">Anrede</label>
+                <select id="f-anrede" name="anrede" class="form-select">${["", "Frau", "Herr", "Divers"].map((v) => `<option ${v === (n.anrede ?? "") ? "selected" : ""} value="${v}">${v || "–"}</option>`).join("")}</select></div>
+              ${field({ name: "titel", label: "Titel", value: n.titel, col: "col-md-2" })}
+              ${field({ name: "vorname", label: "Vorname", value: n.vorname, required: true, col: "col-md-4", attrs: neu ? "autofocus" : "" })}
+              ${field({ name: "nachname", label: "Nachname", value: n.nachname, required: true, col: "col-md-4" })}
+              ${field({ name: "geburtsdatum", label: "Geburtsdatum", value: p?.geburtsdatum, type: "date", required: true, col: "col-md-4" })}
+              ${field({ name: "beruf", label: "Beruf", value: p?.beruf, col: "col-md-4" })}
+              ${field({ name: "familienstand", label: "Familienstand", value: p?.familienstand, col: "col-md-4" })}
+              ${field({ name: "staatsangehoerigkeit", label: "Staatsangehörigkeit", value: p?.staatsangehoerigkeit, col: "col-md-4" })}
+              ${angehoeriger("partnerVon", "Partner von", p?.partnerVon)}
+              ${angehoeriger("kindVon", "Kind von", p?.kindVon)}
+            </div>
+          </fieldset>
+          <fieldset class="mb-4">
+            <legend class="fs-6 fw-semibold border-bottom pb-1">Anschrift <span class="fw-normal small text-body-secondary">– für den Rechnungsversand erforderlich</span></legend>
+            <div class="row g-3">
+              ${field({ name: "strasse", label: "Straße und Hausnummer", value: a.strasse, col: "col-md-8" })}
+              ${field({ name: "zusatz", label: "Adresszusatz", value: a.zusatz, col: "col-md-4" })}
+              ${field({ name: "postleitzahl", label: "Postleitzahl", value: a.postleitzahl, col: "col-md-3", feedback: "Die Postleitzahl besteht aus fünf Ziffern, z. B. 10115.", attrs: 'inputmode="numeric"' })}
+              ${field({ name: "ort", label: "Ort", value: a.ort, col: "col-md-5" })}
+              ${field({ name: "staat", label: "Staat", value: a.staat, col: "col-md-4", help: "Leer lassen für Deutschland." })}
+            </div>
+          </fieldset>
+          <fieldset class="mb-4">
+            <legend class="fs-6 fw-semibold border-bottom pb-1">Kontakt</legend>
+            <div class="row g-3">
+              ${field({ name: "telefon", label: "Telefon", value: k.telefon, type: "tel", col: "col-md-6" })}
+              ${field({ name: "mobiltelefon", label: "Mobiltelefon", value: k.mobiltelefon, type: "tel", col: "col-md-6" })}
+              ${field({ name: "email", label: "E-Mail", value: k.email, type: "email", col: "col-md-6", feedback: "Bitte geben Sie eine gültige E-Mail-Adresse an, z. B. name@example.de." })}
+              ${field({ name: "website", label: "Website", value: k.website, col: "col-md-6" })}
+            </div>
+          </fieldset>
+          <fieldset>
+            <legend class="fs-6 fw-semibold border-bottom pb-1">Sonstiges</legend>
+            <div class="row g-3">
+              ${field({ name: "schluesselworte", label: "Schlüsselworte", value: (p?.schluesselworte ?? []).join(", "), help: "Mehrere Schlüsselworte durch Komma trennen. Sie helfen bei der Suche." })}
+              <div class="col-12"><label for="f-notizen" class="form-label">Notizen</label><textarea id="f-notizen" name="notizen" class="form-control" rows="3">${esc(p?.notizen)}</textarea></div>
+            </div>
+          </fieldset>`;
+      }
+
+      const patientPruefungen = [
+        ["postleitzahl", (v) => /^\d{5}$/.test(v.trim())],
+        ["email", (v) => /^\S+@\S+\.\S+$/.test(v.trim())],
+      ];
+
+      function patientAusFormular(form, p) {
+        const f = form.elements;
+        p.praxiskuerzel = f.praxiskuerzel.value;
+        p.aufnahmejahr = Number(f.aufnahmejahr.value);
+        p.geburtsdatum = f.geburtsdatum.value;
+        p.name = {
+          anrede: f.anrede.value,
+          titel: f.titel.value.trim(),
+          vorname: f.vorname.value.trim(),
+          nachname: f.nachname.value.trim(),
+        };
+        p.anschrift = {
+          strasse: f.strasse.value.trim(),
+          zusatz: f.zusatz.value.trim(),
+          postleitzahl: f.postleitzahl.value.trim(),
+          ort: f.ort.value.trim(),
+          staat: f.staat.value.trim(),
+        };
+        p.kontakt = {
+          telefon: f.telefon.value.trim(),
+          mobiltelefon: f.mobiltelefon.value.trim(),
+          email: f.email.value.trim(),
+          website: f.website.value.trim(),
+        };
+        p.beruf = f.beruf.value.trim();
+        p.familienstand = f.familienstand.value.trim();
+        p.staatsangehoerigkeit = f.staatsangehoerigkeit.value.trim();
+        p.partnerVon = f.partnerVon.value ? Number(f.partnerVon.value) : null;
+        p.kindVon = f.kindVon.value ? Number(f.kindVon.value) : null;
+        p.schluesselworte = f.schluesselworte.value
+          .split(",")
+          .map((s) => s.trim())
+          .filter(Boolean);
+        p.notizen = f.notizen.value;
+        return p;
+      }
+
+      function renderPatientStammdaten(section, p) {
+        section.innerHTML = `<form class="card shadow-sm" novalidate>
+            <div class="card-body">${patientFormular(p)}</div>
+            <div class="card-footer d-flex justify-content-end gap-2 sticky-bottom bg-body">
+              <button type="reset" class="btn btn-outline-secondary">Änderungen verwerfen</button>
+              <button type="submit" class="btn btn-primary"><i class="fa-solid fa-floppy-disk me-1" aria-hidden="true"></i>Speichern</button>
+            </div>
+          </form>`;
+        const form = section.querySelector("form");
+        form.addEventListener("submit", (e) => {
+          e.preventDefault();
+          if (!validate(form, patientPruefungen)) return;
+          const vorher = structuredClone(p);
+          patientAusFormular(form, p);
+          rerender();
+          toast("Die Stammdaten wurden gespeichert.", { undo: () => (Object.assign(p, vorher), rerender()) });
+        });
+        form.addEventListener("reset", () =>
+          setTimeout(() => (renderPatientStammdaten(section, p), toast("Änderungen verworfen.", { type: "info" }))),
+        );
+      }
+
+      function patientAufnehmen() {
+        openDialog({
+          title: "Patient aufnehmen",
+          size: "modal-xl",
+          body: patientFormular(null, { neu: true }),
+          footer: `<span class="me-auto small text-body-secondary"><span class="text-danger">*</span> Pflichtfeld</span>
+            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Abbrechen</button>
+            <button type="submit" class="btn btn-primary"><i class="fa-solid fa-user-plus me-1" aria-hidden="true"></i>Aufnehmen</button>`,
+          onSubmit: (form) => {
+            if (!validate(form, patientPruefungen)) return;
+            const nr = Math.max(...state.patienten.map((x) => x.patientennummer)) + 1;
+            const p = patientAusFormular(form, { patientennummer: nr });
+            state.patienten.push(p);
+            dialog.hide();
+            location.hash = `#/patienten/${nr}`;
+            toast(`${esc(vollerName(p))} wurde mit der Patientennummer ${nr} aufgenommen.`);
+          },
+        });
+      }
+
+      // ----------------------------------------------------------------------
+      // Diagnosen
+      // ----------------------------------------------------------------------
+
+      function diagnoseDialog(nr, d) {
+        const p = findPatient(nr);
+        openDialog({
+          title: d ? "Diagnose bearbeiten" : `Diagnose stellen für ${esc(vollerName(p))}`,
+          body: `${errorSummary}<div class="row g-3">
+            ${field({ name: "datum", label: "Datum", value: d?.datum ?? HEUTE, type: "date", required: true, col: "col-md-5" })}
+            ${praxisSelect("praxiskuerzel", d?.praxiskuerzel ?? state.aktuellePraxis, true, "col-md-7")}
+            <div class="col-12"><label for="f-text" class="form-label required">Diagnose</label>
+              <textarea id="f-text" name="text" class="form-control" rows="3" required autofocus>${esc(d?.text)}</textarea>
+              <div class="invalid-feedback">Bitte beschreiben Sie die Diagnose.</div></div>
+          </div>`,
+          footer: `<button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Abbrechen</button>
+                   <button type="submit" class="btn btn-primary">${d ? "Speichern" : "Diagnose stellen"}</button>`,
+          onSubmit: (form) => {
+            if (!validate(form)) return;
+            const werte = {
+              datum: form.elements.datum.value,
+              praxiskuerzel: form.elements.praxiskuerzel.value,
+              text: form.elements.text.value.trim(),
+            };
+            if (d) Object.assign(d, werte);
+            else state.diagnosen.push({ diagnoseId: uid(), patientennummer: p.patientennummer, ...werte });
+            dialog.hide();
+            rerender();
+            toast(d ? "Die Diagnose wurde geändert." : "Die Diagnose wurde gestellt.");
+          },
+        });
+      }
+
+      function diagnoseLoeschen(id) {
+        const d = state.diagnosen.find((x) => x.diagnoseId === id);
+        confirmDialog({
+          title: "Diagnose löschen?",
+          message: `Die Diagnose „${esc(d.text)}“ vom ${datum(d.datum)} wird gelöscht. Bereits erstellte Rechnungen behalten ihren Diagnosetext.`,
+          confirmLabel: "Löschen",
+          onConfirm: () => {
+            const i = state.diagnosen.indexOf(d);
+            state.diagnosen.splice(i, 1);
+            rerender();
+            toast("Die Diagnose wurde gelöscht.", { undo: () => (state.diagnosen.splice(i, 0, d), rerender()) });
+          },
+        });
+      }
+
+      // ----------------------------------------------------------------------
+      // Leistungen
+      // ----------------------------------------------------------------------
+
+      function leistungDialog(nr, l) {
+        const p = findPatient(nr);
+        const body = `${errorSummary}
+          <datalist id="gebuehren-liste">${state.gebuehren.map((g) => `<option value="${esc(g.ziffer)}">${esc(g.bezeichnung)} – ${euro(g.betrag)}</option>`).join("")}</datalist>
+          <div class="row g-3">
+            ${field({ name: "datum", label: "Datum", value: l?.datum ?? HEUTE, type: "date", required: true, col: "col-md-5" })}
+            ${praxisSelect("praxiskuerzel", l?.praxiskuerzel ?? state.aktuellePraxis, true, "col-md-7")}
+            ${field({ name: "ziffer", label: "Gebührenziffer", value: l?.ziffer, required: true, col: "col-md-5", attrs: 'list="gebuehren-liste" autocomplete="off" autofocus', help: "Ziffer eingeben oder aus dem Gebührenverzeichnis wählen." })}
+            ${field({ name: "anzahl", label: "Anzahl", value: l?.anzahl ?? 1, type: "number", required: true, col: "col-md-3", attrs: 'min="1" step="1"', feedback: "Die Anzahl muss mindestens 1 sein." })}
+            ${field({ name: "einzelbetrag", label: "Einzelbetrag (€)", value: euroInput(l?.einzelbetrag), required: true, col: "col-md-4", attrs: 'inputmode="decimal"', feedback: "Bitte geben Sie einen Betrag wie 12,50 an." })}
+            ${field({ name: "bezeichnung", label: "Bezeichnung", value: l?.bezeichnung, required: true })}
+            <div class="col-12 d-flex justify-content-between align-items-center border-top pt-2">
+              <span class="small text-body-secondary" id="ziffer-hinweis" aria-live="polite"></span>
+              <span>Gesamt: <strong id="leistung-summe">–</strong></span>
+            </div>
+          </div>`;
+        openDialog({
+          title: l ? "Leistung bearbeiten" : `Leistung erfassen für ${esc(vollerName(p))}`,
+          size: "modal-lg",
+          body,
+          footer: `<button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Abbrechen</button>
+            ${l ? "" : `<button type="submit" class="btn btn-outline-primary" name="weitere">Speichern und weitere erfassen</button>`}
+            <button type="submit" class="btn btn-primary">${l ? "Speichern" : "Leistung erfassen"}</button>`,
+          onShown: (form) => {
+            const f = form.elements;
+            const hinweis = form.querySelector("#ziffer-hinweis");
+            const updateSumme = () => {
+              const b = parseEuro(f.einzelbetrag.value),
+                a = Number(f.anzahl.value);
+              form.querySelector("#leistung-summe").textContent = b != null && a > 0 ? euro(a * b) : "–";
+            };
+            f.ziffer.addEventListener("input", () => {
+              const g = state.gebuehren.find((g) => g.ziffer === f.ziffer.value.trim());
+              if (g) {
+                f.bezeichnung.value = g.bezeichnung;
+                f.einzelbetrag.value = euroInput(g.betrag);
+                hinweis.textContent =
+                  "Bezeichnung und Betrag aus dem Gebührenverzeichnis übernommen – Sie können sie anpassen.";
+              } else if (f.ziffer.value.trim()) {
+                hinweis.textContent =
+                  "Ziffer nicht im Gebührenverzeichnis – bitte Bezeichnung und Betrag selbst angeben.";
+              } else hinweis.textContent = "";
+              updateSumme();
+            });
+            f.anzahl.addEventListener("input", updateSumme);
+            f.einzelbetrag.addEventListener("input", updateSumme);
+            updateSumme();
+          },
+          onSubmit: (form, submitter) => {
+            const pruefungen = [
+              ["anzahl", (v) => Number.isInteger(Number(v)) && Number(v) >= 1],
+              ["einzelbetrag", (v) => parseEuro(v) != null],
+            ];
+            if (!validate(form, pruefungen)) return;
+            const f = form.elements;
+            const werte = {
+              datum: f.datum.value,
+              praxiskuerzel: f.praxiskuerzel.value,
+              ziffer: f.ziffer.value.trim(),
+              bezeichnung: f.bezeichnung.value.trim(),
+              anzahl: Number(f.anzahl.value),
+              einzelbetrag: parseEuro(f.einzelbetrag.value),
+            };
+            if (l) Object.assign(l, werte);
+            else state.leistungen.push({ leistungId: uid(), patientennummer: p.patientennummer, ...werte });
+            toast(l ? "Die Leistung wurde geändert." : `Leistung ${esc(werte.ziffer)} wurde erfasst.`);
+            rerender();
+            if (submitter?.name === "weitere") {
+              // Keep Datum and Praxis, clear the rest for the next entry.
+              ["ziffer", "bezeichnung", "einzelbetrag"].forEach((n) => (f[n].value = ""));
+              f.anzahl.value = 1;
+              form.querySelector("#ziffer-hinweis").textContent = "";
+              form.querySelector("#leistung-summe").textContent = "–";
+              f.ziffer.focus();
+            } else dialog.hide();
+          },
+        });
+      }
+
+      function leistungLoeschen(id) {
+        const l = state.leistungen.find((x) => x.leistungId === id);
+        confirmDialog({
+          title: "Leistung löschen?",
+          message: `Die Leistung „${esc(l.ziffer)} ${esc(l.bezeichnung)}“ vom ${datum(l.datum)} über ${euro(l.anzahl * l.einzelbetrag)} wird gelöscht.`,
+          confirmLabel: "Löschen",
+          onConfirm: () => {
+            const i = state.leistungen.indexOf(l);
+            state.leistungen.splice(i, 1);
+            rerender();
+            toast("Die Leistung wurde gelöscht.", { undo: () => (state.leistungen.splice(i, 0, l), rerender()) });
+          },
+        });
+      }
+
+      // ----------------------------------------------------------------------
+      // Rechnungen
+      // ----------------------------------------------------------------------
+
+      function rechnungDialog(nr, r) {
+        const p = findPatient(nr);
+        const diagnosen = state.diagnosen
+          .filter((d) => d.patientennummer === p.patientennummer)
+          .sort((a, b) => b.datum.localeCompare(a.datum));
+        const kandidaten = state.leistungen
+          .filter(
+            (l) =>
+              l.patientennummer === p.patientennummer &&
+              (!rechnungZuLeistung(l.leistungId) || (r && r.leistungIds.includes(l.leistungId))),
+          )
+          .sort((a, b) => a.datum.localeCompare(b.datum));
+        const praxis = r?.praxiskuerzel ?? p.praxiskuerzel;
+        const body = `${errorSummary}
+          <div class="row g-3">
+            ${praxisSelect("praxiskuerzel", praxis, true, "col-md-6")}
+            <div class="col-md-6"><label for="f-diagnosewahl" class="form-label">Diagnose übernehmen</label>
+              <select id="f-diagnosewahl" class="form-select">
+                <option value="">– auswählen –</option>
+                ${diagnosen.map((d) => `<option value="${d.diagnoseId}">${datum(d.datum)}: ${esc(d.text)}</option>`).join("")}
+              </select></div>
+            <div class="col-12"><label for="f-diagnosetext" class="form-label required">Diagnosetext auf der Rechnung</label>
+              <textarea id="f-diagnosetext" name="diagnosetext" class="form-control" rows="2" required>${esc(r?.diagnosetext ?? diagnosen[0]?.text ?? "")}</textarea>
+              <div class="invalid-feedback">Bitte geben Sie eine Diagnose an. Sie muss auf der Rechnung stehen.</div></div>
+            <div class="col-12">
+              <fieldset>
+                <legend class="form-label required fs-6">Leistungen</legend>
+                <div class="table-responsive border rounded"><table class="table table-sm align-middle mb-0">
+                  <thead><tr><th scope="col"><input class="form-check-input" type="checkbox" id="alle-leistungen" checked aria-label="Alle Leistungen auswählen"></th><th scope="col">Datum</th><th scope="col">Ziffer</th><th scope="col">Bezeichnung</th><th scope="col">Praxis</th><th scope="col" class="text-end">Betrag</th></tr></thead>
+                  <tbody>${kandidaten
+                    .map(
+                      (l) => `<tr>
+                      <td><input class="form-check-input" type="checkbox" name="leistung" value="${l.leistungId}" id="cb-${l.leistungId}" ${!r || r.leistungIds.includes(l.leistungId) ? "checked" : ""}></td>
+                      <td><label for="cb-${l.leistungId}">${datum(l.datum)}</label></td><td>${esc(l.ziffer)}</td><td>${esc(l.bezeichnung)}${l.anzahl > 1 ? ` <span class="text-body-secondary">(${l.anzahl}×)</span>` : ""}</td>
+                      <td>${praxisBadge(l.praxiskuerzel)}</td><td class="text-end">${euro(l.anzahl * l.einzelbetrag)}</td></tr>`,
+                    )
+                    .join("")}</tbody>
+                  <tfoot><tr><th colspan="5" class="text-end">Rechnungsbetrag</th><th class="text-end" id="rechnung-summe"></th></tr></tfoot>
+                </table></div>
+                <div class="text-danger small mt-1 d-none" id="leistungen-fehler">Bitte wählen Sie mindestens eine Leistung aus.</div>
+              </fieldset>
+            </div>
+            <div class="col-12"><label for="f-rechnungstext" class="form-label required">Rechnungstext</label>
+              <textarea id="f-rechnungstext" name="rechnungstext" class="form-control" rows="2" required>${esc(r?.rechnungstext ?? findPraxis(praxis).rechnungstext)}</textarea>
+              <div class="form-text">Vorbelegt aus den Stammdaten der Praxis.</div>
+              <div class="invalid-feedback">Bitte geben Sie einen Rechnungstext an.</div></div>
+          </div>`;
+        openDialog({
+          title: r ? "Rechnungsentwurf bearbeiten" : `Rechnung erstellen für ${esc(vollerName(p))}`,
+          size: "modal-xl",
+          body,
+          footer: `<span class="me-auto small text-body-secondary">Die Rechnung wird als Entwurf gespeichert. Rechnungsnummer und -datum werden beim Versand vergeben.</span>
+            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Abbrechen</button>
+            <button type="submit" class="btn btn-primary">${r ? "Speichern" : "Entwurf erstellen"}</button>`,
+          onShown: (form) => {
+            const boxes = [...form.querySelectorAll("[name=leistung]")];
+            const alle = form.querySelector("#alle-leistungen");
+            const update = () => {
+              const gewaehlt = state.leistungen.filter((l) => boxes.some((b) => b.checked && b.value === l.leistungId));
+              form.querySelector("#rechnung-summe").textContent = euro(summe(gewaehlt));
+              alle.checked = boxes.every((b) => b.checked);
+              alle.indeterminate = !alle.checked && boxes.some((b) => b.checked);
+            };
+            boxes.forEach((b) => b.addEventListener("change", update));
+            alle.addEventListener("change", () => (boxes.forEach((b) => (b.checked = alle.checked)), update()));
+            form.querySelector("#f-diagnosewahl").addEventListener("change", (e) => {
+              const d = diagnosen.find((d) => d.diagnoseId === e.target.value);
+              if (d) form.elements.diagnosetext.value = d.text;
+            });
+            form.elements.praxiskuerzel.addEventListener("change", (e) => {
+              form.elements.rechnungstext.value = findPraxis(e.target.value).rechnungstext;
+            });
+            update();
+          },
+          onSubmit: (form) => {
+            const ids = [...form.querySelectorAll("[name=leistung]:checked")].map((b) => b.value);
+            const ok = validate(form);
+            form.querySelector("#leistungen-fehler").classList.toggle("d-none", ids.length > 0);
+            if (!ok || !ids.length) {
+              form.querySelector("[data-error-summary]").classList.remove("d-none");
+              return;
+            }
+            const werte = {
+              praxiskuerzel: form.elements.praxiskuerzel.value,
+              diagnosetext: form.elements.diagnosetext.value.trim(),
+              rechnungstext: form.elements.rechnungstext.value.trim(),
+              leistungIds: ids,
+            };
+            dialog.hide();
+            if (r) {
+              Object.assign(r, werte);
+              rerender();
+              toast("Der Rechnungsentwurf wurde gespeichert.");
+            } else {
+              const neu = {
+                rechnungId: uid(),
+                patientennummer: p.patientennummer,
+                rechnungsnummer: null,
+                datum: null,
+                status: "entwurf",
+                ...werte,
+              };
+              state.rechnungen.push(neu);
+              location.hash = `#/rechnungen/${neu.rechnungId}`;
+              toast("Der Rechnungsentwurf wurde erstellt. Prüfen Sie ihn und versenden Sie ihn anschließend.");
+            }
+          },
+        });
+      }
+
+      function renderRechnung(id) {
+        const r = findRechnung(id);
+        if (!r) {
+          app.innerHTML = `<div class="alert alert-warning">Diese Rechnung gibt es nicht (mehr). <a href="#/abrechnung">Zur Abrechnung</a></div>`;
+          return;
+        }
+        const p = findPatient(r.patientennummer);
+        const praxis = findPraxis(r.praxiskuerzel);
+        const leistungen = leistungenDerRechnung(r).sort((a, b) => a.datum.localeCompare(b.datum));
+        const aktionen = {
+          entwurf: `
+            <button class="btn btn-outline-danger" data-action="entwurf-loeschen" data-id="${r.rechnungId}"><i class="fa-solid fa-trash me-1" aria-hidden="true"></i>Entwurf löschen</button>
+            <button class="btn btn-outline-primary" data-action="rechnung-aendern" data-id="${r.rechnungId}"><i class="fa-solid fa-pen me-1" aria-hidden="true"></i>Bearbeiten</button>
+            <button class="btn btn-primary" data-action="rechnung-versenden" data-id="${r.rechnungId}"><i class="fa-solid fa-paper-plane me-1" aria-hidden="true"></i>Versenden</button>`,
+          versendet: `
+            <button class="btn btn-outline-secondary" data-action="rechnung-zurueckstufen" data-id="${r.rechnungId}"><i class="fa-solid fa-rotate-left me-1" aria-hidden="true"></i>Versand zurücknehmen</button>
+            <button class="btn btn-outline-secondary" onclick="window.print()"><i class="fa-solid fa-print me-1" aria-hidden="true"></i>Drucken</button>
+            <button class="btn btn-primary" data-action="zahlung-erfassen" data-id="${r.rechnungId}"><i class="fa-solid fa-euro-sign me-1" aria-hidden="true"></i>Zahlung erfassen</button>`,
+          bezahlt: `
+            <button class="btn btn-outline-secondary" data-action="rechnung-zurueckstufen" data-id="${r.rechnungId}"><i class="fa-solid fa-rotate-left me-1" aria-hidden="true"></i>Zahlung zurücknehmen</button>
+            <button class="btn btn-outline-secondary" onclick="window.print()"><i class="fa-solid fa-print me-1" aria-hidden="true"></i>Drucken</button>`,
+        }[r.status];
+        const schritte = ["entwurf", "versendet", "bezahlt"];
+        const index = schritte.indexOf(r.status);
+
+        app.innerHTML = `
+          <nav aria-label="Brotkrümel"><ol class="breadcrumb mb-2">
+            <li class="breadcrumb-item"><a href="#/patienten">Patienten</a></li>
+            <li class="breadcrumb-item"><a href="#/patienten/${p.patientennummer}/rechnungen">${esc(listenName(p))}</a></li>
+            <li class="breadcrumb-item active" aria-current="page">${r.rechnungsnummer ? "Rechnung " + esc(r.rechnungsnummer) : "Rechnungsentwurf"}</li>
+          </ol></nav>
+          <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+            <h1 class="h3 mb-0 me-2">${r.rechnungsnummer ? "Rechnung " + esc(r.rechnungsnummer) : "Rechnungsentwurf"}</h1>
+            ${statusBadge(r.status)}
+            <div class="ms-auto d-flex flex-wrap gap-2">${aktionen}</div>
+          </div>
+          <ol class="list-inline small mb-3" aria-label="Fortschritt der Rechnung">
+            ${schritte
+              .map(
+                (
+                  s,
+                  i,
+                ) => `<li class="list-inline-item ${i <= index ? "text-primary fw-semibold" : "text-body-secondary"}" ${i === index ? 'aria-current="step"' : ""}>
+              <i class="fa-solid ${i < index ? "fa-circle-check" : i === index ? "fa-circle-dot" : "fa-circle"} me-1" aria-hidden="true"></i>${STATUS[s].label}${i < 2 ? '<i class="fa-solid fa-chevron-right mx-2 text-body-tertiary" aria-hidden="true"></i>' : ""}</li>`,
+              )
+              .join("")}
+          </ol>
+          ${r.status === "entwurf" && !hatAnschrift(p) ? `<div class="alert alert-warning d-flex align-items-center gap-2" role="alert"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i><div>Für ${esc(vollerName(p))} ist keine vollständige Anschrift hinterlegt. Ohne Straße, Postleitzahl und Ort kann die Rechnung nicht versendet werden. <a href="#/patienten/${p.patientennummer}/stammdaten" class="alert-link">Anschrift ergänzen</a></div></div>` : ""}
+          <article class="invoice card shadow-sm mx-auto">
+            <div class="card-body p-4 p-md-5">
+              <header class="d-flex justify-content-between flex-wrap gap-3 mb-5">
+                <div class="small">
+                  <div class="text-body-secondary mb-3" style="font-size:.7rem">${esc(praxis.name)} · ${esc(praxis.anschrift.strasse)} · ${esc(praxis.anschrift.postleitzahl)} ${esc(praxis.anschrift.ort)}</div>
+                  <div>${esc(p.name.anrede)}</div>
+                  <div>${esc(vollerName(p))}</div>
+                  ${hatAnschrift(p) ? `<div>${esc(p.anschrift.strasse)}</div><div>${esc(p.anschrift.postleitzahl)} ${esc(p.anschrift.ort)}</div>` : `<div class="text-danger">Anschrift fehlt</div>`}
+                </div>
+                <div class="text-end">
+                  <div class="fs-5 text-primary"><i class="fa-solid fa-leaf me-1" aria-hidden="true"></i>${esc(praxis.name)}</div>
+                  <div class="small text-body-secondary">${esc(praxis.anschrift.strasse)}<br>${esc(praxis.anschrift.postleitzahl)} ${esc(praxis.anschrift.ort)}<br>${esc(praxis.kontakt.telefon)}<br>${esc(praxis.kontakt.email)}</div>
+                </div>
+              </header>
+              <div class="d-flex justify-content-between align-items-end mb-3">
+                <h2 class="h4 mb-0">Rechnung</h2>
+                <dl class="row small mb-0 text-end">
+                  <dt class="col-7 fw-normal text-body-secondary">Rechnungsnr.</dt><dd class="col-5 mb-0">${r.rechnungsnummer ? esc(r.rechnungsnummer) : "<em>beim Versand</em>"}</dd>
+                  <dt class="col-7 fw-normal text-body-secondary">Rechnungsdatum</dt><dd class="col-5 mb-0">${r.datum ? datum(r.datum) : "<em>beim Versand</em>"}</dd>
+                  <dt class="col-7 fw-normal text-body-secondary">Patientennr.</dt><dd class="col-5 mb-0">${p.patientennummer}</dd>
+                </dl>
+              </div>
+              <p class="mb-3"><span class="text-body-secondary">Diagnose:</span> ${esc(r.diagnosetext)}</p>
+              <table class="table table-sm">
+                <thead><tr><th scope="col">Datum</th><th scope="col">Ziffer</th><th scope="col">Leistung</th><th scope="col" class="text-end">Anzahl</th><th scope="col" class="text-end">Einzelbetrag</th><th scope="col" class="text-end">Betrag</th></tr></thead>
+                <tbody>${leistungen.map((l) => `<tr><td>${datum(l.datum)}</td><td>${esc(l.ziffer)}</td><td>${esc(l.bezeichnung)}</td><td class="text-end">${l.anzahl}</td><td class="text-end">${euro(l.einzelbetrag)}</td><td class="text-end">${euro(l.anzahl * l.einzelbetrag)}</td></tr>`).join("")}</tbody>
+                <tfoot><tr><th colspan="5" class="text-end">Rechnungsbetrag</th><th class="text-end">${euro(summe(leistungen))}</th></tr></tfoot>
+              </table>
+              <p class="mt-4 mb-0">${esc(r.rechnungstext)}</p>
+            </div>
+          </article>`;
+      }
+
+      function rechnungVersenden(id) {
+        const r = findRechnung(id);
+        const p = findPatient(r.patientennummer);
+        if (!hatAnschrift(p)) {
+          toast(
+            `Die Rechnung kann nicht versendet werden, weil die Anschrift von ${esc(vollerName(p))} unvollständig ist. Bitte ergänzen Sie Straße, Postleitzahl und Ort in den Stammdaten.`,
+            { type: "danger" },
+          );
+          return;
+        }
+        const nummer = rechnungsnummerVergeben(r);
+        confirmDialog({
+          title: "Rechnung versenden?",
+          message: `Die Rechnung erhält die Rechnungsnummer <strong>${nummer}</strong> und das Rechnungsdatum ${datum(HEUTE)}. Danach können Sie sie nicht mehr bearbeiten. Mit „Versand zurücknehmen“ wird sie wieder zum Entwurf.`,
+          confirmLabel: "Versenden",
+          danger: false,
+          onConfirm: () => {
+            Object.assign(r, { status: "versendet", rechnungsnummer: nummer, datum: HEUTE });
+            rerender();
+            toast(`Die Rechnung ${nummer} wurde als versendet markiert.`);
+          },
+        });
+      }
+
+      function zahlungErfassen(id) {
+        const r = findRechnung(id);
+        r.status = "bezahlt";
+        rerender();
+        toast(`Der Zahlungseingang für Rechnung ${esc(r.rechnungsnummer)} wurde erfasst.`, {
+          undo: () => ((r.status = "versendet"), rerender()),
+        });
+      }
+
+      function rechnungZurueckstufen(id) {
+        const r = findRechnung(id);
+        if (r.status === "bezahlt") {
+          confirmDialog({
+            title: "Zahlung zurücknehmen?",
+            message: `Die Rechnung ${esc(r.rechnungsnummer)} gilt danach wieder als versendet und unbezahlt.`,
+            confirmLabel: "Zahlung zurücknehmen",
+            onConfirm: () => ((r.status = "versendet"), rerender(), toast("Die Zahlung wurde zurückgenommen.")),
+          });
+        } else {
+          confirmDialog({
+            title: "Versand zurücknehmen?",
+            message: `Die Rechnung wird wieder zum Entwurf. Rechnungsnummer <strong>${esc(r.rechnungsnummer)}</strong> und Rechnungsdatum werden entfernt und beim erneuten Versand neu vergeben.`,
+            confirmLabel: "Versand zurücknehmen",
+            onConfirm: () => {
+              Object.assign(r, { status: "entwurf", rechnungsnummer: null, datum: null });
+              rerender();
+              toast("Der Versand wurde zurückgenommen. Die Rechnung ist wieder ein Entwurf.");
+            },
+          });
+        }
+      }
+
+      function entwurfLoeschen(id) {
+        const r = findRechnung(id);
+        confirmDialog({
+          title: "Rechnungsentwurf löschen?",
+          message: `Der Entwurf wird gelöscht. Die ${r.leistungIds.length} enthaltenen Leistungen bleiben erhalten und können erneut abgerechnet werden.`,
+          confirmLabel: "Entwurf löschen",
+          onConfirm: () => {
+            const i = state.rechnungen.indexOf(r);
+            state.rechnungen.splice(i, 1);
+            location.hash = `#/patienten/${r.patientennummer}/rechnungen`;
+            toast("Der Rechnungsentwurf wurde gelöscht.", {
+              undo: () => (state.rechnungen.splice(i, 0, r), rerender()),
+            });
+          },
+        });
+      }
+
+      // ----------------------------------------------------------------------
+      // Seite: Abrechnung
+      // ----------------------------------------------------------------------
+
+      let statusFilter = "alle";
+
+      function renderAbrechnung() {
+        const mitOffenen = state.patienten
+          .map((p) => ({ p, offen: offeneLeistungen(p.patientennummer) }))
+          .filter((x) => x.offen.length)
+          .sort((a, b) => summe(b.offen) - summe(a.offen));
+        const rechnungen = state.rechnungen
+          .filter((r) => statusFilter === "alle" || r.status === statusFilter)
+          .sort((a, b) => (b.datum ?? "9999").localeCompare(a.datum ?? "9999"));
+        const anzahl = (s) => state.rechnungen.filter((r) => r.status === s).length;
+        const offenSumme = summe(
+          state.rechnungen.filter((r) => r.status === "versendet").flatMap(leistungenDerRechnung),
+        );
+        const kachel = (
+          label,
+          wert,
+          icon,
+          cls,
+        ) => `<div class="col-6 col-lg-3"><div class="card shadow-sm h-100"><div class="card-body">
+            <div class="small text-body-secondary"><i class="fa-solid ${icon} me-1 ${cls}" aria-hidden="true"></i>${label}</div><div class="fs-4 fw-semibold">${wert}</div></div></div></div>`;
+
+        app.innerHTML = `
+          <h1 class="h3 mb-3">Abrechnung</h1>
+          <div class="row g-3 mb-4">
+            ${kachel("Nicht abgerechnet", euro(mitOffenen.reduce((s, x) => s + summe(x.offen), 0)), "fa-hourglass-half", "text-warning")}
+            ${kachel("Entwürfe", anzahl("entwurf"), "fa-file-pen", "text-secondary")}
+            ${kachel("Versendet, unbezahlt", euro(offenSumme), "fa-paper-plane", "text-info")}
+            ${kachel("Bezahlt", anzahl("bezahlt"), "fa-circle-check", "text-success")}
+          </div>
+          <h2 class="h5">Patienten mit nicht abgerechneten Leistungen</h2>
+          ${
+            mitOffenen.length
+              ? `<div class="card shadow-sm mb-4"><ul class="list-group list-group-flush">${mitOffenen
+                  .map(
+                    ({ p, offen }) => `<li class="list-group-item d-flex flex-wrap align-items-center gap-2">
+                    <a href="#/patienten/${p.patientennummer}" class="fw-semibold text-decoration-none me-auto">${esc(listenName(p))} <span class="text-body-secondary fw-normal small">Nr. ${p.patientennummer}</span></a>
+                    <span class="small text-body-secondary">${offen.length} Leistung${offen.length > 1 ? "en" : ""} seit ${datum(offen.map((l) => l.datum).sort()[0])}</span>
+                    <span class="fw-semibold" style="min-width:6rem;text-align:right">${euro(summe(offen))}</span>
+                    <button class="btn btn-sm btn-outline-primary" data-action="rechnung-erstellen" data-nr="${p.patientennummer}">Rechnung erstellen</button>
+                  </li>`,
+                  )
+                  .join("")}</ul></div>`
+              : `<p class="text-body-secondary">Alle Leistungen sind abgerechnet.</p>`
+          }
+          <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+            <h2 class="h5 mb-0 me-auto">Rechnungen</h2>
+            <div class="btn-group btn-group-sm" role="group" aria-label="Nach Status filtern">
+              ${["alle", "entwurf", "versendet", "bezahlt"]
+                .map(
+                  (s) =>
+                    `<input type="radio" class="btn-check" name="status" id="s-${s}" value="${s}" ${statusFilter === s ? "checked" : ""}><label class="btn btn-outline-primary" for="s-${s}">${s === "alle" ? "Alle" : STATUS[s].label}</label>`,
+                )
+                .join("")}
+            </div>
+          </div>
+          ${rechnungenTabelle(rechnungen, true)}`;
+        app.querySelectorAll("[name=status]").forEach((el) =>
+          el.addEventListener("change", () => {
+            statusFilter = el.value;
+            renderAbrechnung();
+            document.getElementById("s-" + statusFilter).focus();
+          }),
+        );
+      }
+
+      // ----------------------------------------------------------------------
+      // Stammdaten: Praxen
+      // ----------------------------------------------------------------------
+
+      function renderPraxen() {
+        app.innerHTML = `
+          <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+            <h1 class="h3 mb-0">Praxen</h1>
+            <button class="btn btn-primary" data-action="praxis-anlegen"><i class="fa-solid fa-plus me-1" aria-hidden="true"></i>Praxis anlegen</button>
+          </div>
+          <div class="row g-3">${state.praxen
+            .map(
+              (p) => `<div class="col-md-6"><div class="card shadow-sm h-100">
+                <div class="card-body">
+                  <div class="d-flex justify-content-between align-items-start">
+                    <h2 class="h5">${esc(p.name)}</h2>${praxisBadge(p.praxiskuerzel)}
+                  </div>
+                  <p class="mb-2">${esc(p.anschrift.strasse)}<br>${esc(p.anschrift.postleitzahl)} ${esc(p.anschrift.ort)}</p>
+                  <p class="small text-body-secondary mb-2">${[p.kontakt.telefon, p.kontakt.email].filter(Boolean).map(esc).join(" · ")}</p>
+                  <p class="small fst-italic mb-0">„${esc(p.rechnungstext)}“</p>
+                </div>
+                <div class="card-footer bg-body text-end">
+                  <button class="btn btn-sm btn-outline-secondary" data-action="praxis-aendern" data-id="${p.praxiskuerzel}"><i class="fa-solid fa-pen me-1" aria-hidden="true"></i>Bearbeiten</button>
+                </div>
+              </div></div>`,
+            )
+            .join("")}</div>`;
+      }
+
+      function praxisDialog(p) {
+        openDialog({
+          title: p ? "Praxis bearbeiten" : "Praxis anlegen",
+          size: "modal-lg",
+          body: `${errorSummary}<div class="row g-3">
+            ${field({ name: "praxiskuerzel", label: "Praxiskürzel", value: p?.praxiskuerzel, required: true, col: "col-md-4", attrs: (p ? "readonly" : "autofocus") + ' maxlength="8"', help: p ? "Das Kürzel kann nicht geändert werden." : "Kurz und eindeutig, z. B. PARK.", feedback: "Bitte geben Sie ein eindeutiges Kürzel an, das noch keine andere Praxis verwendet." })}
+            ${field({ name: "name", label: "Name", value: p?.name, required: true, col: "col-md-8", attrs: p ? "autofocus" : "" })}
+            ${field({ name: "strasse", label: "Straße und Hausnummer", value: p?.anschrift.strasse, required: true, col: "col-md-6" })}
+            ${field({ name: "postleitzahl", label: "Postleitzahl", value: p?.anschrift.postleitzahl, required: true, col: "col-md-2", feedback: "Fünf Ziffern, z. B. 10115." })}
+            ${field({ name: "ort", label: "Ort", value: p?.anschrift.ort, required: true, col: "col-md-4" })}
+            ${field({ name: "telefon", label: "Telefon", value: p?.kontakt.telefon, type: "tel", col: "col-md-6" })}
+            ${field({ name: "email", label: "E-Mail", value: p?.kontakt.email, type: "email", col: "col-md-6" })}
+            <div class="col-12"><label for="f-rechnungstext" class="form-label">Rechnungstext</label>
+              <textarea id="f-rechnungstext" name="rechnungstext" class="form-control" rows="3" aria-describedby="rt-help">${esc(p?.rechnungstext)}</textarea>
+              <div id="rt-help" class="form-text">Wird in neue Rechnungen dieser Praxis übernommen.</div></div>
+          </div>`,
+          footer: `<span class="me-auto small text-body-secondary"><span class="text-danger">*</span> Pflichtfeld</span>
+            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Abbrechen</button>
+            <button type="submit" class="btn btn-primary">${p ? "Speichern" : "Praxis anlegen"}</button>`,
+          onSubmit: (form) => {
+            const f = form.elements;
+            const pruefungen = [["postleitzahl", (v) => /^\d{5}$/.test(v.trim())]];
+            if (!p) pruefungen.push(["praxiskuerzel", (v) => !findPraxis(v.trim().toUpperCase())]);
+            if (!validate(form, pruefungen)) return;
+            const werte = {
+              name: f.name.value.trim(),
+              anschrift: {
+                strasse: f.strasse.value.trim(),
+                zusatz: "",
+                postleitzahl: f.postleitzahl.value.trim(),
+                ort: f.ort.value.trim(),
+                staat: "",
+              },
+              kontakt: { telefon: f.telefon.value.trim(), mobiltelefon: "", email: f.email.value.trim(), website: "" },
+              rechnungstext: f.rechnungstext.value.trim(),
+            };
+            if (p) Object.assign(p, werte);
+            else state.praxen.push({ praxiskuerzel: f.praxiskuerzel.value.trim().toUpperCase(), ...werte });
+            dialog.hide();
+            renderPraxisAuswahl();
+            rerender();
+            toast(p ? "Die Praxisdaten wurden geändert." : "Die Praxis wurde angelegt.");
+          },
+        });
+      }
+
+      // ----------------------------------------------------------------------
+      // Stammdaten: Gebührenverzeichnis
+      // ----------------------------------------------------------------------
+
+      let gebuehrSuche = "";
+
+      function renderGebuehren() {
+        app.innerHTML = `
+          <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+            <h1 class="h3 mb-0">Gebührenverzeichnis</h1>
+            <button class="btn btn-primary" data-action="gebuehr-anlegen"><i class="fa-solid fa-plus me-1" aria-hidden="true"></i>Gebühr anlegen</button>
+          </div>
+          <div class="card shadow-sm">
+            <div class="card-body border-bottom">
+              <label for="gebuehr-suche" class="visually-hidden">Gebühren suchen</label>
+              <input id="gebuehr-suche" type="search" class="form-control" placeholder="Suchen nach Ziffer oder Bezeichnung …" value="${esc(gebuehrSuche)}">
+            </div>
+            <div class="table-responsive"><table class="table table-hover align-middle mb-0">
+              <thead><tr><th scope="col">Ziffer</th><th scope="col">Bezeichnung</th><th scope="col" class="text-end">Betrag</th><th scope="col" class="text-end"><span class="visually-hidden">Aktionen</span></th></tr></thead>
+              <tbody id="gebuehren-rows"></tbody>
+            </table></div>
+          </div>`;
+        const input = document.getElementById("gebuehr-suche");
+        input.addEventListener("input", () => ((gebuehrSuche = input.value), renderGebuehrenRows()));
+        renderGebuehrenRows();
+      }
+
+      function renderGebuehrenRows() {
+        const q = gebuehrSuche.trim().toLowerCase();
+        const liste = state.gebuehren
+          .filter((g) => !q || (g.ziffer + " " + g.bezeichnung).toLowerCase().includes(q))
+          .sort((a, b) => a.ziffer.localeCompare(b.ziffer, "de", { numeric: true }));
+        document.getElementById("gebuehren-rows").innerHTML = liste.length
+          ? liste
+              .map(
+                (
+                  g,
+                ) => `<tr><td class="fw-semibold">${esc(g.ziffer)}</td><td>${esc(g.bezeichnung)}</td><td class="text-end">${euro(g.betrag)}</td>
+                <td class="text-end text-nowrap"><div class="btn-group btn-group-sm">
+                  <button class="btn btn-outline-secondary" data-action="gebuehr-aendern" data-id="${esc(g.ziffer)}" aria-label="Gebühr ${esc(g.ziffer)} bearbeiten" title="Bearbeiten"><i class="fa-solid fa-pen" aria-hidden="true"></i></button>
+                  <button class="btn btn-outline-danger" data-action="gebuehr-entfernen" data-id="${esc(g.ziffer)}" aria-label="Gebühr ${esc(g.ziffer)} entfernen" title="Entfernen"><i class="fa-solid fa-trash" aria-hidden="true"></i></button>
+                </div></td></tr>`,
+              )
+              .join("")
+          : `<tr><td colspan="4" class="text-center text-body-secondary py-4">Keine Gebühr gefunden.</td></tr>`;
+      }
+
+      function gebuehrDialog(g) {
+        openDialog({
+          title: g ? `Gebühr ${esc(g.ziffer)} bearbeiten` : "Gebühr anlegen",
+          body: `${errorSummary}<div class="row g-3">
+            ${field({ name: "ziffer", label: "Ziffer", value: g?.ziffer, required: true, col: "col-md-4", attrs: g ? "readonly" : "autofocus", feedback: "Diese Ziffer gibt es bereits im Gebührenverzeichnis." })}
+            ${field({ name: "betrag", label: "Betrag (€)", value: euroInput(g?.betrag), required: true, col: "col-md-8", attrs: 'inputmode="decimal"', feedback: "Bitte geben Sie einen Betrag wie 12,50 an." })}
+            <div class="col-12"><label for="f-bezeichnung" class="form-label required">Bezeichnung</label>
+              <textarea id="f-bezeichnung" name="bezeichnung" class="form-control" rows="2" required ${g ? "autofocus" : ""}>${esc(g?.bezeichnung)}</textarea>
+              <div class="invalid-feedback">Bitte geben Sie eine Bezeichnung an.</div></div>
+            ${g ? `<div class="col-12 small text-body-secondary">Bereits erfasste Leistungen behalten ihre Bezeichnung und ihren Betrag.</div>` : ""}
+          </div>`,
+          footer: `<button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Abbrechen</button>
+                   <button type="submit" class="btn btn-primary">${g ? "Speichern" : "Gebühr anlegen"}</button>`,
+          onSubmit: (form) => {
+            const f = form.elements;
+            const pruefungen = [["betrag", (v) => parseEuro(v) != null]];
+            if (!g) pruefungen.push(["ziffer", (v) => !state.gebuehren.some((x) => x.ziffer === v.trim())]);
+            if (!validate(form, pruefungen)) return;
+            const werte = { bezeichnung: f.bezeichnung.value.trim(), betrag: parseEuro(f.betrag.value) };
+            if (g) Object.assign(g, werte);
+            else state.gebuehren.push({ ziffer: f.ziffer.value.trim(), ...werte });
+            dialog.hide();
+            rerender();
+            toast(g ? "Die Gebühr wurde geändert." : "Die Gebühr wurde angelegt.");
+          },
+        });
+      }
+
+      function gebuehrEntfernen(ziffer) {
+        const g = state.gebuehren.find((x) => x.ziffer === ziffer);
+        confirmDialog({
+          title: "Gebühr entfernen?",
+          message: `Die Gebühr ${esc(g.ziffer)} „${esc(g.bezeichnung)}“ wird aus dem Gebührenverzeichnis entfernt. Bereits erfasste Leistungen mit dieser Ziffer bleiben unverändert.`,
+          confirmLabel: "Entfernen",
+          onConfirm: () => {
+            const i = state.gebuehren.indexOf(g);
+            state.gebuehren.splice(i, 1);
+            rerender();
+            toast(`Die Gebühr ${esc(g.ziffer)} wurde entfernt.`, {
+              undo: () => (state.gebuehren.splice(i, 0, g), rerender()),
+            });
+          },
+        });
+      }
+
+      // ----------------------------------------------------------------------
+      // Ereignisse
+      // ----------------------------------------------------------------------
+
+      const actions = {
+        "patient-aufnehmen": () => patientAufnehmen(),
+        "diagnose-stellen": (el) => diagnoseDialog(el.dataset.nr),
+        "diagnose-aendern": (el) => {
+          const d = state.diagnosen.find((x) => x.diagnoseId === el.dataset.id);
+          diagnoseDialog(d.patientennummer, d);
+        },
+        "diagnose-loeschen": (el) => diagnoseLoeschen(el.dataset.id),
+        "leistung-erbringen": (el) => leistungDialog(el.dataset.nr),
+        "leistung-aendern": (el) => {
+          const l = state.leistungen.find((x) => x.leistungId === el.dataset.id);
+          leistungDialog(l.patientennummer, l);
+        },
+        "leistung-loeschen": (el) => leistungLoeschen(el.dataset.id),
+        "rechnung-erstellen": (el) => rechnungDialog(el.dataset.nr),
+        "rechnung-aendern": (el) => {
+          const r = findRechnung(el.dataset.id);
+          rechnungDialog(r.patientennummer, r);
+        },
+        "rechnung-versenden": (el) => rechnungVersenden(el.dataset.id),
+        "zahlung-erfassen": (el) => zahlungErfassen(el.dataset.id),
+        "rechnung-zurueckstufen": (el) => rechnungZurueckstufen(el.dataset.id),
+        "entwurf-loeschen": (el) => entwurfLoeschen(el.dataset.id),
+        "praxis-anlegen": () => praxisDialog(),
+        "praxis-aendern": (el) => praxisDialog(findPraxis(el.dataset.id)),
+        "gebuehr-anlegen": () => gebuehrDialog(),
+        "gebuehr-aendern": (el) => gebuehrDialog(state.gebuehren.find((g) => g.ziffer === el.dataset.id)),
+        "gebuehr-entfernen": (el) => gebuehrEntfernen(el.dataset.id),
+      };
+
+      document.addEventListener("click", (e) => {
+        const actionEl = e.target.closest("[data-action]");
+        if (actionEl) {
+          e.preventDefault();
+          actions[actionEl.dataset.action]?.(actionEl);
+          return;
+        }
+        const row = e.target.closest("tr[data-href]");
+        if (row && !e.target.closest("a, button, input")) location.hash = row.dataset.href;
+      });
+
+      // "/" focuses the search, like in many list views.
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "/" && !e.target.closest("input, textarea, select")) {
+          const suche = document.getElementById("suche") || document.getElementById("gebuehr-suche");
+          if (suche) {
+            e.preventDefault();
+            suche.focus();
+          }
+        }
+      });
+
+      renderPraxisAuswahl();
+      route();
+    </script>
+  </body>
+</html>
