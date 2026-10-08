@@ -35,13 +35,13 @@ Follow these conventions in addition to the schemas:
   with optional Fugenlaut.
 - **Queries** are named in the imperative form with the fix prefix "get-" in
   English and in the infinitive form with the fix suffix "-ermitteln" in German.
-- **Entities** and **Value objects** are referenced with `$ref` instead of
-  repeating their schema using the URI
-  `esdm:domain=<domain-name>/bounded-context=<bounded-context-name>/entity=<entity-name>`
-  for entities and
-  `esdm:domain=<domain-name>/bounded-context=<bounded-context-name>/value-object=<value-object-name>`
-  for value objects. When necessary, add identity property as property in the
-  schema.
+- Do not repeat the schema of an aggregate, entity, or value object, instead
+  reference it using the `$ref` with
+  [reference notation](https://www.esdm.io/reference/reference-notation/) for
+  example:
+  - `esdm:domain=<domain-name>/bounded-context=<bounded-context-name>/aggregate=<aggregate-name>`
+  - `esdm:domain=<domain-name>/bounded-context=<bounded-context-name>/entity=<entity-name>`
+  - `esdm:domain=<domain-name>/bounded-context=<bounded-context-name>/value-object=<value-object-name>`
 - Apply `additionalProperties: false` as default for JSON Schemas. Use
   `unevaluatedProperties: false` instead when the properties are declared in
   subschemas like `oneOf` or `allOf`, so they need not be repeated.
