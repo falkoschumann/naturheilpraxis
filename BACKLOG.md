@@ -16,7 +16,7 @@ Jeder Eintrag beginnt mit einer Kategorie:
 
 ## Aufgaben
 
-- [ ] **Praxis** Praxis anlegen und Praxisdaten ändern (`praxisverwaltung`)
+- [x] **Praxis** Praxis anlegen und Praxisdaten ändern (`praxisverwaltung`)
       sowie Praxen anzeigen (`praxenansicht`) als erster Durchstich durch alle
       Schichten: Domain, Event Store in SQLite, IPC, UI und E2E-Schritt
       „Heilpraktiker legt Praxis an“.

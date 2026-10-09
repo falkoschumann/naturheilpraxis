@@ -7,3 +7,55 @@
 @use "bootstrap/scss/bootstrap" with (
   $primary: #2e7d32
 );
+
+.required::after {
+  content: " *";
+  color: var(--bs-danger);
+}
+
+// The native dialog element is styled like a scrollable modal of Bootstrap.
+// Bootstrap defines the variables of a modal only inside its .modal element.
+.app-dialog {
+  --bs-modal-padding: 1rem;
+  --bs-modal-header-padding: 1rem;
+  --bs-modal-header-border-color: var(--bs-border-color);
+  --bs-modal-header-border-width: var(--bs-border-width);
+  --bs-modal-title-line-height: 1.5;
+  --bs-modal-footer-gap: 0.5rem;
+  --bs-modal-footer-border-color: var(--bs-border-color);
+  --bs-modal-footer-border-width: var(--bs-border-width);
+  --bs-modal-inner-border-radius: calc(
+    var(--bs-border-radius-lg) - var(--bs-border-width)
+  );
+
+  width: min(800px, calc(100% - 2rem));
+  max-height: calc(100% - 3.5rem);
+  padding: 0;
+  border: 0;
+  border-radius: var(--bs-border-radius-lg);
+  box-shadow: var(--bs-box-shadow-lg);
+
+  &[open] {
+    display: flex;
+  }
+
+  &::backdrop {
+    background-color: rgb(0 0 0 / 50%);
+  }
+
+  .modal-content {
+    min-height: 0;
+    border: 0;
+  }
+
+  // The form wraps body and footer, so it has to pass the flex layout on.
+  form {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+
+  .modal-body {
+    overflow-y: auto;
+  }
+}

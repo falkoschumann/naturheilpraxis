@@ -2,7 +2,10 @@
 
 import path from "node:path";
 
-import { app, BrowserWindow } from "electron";
+import { app, BrowserWindow, ipcMain } from "electron";
+
+import { NaturheilpraxisService } from "./application/naturheilpraxis-service.ts";
+import { SqliteEventStore } from "./infrastructure/event-store.ts";
 
 // The development runner serves the renderer with HMR and announces its URL.
 // Without it the window loads the files built next to this script.
@@ -32,6 +35,23 @@ function createMainWindow(): void {
   }
 }
 
+// The renderer sends each command and query on the channel named after its
+// type, see NaturheilpraxisApi.
+function handleMessages(service: NaturheilpraxisService): void {
+  ipcMain.handle("praxis-anlegen", (_event, command) =>
+    service.praxisAnlegen(command),
+  );
+  ipcMain.handle("praxisdaten-aendern", (_event, command) =>
+    service.praxisdatenAendern(command),
+  );
+  ipcMain.handle("praxen-ermitteln", (_event, query) =>
+    service.praxenErmitteln(query),
+  );
+  ipcMain.handle("praxis-ermitteln", (_event, query) =>
+    service.praxisErmitteln(query),
+  );
+}
+
 app.on("window-all-closed", () => {
   // On macOS an app keeps running without windows until the user quits it.
   if (process.platform !== "darwin") {
@@ -46,4 +66,11 @@ app.on("activate", () => {
   }
 });
 
-void app.whenReady().then(createMainWindow);
+void app.whenReady().then(() => {
+  const eventStore = SqliteEventStore.create(
+    path.join(app.getPath("userData"), "naturheilpraxis.db"),
+  );
+  app.on("will-quit", () => eventStore.close());
+  handleMessages(new NaturheilpraxisService(eventStore));
+  createMainWindow();
+});

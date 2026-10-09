@@ -62,6 +62,16 @@ export default defineConfig({
         emptyOutDir: true,
         target: "esnext",
         sourcemap: true,
+        rollupOptions: {
+          onwarn(warning, warn) {
+            // React Router marks its modules with "use client" for React
+            // Server Components, which the app does not use.
+            if (warning.code === "MODULE_LEVEL_DIRECTIVE") {
+              return;
+            }
+            warn(warning);
+          },
+        },
       },
     },
   },
