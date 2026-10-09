@@ -138,8 +138,21 @@ async function erstelleRechnung(window: Page) {
   await expect(rechnung.getByText("Chronische Rückenschmerzen")).toBeVisible();
 }
 
-async function versendeRechnung(_window: Page) {
-  // TODO Implement the test for sending an invoice to a patient.
+async function versendeRechnung(window: Page) {
+  await window.getByRole("button", { name: "Versenden" }).click();
+  await window
+    .getByRole("dialog", { name: "Rechnung versenden?" })
+    .getByRole("button", { name: "Versenden" })
+    .click();
+
+  // The Rechnungsnummer consists of Patientennummer and today's date.
+  await expect(
+    window.getByRole("heading", { level: 1, name: /^Rechnung 1\/\d{6}$/ }),
+  ).toBeVisible();
+  await expect(
+    window.getByText(/^Die Rechnung 1\/\d{6} wurde als versendet markiert\.$/),
+  ).toBeVisible();
+  await expect(window.getByRole("button", { name: "Drucken" })).toBeVisible();
 }
 
 async function erfasseZahlung(_window: Page) {

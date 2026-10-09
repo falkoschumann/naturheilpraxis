@@ -555,6 +555,79 @@ describe("Naturheilpraxis Service", () => {
       expect(entfernt).toEqual({ success: true });
     });
 
+    it("sollte eine Rechnung versenden und ihre Leistungen danach nicht mehr ändern lassen", async () => {
+      const service = createService();
+      await service.patientendatenAendern({
+        type: "patientendaten-aendern",
+        data: {
+          patientennummer: 1,
+          praxiskuerzel: "NHP",
+          aufnahmejahr: 2026,
+          geburtsdatum: "1980-09-20",
+          name: { vorname: "Max", nachname: "Mustermann" },
+          anschrift: {
+            strasse: "Lindenweg 5",
+            postleitzahl: "12345",
+            ort: "Musterstadt",
+          },
+        },
+      });
+      await service.rechnungErstellen({
+        type: "rechnung-erstellen",
+        data: {
+          rechnungId,
+          praxiskuerzel: "NHP",
+          patientennummer: 1,
+          diagnosetext: "Rückenschmerzen",
+          rechnungstext: "Zahlbar in 14 Tagen.",
+          leistungen: [ersteLeistung],
+        },
+      });
+
+      const versendet = await service.rechnungVersenden({
+        type: "rechnung-versenden",
+        data: { rechnungId, patientennummer: 1, datum: "2026-09-20" },
+      });
+      const geaendert = await service.leistungAendern({
+        type: "leistung-aendern",
+        data: {
+          leistungId: ersteLeistung,
+          praxiskuerzel: "NHP",
+          datum: "2026-09-14",
+          ziffer: "1",
+          bezeichnung: "Eingehende Untersuchung",
+          anzahl: 2,
+          einzelbetrag: { cents: 2050 },
+        },
+      });
+
+      expect(versendet).toEqual({ success: true });
+      expect(
+        await service.rechnungErmitteln({
+          type: "rechnung-ermitteln",
+          parameters: { rechnungId },
+        }),
+      ).toMatchObject({
+        status: "versendet",
+        rechnungsnummer: "1/260920",
+        datum: "2026-09-20",
+      });
+      expect(geaendert.success).toBe(false);
+
+      const zurueckgenommen = await service.rechnungZurueckstufen({
+        type: "rechnung-zurueckstufen",
+        data: { rechnungId },
+      });
+
+      expect(zurueckgenommen).toEqual({ success: true });
+      expect(
+        await service.rechnungErmitteln({
+          type: "rechnung-ermitteln",
+          parameters: { rechnungId },
+        }),
+      ).toMatchObject({ status: "entwurf" });
+    });
+
     it("sollte einen gelöschten Entwurf nicht mehr zeigen", async () => {
       const service = createService();
       await service.rechnungErstellen({

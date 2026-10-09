@@ -11,7 +11,8 @@ export type ToastAction = Readonly<{
   onAction: () => void;
 }>;
 
-export type Meldung = Readonly<{ message: string; action?: ToastAction }>;
+// A Meldung confirms a success, unless it reports an error.
+export type Meldung = Readonly<{ message: string; action?: ToastAction; fehler?: boolean }>;
 
 // Reads a message that a page passes with the navigation, like
 // navigate(path, { state: { meldung } }).
@@ -22,22 +23,35 @@ export function meldungAus(state: unknown): Meldung | undefined {
   return undefined;
 }
 
-// Confirms that an action succeeded. It appears at the bottom center, where it
+// Confirms that an action succeeded or reports that it failed. It appears at the bottom center, where it
 // does not cover the buttons at the end of a form. The message hides by itself
 // after a few seconds; screen readers announce it as a status. An optional
 // action like "Rückgängig" refers to what was just done.
-export function Toast({ message, action, onClose }: { message: string; action?: ToastAction; onClose: () => void }) {
+export function Toast({
+  message,
+  action,
+  fehler = false,
+  onClose,
+}: {
+  message: string;
+  action?: ToastAction;
+  fehler?: boolean;
+  onClose: () => void;
+}) {
   useEffect(() => {
     const timeout = setTimeout(onClose, action === undefined ? displayDuration : displayDurationWithAction);
     return () => clearTimeout(timeout);
   }, [message, action, onClose]);
 
   return (
-    <div className="toast-container position-fixed bottom-0 start-50 translate-middle-x p-3">
-      <div className="toast show align-items-center" role="status">
+    <div className="toast-container position-fixed bottom-0 start-50 translate-middle-x p-3 d-print-none">
+      <div className="toast show align-items-center" role={fehler ? "alert" : "status"}>
         <div className="d-flex">
           <div className="toast-body">
-            <i className="fa-solid fa-circle-check text-success me-2" aria-hidden="true"></i>
+            <i
+              className={`fa-solid ${fehler ? "fa-circle-exclamation text-danger" : "fa-circle-check text-success"} me-2`}
+              aria-hidden="true"
+            ></i>
             {message}
           </div>
           {action !== undefined && (

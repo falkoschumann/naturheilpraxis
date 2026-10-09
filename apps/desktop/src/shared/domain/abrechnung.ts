@@ -4,6 +4,7 @@ import {
   leistungTag,
   patientTag,
   praxisTag,
+  rechnungstagTag,
   rechnungTag,
   type EventQuery,
 } from "./events.ts";
@@ -13,6 +14,7 @@ import type {
   LeistungGeloeschtEvent,
 } from "./leistungserbringung.ts";
 import type { PatientAufgenommenEvent } from "./patientenaufnahme.ts";
+import type { PatientendatenGeaendertEvent } from "./patientenkartei.ts";
 import { patientExistiert, praxisExistiert } from "./patientenregeln.ts";
 import type { PraxisAngelegtEvent } from "./praxisverwaltung.ts";
 import { fail, ok, type Rejection, type Result } from "./result.ts";
@@ -47,8 +49,29 @@ export type EntwurfLoeschenCommand = Readonly<{
   data: Readonly<{ rechnungId: string }>;
 }>;
 
+export type RechnungVersendenCommand = Readonly<{
+  type: "rechnung-versenden";
+  data: Readonly<{
+    rechnungId: string;
+    // Needed to consult the Rechnungen of the Patient on the same day.
+    patientennummer: Patientennummer;
+    // An ISO date like 2026-09-20.
+    datum: string;
+  }>;
+}>;
+
+// Takes back the payment of a paid Rechnung or the dispatch of a sent one.
+export type RechnungZurueckstufenCommand = Readonly<{
+  type: "rechnung-zurueckstufen";
+  data: Readonly<{ rechnungId: string }>;
+}>;
+
 export type AbrechnungCommand =
-  RechnungErstellenCommand | RechnungAendernCommand | EntwurfLoeschenCommand;
+  | RechnungErstellenCommand
+  | RechnungAendernCommand
+  | EntwurfLoeschenCommand
+  | RechnungVersendenCommand
+  | RechnungZurueckstufenCommand;
 
 export type RechnungErstelltEvent = Readonly<{
   type: "rechnung-erstellt";
@@ -127,7 +150,8 @@ export type AbrechnungDcbEvent =
   | LeistungGeaendertEvent
   | LeistungGeloeschtEvent
   | PraxisAngelegtEvent
-  | PatientAufgenommenEvent;
+  | PatientAufgenommenEvent
+  | PatientendatenGeaendertEvent;
 
 type Rechnungsstatus = "entwurf" | "versendet" | "bezahlt";
 
@@ -135,6 +159,8 @@ type Rechnung = Readonly<{
   patientennummer: Patientennummer;
   leistungen: readonly string[];
   status: Rechnungsstatus;
+  rechnungsnummer?: Rechnungsnummer;
+  datum?: string;
 }>;
 
 // The consulted events are about the Rechnung of the command, the Leistungen
@@ -146,6 +172,10 @@ export type AbrechnungState = Readonly<{
   leistungen: Readonly<Record<string, Patientennummer>>;
   praxisAngelegt: boolean;
   patientAufgenommen: boolean;
+  anschriftVorhanden: boolean;
+  // The Rechnungsnummern of the sent and paid Rechnungen of the Patient on the
+  // day of the dispatch.
+  vergebeneRechnungsnummern: ReadonlySet<Rechnungsnummer>;
 }>;
 
 export const initialState: AbrechnungState = {
@@ -153,6 +183,8 @@ export const initialState: AbrechnungState = {
   leistungen: {},
   praxisAngelegt: false,
   patientAufgenommen: false,
+  anschriftVorhanden: false,
+  vergebeneRechnungsnummern: new Set(),
 };
 
 export function consults(command: AbrechnungCommand): EventQuery {
@@ -168,8 +200,24 @@ export function consults(command: AbrechnungCommand): EventQuery {
     ] as const,
     tags: [rechnungTag(command.data.rechnungId)],
   };
-  if (command.type === "entwurf-loeschen") {
-    return [rechnung];
+  switch (command.type) {
+    case "entwurf-loeschen":
+    case "rechnung-zurueckstufen":
+      return [rechnung];
+    case "rechnung-versenden": {
+      const { patientennummer, datum } = command.data;
+      return [
+        rechnung,
+        {
+          types: ["rechnung-versendet", "rechnungsversand-zurueckgenommen"],
+          tags: [rechnungstagTag(patientennummer, datum)],
+        },
+        {
+          types: ["patient-aufgenommen", "patientendaten-geaendert"],
+          tags: [patientTag(patientennummer)],
+        },
+      ];
+    }
   }
 
   const leistungen = command.data.leistungen.map((leistungId) => ({
@@ -273,6 +321,76 @@ export function decide(
         },
       ]);
     }
+    case "rechnung-versenden": {
+      if (rechnung === undefined) {
+        return fail({
+          message:
+            "Die Rechnung ist nicht vorhanden. Möglicherweise wurde sie inzwischen gelöscht.",
+        });
+      }
+      const rejection =
+        nurImEntwurf(rechnung, {
+          invariant: "nur-entwurf-versenden",
+          message:
+            "Die Rechnung ist bereits versendet. Um sie erneut zu versenden, nehmen Sie zuerst den Versand zurück.",
+        }) ??
+        patientDerRechnung(rechnung, command.data.patientennummer) ??
+        rechnungsanschriftVorhanden(state);
+      if (rejection !== undefined) {
+        return fail(rejection);
+      }
+      const { rechnungId, patientennummer, datum } = command.data;
+      return ok([
+        {
+          type: "rechnung-versendet",
+          data: {
+            rechnungId,
+            patientennummer,
+            rechnungsnummer: freieRechnungsnummer(
+              patientennummer,
+              datum,
+              state.vergebeneRechnungsnummern,
+            ),
+            datum,
+          },
+        },
+      ]);
+    }
+    case "rechnung-zurueckstufen": {
+      if (rechnung === undefined) {
+        return fail({
+          message:
+            "Die Rechnung ist nicht vorhanden. Möglicherweise wurde sie inzwischen gelöscht.",
+        });
+      }
+      const { rechnungId } = command.data;
+      if (rechnung.status === "bezahlt") {
+        return ok([
+          { type: "rechnungszahlung-zurueckgenommen", data: { rechnungId } },
+        ]);
+      }
+      if (
+        rechnung.status === "versendet" &&
+        rechnung.rechnungsnummer !== undefined &&
+        rechnung.datum !== undefined
+      ) {
+        return ok([
+          {
+            type: "rechnungsversand-zurueckgenommen",
+            data: {
+              rechnungId,
+              patientennummer: rechnung.patientennummer,
+              rechnungsnummer: rechnung.rechnungsnummer,
+              datum: rechnung.datum,
+            },
+          },
+        ]);
+      }
+      return fail({
+        invariant: "entwurf-nicht-zurueckstufen",
+        message: "Die Rechnung ist ein Entwurf und wurde noch nicht versendet.",
+      });
+    }
   }
 }
 
@@ -325,6 +443,17 @@ export function evolve(
         ),
       };
     case "rechnung-versendet":
+      return {
+        ...aendereRechnung(state, event.data.rechnungId, {
+          status: "versendet",
+          rechnungsnummer: event.data.rechnungsnummer,
+          datum: event.data.datum,
+        }),
+        vergebeneRechnungsnummern: new Set([
+          ...state.vergebeneRechnungsnummern,
+          event.data.rechnungsnummer,
+        ]),
+      };
     case "rechnungszahlung-zurueckgenommen":
       return aendereRechnung(state, event.data.rechnungId, {
         status: "versendet",
@@ -334,9 +463,18 @@ export function evolve(
         status: "bezahlt",
       });
     case "rechnungsversand-zurueckgenommen":
-      return aendereRechnung(state, event.data.rechnungId, {
-        status: "entwurf",
-      });
+      return {
+        ...aendereRechnung(state, event.data.rechnungId, {
+          status: "entwurf",
+          rechnungsnummer: undefined,
+          datum: undefined,
+        }),
+        vergebeneRechnungsnummern: new Set(
+          [...state.vergebeneRechnungsnummern].filter(
+            (nummer) => nummer !== event.data.rechnungsnummer,
+          ),
+        ),
+      };
     case "leistung-erbracht":
     case "leistung-geaendert":
       return {
@@ -358,7 +496,16 @@ export function evolve(
     case "praxis-angelegt":
       return { ...state, praxisAngelegt: true };
     case "patient-aufgenommen":
-      return { ...state, patientAufgenommen: true };
+      return {
+        ...state,
+        patientAufgenommen: true,
+        anschriftVorhanden: event.data.anschrift !== undefined,
+      };
+    case "patientendaten-geaendert":
+      return {
+        ...state,
+        anschriftVorhanden: event.data.anschrift !== undefined,
+      };
   }
 }
 
@@ -441,4 +588,51 @@ function pruefeLeistungen(
     };
   }
   return undefined;
+}
+
+function patientDerRechnung(
+  rechnung: Rechnung,
+  patientennummer: Patientennummer,
+): Rejection | undefined {
+  if (rechnung.patientennummer === patientennummer) {
+    return undefined;
+  }
+  return {
+    invariant: "patient-der-rechnung",
+    message:
+      "Die Rechnung gehört zu einem anderen Patienten. Bitte versenden Sie sie von dessen Karteikarte aus.",
+  };
+}
+
+// An Anschrift always has Straße, Postleitzahl and Ort.
+function rechnungsanschriftVorhanden(
+  state: AbrechnungState,
+): Rejection | undefined {
+  if (state.anschriftVorhanden) {
+    return undefined;
+  }
+  return {
+    invariant: "rechnungsanschrift-vorhanden",
+    message:
+      "Die Rechnung kann nicht versendet werden, weil die Anschrift des Patienten fehlt. Bitte ergänzen Sie Straße, Postleitzahl und Ort in den Stammdaten.",
+  };
+}
+
+// Like "1234/260920" for the first Rechnung of the day and "1234/260920-2" for
+// the second; the lowest free number is taken.
+function freieRechnungsnummer(
+  patientennummer: Patientennummer,
+  datum: string,
+  vergeben: ReadonlySet<Rechnungsnummer>,
+): Rechnungsnummer {
+  const [jahr = "", monat = "", tag = ""] = datum.split("-");
+  const basis = `${patientennummer}/${jahr.slice(2)}${monat}${tag}`;
+  if (!vergeben.has(basis)) {
+    return basis;
+  }
+  let zahl = 2;
+  while (vergeben.has(`${basis}-${zahl}`)) {
+    zahl += 1;
+  }
+  return `${basis}-${zahl}`;
 }

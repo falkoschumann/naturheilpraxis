@@ -52,7 +52,7 @@ export function MainLayout({ api }: { api: NaturheilpraxisApi }) {
 
   return (
     <AktuellePraxisContext value={aktuellePraxis}>
-      <nav className="navbar navbar-expand bg-primary" data-bs-theme="dark" aria-label="Hauptnavigation">
+      <nav className="navbar navbar-expand bg-primary d-print-none" data-bs-theme="dark" aria-label="Hauptnavigation">
         <div className="container-fluid">
           <Link className="navbar-brand" to="/patienten">
             <i className="fa-solid fa-leaf me-2" aria-hidden="true"></i>

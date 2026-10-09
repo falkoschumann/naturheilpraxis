@@ -100,7 +100,7 @@ export function PatientPage({
       "Die Diagnose konnte nicht gelöscht werden. Bitte versuchen Sie es erneut.",
     );
     if (!status.success) {
-      setMeldung({ message: status.errorMessage });
+      setMeldung({ message: status.errorMessage, fehler: true });
       return;
     }
     setMeldung({
@@ -115,7 +115,11 @@ export function PatientPage({
       () => api.diagnoseStellen({ type: "diagnose-stellen", data: diagnose }),
       "Die Diagnose konnte nicht wiederhergestellt werden. Bitte stellen Sie sie erneut.",
     );
-    setMeldung({ message: status.success ? "Die Diagnose ist wiederhergestellt." : status.errorMessage });
+    setMeldung(
+      status.success
+        ? { message: "Die Diagnose ist wiederhergestellt." }
+        : { message: status.errorMessage, fehler: true },
+    );
     setBehandlungStand((stand) => stand + 1);
   }
 
@@ -126,7 +130,7 @@ export function PatientPage({
       "Die Leistung konnte nicht gelöscht werden. Bitte versuchen Sie es erneut.",
     );
     if (!status.success) {
-      setMeldung({ message: status.errorMessage });
+      setMeldung({ message: status.errorMessage, fehler: true });
       return;
     }
     setMeldung({
@@ -141,7 +145,11 @@ export function PatientPage({
       () => api.leistungErbringen({ type: "leistung-erbringen", data: leistung }),
       "Die Leistung konnte nicht wiederhergestellt werden. Bitte erfassen Sie sie erneut.",
     );
-    setMeldung({ message: status.success ? "Die Leistung ist wiederhergestellt." : status.errorMessage });
+    setMeldung(
+      status.success
+        ? { message: "Die Leistung ist wiederhergestellt." }
+        : { message: status.errorMessage, fehler: true },
+    );
     setBehandlungStand((stand) => stand + 1);
   }
 
@@ -353,7 +361,7 @@ export function PatientPage({
           }}
         />
       )}
-      {meldung !== undefined && <Toast message={meldung.message} action={meldung.action} onClose={schliesseMeldung} />}
+      {meldung !== undefined && <Toast {...meldung} onClose={schliesseMeldung} />}
     </>
   );
 }

@@ -279,6 +279,18 @@ export class FakeNaturheilpraxisApi implements NaturheilpraxisApi {
     );
   }
 
+  async rechnungVersenden(
+    command: abrechnung.RechnungVersendenCommand,
+  ): Promise<CommandStatus> {
+    return statusOf(this.#execute(abrechnung, command));
+  }
+
+  async rechnungZurueckstufen(
+    command: abrechnung.RechnungZurueckstufenCommand,
+  ): Promise<CommandStatus> {
+    return statusOf(this.#execute(abrechnung, command));
+  }
+
   #execute<State, C extends Command, Event extends DomainEvent>(
     boundary: ConsistencyBoundary<State, C, Event>,
     command: C,

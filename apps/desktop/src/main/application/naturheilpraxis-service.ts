@@ -220,6 +220,18 @@ export class NaturheilpraxisService implements NaturheilpraxisApi {
     return rechnungsansicht.rechnungErmitteln(this.#rechnungsansicht, query);
   }
 
+  async rechnungVersenden(
+    command: abrechnung.RechnungVersendenCommand,
+  ): Promise<CommandStatus> {
+    return statusOf(this.#execute(abrechnung, command));
+  }
+
+  async rechnungZurueckstufen(
+    command: abrechnung.RechnungZurueckstufenCommand,
+  ): Promise<CommandStatus> {
+    return statusOf(this.#execute(abrechnung, command));
+  }
+
   #execute<State, Command, Event extends DomainEvent>(
     boundary: ConsistencyBoundary<State, Command, Event>,
     command: Command,

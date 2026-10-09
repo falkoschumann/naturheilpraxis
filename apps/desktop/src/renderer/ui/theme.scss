@@ -73,3 +73,16 @@
 .rechnung {
   max-width: 60rem;
 }
+
+// Only the Rechnung itself is printed, without the frame of the card.
+@media print {
+  .rechnung {
+    max-width: none;
+    border: 0;
+    box-shadow: none !important;
+  }
+
+  .rechnung .card-body {
+    padding: 0 !important;
+  }
+}

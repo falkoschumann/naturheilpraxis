@@ -83,11 +83,17 @@ export function tagsOf(event: DomainEvent): string[] {
         rechnungTag(event.data.rechnungId),
         ...event.data.leistungen.map(leistungTag),
       ];
-    case "entwurf-geloescht":
+    // The dispatch is also tagged with the Patient and day, which determine the
+    // Rechnungsnummer.
     case "rechnung-versendet":
+    case "rechnungsversand-zurueckgenommen":
+      return [
+        rechnungTag(event.data.rechnungId),
+        rechnungstagTag(event.data.patientennummer, event.data.datum),
+      ];
+    case "entwurf-geloescht":
     case "rechnung-bezahlt":
     case "rechnungszahlung-zurueckgenommen":
-    case "rechnungsversand-zurueckgenommen":
       return [rechnungTag(event.data.rechnungId)];
   }
 }
@@ -114,4 +120,11 @@ export function leistungTag(leistungId: string): string {
 
 export function rechnungTag(rechnungId: string): string {
   return `rechnung:${rechnungId}`;
+}
+
+export function rechnungstagTag(
+  patientennummer: number,
+  datum: string,
+): string {
+  return `rechnungstag:${patientennummer}/${datum}`;
 }

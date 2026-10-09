@@ -35,7 +35,7 @@ Jeder Eintrag beginnt mit einer Kategorie:
       und Entwurf löschen (`abrechnung`) sowie Abrechnungen und Rechnung
       anzeigen (`abrechnungsansicht`, `rechnungsansicht`) mit E2E-Schritt
       „Heilpraktiker erstellt Rechnung aus Leistung wegen Diagnose“.
-- [ ] **Rechnung** Rechnung versenden und Versand zurücknehmen (`abrechnung`)
+- [x] **Rechnung** Rechnung versenden und Versand zurücknehmen (`abrechnung`)
       mit E2E-Schritt „Heilpraktiker versendet Rechnung an Patient“.
 - [ ] **Rechnung** Zahlung erfassen (`abrechnung`) mit E2E-Schritt „Patient
       bezahlt Rechnung“.

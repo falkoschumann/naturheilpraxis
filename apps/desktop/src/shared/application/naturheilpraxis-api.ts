@@ -52,6 +52,8 @@ import type {
   EntwurfLoeschenCommand,
   RechnungAendernCommand,
   RechnungErstellenCommand,
+  RechnungVersendenCommand,
+  RechnungZurueckstufenCommand,
 } from "../domain/abrechnung.ts";
 import type {
   NichtAbgerechneteLeistungenErmittelnQuery,
@@ -157,4 +159,10 @@ export interface NaturheilpraxisApi {
   rechnungErmitteln(
     query: RechnungErmittelnQuery,
   ): Promise<RechnungErmittelnQueryResult>;
+
+  rechnungVersenden(command: RechnungVersendenCommand): Promise<CommandStatus>;
+
+  rechnungZurueckstufen(
+    command: RechnungZurueckstufenCommand,
+  ): Promise<CommandStatus>;
 }

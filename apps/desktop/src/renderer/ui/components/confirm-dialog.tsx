@@ -4,16 +4,19 @@ import type { ReactNode } from "react";
 
 import { Dialog } from "./dialog.tsx";
 
-// Asks before a destructive action. The confirming button names the action.
+// Asks before an action that is destructive or has consequences. The confirming button names the action.
 export function ConfirmDialog({
   title,
   confirmLabel,
+  variant = "danger",
   onConfirm,
   onCancel,
   children,
 }: {
   title: string;
   confirmLabel: string;
+  // Only destructive actions are confirmed with a red button.
+  variant?: "danger" | "primary";
   onConfirm: () => void;
   onCancel: () => void;
   children: ReactNode;
@@ -25,7 +28,7 @@ export function ConfirmDialog({
         <button type="button" className="btn btn-outline-secondary" onClick={onCancel}>
           Abbrechen
         </button>
-        <button type="button" className="btn btn-danger" data-autofocus onClick={onConfirm}>
+        <button type="button" className={`btn btn-${variant}`} data-autofocus onClick={onConfirm}>
           {confirmLabel}
         </button>
       </div>

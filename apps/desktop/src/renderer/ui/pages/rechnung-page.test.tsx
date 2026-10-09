@@ -2,12 +2,13 @@
 
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import { MemoryRouter, Route, Routes, useLocation } from "react-router";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import type { NaturheilpraxisApi } from "../../../shared/application/naturheilpraxis-api.ts";
 import type { DomainEvent } from "../../../shared/domain/events.ts";
 import { AbrechnungPage } from "./abrechnung-page.tsx";
 import { FakeNaturheilpraxisApi } from "./fake-naturheilpraxis-api.ts";
+import { heute } from "./heute.ts";
 import { PatientPage } from "./patient-page.tsx";
 import { RechnungPage } from "./rechnung-page.tsx";
 
@@ -156,6 +157,83 @@ describe("Rechnungen", () => {
     });
   });
 
+  describe("Rechnung versenden", () => {
+    it("sollte die Rechnung nach Rückfrage versenden", async () => {
+      const api = new FakeNaturheilpraxisApi({
+        events: [...grunddaten(), anschriftErgaenzt(), rechnungErstellt([ersteLeistung])],
+      });
+      zeige(api, `/rechnungen/${rechnungId}`);
+      fireEvent.click(await screen.findByRole("button", { name: "Versenden" }));
+      const dialog = screen.getByRole("dialog", { name: "Rechnung versenden?" });
+
+      fireEvent.click(within(dialog).getByRole("button", { name: "Versenden" }));
+
+      const rechnungsnummer = `1/${heute().slice(2).replaceAll("-", "")}`;
+      expect(await screen.findByRole("heading", { level: 1, name: `Rechnung ${rechnungsnummer}` })).toBeDefined();
+      expect(screen.getByText(`Die Rechnung ${rechnungsnummer} wurde als versendet markiert.`)).toBeDefined();
+      expect(api.commands).toEqual([
+        { type: "rechnung-versenden", data: { rechnungId, patientennummer: 1, datum: heute() } },
+      ]);
+    });
+
+    it("sollte erklären, warum die Rechnung ohne Anschrift nicht versendet wird", async () => {
+      const api = new FakeNaturheilpraxisApi({ events: [...grunddaten(), rechnungErstellt([ersteLeistung])] });
+      zeige(api, `/rechnungen/${rechnungId}`);
+      fireEvent.click(await screen.findByRole("button", { name: "Versenden" }));
+
+      fireEvent.click(
+        within(screen.getByRole("dialog", { name: "Rechnung versenden?" })).getByRole("button", { name: "Versenden" }),
+      );
+
+      expect(
+        await screen.findByText(/Die Rechnung kann nicht versendet werden, weil die Anschrift des Patienten fehlt/),
+      ).toBeDefined();
+      expect(screen.getByRole("heading", { level: 1, name: "Rechnungsentwurf" })).toBeDefined();
+    });
+
+    it("sollte den Versand nach Rückfrage zurücknehmen", async () => {
+      const api = new FakeNaturheilpraxisApi({
+        events: [...grunddaten(), anschriftErgaenzt(), rechnungErstellt([ersteLeistung]), rechnungVersendet()],
+      });
+      zeige(api, `/rechnungen/${rechnungId}`);
+      fireEvent.click(await screen.findByRole("button", { name: "Versand zurücknehmen" }));
+
+      fireEvent.click(
+        within(screen.getByRole("dialog", { name: "Versand zurücknehmen?" })).getByRole("button", {
+          name: "Versand zurücknehmen",
+        }),
+      );
+
+      expect(await screen.findByRole("heading", { level: 1, name: "Rechnungsentwurf" })).toBeDefined();
+      expect(screen.getByText("Der Versand wurde zurückgenommen. Die Rechnung ist wieder ein Entwurf.")).toBeDefined();
+      expect(api.commands).toEqual([{ type: "rechnung-zurueckstufen", data: { rechnungId } }]);
+    });
+
+    it("sollte eine versendete Rechnung drucken", async () => {
+      const api = new FakeNaturheilpraxisApi({
+        events: [...grunddaten(), anschriftErgaenzt(), rechnungErstellt([ersteLeistung]), rechnungVersendet()],
+      });
+      const print = vi.spyOn(window, "print").mockImplementation(() => undefined);
+      zeige(api, `/rechnungen/${rechnungId}`);
+
+      fireEvent.click(await screen.findByRole("button", { name: "Drucken" }));
+
+      expect(print).toHaveBeenCalledOnce();
+      print.mockRestore();
+    });
+
+    it("sollte den Fortschritt der Rechnung zeigen", async () => {
+      const api = new FakeNaturheilpraxisApi({
+        events: [...grunddaten(), anschriftErgaenzt(), rechnungErstellt([ersteLeistung]), rechnungVersendet()],
+      });
+
+      zeige(api, `/rechnungen/${rechnungId}`);
+
+      const fortschritt = await screen.findByRole("list", { name: "Fortschritt der Rechnung" });
+      expect(within(fortschritt).getByText("Versendet").closest("li")?.getAttribute("aria-current")).toBe("step");
+    });
+  });
+
   describe("Abrechnung", () => {
     it("sollte die Rechnungen nach Status filtern", async () => {
       const api = new FakeNaturheilpraxisApi({ events: [...grunddaten(), rechnungErstellt([ersteLeistung])] });
@@ -269,6 +347,27 @@ function grunddaten(): DomainEvent[] {
       },
     },
   ];
+}
+
+function anschriftErgaenzt(): DomainEvent {
+  return {
+    type: "patientendaten-geaendert",
+    data: {
+      patientennummer: 1,
+      praxiskuerzel: "NHP",
+      aufnahmejahr: 2026,
+      geburtsdatum: "1980-09-20",
+      name: { vorname: "Max", nachname: "Mustermann" },
+      anschrift: { strasse: "Lindenweg 5", postleitzahl: "12345", ort: "Musterstadt" },
+    },
+  };
+}
+
+function rechnungVersendet(): DomainEvent {
+  return {
+    type: "rechnung-versendet",
+    data: { rechnungId, patientennummer: 1, rechnungsnummer: "1/260920", datum: "2026-09-20" },
+  };
 }
 
 function rechnungErstellt(leistungen: string[]): DomainEvent {
