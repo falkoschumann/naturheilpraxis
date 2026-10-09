@@ -11,9 +11,10 @@ export type ToastAction = Readonly<{
   onAction: () => void;
 }>;
 
-// Confirms that an action succeeded. The message hides by itself after a few
-// seconds; screen readers announce it as a status. An optional action like
-// "Rückgängig" refers to what was just done.
+// Confirms that an action succeeded. It appears at the bottom center, where it
+// does not cover the buttons at the end of a form. The message hides by itself
+// after a few seconds; screen readers announce it as a status. An optional
+// action like "Rückgängig" refers to what was just done.
 export function Toast({ message, action, onClose }: { message: string; action?: ToastAction; onClose: () => void }) {
   useEffect(() => {
     const timeout = setTimeout(onClose, action === undefined ? displayDuration : displayDurationWithAction);
@@ -21,7 +22,7 @@ export function Toast({ message, action, onClose }: { message: string; action?: 
   }, [message, action, onClose]);
 
   return (
-    <div className="toast-container position-fixed bottom-0 end-0 p-3">
+    <div className="toast-container position-fixed bottom-0 start-50 translate-middle-x p-3">
       <div className="toast show align-items-center" role="status">
         <div className="d-flex">
           <div className="toast-body">

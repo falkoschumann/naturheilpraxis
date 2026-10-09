@@ -209,6 +209,92 @@ describe("Naturheilpraxis Service", () => {
       });
     });
   });
+
+  describe("Patienten", () => {
+    it("sollte einen Patienten mit der nächsten Nummer aufnehmen", async () => {
+      const eventStore = SqliteEventStore.createInMemory();
+      eventStore.append([{ type: "praxis-angelegt", data: createPraxis() }]);
+      const service = new NaturheilpraxisService(eventStore);
+
+      const status = await service.patientAufnehmen({
+        type: "patient-aufnehmen",
+        data: {
+          praxiskuerzel: "NHP",
+          aufnahmejahr: 2026,
+          geburtsdatum: "1980-09-20",
+          name: { vorname: "Max", nachname: "Mustermann" },
+        },
+      });
+
+      expect(status).toEqual({ success: true, patientennummer: 1 });
+      expect(
+        await service.patientenErmitteln({
+          type: "patienten-ermitteln",
+          parameters: {},
+        }),
+      ).toEqual([
+        {
+          patientennummer: 1,
+          praxiskuerzel: "NHP",
+          aufnahmejahr: 2026,
+          geburtsdatum: "1980-09-20",
+          vorname: "Max",
+          nachname: "Mustermann",
+        },
+      ]);
+    });
+
+    it("sollte eine Fehlermeldung liefern, wenn die Praxis nicht angelegt ist", async () => {
+      const service = new NaturheilpraxisService(
+        SqliteEventStore.createInMemory(),
+      );
+
+      const status = await service.patientAufnehmen({
+        type: "patient-aufnehmen",
+        data: {
+          praxiskuerzel: "NHP",
+          aufnahmejahr: 2026,
+          geburtsdatum: "1980-09-20",
+          name: { vorname: "Max", nachname: "Mustermann" },
+        },
+      });
+
+      expect(status).toEqual({
+        success: false,
+        errorMessage:
+          "Die Praxis „NHP“ ist nicht angelegt. Bitte wählen Sie eine angelegte Praxis.",
+      });
+    });
+
+    it("sollte die geänderten Patientendaten zeigen", async () => {
+      const eventStore = SqliteEventStore.createInMemory();
+      const max = {
+        patientennummer: 1,
+        praxiskuerzel: "NHP",
+        aufnahmejahr: 2026,
+        geburtsdatum: "1980-09-20",
+        name: { vorname: "Max", nachname: "Mustermann" },
+      };
+      eventStore.append([
+        { type: "praxis-angelegt", data: createPraxis() },
+        { type: "patient-aufgenommen", data: max },
+      ]);
+      const service = new NaturheilpraxisService(eventStore);
+
+      const status = await service.patientendatenAendern({
+        type: "patientendaten-aendern",
+        data: { ...max, beruf: "Tischler" },
+      });
+
+      expect(status).toEqual({ success: true });
+      expect(
+        await service.patientErmitteln({
+          type: "patient-ermitteln",
+          parameters: { patientennummer: 1 },
+        }),
+      ).toEqual({ ...max, beruf: "Tischler" });
+    });
+  });
 });
 
 function createPraxis(praxis: Partial<Praxis> = {}): Praxis {

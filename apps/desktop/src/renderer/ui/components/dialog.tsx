@@ -8,7 +8,17 @@ import { useEffect, useId, useRef, type ReactNode } from "react";
 //
 // Opening the dialog focuses its first focusable element, so React's autoFocus
 // has no effect inside. Mark the element to focus with data-autofocus instead.
-export function Dialog({ title, onClose, children }: { title: string; onClose: () => void; children: ReactNode }) {
+export function Dialog({
+  title,
+  size = "lg",
+  onClose,
+  children,
+}: {
+  title: string;
+  size?: "lg" | "xl";
+  onClose: () => void;
+  children: ReactNode;
+}) {
   const ref = useRef<HTMLDialogElement>(null);
   const titleId = useId();
 
@@ -22,7 +32,7 @@ export function Dialog({ title, onClose, children }: { title: string; onClose: (
   return (
     <dialog
       ref={ref}
-      className="app-dialog"
+      className={`app-dialog app-dialog-${size}`}
       aria-labelledby={titleId}
       onCancel={(event) => {
         // The parent decides when the dialog closes by not rendering it.

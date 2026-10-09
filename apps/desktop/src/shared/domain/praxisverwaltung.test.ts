@@ -139,10 +139,12 @@ describe("Praxisverwaltung", () => {
 
     const query = consults(command);
 
-    expect(query).toEqual({
-      types: ["praxis-angelegt", "praxisdaten-geaendert"],
-      tags: ["praxis:NHP"],
-    });
+    expect(query).toEqual([
+      {
+        types: ["praxis-angelegt", "praxisdaten-geaendert"],
+        tags: ["praxis:NHP"],
+      },
+    ]);
   });
 });
 

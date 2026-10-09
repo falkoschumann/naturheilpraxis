@@ -20,9 +20,28 @@ import type {
   PraxisdatenAendernCommand,
 } from "../domain/praxisverwaltung.ts";
 
+import type {
+  PatientenErmittelnQuery,
+  PatientenErmittelnQueryResult,
+  PatientErmittelnQuery,
+  PatientErmittelnQueryResult,
+} from "../domain/patientenansicht.ts";
+import type { PatientAufnehmenCommand } from "../domain/patientenaufnahme.ts";
+import type { PatientendatenAendernCommand } from "../domain/patientenkartei.ts";
+import type { Patientennummer } from "../domain/value-objects.ts";
+
 export type CommandStatus =
   | Readonly<{ success: true; errorMessage?: never }>
   | Readonly<{ success: false; errorMessage: string }>;
+
+// The admission tells the assigned Patientennummer.
+export type PatientAufnehmenStatus =
+  | Readonly<{
+      success: true;
+      patientennummer: Patientennummer;
+      errorMessage?: never;
+    }>
+  | Readonly<{ success: false; errorMessage: string; patientennummer?: never }>;
 
 // The commands and queries the main process offers the renderer. Each message
 // is sent on the channel named after its type.
@@ -50,4 +69,20 @@ export interface NaturheilpraxisApi {
   gebuehrenErmitteln(
     query: GebuehrenErmittelnQuery,
   ): Promise<GebuehrenErmittelnQueryResult>;
+
+  patientAufnehmen(
+    command: PatientAufnehmenCommand,
+  ): Promise<PatientAufnehmenStatus>;
+
+  patientendatenAendern(
+    command: PatientendatenAendernCommand,
+  ): Promise<CommandStatus>;
+
+  patientenErmitteln(
+    query: PatientenErmittelnQuery,
+  ): Promise<PatientenErmittelnQueryResult>;
+
+  patientErmitteln(
+    query: PatientErmittelnQuery,
+  ): Promise<PatientErmittelnQueryResult>;
 }

@@ -3,45 +3,56 @@
 import type {
   CommandStatus,
   NaturheilpraxisApi,
+  PatientAufnehmenStatus,
 } from "../../../shared/application/naturheilpraxis-api.ts";
 import type { ConsistencyBoundary } from "../../../shared/domain/consistency-boundary.ts";
 import { matches, type DomainEvent } from "../../../shared/domain/events.ts";
 import * as gebuehrenansicht from "../../../shared/domain/gebuehrenansicht.ts";
 import * as gebuehrenverzeichnis from "../../../shared/domain/gebuehrenverzeichnis.ts";
+import * as patientenansicht from "../../../shared/domain/patientenansicht.ts";
+import * as patientenaufnahme from "../../../shared/domain/patientenaufnahme.ts";
+import * as patientenkartei from "../../../shared/domain/patientenkartei.ts";
 import * as praxenansicht from "../../../shared/domain/praxenansicht.ts";
 import * as praxisverwaltung from "../../../shared/domain/praxisverwaltung.ts";
+import {
+  fail,
+  type Rejection,
+  type Result,
+} from "../../../shared/domain/result.ts";
 
 type Command =
   | praxisverwaltung.PraxisverwaltungCommand
-  | gebuehrenverzeichnis.GebuehrenverzeichnisCommand;
+  | gebuehrenverzeichnis.GebuehrenverzeichnisCommand
+  | patientenaufnahme.PatientAufnehmenCommand
+  | patientenkartei.PatientendatenAendernCommand;
 
 // Executes the commands with the domain in memory and records them, so the
-// tests of the user interface need no main process. A given status replaces
-// the result of every command, e.g. to simulate a rejection.
+// tests of the user interface need no main process. A given rejection replaces
+// the result of every command.
 export class FakeNaturheilpraxisApi implements NaturheilpraxisApi {
   readonly commands: Command[] = [];
 
   readonly #events: DomainEvent[];
-  readonly #status?: CommandStatus;
+  readonly #rejection?: Rejection;
 
   constructor({
     events = [],
-    status,
-  }: { events?: DomainEvent[]; status?: CommandStatus } = {}) {
+    rejection,
+  }: { events?: DomainEvent[]; rejection?: Rejection } = {}) {
     this.#events = [...events];
-    this.#status = status;
+    this.#rejection = rejection;
   }
 
   async praxisAnlegen(
     command: praxisverwaltung.PraxisAnlegenCommand,
   ): Promise<CommandStatus> {
-    return this.#execute(praxisverwaltung, command);
+    return statusOf(this.#execute(praxisverwaltung, command));
   }
 
   async praxisdatenAendern(
     command: praxisverwaltung.PraxisdatenAendernCommand,
   ): Promise<CommandStatus> {
-    return this.#execute(praxisverwaltung, command);
+    return statusOf(this.#execute(praxisverwaltung, command));
   }
 
   async praxenErmitteln(
@@ -65,19 +76,19 @@ export class FakeNaturheilpraxisApi implements NaturheilpraxisApi {
   async gebuehrAnlegen(
     command: gebuehrenverzeichnis.GebuehrAnlegenCommand,
   ): Promise<CommandStatus> {
-    return this.#execute(gebuehrenverzeichnis, command);
+    return statusOf(this.#execute(gebuehrenverzeichnis, command));
   }
 
   async gebuehrAendern(
     command: gebuehrenverzeichnis.GebuehrAendernCommand,
   ): Promise<CommandStatus> {
-    return this.#execute(gebuehrenverzeichnis, command);
+    return statusOf(this.#execute(gebuehrenverzeichnis, command));
   }
 
   async gebuehrEntfernen(
     command: gebuehrenverzeichnis.GebuehrEntfernenCommand,
   ): Promise<CommandStatus> {
-    return this.#execute(gebuehrenverzeichnis, command);
+    return statusOf(this.#execute(gebuehrenverzeichnis, command));
   }
 
   async gebuehrenErmitteln(
@@ -92,13 +103,59 @@ export class FakeNaturheilpraxisApi implements NaturheilpraxisApi {
     );
   }
 
+  async patientAufnehmen(
+    command: patientenaufnahme.PatientAufnehmenCommand,
+  ): Promise<PatientAufnehmenStatus> {
+    const result = this.#execute(patientenaufnahme, command);
+    if (!result.ok) {
+      return { success: false, errorMessage: result.error.message };
+    }
+    const aufgenommen = result.value.find(
+      (event) => event.type === "patient-aufgenommen",
+    );
+    return {
+      success: true,
+      patientennummer: aufgenommen?.data.patientennummer ?? 0,
+    };
+  }
+
+  async patientendatenAendern(
+    command: patientenkartei.PatientendatenAendernCommand,
+  ): Promise<CommandStatus> {
+    return statusOf(this.#execute(patientenkartei, command));
+  }
+
+  async patientenErmitteln(
+    query: patientenansicht.PatientenErmittelnQuery,
+  ): Promise<patientenansicht.PatientenErmittelnQueryResult> {
+    return patientenansicht.patientenErmitteln(
+      patientenansicht.projectAll(
+        patientenansicht.initialReadModel,
+        this.#events,
+      ),
+      query,
+    );
+  }
+
+  async patientErmitteln(
+    query: patientenansicht.PatientErmittelnQuery,
+  ): Promise<patientenansicht.PatientErmittelnQueryResult> {
+    return patientenansicht.patientErmitteln(
+      patientenansicht.projectAll(
+        patientenansicht.initialReadModel,
+        this.#events,
+      ),
+      query,
+    );
+  }
+
   #execute<State, C extends Command, Event extends DomainEvent>(
     boundary: ConsistencyBoundary<State, C, Event>,
     command: C,
-  ): CommandStatus {
+  ): Result<Event[], Rejection> {
     this.commands.push(command);
-    if (this.#status !== undefined) {
-      return this.#status;
+    if (this.#rejection !== undefined) {
+      return fail(this.#rejection);
     }
 
     const query = boundary.consults(command);
@@ -109,11 +166,15 @@ export class FakeNaturheilpraxisApi implements NaturheilpraxisApi {
       boundary.evolveAll(boundary.initialState, events),
       command,
     );
-    if (!result.ok) {
-      return { success: false, errorMessage: result.error.message };
+    if (result.ok) {
+      this.#events.push(...result.value);
     }
-
-    this.#events.push(...result.value);
-    return { success: true };
+    return result;
   }
+}
+
+function statusOf(result: Result<unknown, Rejection>): CommandStatus {
+  return result.ok
+    ? { success: true }
+    : { success: false, errorMessage: result.error.message };
 }

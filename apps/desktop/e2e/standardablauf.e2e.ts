@@ -27,6 +27,8 @@ describe("Standardablauf", () => {
 });
 
 async function legePraxisAn(window: Page) {
+  await window.getByRole("button", { name: "Stammdaten" }).click();
+  await window.getByRole("link", { name: "Praxen" }).click();
   await window.getByRole("button", { name: "Praxis anlegen" }).click();
   const dialog = window.getByRole("dialog", { name: "Praxis anlegen" });
   await dialog.getByLabel("Praxiskürzel").fill("NHP");
@@ -45,8 +47,30 @@ async function legePraxisAn(window: Page) {
   ).toBeVisible();
 }
 
-async function nimmPatientAuf(_window: Page) {
-  // TODO Implement the test for admitting a patient.
+async function nimmPatientAuf(window: Page) {
+  await window
+    .getByRole("navigation", { name: "Hauptnavigation" })
+    .getByRole("link", { name: "Patienten" })
+    .click();
+  await window.getByRole("button", { name: "Patient aufnehmen" }).click();
+  const dialog = window.getByRole("dialog", { name: "Patient aufnehmen" });
+  await expect(dialog.getByLabel("Praxis")).toHaveValue("NHP");
+  await dialog.getByLabel("Vorname").fill("Max");
+  await dialog.getByLabel("Nachname").fill("Mustermann");
+  await dialog.getByLabel("Geburtsdatum").fill("1980-09-20");
+  await dialog.getByLabel("Straße und Hausnummer").fill("Lindenweg 5");
+  await dialog.getByLabel("Postleitzahl").fill("12345");
+  await dialog.getByLabel("Ort", { exact: true }).fill("Musterstadt");
+  await dialog.getByRole("button", { name: "Aufnehmen" }).click();
+
+  await expect(
+    window.getByText(
+      "Max Mustermann wurde mit der Patientennummer 1 aufgenommen.",
+    ),
+  ).toBeVisible();
+  await expect(
+    window.getByRole("heading", { level: 1, name: "Max Mustermann" }),
+  ).toBeVisible();
 }
 
 async function stelleDiagnose(_window: Page) {

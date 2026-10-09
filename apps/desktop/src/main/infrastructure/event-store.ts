@@ -1,6 +1,6 @@
 // Copyright (c) 2026 Falko Schumann. MIT license.
 
-import { DatabaseSync } from "node:sqlite";
+import { DatabaseSync, type SQLOutputValue } from "node:sqlite";
 
 import {
   tagsOf,
@@ -45,22 +45,37 @@ export class SqliteEventStore implements EventStore {
   }
 
   query(query?: EventQuery): DomainEvent[] {
-    const rows =
-      query === undefined
-        ? this.#database
-            .prepare("SELECT type, data FROM events ORDER BY position")
-            .all()
-        : this.#database
-            .prepare(
-              `SELECT type, data FROM events
-               WHERE type IN (SELECT value FROM json_each(?))
-                 AND EXISTS (
-                   SELECT 1 FROM json_each(events.tags)
-                   WHERE value IN (SELECT value FROM json_each(?))
-                 )
-               ORDER BY position`,
+    let rows: Record<string, SQLOutputValue>[];
+    if (query === undefined) {
+      rows = this.#database
+        .prepare("SELECT type, data FROM events ORDER BY position")
+        .all();
+    } else if (query.length === 0) {
+      rows = [];
+    } else {
+      // An event matches an item if it has one of the types and no tag of the
+      // item is missing in the tags of the event.
+      const condition = query
+        .map(
+          () => `(
+            type IN (SELECT value FROM json_each(?))
+            AND NOT EXISTS (
+              SELECT 1 FROM json_each(?) AS wanted
+              WHERE wanted.value NOT IN (SELECT value FROM json_each(events.tags))
             )
-            .all(JSON.stringify(query.types), JSON.stringify(query.tags));
+          )`,
+        )
+        .join(" OR ");
+      const parameters = query.flatMap((item) => [
+        JSON.stringify(item.types),
+        JSON.stringify(item.tags ?? []),
+      ]);
+      rows = this.#database
+        .prepare(
+          `SELECT type, data FROM events WHERE ${condition} ORDER BY position`,
+        )
+        .all(...parameters);
+    }
     return rows.map(
       (row) =>
         ({

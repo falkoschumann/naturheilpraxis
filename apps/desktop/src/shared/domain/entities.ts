@@ -5,6 +5,8 @@ import type {
   Euro,
   Gebuehrenziffer,
   Kontakt,
+  Patientennummer,
+  Personenname,
 } from "./value-objects.ts";
 
 export type Praxis = Readonly<{
@@ -19,4 +21,22 @@ export type Gebuehr = Readonly<{
   ziffer: Gebuehrenziffer;
   bezeichnung: string;
   betrag: Euro;
+}>;
+
+export type Patient = Readonly<{
+  patientennummer: Patientennummer;
+  praxiskuerzel: string;
+  aufnahmejahr: number;
+  // An ISO date like 1980-09-20.
+  geburtsdatum: string;
+  name: Personenname;
+  anschrift?: Anschrift;
+  kontakt?: Kontakt;
+  beruf?: string;
+  familienstand?: string;
+  staatsangehoerigkeit?: string;
+  notizen?: string;
+  partnerVon?: Patientennummer;
+  kindVon?: Patientennummer;
+  schluesselworte?: readonly string[];
 }>;

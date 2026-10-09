@@ -1,23 +1,34 @@
 // Copyright (c) 2026 Falko Schumann. MIT license.
 
 import type { GebuehrenverzeichnisEvent } from "./gebuehrenverzeichnis.ts";
+import type { PatientAufgenommenEvent } from "./patientenaufnahme.ts";
+import type { PatientendatenGeaendertEvent } from "./patientenkartei.ts";
 import type { PraxisverwaltungEvent } from "./praxisverwaltung.ts";
 
-export type DomainEvent = PraxisverwaltungEvent | GebuehrenverzeichnisEvent;
+export type DomainEvent =
+  | PraxisverwaltungEvent
+  | GebuehrenverzeichnisEvent
+  | PatientAufgenommenEvent
+  | PatientendatenGeaendertEvent;
 
 export type DomainEventType = DomainEvent["type"];
 
 // Selects the events a consistency boundary consults: an event matches if it
-// has one of the types and at least one of the tags.
-export type EventQuery = Readonly<{
+// matches one of the items. It matches an item if it has one of the types and
+// all of the tags.
+export type EventQuery = readonly EventQueryItem[];
+
+export type EventQueryItem = Readonly<{
   types: readonly DomainEventType[];
-  tags: readonly string[];
+  tags?: readonly string[];
 }>;
 
 export function matches(event: DomainEvent, query: EventQuery): boolean {
-  return (
-    query.types.includes(event.type) &&
-    tagsOf(event).some((tag) => query.tags.includes(tag))
+  const tags = tagsOf(event);
+  return query.some(
+    (item) =>
+      item.types.includes(event.type) &&
+      (item.tags ?? []).every((tag) => tags.includes(tag)),
   );
 }
 
@@ -32,6 +43,9 @@ export function tagsOf(event: DomainEvent): string[] {
     case "gebuehr-geaendert":
     case "gebuehr-entfernt":
       return [gebuehrTag(event.data.ziffer)];
+    case "patient-aufgenommen":
+    case "patientendaten-geaendert":
+      return [patientTag(event.data.patientennummer)];
   }
 }
 
@@ -41,4 +55,8 @@ export function praxisTag(praxiskuerzel: string): string {
 
 export function gebuehrTag(ziffer: string): string {
   return `gebuehr:${ziffer}`;
+}
+
+export function patientTag(patientennummer: number): string {
+  return `patient:${patientennummer}`;
 }

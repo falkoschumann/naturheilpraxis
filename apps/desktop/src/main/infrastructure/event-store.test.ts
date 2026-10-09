@@ -40,12 +40,57 @@ describe("Event Store", () => {
       createPraxisGeaendert("NHP"),
     ]);
 
-    const events = store.query({
-      types: ["praxis-angelegt"],
-      tags: ["praxis:NHP"],
-    });
+    const events = store.query([
+      { types: ["praxis-angelegt"], tags: ["praxis:NHP"] },
+    ]);
 
     expect(events).toEqual([createPraxisAngelegt("NHP")]);
+  });
+
+  it("sollte alle Events eines Typs liefern, wenn keine Tags angegeben sind", () => {
+    const store = SqliteEventStore.createInMemory();
+    store.append([
+      createPraxisAngelegt("NHP"),
+      createPraxisGeaendert("NHP"),
+      createPraxisAngelegt("ABC"),
+    ]);
+
+    const events = store.query([{ types: ["praxis-angelegt"] }]);
+
+    expect(events).toEqual([
+      createPraxisAngelegt("NHP"),
+      createPraxisAngelegt("ABC"),
+    ]);
+  });
+
+  it("sollte Events liefern, die eines der Kriterien erfüllen", () => {
+    const store = SqliteEventStore.createInMemory();
+    store.append([
+      createPraxisAngelegt("NHP"),
+      createPraxisAngelegt("ABC"),
+      createPraxisGeaendert("NHP"),
+    ]);
+
+    const events = store.query([
+      { types: ["praxis-angelegt"], tags: ["praxis:ABC"] },
+      { types: ["praxisdaten-geaendert"], tags: ["praxis:NHP"] },
+    ]);
+
+    expect(events).toEqual([
+      createPraxisAngelegt("ABC"),
+      createPraxisGeaendert("NHP"),
+    ]);
+  });
+
+  it("sollte nur Events liefern, die alle Tags eines Kriteriums haben", () => {
+    const store = SqliteEventStore.createInMemory();
+    store.append([createPraxisAngelegt("NHP")]);
+
+    const events = store.query([
+      { types: ["praxis-angelegt"], tags: ["praxis:NHP", "praxis:ABC"] },
+    ]);
+
+    expect(events).toEqual([]);
   });
 
   it("sollte Events dauerhaft in einer Datei speichern", async () => {

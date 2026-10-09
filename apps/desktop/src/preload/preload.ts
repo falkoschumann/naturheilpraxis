@@ -16,6 +16,10 @@ const api: NaturheilpraxisApi = {
   gebuehrAendern: (command) => ipcRenderer.invoke(command.type, command),
   gebuehrEntfernen: (command) => ipcRenderer.invoke(command.type, command),
   gebuehrenErmitteln: (query) => ipcRenderer.invoke(query.type, query),
+  patientAufnehmen: (command) => ipcRenderer.invoke(command.type, command),
+  patientendatenAendern: (command) => ipcRenderer.invoke(command.type, command),
+  patientenErmitteln: (query) => ipcRenderer.invoke(query.type, query),
+  patientErmitteln: (query) => ipcRenderer.invoke(query.type, query),
 };
 
 contextBridge.exposeInMainWorld("naturheilpraxis", api);

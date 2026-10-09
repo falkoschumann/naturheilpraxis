@@ -22,7 +22,7 @@ Jeder Eintrag beginnt mit einer Kategorie:
       „Heilpraktiker legt Praxis an“.
 - [x] **Gebühr** Gebührenverzeichnis pflegen (`gebuehrenverzeichnis`) und
       Gebühren anzeigen (`gebuehrenansicht`).
-- [ ] **Patient** Patient aufnehmen (`patientenaufnahme`), Patientendaten ändern
+- [x] **Patient** Patient aufnehmen (`patientenaufnahme`), Patientendaten ändern
       (`patientenkartei`) und Patienten anzeigen (`patientenansicht`) mit
       E2E-Schritt „Heilpraktiker legt Patientenkarteikarte für Patient an“.
 - [ ] **Diagnose** Diagnose stellen, ändern und löschen (`diagnosestellung`)

@@ -3,45 +3,43 @@
 import type {
   CommandStatus,
   NaturheilpraxisApi,
+  PatientAufnehmenStatus,
 } from "../../shared/application/naturheilpraxis-api.ts";
 import type { ConsistencyBoundary } from "../../shared/domain/consistency-boundary.ts";
 import type { DomainEvent } from "../../shared/domain/events.ts";
 import * as gebuehrenansicht from "../../shared/domain/gebuehrenansicht.ts";
 import * as gebuehrenverzeichnis from "../../shared/domain/gebuehrenverzeichnis.ts";
+import * as patientenansicht from "../../shared/domain/patientenansicht.ts";
+import * as patientenaufnahme from "../../shared/domain/patientenaufnahme.ts";
+import * as patientenkartei from "../../shared/domain/patientenkartei.ts";
 import * as praxenansicht from "../../shared/domain/praxenansicht.ts";
 import * as praxisverwaltung from "../../shared/domain/praxisverwaltung.ts";
+import type { Rejection, Result } from "../../shared/domain/result.ts";
 import type { EventStore } from "../infrastructure/event-store.ts";
 
 // Executes the commands with the consistency boundaries of the domain and
 // answers the queries from the read models, which it keeps in memory.
 export class NaturheilpraxisService implements NaturheilpraxisApi {
   readonly #eventStore: EventStore;
-  #praxenansicht: praxenansicht.Praxenansicht;
-  #gebuehrenansicht: gebuehrenansicht.Gebuehrenansicht;
+  #praxenansicht = praxenansicht.initialReadModel;
+  #gebuehrenansicht = gebuehrenansicht.initialReadModel;
+  #patientenansicht = patientenansicht.initialReadModel;
 
   constructor(eventStore: EventStore) {
     this.#eventStore = eventStore;
-    const events = eventStore.query();
-    this.#praxenansicht = praxenansicht.projectAll(
-      praxenansicht.initialReadModel,
-      events,
-    );
-    this.#gebuehrenansicht = gebuehrenansicht.projectAll(
-      gebuehrenansicht.initialReadModel,
-      events,
-    );
+    this.#project(eventStore.query());
   }
 
   async praxisAnlegen(
     command: praxisverwaltung.PraxisAnlegenCommand,
   ): Promise<CommandStatus> {
-    return this.#execute(praxisverwaltung, command);
+    return statusOf(this.#execute(praxisverwaltung, command));
   }
 
   async praxisdatenAendern(
     command: praxisverwaltung.PraxisdatenAendernCommand,
   ): Promise<CommandStatus> {
-    return this.#execute(praxisverwaltung, command);
+    return statusOf(this.#execute(praxisverwaltung, command));
   }
 
   async praxenErmitteln(
@@ -59,19 +57,19 @@ export class NaturheilpraxisService implements NaturheilpraxisApi {
   async gebuehrAnlegen(
     command: gebuehrenverzeichnis.GebuehrAnlegenCommand,
   ): Promise<CommandStatus> {
-    return this.#execute(gebuehrenverzeichnis, command);
+    return statusOf(this.#execute(gebuehrenverzeichnis, command));
   }
 
   async gebuehrAendern(
     command: gebuehrenverzeichnis.GebuehrAendernCommand,
   ): Promise<CommandStatus> {
-    return this.#execute(gebuehrenverzeichnis, command);
+    return statusOf(this.#execute(gebuehrenverzeichnis, command));
   }
 
   async gebuehrEntfernen(
     command: gebuehrenverzeichnis.GebuehrEntfernenCommand,
   ): Promise<CommandStatus> {
-    return this.#execute(gebuehrenverzeichnis, command);
+    return statusOf(this.#execute(gebuehrenverzeichnis, command));
   }
 
   async gebuehrenErmitteln(
@@ -80,10 +78,47 @@ export class NaturheilpraxisService implements NaturheilpraxisApi {
     return gebuehrenansicht.gebuehrenErmitteln(this.#gebuehrenansicht, query);
   }
 
+  async patientAufnehmen(
+    command: patientenaufnahme.PatientAufnehmenCommand,
+  ): Promise<PatientAufnehmenStatus> {
+    const result = this.#execute(patientenaufnahme, command);
+    if (!result.ok) {
+      return { success: false, errorMessage: result.error.message };
+    }
+
+    const aufgenommen = result.value.find(
+      (event) => event.type === "patient-aufgenommen",
+    );
+    if (aufgenommen === undefined) {
+      throw new Error("The Patientenaufnahme decided no admission.");
+    }
+    return { success: true, patientennummer: aufgenommen.data.patientennummer };
+  }
+
+  async patientendatenAendern(
+    command: patientenkartei.PatientendatenAendernCommand,
+  ): Promise<CommandStatus> {
+    return statusOf(this.#execute(patientenkartei, command));
+  }
+
+  async patientenErmitteln(
+    query: patientenansicht.PatientenErmittelnQuery,
+  ): Promise<patientenansicht.PatientenErmittelnQueryResult> {
+    return patientenansicht.patientenErmitteln(this.#patientenansicht, query);
+  }
+
+  async patientErmitteln(
+    query: patientenansicht.PatientErmittelnQuery,
+  ): Promise<patientenansicht.PatientErmittelnQueryResult> {
+    return patientenansicht.patientErmitteln(this.#patientenansicht, query);
+  }
+
+  // Decides the command on the consulted events and publishes the decided
+  // events.
   #execute<State, Command, Event extends DomainEvent>(
     boundary: ConsistencyBoundary<State, Command, Event>,
     command: Command,
-  ): CommandStatus {
+  ): Result<Event[], Rejection> {
     // The event store returns only events of the consulted types, which are
     // the events of this boundary.
     const events = this.#eventStore.query(
@@ -91,24 +126,28 @@ export class NaturheilpraxisService implements NaturheilpraxisApi {
     ) as Event[];
     const state = boundary.evolveAll(boundary.initialState, events);
     const result = boundary.decide(state, command);
-    if (!result.ok) {
-      return { success: false, errorMessage: result.error.message };
+    if (result.ok && result.value.length > 0) {
+      this.#eventStore.append(result.value);
+      this.#project(result.value);
     }
-
-    this.#publish(result.value);
-    return { success: true };
+    return result;
   }
 
-  #publish(events: readonly DomainEvent[]): void {
-    if (events.length === 0) {
-      return;
-    }
-
-    this.#eventStore.append(events);
+  #project(events: readonly DomainEvent[]): void {
     this.#praxenansicht = praxenansicht.projectAll(this.#praxenansicht, events);
     this.#gebuehrenansicht = gebuehrenansicht.projectAll(
       this.#gebuehrenansicht,
       events,
     );
+    this.#patientenansicht = patientenansicht.projectAll(
+      this.#patientenansicht,
+      events,
+    );
   }
+}
+
+function statusOf(result: Result<unknown, Rejection>): CommandStatus {
+  return result.ok
+    ? { success: true }
+    : { success: false, errorMessage: result.error.message };
 }

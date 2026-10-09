@@ -52,10 +52,12 @@ export const initialState: GebuehrenverzeichnisState = {
 };
 
 export function consults(command: GebuehrenverzeichnisCommand): EventQuery {
-  return {
-    types: ["gebuehr-angelegt", "gebuehr-geaendert", "gebuehr-entfernt"],
-    tags: [gebuehrTag(command.data.ziffer)],
-  };
+  return [
+    {
+      types: ["gebuehr-angelegt", "gebuehr-geaendert", "gebuehr-entfernt"],
+      tags: [gebuehrTag(command.data.ziffer)],
+    },
+  ];
 }
 
 export function decide(

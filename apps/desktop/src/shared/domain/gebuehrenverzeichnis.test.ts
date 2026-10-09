@@ -168,10 +168,12 @@ describe("Gebührenverzeichnis", () => {
       data: { ziffer: "1" },
     });
 
-    expect(query).toEqual({
-      types: ["gebuehr-angelegt", "gebuehr-geaendert", "gebuehr-entfernt"],
-      tags: ["gebuehr:1"],
-    });
+    expect(query).toEqual([
+      {
+        types: ["gebuehr-angelegt", "gebuehr-geaendert", "gebuehr-entfernt"],
+        tags: ["gebuehr:1"],
+      },
+    ]);
   });
 });
 

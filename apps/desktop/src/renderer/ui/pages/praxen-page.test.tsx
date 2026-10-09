@@ -82,12 +82,7 @@ describe("Praxen", () => {
   });
 
   it("sollte die Ablehnung zeigen und die Eingaben behalten", async () => {
-    const api = new FakeNaturheilpraxisApi({
-      status: {
-        success: false,
-        errorMessage: "Eine Praxis mit dem Kürzel „NHP“ ist bereits angelegt. Bitte wählen Sie ein anderes Kürzel.",
-      },
-    });
+    const api = new FakeNaturheilpraxisApi({ events: [{ type: "praxis-angelegt", data: createPraxis() }] });
     render(<PraxenPage api={api} />);
     fireEvent.click(await screen.findByRole("button", { name: "Praxis anlegen" }));
     const dialog = screen.getByRole("dialog", { name: "Praxis anlegen" });

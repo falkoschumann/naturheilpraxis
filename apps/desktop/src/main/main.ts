@@ -62,6 +62,18 @@ function handleMessages(service: NaturheilpraxisService): void {
   ipcMain.handle("gebuehren-ermitteln", (_event, query) =>
     service.gebuehrenErmitteln(query),
   );
+  ipcMain.handle("patient-aufnehmen", (_event, command) =>
+    service.patientAufnehmen(command),
+  );
+  ipcMain.handle("patientendaten-aendern", (_event, command) =>
+    service.patientendatenAendern(command),
+  );
+  ipcMain.handle("patienten-ermitteln", (_event, query) =>
+    service.patientenErmitteln(query),
+  );
+  ipcMain.handle("patient-ermitteln", (_event, query) =>
+    service.patientErmitteln(query),
+  );
 }
 
 app.on("window-all-closed", () => {

@@ -39,10 +39,12 @@ export type PraxisverwaltungState = Readonly<{
 export const initialState: PraxisverwaltungState = { praxisAngelegt: false };
 
 export function consults(command: PraxisverwaltungCommand): EventQuery {
-  return {
-    types: ["praxis-angelegt", "praxisdaten-geaendert"],
-    tags: [praxisTag(command.data.praxiskuerzel)],
-  };
+  return [
+    {
+      types: ["praxis-angelegt", "praxisdaten-geaendert"],
+      tags: [praxisTag(command.data.praxiskuerzel)],
+    },
+  ];
 }
 
 export function decide(

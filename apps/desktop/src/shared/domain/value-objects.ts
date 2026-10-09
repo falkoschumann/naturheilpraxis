@@ -17,6 +17,16 @@ export type Kontakt = Readonly<{
   website?: string;
 }>;
 
+export type Personenname = Readonly<{
+  anrede?: string;
+  titel?: string;
+  vorname: string;
+  nachname: string;
+}>;
+
+// A consecutive number from 1 that identifies a Patient across all Praxen.
+export type Patientennummer = number;
+
 // The amount in the smallest unit of the currency avoids rounding errors.
 export type Euro = Readonly<{
   cents: number;
@@ -59,4 +69,10 @@ export function parseEuro(text: string): Euro | undefined {
     cents:
       Number(euros.replaceAll(".", "")) * 100 + Number(cents.padEnd(2, "0")),
   };
+}
+
+// Shows an ISO date like 1980-09-20 as 20.09.1980.
+export function formatDatum(isoDatum: string): string {
+  const [jahr, monat, tag] = isoDatum.split("-");
+  return `${tag}.${monat}.${jahr}`;
 }

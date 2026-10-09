@@ -29,6 +29,11 @@
   );
 
   width: min(800px, calc(100% - 2rem));
+
+  &.app-dialog-xl {
+    width: min(1140px, calc(100% - 2rem));
+  }
+
   max-height: calc(100% - 3.5rem);
   padding: 0;
   border: 0;
