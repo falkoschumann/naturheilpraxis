@@ -49,3 +49,15 @@ export type Diagnose = Readonly<{
   datum: string;
   text: string;
 }>;
+
+export type Leistung = Readonly<{
+  leistungId: string;
+  praxiskuerzel: string;
+  patientennummer: Patientennummer;
+  // An ISO date like 2026-09-14.
+  datum: string;
+  ziffer: Gebuehrenziffer;
+  bezeichnung: string;
+  anzahl: number;
+  einzelbetrag: Euro;
+}>;

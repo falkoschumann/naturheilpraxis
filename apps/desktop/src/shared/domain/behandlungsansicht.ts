@@ -1,17 +1,23 @@
 // Copyright (c) 2026 Falko Schumann. MIT license.
 
-import type { Diagnose } from "./entities.ts";
+import type { Diagnose, Leistung } from "./entities.ts";
 import type { DomainEvent } from "./events.ts";
 import type { Patientennummer } from "./value-objects.ts";
 
-// The Diagnosen by their ID.
+// The Diagnosen and Leistungen by their ID.
 export type Behandlungsansicht = Readonly<{
   diagnosen: Readonly<Record<string, Diagnose>>;
+  leistungen: Readonly<Record<string, Leistung>>;
 }>;
 
-export const initialReadModel: Behandlungsansicht = { diagnosen: {} };
+export const initialReadModel: Behandlungsansicht = {
+  diagnosen: {},
+  leistungen: {},
+};
 
-export type Behandlung = Readonly<{ art: "diagnose"; eintrag: Diagnose }>;
+export type Behandlung =
+  | Readonly<{ art: "diagnose"; eintrag: Diagnose }>
+  | Readonly<{ art: "leistung"; eintrag: Leistung }>;
 
 export type BehandlungenErmittelnQuery = Readonly<{
   type: "behandlungen-ermitteln";
@@ -50,6 +56,24 @@ export function project(
           ),
         ),
       };
+    case "leistung-erbracht":
+    case "leistung-geaendert":
+      return {
+        ...readModel,
+        leistungen: {
+          ...readModel.leistungen,
+          [event.data.leistungId]: event.data,
+        },
+      };
+    case "leistung-geloescht":
+      return {
+        ...readModel,
+        leistungen: Object.fromEntries(
+          Object.entries(readModel.leistungen).filter(
+            ([leistungId]) => leistungId !== event.data.leistungId,
+          ),
+        ),
+      };
     default:
       return readModel;
   }
@@ -67,13 +91,24 @@ export function behandlungenErmitteln(
   readModel: Behandlungsansicht,
   query: BehandlungenErmittelnQuery,
 ): BehandlungenErmittelnQueryResult {
-  return diagnosenDes(readModel, query.parameters.patientennummer).map(
-    (diagnose) => ({
-      art: "diagnose",
+  const { patientennummer } = query.parameters;
+  const behandlungen: Behandlung[] = [
+    ...diagnosenDes(readModel, patientennummer).map((diagnose) => ({
+      art: "diagnose" as const,
       eintrag: diagnose,
-    }),
+    })),
+    ...Object.values(readModel.leistungen)
+      .filter((leistung) => leistung.patientennummer === patientennummer)
+      .map((leistung) => ({ art: "leistung" as const, eintrag: leistung })),
+  ];
+  return behandlungen.toSorted(
+    (a, b) =>
+      b.eintrag.datum.localeCompare(a.eintrag.datum) ||
+      reihenfolge[a.art] - reihenfolge[b.art],
   );
 }
+
+const reihenfolge = { diagnose: 0, leistung: 1 } as const;
 
 export function diagnosenErmitteln(
   readModel: Behandlungsansicht,

@@ -5,7 +5,7 @@ import { MemoryRouter, Route, Routes } from "react-router";
 import { describe, expect, it } from "vitest";
 
 import type { NaturheilpraxisApi } from "../../../shared/application/naturheilpraxis-api.ts";
-import type { Diagnose, Patient } from "../../../shared/domain/entities.ts";
+import type { Diagnose, Leistung, Patient } from "../../../shared/domain/entities.ts";
 import type { DomainEvent } from "../../../shared/domain/events.ts";
 import { FakeNaturheilpraxisApi } from "./fake-naturheilpraxis-api.ts";
 import { PatientPage } from "./patient-page.tsx";
@@ -165,6 +165,146 @@ describe("Patient", () => {
       ]);
     });
   });
+
+  describe("Leistungen", () => {
+    it("sollte die Leistungen mit Betrag und Tagessumme anzeigen", async () => {
+      const api = new FakeNaturheilpraxisApi({
+        events: [
+          praxisAngelegt(),
+          aufgenommen(max()),
+          { type: "leistung-erbracht", data: untersuchung() },
+          {
+            type: "leistung-erbracht",
+            data: {
+              ...untersuchung(),
+              leistungId: "23232323-2323-4323-8323-232323232323",
+              ziffer: "20.1",
+              bezeichnung: "Akupunktur",
+              anzahl: 2,
+              einzelbetrag: { cents: 1530 },
+            },
+          },
+        ],
+      });
+
+      zeigePatient(api, 1);
+
+      const tag = await screen.findByRole("region", { name: "Montag, 14. September 2026" });
+      expect(within(tag).getByText("Eingehende Untersuchung")).toBeDefined();
+      expect(within(tag).getByText("2 × 15,30 €")).toBeDefined();
+      expect(within(tag).getByText("Summe 51,10 €")).toBeDefined();
+    });
+
+    it("sollte eine Leistung aus dem Gebührenverzeichnis erfassen", async () => {
+      const api = new FakeNaturheilpraxisApi({ events: [praxisAngelegt(), aufgenommen(max()), gebuehrAngelegt()] });
+      zeigePatient(api, 1);
+      fireEvent.click(await screen.findByRole("button", { name: "Leistung erfassen" }));
+      const dialog = screen.getByRole("dialog", { name: "Leistung erfassen für Max Mustermann" });
+      await within(dialog).findByRole("option", { name: "Naturheilpraxis am Markt (NHP)" });
+      expect(document.activeElement).toBe(within(dialog).getByLabelText("Gebührenziffer"));
+
+      eingeben(dialog, "Datum", "2026-09-14");
+      await screen.findByText("Eingehende Untersuchung – 20,50 €", { selector: "option" });
+      eingeben(dialog, "Gebührenziffer", "1");
+      expect(within(dialog).getByLabelText("Bezeichnung")).toHaveProperty("value", "Eingehende Untersuchung");
+      expect(within(dialog).getByLabelText("Einzelbetrag (€)")).toHaveProperty("value", "20,50");
+      eingeben(dialog, "Anzahl", "2");
+      expect(within(dialog).getByText("41,00 €")).toBeDefined();
+      fireEvent.click(within(dialog).getByRole("button", { name: "Leistung erfassen" }));
+
+      expect(await screen.findByText("Die Leistung 1 wurde erfasst.")).toBeDefined();
+      expect(api.commands).toEqual([
+        { type: "leistung-erbringen", data: { ...untersuchung(), anzahl: 2, leistungId: expect.any(String) } },
+      ]);
+      expect(screen.queryByRole("dialog")).toBeNull();
+    });
+
+    it("sollte nach dem Speichern weitere Leistungen erfassen", async () => {
+      const api = new FakeNaturheilpraxisApi({ events: [praxisAngelegt(), aufgenommen(max()), gebuehrAngelegt()] });
+      zeigePatient(api, 1);
+      fireEvent.click(await screen.findByRole("button", { name: "Leistung erfassen" }));
+      const dialog = screen.getByRole("dialog", { name: "Leistung erfassen für Max Mustermann" });
+      await within(dialog).findByRole("option", { name: "Naturheilpraxis am Markt (NHP)" });
+      eingeben(dialog, "Datum", "2026-09-14");
+      eingeben(dialog, "Gebührenziffer", "99");
+      eingeben(dialog, "Bezeichnung", "Sonderleistung");
+      eingeben(dialog, "Einzelbetrag (€)", "10");
+
+      fireEvent.click(within(dialog).getByRole("button", { name: "Speichern und weitere erfassen" }));
+
+      expect(await screen.findByText("Die Leistung 99 wurde erfasst.")).toBeDefined();
+      expect(within(dialog).getByLabelText("Gebührenziffer")).toHaveProperty("value", "");
+      expect(within(dialog).getByLabelText("Datum")).toHaveProperty("value", "2026-09-14");
+      expect(within(dialog).getByLabelText("Anzahl")).toHaveProperty("value", "1");
+      expect(api.commands).toHaveLength(1);
+    });
+
+    it("sollte eine ungültige Anzahl markieren", async () => {
+      const api = new FakeNaturheilpraxisApi({ events: [praxisAngelegt(), aufgenommen(max())] });
+      zeigePatient(api, 1);
+      fireEvent.click(await screen.findByRole("button", { name: "Leistung erfassen" }));
+      const dialog = screen.getByRole("dialog", { name: "Leistung erfassen für Max Mustermann" });
+      eingeben(dialog, "Gebührenziffer", "1");
+      eingeben(dialog, "Bezeichnung", "Eingehende Untersuchung");
+      eingeben(dialog, "Einzelbetrag (€)", "20,50");
+      eingeben(dialog, "Anzahl", "0");
+
+      fireEvent.click(within(dialog).getByRole("button", { name: "Leistung erfassen" }));
+
+      expect(within(dialog).getByLabelText("Anzahl").getAttribute("aria-invalid")).toBe("true");
+      expect(within(dialog).getByText("Die Anzahl muss eine ganze Zahl ab 1 sein.")).toBeDefined();
+      expect(api.commands).toEqual([]);
+    });
+
+    it("sollte eine Leistung ändern", async () => {
+      const api = new FakeNaturheilpraxisApi({
+        events: [praxisAngelegt(), aufgenommen(max()), { type: "leistung-erbracht", data: untersuchung() }],
+      });
+      zeigePatient(api, 1);
+      fireEvent.click(await screen.findByRole("button", { name: "Leistung bearbeiten" }));
+      const dialog = screen.getByRole("dialog", { name: "Leistung bearbeiten" });
+      await within(dialog).findByRole("option", { name: "Naturheilpraxis am Markt (NHP)" });
+
+      eingeben(dialog, "Anzahl", "3");
+      fireEvent.click(within(dialog).getByRole("button", { name: "Speichern" }));
+
+      expect(await screen.findByText("Die Leistung wurde geändert.")).toBeDefined();
+      expect(api.commands).toEqual([
+        {
+          type: "leistung-aendern",
+          data: {
+            leistungId: untersuchung().leistungId,
+            praxiskuerzel: "NHP",
+            datum: "2026-09-14",
+            ziffer: "1",
+            bezeichnung: "Eingehende Untersuchung",
+            anzahl: 3,
+            einzelbetrag: { cents: 2050 },
+          },
+        },
+      ]);
+    });
+
+    it("sollte eine Leistung nach Rückfrage löschen und das Löschen rückgängig machen", async () => {
+      const api = new FakeNaturheilpraxisApi({
+        events: [praxisAngelegt(), aufgenommen(max()), { type: "leistung-erbracht", data: untersuchung() }],
+      });
+      zeigePatient(api, 1);
+      fireEvent.click(await screen.findByRole("button", { name: "Leistung löschen" }));
+      fireEvent.click(
+        within(screen.getByRole("dialog", { name: "Leistung löschen?" })).getByRole("button", { name: "Löschen" }),
+      );
+      expect(await screen.findByText("Die Leistung wurde gelöscht.")).toBeDefined();
+
+      fireEvent.click(screen.getByRole("button", { name: "Rückgängig" }));
+
+      expect(await screen.findByText("Eingehende Untersuchung")).toBeDefined();
+      expect(api.commands).toEqual([
+        { type: "leistung-loeschen", data: { leistungId: untersuchung().leistungId } },
+        { type: "leistung-erbringen", data: untersuchung() },
+      ]);
+    });
+  });
 });
 
 function zeigePatient(api: NaturheilpraxisApi, patientennummer: number, reiter = "") {
@@ -214,6 +354,26 @@ function rueckenschmerzen(): Diagnose {
     patientennummer: 1,
     datum: "2026-09-14",
     text: "Chronische Rückenschmerzen",
+  };
+}
+
+function untersuchung(): Leistung {
+  return {
+    leistungId: "22222222-2222-4222-8222-222222222222",
+    praxiskuerzel: "NHP",
+    patientennummer: 1,
+    datum: "2026-09-14",
+    ziffer: "1",
+    bezeichnung: "Eingehende Untersuchung",
+    anzahl: 1,
+    einzelbetrag: { cents: 2050 },
+  };
+}
+
+function gebuehrAngelegt(): DomainEvent {
+  return {
+    type: "gebuehr-angelegt",
+    data: { ziffer: "1", bezeichnung: "Eingehende Untersuchung", betrag: { cents: 2050 } },
   };
 }
 

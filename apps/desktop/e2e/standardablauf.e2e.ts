@@ -90,8 +90,24 @@ async function stelleDiagnose(window: Page) {
   await expect(tag.getByText("Chronische Rückenschmerzen")).toBeVisible();
 }
 
-async function erbringeLeistung(_window: Page) {
-  // TODO Implement the test for providing a service to a patient.
+async function erbringeLeistung(window: Page) {
+  await window.getByRole("button", { name: "Leistung erfassen" }).click();
+  const dialog = window.getByRole("dialog", {
+    name: "Leistung erfassen für Max Mustermann",
+  });
+  await expect(dialog.getByLabel("Praxis")).toHaveValue("NHP");
+  await dialog.getByLabel("Datum").fill("2026-09-14");
+  await dialog.getByLabel("Gebührenziffer").fill("1");
+  await dialog.getByLabel("Bezeichnung").fill("Eingehende Untersuchung");
+  await dialog.getByLabel("Einzelbetrag (€)").fill("20,50");
+  await dialog.getByRole("button", { name: "Leistung erfassen" }).click();
+
+  await expect(window.getByText("Die Leistung 1 wurde erfasst.")).toBeVisible();
+  const tag = window.getByRole("region", {
+    name: "Montag, 14. September 2026",
+  });
+  await expect(tag.getByText("Eingehende Untersuchung")).toBeVisible();
+  await expect(tag.getByText("Summe 20,50 €")).toBeVisible();
 }
 
 async function erstelleRechnung(_window: Page) {

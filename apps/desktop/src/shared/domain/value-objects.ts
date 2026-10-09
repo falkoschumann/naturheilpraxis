@@ -27,6 +27,10 @@ export type Personenname = Readonly<{
 // A consecutive number from 1 that identifies a Patient across all Praxen.
 export type Patientennummer = number;
 
+// Like "1234/260920" from Patientennummer and Rechnungsdatum, with "-2" and so
+// on for further Rechnungen of the Patient on the same day.
+export type Rechnungsnummer = string;
+
 // The amount in the smallest unit of the currency avoids rounding errors.
 export type Euro = Readonly<{
   cents: number;
@@ -52,6 +56,11 @@ const euroFormat = new Intl.NumberFormat("de-DE", {
 
 export function formatEuro(euro: Euro): string {
   return euroFormat.format(euro.cents / 100);
+}
+
+// Shows an amount without currency sign like "1234,56", as it is typed.
+export function formatEuroEingabe(euro: Euro): string {
+  return (euro.cents / 100).toFixed(2).replace(".", ",");
 }
 
 // Reads an amount in German notation like "1.234,56 €". The dot only groups

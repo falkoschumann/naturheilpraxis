@@ -2,7 +2,12 @@
 
 import { describe, expect, it } from "vitest";
 
-import { formatEuro, parseEuro, pruefeEuro } from "./value-objects.ts";
+import {
+  formatEuro,
+  formatEuroEingabe,
+  parseEuro,
+  pruefeEuro,
+} from "./value-objects.ts";
 
 describe("Euro", () => {
   it("sollte einen nicht negativen Betrag akzeptieren", () => {
@@ -50,5 +55,11 @@ describe("Euro", () => {
     const text = formatEuro({ cents: 123456 });
 
     expect(text).toBe("1.234,56 €");
+  });
+
+  it("sollte einen Betrag für die Eingabe formatieren", () => {
+    const text = formatEuroEingabe({ cents: 123456 });
+
+    expect(text).toBe("1234,56");
   });
 });

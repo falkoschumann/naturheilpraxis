@@ -4,7 +4,7 @@ import { useState, type FormEvent } from "react";
 
 import type { CommandStatus, NaturheilpraxisApi } from "../../../shared/application/naturheilpraxis-api.ts";
 import type { Gebuehr } from "../../../shared/domain/entities.ts";
-import { parseEuro, type Euro } from "../../../shared/domain/value-objects.ts";
+import { formatEuroEingabe, parseEuro } from "../../../shared/domain/value-objects.ts";
 import { Dialog } from "../components/dialog.tsx";
 import { TextField } from "../components/text-field.tsx";
 
@@ -30,7 +30,7 @@ export function GebuehrDialog({
   const bearbeiten = gebuehr !== undefined;
   const [werte, setWerte] = useState<Werte>({
     ziffer: gebuehr?.ziffer ?? "",
-    betrag: gebuehr === undefined ? "" : betragAlsEingabe(gebuehr.betrag),
+    betrag: gebuehr === undefined ? "" : formatEuroEingabe(gebuehr.betrag),
     bezeichnung: gebuehr?.bezeichnung ?? "",
   });
   const [ungueltig, setUngueltig] = useState<ReadonlySet<Feld>>(new Set());
@@ -142,9 +142,4 @@ export function GebuehrDialog({
       </form>
     </Dialog>
   );
-}
-
-// Shows the amount without currency sign, as it is typed.
-function betragAlsEingabe(betrag: Euro): string {
-  return (betrag.cents / 100).toFixed(2).replace(".", ",");
 }

@@ -10,6 +10,7 @@ import type { DomainEvent } from "../../shared/domain/events.ts";
 import * as behandlungsansicht from "../../shared/domain/behandlungsansicht.ts";
 import * as diagnosestellung from "../../shared/domain/diagnosestellung.ts";
 import * as gebuehrenansicht from "../../shared/domain/gebuehrenansicht.ts";
+import * as leistungserbringung from "../../shared/domain/leistungserbringung.ts";
 import * as gebuehrenverzeichnis from "../../shared/domain/gebuehrenverzeichnis.ts";
 import * as patientenansicht from "../../shared/domain/patientenansicht.ts";
 import * as patientenaufnahme from "../../shared/domain/patientenaufnahme.ts";
@@ -152,6 +153,24 @@ export class NaturheilpraxisService implements NaturheilpraxisApi {
       this.#behandlungsansicht,
       query,
     );
+  }
+
+  async leistungErbringen(
+    command: leistungserbringung.LeistungErbringenCommand,
+  ): Promise<CommandStatus> {
+    return statusOf(this.#execute(leistungserbringung, command));
+  }
+
+  async leistungAendern(
+    command: leistungserbringung.LeistungAendernCommand,
+  ): Promise<CommandStatus> {
+    return statusOf(this.#execute(leistungserbringung, command));
+  }
+
+  async leistungLoeschen(
+    command: leistungserbringung.LeistungLoeschenCommand,
+  ): Promise<CommandStatus> {
+    return statusOf(this.#execute(leistungserbringung, command));
   }
 
   #execute<State, Command, Event extends DomainEvent>(

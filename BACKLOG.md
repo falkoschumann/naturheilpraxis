@@ -28,7 +28,7 @@ Jeder Eintrag beginnt mit einer Kategorie:
 - [x] **Diagnose** Diagnose stellen, ändern und löschen (`diagnosestellung`)
       sowie Diagnosen anzeigen (`behandlungsansicht`) mit E2E-Schritt
       „Heilpraktiker stellt Diagnose für Patient“.
-- [ ] **Leistung** Leistung erbringen, ändern und löschen
+- [x] **Leistung** Leistung erbringen, ändern und löschen
       (`leistungserbringung`) sowie Behandlungen anzeigen (`behandlungsansicht`)
       mit E2E-Schritt „Heilpraktiker erbringt Leistung für Patient“.
 - [ ] **Rechnung** Rechnung aus nicht abgerechneten Leistungen erstellen, ändern

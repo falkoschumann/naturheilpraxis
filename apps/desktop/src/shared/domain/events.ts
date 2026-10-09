@@ -5,7 +5,13 @@ import type {
   DiagnoseGeloeschtEvent,
   DiagnoseGestelltEvent,
 } from "./diagnosestellung.ts";
+import type { AbrechnungEvent } from "./abrechnung.ts";
 import type { GebuehrenverzeichnisEvent } from "./gebuehrenverzeichnis.ts";
+import type {
+  LeistungGeaendertEvent,
+  LeistungGeloeschtEvent,
+  LeistungErbrachtEvent,
+} from "./leistungserbringung.ts";
 import type { PatientAufgenommenEvent } from "./patientenaufnahme.ts";
 import type { PatientendatenGeaendertEvent } from "./patientenkartei.ts";
 import type { PraxisverwaltungEvent } from "./praxisverwaltung.ts";
@@ -17,7 +23,11 @@ export type DomainEvent =
   | PatientendatenGeaendertEvent
   | DiagnoseGestelltEvent
   | DiagnoseGeaendertEvent
-  | DiagnoseGeloeschtEvent;
+  | DiagnoseGeloeschtEvent
+  | LeistungErbrachtEvent
+  | LeistungGeaendertEvent
+  | LeistungGeloeschtEvent
+  | AbrechnungEvent;
 
 export type DomainEventType = DomainEvent["type"];
 
@@ -58,6 +68,24 @@ export function tagsOf(event: DomainEvent): string[] {
     case "diagnose-geaendert":
     case "diagnose-geloescht":
       return [diagnoseTag(event.data.diagnoseId)];
+    case "leistung-erbracht":
+    case "leistung-geaendert":
+    case "leistung-geloescht":
+      return [leistungTag(event.data.leistungId)];
+    // A Rechnung tags its events with its Leistungen as far as they are known
+    // from the event.
+    case "rechnung-erstellt":
+    case "rechnung-geaendert":
+      return [
+        rechnungTag(event.data.rechnungId),
+        ...event.data.leistungen.map(leistungTag),
+      ];
+    case "entwurf-geloescht":
+    case "rechnung-versendet":
+    case "rechnung-bezahlt":
+    case "rechnungszahlung-zurueckgenommen":
+    case "rechnungsversand-zurueckgenommen":
+      return [rechnungTag(event.data.rechnungId)];
   }
 }
 
@@ -75,4 +103,12 @@ export function patientTag(patientennummer: number): string {
 
 export function diagnoseTag(diagnoseId: string): string {
   return `diagnose:${diagnoseId}`;
+}
+
+export function leistungTag(leistungId: string): string {
+  return `leistung:${leistungId}`;
+}
+
+export function rechnungTag(rechnungId: string): string {
+  return `rechnung:${rechnungId}`;
 }

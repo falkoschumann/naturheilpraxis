@@ -42,6 +42,12 @@ import type {
   DiagnoseStellenCommand,
 } from "../domain/diagnosestellung.ts";
 
+import type {
+  LeistungAendernCommand,
+  LeistungErbringenCommand,
+  LeistungLoeschenCommand,
+} from "../domain/leistungserbringung.ts";
+
 export type CommandStatus =
   | Readonly<{ success: true; errorMessage?: never }>
   | Readonly<{ success: false; errorMessage: string }>;
@@ -111,4 +117,10 @@ export interface NaturheilpraxisApi {
   diagnosenErmitteln(
     query: DiagnosenErmittelnQuery,
   ): Promise<DiagnosenErmittelnQueryResult>;
+
+  leistungErbringen(command: LeistungErbringenCommand): Promise<CommandStatus>;
+
+  leistungAendern(command: LeistungAendernCommand): Promise<CommandStatus>;
+
+  leistungLoeschen(command: LeistungLoeschenCommand): Promise<CommandStatus>;
 }

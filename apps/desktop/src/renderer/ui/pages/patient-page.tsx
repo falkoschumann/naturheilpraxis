@@ -4,13 +4,14 @@ import { useCallback, useEffect, useState } from "react";
 import { Link, NavLink, useLocation, useParams } from "react-router";
 
 import type { NaturheilpraxisApi } from "../../../shared/application/naturheilpraxis-api.ts";
-import type { Diagnose } from "../../../shared/domain/entities.ts";
+import type { Diagnose, Leistung } from "../../../shared/domain/entities.ts";
 import type { PatientErmittelnQueryResult } from "../../../shared/domain/patientenansicht.ts";
-import { formatDatum } from "../../../shared/domain/value-objects.ts";
+import { formatDatum, formatEuro } from "../../../shared/domain/value-objects.ts";
 import { ConfirmDialog } from "../components/confirm-dialog.tsx";
 import { sende } from "../components/sende.ts";
 import { Toast, type ToastAction } from "../components/toast.tsx";
 import { DiagnoseDialog } from "./diagnose-dialog.tsx";
+import { LeistungDialog } from "./leistung-dialog.tsx";
 import { PatientBehandlung } from "./patient-behandlung.tsx";
 import { PatientStammdaten } from "./patient-stammdaten.tsx";
 
@@ -18,6 +19,9 @@ type DialogZustand =
   | Readonly<{ art: "diagnose-stellen" }>
   | Readonly<{ art: "diagnose-bearbeiten"; diagnose: Diagnose }>
   | Readonly<{ art: "diagnose-loeschen"; diagnose: Diagnose }>
+  | Readonly<{ art: "leistung-erfassen" }>
+  | Readonly<{ art: "leistung-bearbeiten"; leistung: Leistung }>
+  | Readonly<{ art: "leistung-loeschen"; leistung: Leistung }>
   | undefined;
 
 type Meldung = Readonly<{ message: string; action?: ToastAction }>;
@@ -82,6 +86,32 @@ export function PatientPage({ api, reiter }: { api: NaturheilpraxisApi; reiter: 
     setBehandlungStand((stand) => stand + 1);
   }
 
+  async function leistungLoeschen(leistung: Leistung) {
+    setDialog(undefined);
+    const status = await sende(
+      () => api.leistungLoeschen({ type: "leistung-loeschen", data: { leistungId: leistung.leistungId } }),
+      "Die Leistung konnte nicht gelöscht werden. Bitte versuchen Sie es erneut.",
+    );
+    if (!status.success) {
+      setMeldung({ message: status.errorMessage });
+      return;
+    }
+    setMeldung({
+      message: "Die Leistung wurde gelöscht.",
+      action: { label: "Rückgängig", onAction: () => void leistungWiederherstellen(leistung) },
+    });
+    setBehandlungStand((stand) => stand + 1);
+  }
+
+  async function leistungWiederherstellen(leistung: Leistung) {
+    const status = await sende(
+      () => api.leistungErbringen({ type: "leistung-erbringen", data: leistung }),
+      "Die Leistung konnte nicht wiederhergestellt werden. Bitte erfassen Sie sie erneut.",
+    );
+    setMeldung({ message: status.success ? "Die Leistung ist wiederhergestellt." : status.errorMessage });
+    setBehandlungStand((stand) => stand + 1);
+  }
+
   if (fehler !== undefined) {
     return (
       <div className="alert alert-danger" role="alert">
@@ -139,14 +169,20 @@ export function PatientPage({ api, reiter }: { api: NaturheilpraxisApi; reiter: 
               )}
             </div>
           </div>
-          <button
-            type="button"
-            className="btn btn-outline-primary"
-            onClick={() => setDialog({ art: "diagnose-stellen" })}
-          >
-            <i className="fa-solid fa-stethoscope me-1" aria-hidden="true"></i>
-            Diagnose stellen
-          </button>
+          <div className="d-flex flex-wrap gap-2">
+            <button
+              type="button"
+              className="btn btn-outline-primary"
+              onClick={() => setDialog({ art: "diagnose-stellen" })}
+            >
+              <i className="fa-solid fa-stethoscope me-1" aria-hidden="true"></i>
+              Diagnose stellen
+            </button>
+            <button type="button" className="btn btn-primary" onClick={() => setDialog({ art: "leistung-erfassen" })}>
+              <i className="fa-solid fa-plus me-1" aria-hidden="true"></i>
+              Leistung erfassen
+            </button>
+          </div>
         </div>
       </div>
       <ul className="nav nav-tabs mb-3">
@@ -168,8 +204,12 @@ export function PatientPage({ api, reiter }: { api: NaturheilpraxisApi; reiter: 
           api={api}
           patientennummer={patient.patientennummer}
           stand={behandlungStand}
-          onDiagnoseBearbeiten={(diagnose) => setDialog({ art: "diagnose-bearbeiten", diagnose })}
-          onDiagnoseLoeschen={(diagnose) => setDialog({ art: "diagnose-loeschen", diagnose })}
+          aktionen={{
+            onDiagnoseBearbeiten: (diagnose) => setDialog({ art: "diagnose-bearbeiten", diagnose }),
+            onDiagnoseLoeschen: (diagnose) => setDialog({ art: "diagnose-loeschen", diagnose }),
+            onLeistungBearbeiten: (leistung) => setDialog({ art: "leistung-bearbeiten", leistung }),
+            onLeistungLoeschen: (leistung) => setDialog({ art: "leistung-loeschen", leistung }),
+          }}
         />
       ) : (
         <PatientStammdaten
@@ -205,6 +245,35 @@ export function PatientPage({ api, reiter }: { api: NaturheilpraxisApi; reiter: 
         >
           <p className="mb-0">
             Die Diagnose „{dialog.diagnose.text}“ vom {formatDatum(dialog.diagnose.datum)} wird gelöscht.
+          </p>
+        </ConfirmDialog>
+      )}
+      {(dialog?.art === "leistung-erfassen" || dialog?.art === "leistung-bearbeiten") && (
+        <LeistungDialog
+          api={api}
+          patient={{ patientennummer: patient.patientennummer, praxiskuerzel: patient.praxiskuerzel, name }}
+          leistung={dialog.art === "leistung-bearbeiten" ? dialog.leistung : undefined}
+          onClose={() => setDialog(undefined)}
+          onSaved={(message, weitere) => {
+            if (!weitere) {
+              setDialog(undefined);
+            }
+            setMeldung({ message });
+            setBehandlungStand((stand) => stand + 1);
+          }}
+        />
+      )}
+      {dialog?.art === "leistung-loeschen" && (
+        <ConfirmDialog
+          title="Leistung löschen?"
+          confirmLabel="Löschen"
+          onConfirm={() => void leistungLoeschen(dialog.leistung)}
+          onCancel={() => setDialog(undefined)}
+        >
+          <p className="mb-0">
+            Die Leistung „{dialog.leistung.ziffer} {dialog.leistung.bezeichnung}“ vom{" "}
+            {formatDatum(dialog.leistung.datum)} über{" "}
+            {formatEuro({ cents: dialog.leistung.anzahl * dialog.leistung.einzelbetrag.cents })} wird gelöscht.
           </p>
         </ConfirmDialog>
       )}

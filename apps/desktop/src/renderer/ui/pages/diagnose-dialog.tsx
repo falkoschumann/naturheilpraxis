@@ -11,6 +11,7 @@ import { SelectField } from "../components/select-field.tsx";
 import { sende } from "../components/sende.ts";
 import { TextField } from "../components/text-field.tsx";
 import { AktuellePraxisContext } from "../layouts/aktuelle-praxis.ts";
+import { heute } from "./heute.ts";
 
 type Werte = Record<"datum" | "praxiskuerzel" | "text", string>;
 
@@ -156,12 +157,4 @@ export function DiagnoseDialog({
       </form>
     </Dialog>
   );
-}
-
-// Today in the local time zone as ISO date.
-function heute(): string {
-  const jetzt = new Date();
-  const monat = String(jetzt.getMonth() + 1).padStart(2, "0");
-  const tag = String(jetzt.getDate()).padStart(2, "0");
-  return `${jetzt.getFullYear()}-${monat}-${tag}`;
 }

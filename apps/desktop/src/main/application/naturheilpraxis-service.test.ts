@@ -362,6 +362,77 @@ describe("Naturheilpraxis Service", () => {
       ).toEqual([]);
     });
   });
+
+  describe("Leistungen", () => {
+    it("sollte erbrachte, geänderte und gelöschte Leistungen in der Behandlung zeigen", async () => {
+      const eventStore = SqliteEventStore.createInMemory();
+      eventStore.append([
+        { type: "praxis-angelegt", data: createPraxis() },
+        {
+          type: "patient-aufgenommen",
+          data: {
+            patientennummer: 1,
+            praxiskuerzel: "NHP",
+            aufnahmejahr: 2026,
+            geburtsdatum: "1980-09-20",
+            name: { vorname: "Max", nachname: "Mustermann" },
+          },
+        },
+      ]);
+      const service = new NaturheilpraxisService(eventStore);
+      const leistung = {
+        leistungId: "22222222-2222-4222-8222-222222222222",
+        praxiskuerzel: "NHP",
+        patientennummer: 1,
+        datum: "2026-09-14",
+        ziffer: "1",
+        bezeichnung: "Eingehende Untersuchung",
+        anzahl: 1,
+        einzelbetrag: { cents: 2050 },
+      };
+
+      const erbracht = await service.leistungErbringen({
+        type: "leistung-erbringen",
+        data: leistung,
+      });
+      const geaendert = await service.leistungAendern({
+        type: "leistung-aendern",
+        data: {
+          leistungId: leistung.leistungId,
+          praxiskuerzel: "NHP",
+          datum: "2026-09-14",
+          ziffer: "1",
+          bezeichnung: "Eingehende Untersuchung",
+          anzahl: 2,
+          einzelbetrag: { cents: 2050 },
+        },
+      });
+
+      expect([erbracht, geaendert]).toEqual([
+        { success: true },
+        { success: true },
+      ]);
+      expect(
+        await service.behandlungenErmitteln({
+          type: "behandlungen-ermitteln",
+          parameters: { patientennummer: 1 },
+        }),
+      ).toEqual([{ art: "leistung", eintrag: { ...leistung, anzahl: 2 } }]);
+
+      const geloescht = await service.leistungLoeschen({
+        type: "leistung-loeschen",
+        data: { leistungId: leistung.leistungId },
+      });
+
+      expect(geloescht).toEqual({ success: true });
+      expect(
+        await service.behandlungenErmitteln({
+          type: "behandlungen-ermitteln",
+          parameters: { patientennummer: 1 },
+        }),
+      ).toEqual([]);
+    });
+  });
 });
 
 function createPraxis(praxis: Partial<Praxis> = {}): Praxis {
