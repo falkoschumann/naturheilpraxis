@@ -91,6 +91,124 @@ describe("Naturheilpraxis Service", () => {
       expect(praxis).toEqual(createPraxis());
     });
   });
+
+  describe("Gebührenverzeichnis", () => {
+    it("sollte eine angelegte Gebühr im Gebührenverzeichnis zeigen", async () => {
+      const service = new NaturheilpraxisService(
+        SqliteEventStore.createInMemory(),
+      );
+
+      const status = await service.gebuehrAnlegen({
+        type: "gebuehr-anlegen",
+        data: {
+          ziffer: "1",
+          bezeichnung: "Eingehende Untersuchung",
+          betrag: { cents: 2050 },
+        },
+      });
+
+      expect(status).toEqual({ success: true });
+      expect(
+        await service.gebuehrenErmitteln({
+          type: "gebuehren-ermitteln",
+          parameters: {},
+        }),
+      ).toEqual([
+        {
+          ziffer: "1",
+          bezeichnung: "Eingehende Untersuchung",
+          betrag: { cents: 2050 },
+        },
+      ]);
+    });
+
+    it("sollte eine geänderte Gebühr im Gebührenverzeichnis zeigen", async () => {
+      const eventStore = SqliteEventStore.createInMemory();
+      eventStore.append([
+        {
+          type: "gebuehr-angelegt",
+          data: {
+            ziffer: "1",
+            bezeichnung: "Eingehende Untersuchung",
+            betrag: { cents: 2050 },
+          },
+        },
+      ]);
+      const service = new NaturheilpraxisService(eventStore);
+
+      const status = await service.gebuehrAendern({
+        type: "gebuehr-aendern",
+        data: {
+          ziffer: "1",
+          bezeichnung: "Eingehende Untersuchung",
+          betrag: { cents: 2300 },
+        },
+      });
+
+      expect(status).toEqual({ success: true });
+      expect(
+        await service.gebuehrenErmitteln({
+          type: "gebuehren-ermitteln",
+          parameters: {},
+        }),
+      ).toEqual([
+        {
+          ziffer: "1",
+          bezeichnung: "Eingehende Untersuchung",
+          betrag: { cents: 2300 },
+        },
+      ]);
+    });
+
+    it("sollte eine entfernte Gebühr nicht mehr zeigen", async () => {
+      const eventStore = SqliteEventStore.createInMemory();
+      eventStore.append([
+        {
+          type: "gebuehr-angelegt",
+          data: {
+            ziffer: "1",
+            bezeichnung: "Eingehende Untersuchung",
+            betrag: { cents: 2050 },
+          },
+        },
+      ]);
+      const service = new NaturheilpraxisService(eventStore);
+
+      const status = await service.gebuehrEntfernen({
+        type: "gebuehr-entfernen",
+        data: { ziffer: "1" },
+      });
+
+      expect(status).toEqual({ success: true });
+      expect(
+        await service.gebuehrenErmitteln({
+          type: "gebuehren-ermitteln",
+          parameters: {},
+        }),
+      ).toEqual([]);
+    });
+
+    it("sollte eine Fehlermeldung liefern, wenn der Betrag negativ ist", async () => {
+      const service = new NaturheilpraxisService(
+        SqliteEventStore.createInMemory(),
+      );
+
+      const status = await service.gebuehrAnlegen({
+        type: "gebuehr-anlegen",
+        data: {
+          ziffer: "1",
+          bezeichnung: "Eingehende Untersuchung",
+          betrag: { cents: -1 },
+        },
+      });
+
+      expect(status).toEqual({
+        success: false,
+        errorMessage:
+          "Der Betrag darf nicht negativ sein. Bitte geben Sie einen Betrag ab 0,00 € an.",
+      });
+    });
+  });
 });
 
 function createPraxis(praxis: Partial<Praxis> = {}): Praxis {

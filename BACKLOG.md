@@ -20,7 +20,7 @@ Jeder Eintrag beginnt mit einer Kategorie:
       sowie Praxen anzeigen (`praxenansicht`) als erster Durchstich durch alle
       Schichten: Domain, Event Store in SQLite, IPC, UI und E2E-Schritt
       „Heilpraktiker legt Praxis an“.
-- [ ] **Gebühr** Gebührenverzeichnis pflegen (`gebuehrenverzeichnis`) und
+- [x] **Gebühr** Gebührenverzeichnis pflegen (`gebuehrenverzeichnis`) und
       Gebühren anzeigen (`gebuehrenansicht`).
 - [ ] **Patient** Patient aufnehmen (`patientenaufnahme`), Patientendaten ändern
       (`patientenkartei`) und Patienten anzeigen (`patientenansicht`) mit

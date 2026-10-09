@@ -1,6 +1,6 @@
 // Copyright (c) 2026 Falko Schumann. MIT license.
 
-import { useId, useState, type FormEvent } from "react";
+import { useState, type FormEvent } from "react";
 
 import type { CommandStatus, NaturheilpraxisApi } from "../../../shared/application/naturheilpraxis-api.ts";
 import type { Praxis } from "../../../shared/domain/entities.ts";
@@ -45,7 +45,6 @@ export function PraxisDialog({
   const [ungueltig, setUngueltig] = useState<ReadonlySet<Feld>>(new Set());
   const [fehler, setFehler] = useState<string>();
   const [speichert, setSpeichert] = useState(false);
-  const rechnungstextId = useId();
 
   function feld(name: Feld) {
     return {
@@ -119,11 +118,11 @@ export function PraxisDialog({
               className="col-md-4"
               {...feld("praxiskuerzel")}
               readOnly={bearbeiten}
-              autoFocus={!bearbeiten}
+              data-autofocus={!bearbeiten || undefined}
               help={bearbeiten ? "Das Kürzel kann nicht geändert werden." : "Kurz und eindeutig, z. B. PARK."}
               style={{ textTransform: "uppercase" }}
             />
-            <TextField label="Name" className="col-md-8" autoFocus={bearbeiten} {...feld("name")} />
+            <TextField label="Name" className="col-md-8" data-autofocus={bearbeiten || undefined} {...feld("name")} />
             <TextField label="Straße und Hausnummer" className="col-md-6" {...feld("strasse")} />
             <TextField label="Adresszusatz" className="col-md-6" {...feld("zusatz")} />
             <TextField label="Postleitzahl" className="col-md-3" {...feld("postleitzahl")} />
@@ -133,28 +132,12 @@ export function PraxisDialog({
             <TextField label="Mobiltelefon" type="tel" className="col-md-6" {...feld("mobiltelefon")} />
             <TextField label="E-Mail" type="email" className="col-md-6" {...feld("email")} />
             <TextField label="Website" type="url" className="col-md-6" {...feld("website")} />
-            <div className="col-12">
-              <label htmlFor={rechnungstextId} className="form-label">
-                Rechnungstext
-              </label>
-              <textarea
-                id={rechnungstextId}
-                name="rechnungstext"
-                className="form-control"
-                rows={3}
-                value={werte.rechnungstext}
-                onChange={(event) =>
-                  setWerte((werte) => ({
-                    ...werte,
-                    rechnungstext: event.target.value,
-                  }))
-                }
-                aria-describedby={`${rechnungstextId}-help`}
-              />
-              <div id={`${rechnungstextId}-help`} className="form-text">
-                Wird in neue Rechnungen dieser Praxis übernommen.
-              </div>
-            </div>
+            <TextField
+              label="Rechnungstext"
+              rows={3}
+              help="Wird in neue Rechnungen dieser Praxis übernommen."
+              {...feld("rechnungstext")}
+            />
           </div>
         </div>
         <div className="modal-footer">

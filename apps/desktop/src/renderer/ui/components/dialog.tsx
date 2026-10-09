@@ -5,6 +5,9 @@ import { useEffect, useId, useRef, type ReactNode } from "react";
 // A modal dialog in the style of Bootstrap. The native dialog element keeps the
 // focus inside, closes with Escape and returns the focus when it closes. The
 // dialog is open while it is rendered.
+//
+// Opening the dialog focuses its first focusable element, so React's autoFocus
+// has no effect inside. Mark the element to focus with data-autofocus instead.
 export function Dialog({ title, onClose, children }: { title: string; onClose: () => void; children: ReactNode }) {
   const ref = useRef<HTMLDialogElement>(null);
   const titleId = useId();
@@ -12,6 +15,7 @@ export function Dialog({ title, onClose, children }: { title: string; onClose: (
   useEffect(() => {
     const dialog = ref.current;
     dialog?.showModal();
+    dialog?.querySelector<HTMLElement>("[data-autofocus]")?.focus();
     return () => dialog?.close();
   }, []);
 

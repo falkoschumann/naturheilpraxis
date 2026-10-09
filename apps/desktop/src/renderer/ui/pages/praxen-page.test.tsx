@@ -3,15 +3,13 @@
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
-import type { CommandStatus, NaturheilpraxisApi } from "../../../shared/application/naturheilpraxis-api.ts";
 import type { Praxis } from "../../../shared/domain/entities.ts";
-import type { PraxenErmittelnQueryResult, PraxisErmittelnQueryResult } from "../../../shared/domain/praxenansicht.ts";
-import type { PraxisAnlegenCommand, PraxisdatenAendernCommand } from "../../../shared/domain/praxisverwaltung.ts";
+import { FakeNaturheilpraxisApi } from "./fake-naturheilpraxis-api.ts";
 import { PraxenPage } from "./praxen-page.tsx";
 
 describe("Praxen", () => {
   it("sollte die Praxen anzeigen", async () => {
-    const api = new FakeApi({ praxen: [createPraxis()] });
+    const api = new FakeNaturheilpraxisApi({ events: [{ type: "praxis-angelegt", data: createPraxis() }] });
 
     render(<PraxenPage api={api} />);
 
@@ -24,7 +22,7 @@ describe("Praxen", () => {
   });
 
   it("sollte einen Hinweis zeigen, wenn noch keine Praxis angelegt ist", async () => {
-    const api = new FakeApi();
+    const api = new FakeNaturheilpraxisApi();
 
     render(<PraxenPage api={api} />);
 
@@ -32,10 +30,11 @@ describe("Praxen", () => {
   });
 
   it("sollte eine Praxis anlegen", async () => {
-    const api = new FakeApi();
+    const api = new FakeNaturheilpraxisApi();
     render(<PraxenPage api={api} />);
     fireEvent.click(await screen.findByRole("button", { name: "Praxis anlegen" }));
     const dialog = screen.getByRole("dialog", { name: "Praxis anlegen" });
+    expect(document.activeElement).toBe(within(dialog).getByLabelText("Praxiskürzel"));
 
     eingeben(dialog, "Praxiskürzel", "nhp");
     eingeben(dialog, "Name", "Naturheilpraxis am Markt");
@@ -46,7 +45,7 @@ describe("Praxen", () => {
     fireEvent.click(within(dialog).getByRole("button", { name: "Praxis anlegen" }));
 
     expect(await screen.findByText("Die Praxis wurde angelegt.")).toBeDefined();
-    expect(api.anlegen).toEqual([
+    expect(api.commands).toEqual([
       {
         type: "praxis-anlegen",
         data: {
@@ -66,7 +65,7 @@ describe("Praxen", () => {
   });
 
   it("sollte fehlende Pflichtfelder markieren und die Praxis nicht anlegen", async () => {
-    const api = new FakeApi();
+    const api = new FakeNaturheilpraxisApi();
     render(<PraxenPage api={api} />);
     fireEvent.click(await screen.findByRole("button", { name: "Praxis anlegen" }));
     const dialog = screen.getByRole("dialog", { name: "Praxis anlegen" });
@@ -79,11 +78,11 @@ describe("Praxen", () => {
     expect(kuerzel.getAttribute("aria-invalid")).toBe("true");
     expect(document.activeElement).toBe(kuerzel);
     expect(within(dialog).getByLabelText("Name")).toHaveProperty("value", "Naturheilpraxis am Markt");
-    expect(api.anlegen).toEqual([]);
+    expect(api.commands).toEqual([]);
   });
 
   it("sollte die Ablehnung zeigen und die Eingaben behalten", async () => {
-    const api = new FakeApi({
+    const api = new FakeNaturheilpraxisApi({
       status: {
         success: false,
         errorMessage: "Eine Praxis mit dem Kürzel „NHP“ ist bereits angelegt. Bitte wählen Sie ein anderes Kürzel.",
@@ -107,7 +106,7 @@ describe("Praxen", () => {
   });
 
   it("sollte die Praxisdaten ändern", async () => {
-    const api = new FakeApi({ praxen: [createPraxis()] });
+    const api = new FakeNaturheilpraxisApi({ events: [{ type: "praxis-angelegt", data: createPraxis() }] });
     render(<PraxenPage api={api} />);
     fireEvent.click(
       await screen.findByRole("button", {
@@ -123,7 +122,7 @@ describe("Praxen", () => {
     fireEvent.click(within(dialog).getByRole("button", { name: "Speichern" }));
 
     expect(await screen.findByText("Die Praxisdaten wurden geändert.")).toBeDefined();
-    expect(api.aendern).toEqual([
+    expect(api.commands).toEqual([
       {
         type: "praxisdaten-aendern",
         data: createPraxis({ name: "Naturheilpraxis am Brunnen" }),
@@ -149,43 +148,4 @@ function createPraxis(praxis: Partial<Praxis> = {}): Praxis {
     },
     ...praxis,
   };
-}
-
-// Keeps the Praxen in memory and records the commands.
-class FakeApi implements NaturheilpraxisApi {
-  readonly anlegen: PraxisAnlegenCommand[] = [];
-  readonly aendern: PraxisdatenAendernCommand[] = [];
-
-  readonly #praxen: Praxis[];
-  readonly #status: CommandStatus;
-
-  constructor({ praxen = [], status = { success: true } }: { praxen?: Praxis[]; status?: CommandStatus } = {}) {
-    this.#praxen = [...praxen];
-    this.#status = status;
-  }
-
-  async praxisAnlegen(command: PraxisAnlegenCommand): Promise<CommandStatus> {
-    this.anlegen.push(command);
-    if (this.#status.success) {
-      this.#praxen.push(command.data);
-    }
-    return this.#status;
-  }
-
-  async praxisdatenAendern(command: PraxisdatenAendernCommand): Promise<CommandStatus> {
-    this.aendern.push(command);
-    return this.#status;
-  }
-
-  async praxenErmitteln(): Promise<PraxenErmittelnQueryResult> {
-    return this.#praxen.map(({ anschrift, kontakt, ...praxis }) => ({
-      ...praxis,
-      ...anschrift,
-      ...kontakt,
-    }));
-  }
-
-  async praxisErmitteln(): Promise<PraxisErmittelnQueryResult> {
-    return this.#praxen[0];
-  }
 }

@@ -50,6 +50,18 @@ function handleMessages(service: NaturheilpraxisService): void {
   ipcMain.handle("praxis-ermitteln", (_event, query) =>
     service.praxisErmitteln(query),
   );
+  ipcMain.handle("gebuehr-anlegen", (_event, command) =>
+    service.gebuehrAnlegen(command),
+  );
+  ipcMain.handle("gebuehr-aendern", (_event, command) =>
+    service.gebuehrAendern(command),
+  );
+  ipcMain.handle("gebuehr-entfernen", (_event, command) =>
+    service.gebuehrEntfernen(command),
+  );
+  ipcMain.handle("gebuehren-ermitteln", (_event, query) =>
+    service.gebuehrenErmitteln(query),
+  );
 }
 
 app.on("window-all-closed", () => {

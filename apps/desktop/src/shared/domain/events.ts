@@ -1,11 +1,9 @@
 // Copyright (c) 2026 Falko Schumann. MIT license.
 
-import type {
-  PraxisAngelegtEvent,
-  PraxisdatenGeaendertEvent,
-} from "./praxisverwaltung.ts";
+import type { GebuehrenverzeichnisEvent } from "./gebuehrenverzeichnis.ts";
+import type { PraxisverwaltungEvent } from "./praxisverwaltung.ts";
 
-export type DomainEvent = PraxisAngelegtEvent | PraxisdatenGeaendertEvent;
+export type DomainEvent = PraxisverwaltungEvent | GebuehrenverzeichnisEvent;
 
 export type DomainEventType = DomainEvent["type"];
 
@@ -16,6 +14,13 @@ export type EventQuery = Readonly<{
   tags: readonly string[];
 }>;
 
+export function matches(event: DomainEvent, query: EventQuery): boolean {
+  return (
+    query.types.includes(event.type) &&
+    tagsOf(event).some((tag) => query.tags.includes(tag))
+  );
+}
+
 // The tags identify the things an event is about, so that a consistency
 // boundary can consult the events by the identity of these things.
 export function tagsOf(event: DomainEvent): string[] {
@@ -23,9 +28,17 @@ export function tagsOf(event: DomainEvent): string[] {
     case "praxis-angelegt":
     case "praxisdaten-geaendert":
       return [praxisTag(event.data.praxiskuerzel)];
+    case "gebuehr-angelegt":
+    case "gebuehr-geaendert":
+    case "gebuehr-entfernt":
+      return [gebuehrTag(event.data.ziffer)];
   }
 }
 
 export function praxisTag(praxiskuerzel: string): string {
   return `praxis:${praxiskuerzel}`;
+}
+
+export function gebuehrTag(ziffer: string): string {
+  return `gebuehr:${ziffer}`;
 }

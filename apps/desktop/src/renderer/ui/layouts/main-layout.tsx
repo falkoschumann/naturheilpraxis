@@ -2,7 +2,7 @@
 
 import { Link, NavLink, Outlet, useLocation } from "react-router";
 
-const stammdaten = ["/praxen"];
+const stammdaten = ["/praxen", "/gebuehren"];
 
 export function MainLayout() {
   const { pathname } = useLocation();
@@ -32,6 +32,11 @@ export function MainLayout() {
                 <li>
                   <NavLink className="dropdown-item" to="/praxen">
                     Praxen
+                  </NavLink>
+                </li>
+                <li>
+                  <NavLink className="dropdown-item" to="/gebuehren">
+                    Gebührenverzeichnis
                   </NavLink>
                 </li>
               </ul>

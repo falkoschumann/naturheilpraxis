@@ -46,6 +46,8 @@ export function project(
     case "praxis-angelegt":
     case "praxisdaten-geaendert":
       return { ...readModel, [event.data.praxiskuerzel]: event.data };
+    default:
+      return readModel;
   }
 }
 

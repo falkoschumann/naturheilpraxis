@@ -4,7 +4,10 @@ import type {
   CommandStatus,
   NaturheilpraxisApi,
 } from "../../shared/application/naturheilpraxis-api.ts";
+import type { ConsistencyBoundary } from "../../shared/domain/consistency-boundary.ts";
 import type { DomainEvent } from "../../shared/domain/events.ts";
+import * as gebuehrenansicht from "../../shared/domain/gebuehrenansicht.ts";
+import * as gebuehrenverzeichnis from "../../shared/domain/gebuehrenverzeichnis.ts";
 import * as praxenansicht from "../../shared/domain/praxenansicht.ts";
 import * as praxisverwaltung from "../../shared/domain/praxisverwaltung.ts";
 import type { EventStore } from "../infrastructure/event-store.ts";
@@ -14,25 +17,31 @@ import type { EventStore } from "../infrastructure/event-store.ts";
 export class NaturheilpraxisService implements NaturheilpraxisApi {
   readonly #eventStore: EventStore;
   #praxenansicht: praxenansicht.Praxenansicht;
+  #gebuehrenansicht: gebuehrenansicht.Gebuehrenansicht;
 
   constructor(eventStore: EventStore) {
     this.#eventStore = eventStore;
+    const events = eventStore.query();
     this.#praxenansicht = praxenansicht.projectAll(
       praxenansicht.initialReadModel,
-      eventStore.query(),
+      events,
+    );
+    this.#gebuehrenansicht = gebuehrenansicht.projectAll(
+      gebuehrenansicht.initialReadModel,
+      events,
     );
   }
 
   async praxisAnlegen(
     command: praxisverwaltung.PraxisAnlegenCommand,
   ): Promise<CommandStatus> {
-    return this.#praxisverwaltung(command);
+    return this.#execute(praxisverwaltung, command);
   }
 
   async praxisdatenAendern(
     command: praxisverwaltung.PraxisdatenAendernCommand,
   ): Promise<CommandStatus> {
-    return this.#praxisverwaltung(command);
+    return this.#execute(praxisverwaltung, command);
   }
 
   async praxenErmitteln(
@@ -47,15 +56,41 @@ export class NaturheilpraxisService implements NaturheilpraxisApi {
     return praxenansicht.praxisErmitteln(this.#praxenansicht, query);
   }
 
-  #praxisverwaltung(
-    command: praxisverwaltung.PraxisverwaltungCommand,
+  async gebuehrAnlegen(
+    command: gebuehrenverzeichnis.GebuehrAnlegenCommand,
+  ): Promise<CommandStatus> {
+    return this.#execute(gebuehrenverzeichnis, command);
+  }
+
+  async gebuehrAendern(
+    command: gebuehrenverzeichnis.GebuehrAendernCommand,
+  ): Promise<CommandStatus> {
+    return this.#execute(gebuehrenverzeichnis, command);
+  }
+
+  async gebuehrEntfernen(
+    command: gebuehrenverzeichnis.GebuehrEntfernenCommand,
+  ): Promise<CommandStatus> {
+    return this.#execute(gebuehrenverzeichnis, command);
+  }
+
+  async gebuehrenErmitteln(
+    query: gebuehrenansicht.GebuehrenErmittelnQuery,
+  ): Promise<gebuehrenansicht.GebuehrenErmittelnQueryResult> {
+    return gebuehrenansicht.gebuehrenErmitteln(this.#gebuehrenansicht, query);
+  }
+
+  #execute<State, Command, Event extends DomainEvent>(
+    boundary: ConsistencyBoundary<State, Command, Event>,
+    command: Command,
   ): CommandStatus {
-    const events = this.#eventStore.query(praxisverwaltung.consults(command));
-    const state = praxisverwaltung.evolveAll(
-      praxisverwaltung.initialState,
-      events as praxisverwaltung.PraxisverwaltungEvent[],
-    );
-    const result = praxisverwaltung.decide(state, command);
+    // The event store returns only events of the consulted types, which are
+    // the events of this boundary.
+    const events = this.#eventStore.query(
+      boundary.consults(command),
+    ) as Event[];
+    const state = boundary.evolveAll(boundary.initialState, events);
+    const result = boundary.decide(state, command);
     if (!result.ok) {
       return { success: false, errorMessage: result.error.message };
     }
@@ -65,7 +100,15 @@ export class NaturheilpraxisService implements NaturheilpraxisApi {
   }
 
   #publish(events: readonly DomainEvent[]): void {
+    if (events.length === 0) {
+      return;
+    }
+
     this.#eventStore.append(events);
     this.#praxenansicht = praxenansicht.projectAll(this.#praxenansicht, events);
+    this.#gebuehrenansicht = gebuehrenansicht.projectAll(
+      this.#gebuehrenansicht,
+      events,
+    );
   }
 }

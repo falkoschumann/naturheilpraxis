@@ -1,9 +1,10 @@
 // Copyright (c) 2026 Falko Schumann. MIT license.
 
-import { useId, type InputHTMLAttributes } from "react";
+import { useId, type InputHTMLAttributes, type TextareaHTMLAttributes } from "react";
 
 // An input with a visible label, an optional help text and a message shown when
-// the input is invalid. Required fields are marked with an asterisk.
+// the input is invalid. Required fields are marked with an asterisk. With rows
+// the input has several lines.
 export function TextField({
   label,
   value,
@@ -12,6 +13,7 @@ export function TextField({
   invalidMessage,
   invalid = false,
   className = "col-12",
+  rows,
   ...attributes
 }: {
   label: string;
@@ -21,6 +23,7 @@ export function TextField({
   invalidMessage?: string;
   invalid?: boolean;
   className?: string;
+  rows?: number;
 } & Omit<InputHTMLAttributes<HTMLInputElement>, "value" | "onChange" | "className">) {
   const id = useId();
   const helpId = `${id}-help`;
@@ -34,15 +37,28 @@ export function TextField({
       <label htmlFor={id} className={`form-label${attributes.required === true ? " required" : ""}`}>
         {label}
       </label>
-      <input
-        id={id}
-        className={`form-control${invalid ? " is-invalid" : ""}`}
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
-        aria-invalid={invalid}
-        aria-describedby={describedBy === "" ? undefined : describedBy}
-        {...attributes}
-      />
+      {rows === undefined ? (
+        <input
+          id={id}
+          className={`form-control${invalid ? " is-invalid" : ""}`}
+          value={value}
+          onChange={(event) => onChange(event.target.value)}
+          aria-invalid={invalid}
+          aria-describedby={describedBy === "" ? undefined : describedBy}
+          {...attributes}
+        />
+      ) : (
+        <textarea
+          id={id}
+          className={`form-control${invalid ? " is-invalid" : ""}`}
+          rows={rows}
+          value={value}
+          onChange={(event) => onChange(event.target.value)}
+          aria-invalid={invalid}
+          aria-describedby={describedBy === "" ? undefined : describedBy}
+          {...(attributes as TextareaHTMLAttributes<HTMLTextAreaElement>)}
+        />
+      )}
       {help !== undefined && (
         <div id={helpId} className="form-text">
           {help}

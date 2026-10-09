@@ -1,6 +1,15 @@
 // Copyright (c) 2026 Falko Schumann. MIT license.
 
 import type {
+  GebuehrenErmittelnQuery,
+  GebuehrenErmittelnQueryResult,
+} from "../domain/gebuehrenansicht.ts";
+import type {
+  GebuehrAendernCommand,
+  GebuehrAnlegenCommand,
+  GebuehrEntfernenCommand,
+} from "../domain/gebuehrenverzeichnis.ts";
+import type {
   PraxenErmittelnQuery,
   PraxenErmittelnQueryResult,
   PraxisErmittelnQuery,
@@ -31,4 +40,14 @@ export interface NaturheilpraxisApi {
   praxisErmitteln(
     query: PraxisErmittelnQuery,
   ): Promise<PraxisErmittelnQueryResult>;
+
+  gebuehrAnlegen(command: GebuehrAnlegenCommand): Promise<CommandStatus>;
+
+  gebuehrAendern(command: GebuehrAendernCommand): Promise<CommandStatus>;
+
+  gebuehrEntfernen(command: GebuehrEntfernenCommand): Promise<CommandStatus>;
+
+  gebuehrenErmitteln(
+    query: GebuehrenErmittelnQuery,
+  ): Promise<GebuehrenErmittelnQueryResult>;
 }

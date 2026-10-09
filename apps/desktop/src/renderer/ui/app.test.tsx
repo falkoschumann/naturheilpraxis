@@ -3,12 +3,12 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
-import type { NaturheilpraxisApi } from "../../shared/application/naturheilpraxis-api.ts";
 import { App } from "./app.tsx";
+import { FakeNaturheilpraxisApi } from "./pages/fake-naturheilpraxis-api.ts";
 
 describe("App", () => {
   it("sollte die Hauptnavigation anzeigen", () => {
-    render(<App api={createApi()} />);
+    render(<App api={new FakeNaturheilpraxisApi()} />);
 
     const navigation = screen.getByRole("navigation", {
       name: "Hauptnavigation",
@@ -18,19 +18,10 @@ describe("App", () => {
   });
 
   it("sollte mit den Praxen starten", async () => {
-    render(<App api={createApi()} />);
+    render(<App api={new FakeNaturheilpraxisApi()} />);
 
     const heading = await screen.findByRole("heading", { name: "Praxen" });
 
     expect(heading).toBeDefined();
   });
 });
-
-function createApi(): NaturheilpraxisApi {
-  return {
-    praxisAnlegen: async () => ({ success: true }),
-    praxisdatenAendern: async () => ({ success: true }),
-    praxenErmitteln: async () => [],
-    praxisErmitteln: async () => undefined,
-  };
-}

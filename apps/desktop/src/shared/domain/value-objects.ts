@@ -1,5 +1,7 @@
 // Copyright (c) 2026 Falko Schumann. MIT license.
 
+import { fail, ok, type Rejection, type Result } from "./result.ts";
+
 export type Anschrift = Readonly<{
   strasse: string;
   zusatz?: string;
@@ -14,3 +16,47 @@ export type Kontakt = Readonly<{
   email?: string;
   website?: string;
 }>;
+
+// The amount in the smallest unit of the currency avoids rounding errors.
+export type Euro = Readonly<{
+  cents: number;
+}>;
+
+export type Gebuehrenziffer = string;
+
+export function pruefeEuro(euro: Euro): Result<Euro, Rejection> {
+  if (euro.cents < 0) {
+    return fail({
+      invariant: "betrag-ist-nicht-negativ",
+      message:
+        "Der Betrag darf nicht negativ sein. Bitte geben Sie einen Betrag ab 0,00 € an.",
+    });
+  }
+  return ok(euro);
+}
+
+const euroFormat = new Intl.NumberFormat("de-DE", {
+  style: "currency",
+  currency: "EUR",
+});
+
+export function formatEuro(euro: Euro): string {
+  return euroFormat.format(euro.cents / 100);
+}
+
+// Reads an amount in German notation like "1.234,56 €". The dot only groups
+// thousands, so "20.50" is no amount.
+export function parseEuro(text: string): Euro | undefined {
+  const match = /^(\d+|\d{1,3}(?:\.\d{3})+)(?:,(\d{1,2}))?$/.exec(
+    text.replace(/\s|€/g, ""),
+  );
+  if (match === null) {
+    return undefined;
+  }
+
+  const [, euros = "0", cents = ""] = match;
+  return {
+    cents:
+      Number(euros.replaceAll(".", "")) * 100 + Number(cents.padEnd(2, "0")),
+  };
+}
