@@ -41,8 +41,11 @@ export type EventQueryItem = Readonly<{
   tags?: readonly string[];
 }>;
 
-export function matches(event: DomainEvent, query: EventQuery): boolean {
-  const tags = tagsOf(event);
+export function matches(
+  event: DomainEvent,
+  query: EventQuery,
+  tags: readonly string[] = tagsOf(event),
+): boolean {
   return query.some(
     (item) =>
       item.types.includes(event.type) &&

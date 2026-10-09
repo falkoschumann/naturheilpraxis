@@ -48,6 +48,22 @@ import type {
   LeistungLoeschenCommand,
 } from "../domain/leistungserbringung.ts";
 
+import type {
+  EntwurfLoeschenCommand,
+  RechnungAendernCommand,
+  RechnungErstellenCommand,
+} from "../domain/abrechnung.ts";
+import type {
+  NichtAbgerechneteLeistungenErmittelnQuery,
+  NichtAbgerechneteLeistungenErmittelnQueryResult,
+  RechnungenErmittelnQuery,
+  RechnungenErmittelnQueryResult,
+} from "../domain/abrechnungsansicht.ts";
+import type {
+  RechnungErmittelnQuery,
+  RechnungErmittelnQueryResult,
+} from "../domain/rechnungsansicht.ts";
+
 export type CommandStatus =
   | Readonly<{ success: true; errorMessage?: never }>
   | Readonly<{ success: false; errorMessage: string }>;
@@ -123,4 +139,22 @@ export interface NaturheilpraxisApi {
   leistungAendern(command: LeistungAendernCommand): Promise<CommandStatus>;
 
   leistungLoeschen(command: LeistungLoeschenCommand): Promise<CommandStatus>;
+
+  rechnungErstellen(command: RechnungErstellenCommand): Promise<CommandStatus>;
+
+  rechnungAendern(command: RechnungAendernCommand): Promise<CommandStatus>;
+
+  entwurfLoeschen(command: EntwurfLoeschenCommand): Promise<CommandStatus>;
+
+  nichtAbgerechneteLeistungenErmitteln(
+    query: NichtAbgerechneteLeistungenErmittelnQuery,
+  ): Promise<NichtAbgerechneteLeistungenErmittelnQueryResult>;
+
+  rechnungenErmitteln(
+    query: RechnungenErmittelnQuery,
+  ): Promise<RechnungenErmittelnQueryResult>;
+
+  rechnungErmitteln(
+    query: RechnungErmittelnQuery,
+  ): Promise<RechnungErmittelnQueryResult>;
 }

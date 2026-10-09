@@ -87,13 +87,15 @@ scenarios:
         diagnosetext: Chronische Rückenschmerzen
         rechnungstext: Bitte überweisen Sie den Betrag innerhalb von 14 Tagen.
         positionen:
-          - datum: "2026-09-14"
+          - leistungId: 22222222-2222-4222-8222-222222222222
+            datum: "2026-09-14"
             ziffer: "1"
             bezeichnung: Eingehende Untersuchung
             anzahl: 1
             einzelbetrag: { cents: 2050 }
             betrag: { cents: 2050 }
-          - datum: "2026-09-21"
+          - leistungId: 23232323-2323-4323-8323-232323232323
+            datum: "2026-09-21"
             ziffer: "20.1"
             bezeichnung: Akupunktur
             anzahl: 2
@@ -186,7 +188,8 @@ scenarios:
         diagnosetext: Chronische Rückenschmerzen
         rechnungstext: Bitte überweisen Sie den Betrag innerhalb von 14 Tagen.
         positionen:
-          - datum: "2026-09-14"
+          - leistungId: 22222222-2222-4222-8222-222222222222
+            datum: "2026-09-14"
             ziffer: "1"
             bezeichnung: Eingehende Untersuchung
             anzahl: 1
@@ -278,7 +281,8 @@ scenarios:
         diagnosetext: Chronische Rückenschmerzen
         rechnungstext: Bitte überweisen Sie den Betrag innerhalb von 14 Tagen.
         positionen:
-          - datum: "2026-09-14"
+          - leistungId: 22222222-2222-4222-8222-222222222222
+            datum: "2026-09-14"
             ziffer: "1"
             bezeichnung: Eingehende Untersuchung
             anzahl: 1

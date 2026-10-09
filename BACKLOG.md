@@ -31,7 +31,7 @@ Jeder Eintrag beginnt mit einer Kategorie:
 - [x] **Leistung** Leistung erbringen, ändern und löschen
       (`leistungserbringung`) sowie Behandlungen anzeigen (`behandlungsansicht`)
       mit E2E-Schritt „Heilpraktiker erbringt Leistung für Patient“.
-- [ ] **Rechnung** Rechnung aus nicht abgerechneten Leistungen erstellen, ändern
+- [x] **Rechnung** Rechnung aus nicht abgerechneten Leistungen erstellen, ändern
       und Entwurf löschen (`abrechnung`) sowie Abrechnungen und Rechnung
       anzeigen (`abrechnungsansicht`, `rechnungsansicht`) mit E2E-Schritt
       „Heilpraktiker erstellt Rechnung aus Leistung wegen Diagnose“.

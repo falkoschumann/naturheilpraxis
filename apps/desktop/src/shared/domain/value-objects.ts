@@ -85,3 +85,14 @@ export function formatDatum(isoDatum: string): string {
   const [jahr, monat, tag] = isoDatum.split("-");
   return `${tag}.${monat}.${jahr}`;
 }
+
+// Like "Mustermann, Max (Nr. 1234), geboren am 20.09.1980".
+export function formatPatientenname(
+  patient: Readonly<{
+    patientennummer: Patientennummer;
+    name: Personenname;
+    geburtsdatum: string;
+  }>,
+): string {
+  return `${patient.name.nachname}, ${patient.name.vorname} (Nr. ${patient.patientennummer}), geboren am ${formatDatum(patient.geburtsdatum)}`;
+}

@@ -36,8 +36,11 @@ describe("Patient", () => {
     zeigePatient(api, 1, "/stammdaten");
     const stammdaten = await screen.findByRole("form", { name: "Stammdaten" });
 
+    const partnerVon = within(stammdaten).getByLabelText("Partner von");
+    await within(partnerVon).findByRole("option", { name: "Mustermann, Erika (Nr. 2)" });
+
     eingeben(stammdaten, "Beruf", "Tischler");
-    fireEvent.change(within(stammdaten).getByLabelText("Partner von"), { target: { value: "2" } });
+    fireEvent.change(partnerVon, { target: { value: "2" } });
     fireEvent.click(within(stammdaten).getByRole("button", { name: "Speichern" }));
 
     expect(await screen.findByText("Die Stammdaten wurden gespeichert.")).toBeDefined();

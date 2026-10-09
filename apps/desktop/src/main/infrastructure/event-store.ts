@@ -13,8 +13,12 @@ export interface EventStore {
   // query.
   query(query?: EventQuery): DomainEvent[];
 
-  // Appends the events atomically.
-  append(events: readonly DomainEvent[]): void;
+  // Appends the events atomically. Each event is tagged with the tags derived
+  // from it and the additional tags.
+  append(
+    events: readonly DomainEvent[],
+    additionalTags?: (event: DomainEvent) => readonly string[],
+  ): void;
 }
 
 // The database is accessed synchronously. Since the main process handles one
@@ -85,7 +89,10 @@ export class SqliteEventStore implements EventStore {
     );
   }
 
-  append(events: readonly DomainEvent[]): void {
+  append(
+    events: readonly DomainEvent[],
+    additionalTags: (event: DomainEvent) => readonly string[] = () => [],
+  ): void {
     const insert = this.#database.prepare(
       "INSERT INTO events (type, data, tags) VALUES (?, ?, ?)",
     );
@@ -95,7 +102,9 @@ export class SqliteEventStore implements EventStore {
         insert.run(
           event.type,
           JSON.stringify(event.data),
-          JSON.stringify(tagsOf(event)),
+          JSON.stringify([
+            ...new Set([...tagsOf(event), ...additionalTags(event)]),
+          ]),
         );
       }
       this.#database.exec("COMMIT");

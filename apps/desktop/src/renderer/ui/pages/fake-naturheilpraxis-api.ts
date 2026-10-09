@@ -6,7 +6,13 @@ import type {
   PatientAufnehmenStatus,
 } from "../../../shared/application/naturheilpraxis-api.ts";
 import type { ConsistencyBoundary } from "../../../shared/domain/consistency-boundary.ts";
-import { matches, type DomainEvent } from "../../../shared/domain/events.ts";
+import {
+  matches,
+  tagsOf,
+  type DomainEvent,
+} from "../../../shared/domain/events.ts";
+import * as abrechnung from "../../../shared/domain/abrechnung.ts";
+import * as abrechnungsansicht from "../../../shared/domain/abrechnungsansicht.ts";
 import * as behandlungsansicht from "../../../shared/domain/behandlungsansicht.ts";
 import * as diagnosestellung from "../../../shared/domain/diagnosestellung.ts";
 import * as gebuehrenansicht from "../../../shared/domain/gebuehrenansicht.ts";
@@ -17,6 +23,7 @@ import * as patientenaufnahme from "../../../shared/domain/patientenaufnahme.ts"
 import * as patientenkartei from "../../../shared/domain/patientenkartei.ts";
 import * as praxenansicht from "../../../shared/domain/praxenansicht.ts";
 import * as praxisverwaltung from "../../../shared/domain/praxisverwaltung.ts";
+import * as rechnungsansicht from "../../../shared/domain/rechnungsansicht.ts";
 import {
   fail,
   type Rejection,
@@ -29,7 +36,8 @@ type Command =
   | patientenaufnahme.PatientAufnehmenCommand
   | patientenkartei.PatientendatenAendernCommand
   | diagnosestellung.DiagnosestellungCommand
-  | leistungserbringung.LeistungserbringungCommand;
+  | leistungserbringung.LeistungserbringungCommand
+  | abrechnung.AbrechnungCommand;
 
 // Executes the commands with the domain in memory and records them, so the
 // tests of the user interface need no main process. A given rejection replaces
@@ -38,6 +46,8 @@ export class FakeNaturheilpraxisApi implements NaturheilpraxisApi {
   readonly commands: Command[] = [];
 
   readonly #events: DomainEvent[];
+  // The tags of each event, as the event store keeps them.
+  readonly #tags: (readonly string[])[];
   readonly #rejection?: Rejection;
 
   constructor({
@@ -45,6 +55,7 @@ export class FakeNaturheilpraxisApi implements NaturheilpraxisApi {
     rejection,
   }: { events?: DomainEvent[]; rejection?: Rejection } = {}) {
     this.#events = [...events];
+    this.#tags = events.map((event) => tagsOf(event));
     this.#rejection = rejection;
   }
 
@@ -214,6 +225,60 @@ export class FakeNaturheilpraxisApi implements NaturheilpraxisApi {
     return statusOf(this.#execute(leistungserbringung, command));
   }
 
+  async rechnungErstellen(
+    command: abrechnung.RechnungErstellenCommand,
+  ): Promise<CommandStatus> {
+    return statusOf(this.#execute(abrechnung, command));
+  }
+
+  async rechnungAendern(
+    command: abrechnung.RechnungAendernCommand,
+  ): Promise<CommandStatus> {
+    return statusOf(this.#execute(abrechnung, command));
+  }
+
+  async entwurfLoeschen(
+    command: abrechnung.EntwurfLoeschenCommand,
+  ): Promise<CommandStatus> {
+    return statusOf(this.#execute(abrechnung, command));
+  }
+
+  async nichtAbgerechneteLeistungenErmitteln(
+    query: abrechnungsansicht.NichtAbgerechneteLeistungenErmittelnQuery,
+  ): Promise<abrechnungsansicht.NichtAbgerechneteLeistungenErmittelnQueryResult> {
+    return abrechnungsansicht.nichtAbgerechneteLeistungenErmitteln(
+      abrechnungsansicht.projectAll(
+        abrechnungsansicht.initialReadModel,
+        this.#events,
+      ),
+      query,
+    );
+  }
+
+  async rechnungenErmitteln(
+    query: abrechnungsansicht.RechnungenErmittelnQuery,
+  ): Promise<abrechnungsansicht.RechnungenErmittelnQueryResult> {
+    return abrechnungsansicht.rechnungenErmitteln(
+      abrechnungsansicht.projectAll(
+        abrechnungsansicht.initialReadModel,
+        this.#events,
+      ),
+      query,
+    );
+  }
+
+  async rechnungErmitteln(
+    query: rechnungsansicht.RechnungErmittelnQuery,
+  ): Promise<rechnungsansicht.RechnungErmittelnQueryResult> {
+    return rechnungsansicht.rechnungErmitteln(
+      rechnungsansicht.projectAll(
+        rechnungsansicht.initialReadModel,
+        this.#events,
+      ),
+      query,
+    );
+  }
+
   #execute<State, C extends Command, Event extends DomainEvent>(
     boundary: ConsistencyBoundary<State, C, Event>,
     command: C,
@@ -224,15 +289,19 @@ export class FakeNaturheilpraxisApi implements NaturheilpraxisApi {
     }
 
     const query = boundary.consults(command);
-    const events = this.#events.filter((event) =>
-      matches(event, query),
+    const events = this.#events.filter((event, index) =>
+      matches(event, query, this.#tags[index]),
     ) as Event[];
-    const result = boundary.decide(
-      boundary.evolveAll(boundary.initialState, events),
-      command,
-    );
+    const state = boundary.evolveAll(boundary.initialState, events);
+    const result = boundary.decide(state, command);
     if (result.ok) {
-      this.#events.push(...result.value);
+      for (const event of result.value) {
+        this.#events.push(event);
+        this.#tags.push([
+          ...tagsOf(event),
+          ...(boundary.tags?.(state, event) ?? []),
+        ]);
+      }
     }
     return result;
   }

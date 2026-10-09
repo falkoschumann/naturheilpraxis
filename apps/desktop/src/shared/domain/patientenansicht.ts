@@ -2,7 +2,7 @@
 
 import type { Patient } from "./entities.ts";
 import type { DomainEvent } from "./events.ts";
-import { formatDatum, type Patientennummer } from "./value-objects.ts";
+import { formatPatientenname, type Patientennummer } from "./value-objects.ts";
 
 // The Patienten by their Patientennummer.
 export type Patientenansicht = Readonly<Record<Patientennummer, Patient>>;
@@ -115,17 +115,13 @@ function angehoerigennamen(
   };
 }
 
-// Like "Mustermann, Max (Nr. 1234), geboren am 20.09.1980".
 function angehoerigenname(
   readModel: Patientenansicht,
   patientennummer?: Patientennummer,
 ): string | undefined {
   const patient =
     patientennummer === undefined ? undefined : readModel[patientennummer];
-  if (patient === undefined) {
-    return undefined;
-  }
-  return `${patient.name.nachname}, ${patient.name.vorname} (Nr. ${patient.patientennummer}), geboren am ${formatDatum(patient.geburtsdatum)}`;
+  return patient === undefined ? undefined : formatPatientenname(patient);
 }
 
 // The words are separated by spaces, a word with spaces is quoted.

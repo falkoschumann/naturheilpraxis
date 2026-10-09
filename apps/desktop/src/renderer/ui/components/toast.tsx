@@ -11,6 +11,17 @@ export type ToastAction = Readonly<{
   onAction: () => void;
 }>;
 
+export type Meldung = Readonly<{ message: string; action?: ToastAction }>;
+
+// Reads a message that a page passes with the navigation, like
+// navigate(path, { state: { meldung } }).
+export function meldungAus(state: unknown): Meldung | undefined {
+  if (typeof state === "object" && state !== null && "meldung" in state && typeof state.meldung === "string") {
+    return { message: state.meldung };
+  }
+  return undefined;
+}
+
 // Confirms that an action succeeded. It appears at the bottom center, where it
 // does not cover the buttons at the end of a form. The message hides by itself
 // after a few seconds; screen readers announce it as a status. An optional

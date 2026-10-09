@@ -189,6 +189,9 @@ result:
       items:
         type: object
         properties:
+          leistungId:
+            type: string
+            format: uuid
           datum:
             type: string
             format: date
@@ -204,6 +207,7 @@ result:
           betrag:
             $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/value-object=euro
         required:
+          - leistungId
           - datum
           - ziffer
           - bezeichnung
@@ -234,7 +238,9 @@ constraints:
       Versand angegeben.
   - name: positionen-aelteste-zuerst
     rule: >-
-      Die Positionen sind die Leistungen der Rechnung, aufsteigend nach Datum sortiert.
+      Die Positionen sind die Leistungen der Rechnung, aufsteigend nach Datum sortiert. Jede
+      Position nennt die ID ihrer Leistung, damit ein Entwurf mit seinen Leistungen bearbeitet
+      werden kann.
   - name: betraege-berechnen
     rule: >-
       Der Betrag einer Position ist Anzahl mal Einzelbetrag. Der Gesamtbetrag ist die Summe der

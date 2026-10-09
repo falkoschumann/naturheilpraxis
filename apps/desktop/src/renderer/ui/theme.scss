@@ -64,3 +64,12 @@
     overflow-y: auto;
   }
 }
+
+// The sender line above the address fits in the window of an envelope.
+.rechnung-absender {
+  font-size: 0.7rem;
+}
+
+.rechnung {
+  max-width: 60rem;
+}

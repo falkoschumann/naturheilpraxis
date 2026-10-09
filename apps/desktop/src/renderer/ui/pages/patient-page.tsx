@@ -1,19 +1,22 @@
 // Copyright (c) 2026 Falko Schumann. MIT license.
 
 import { useCallback, useEffect, useState } from "react";
-import { Link, NavLink, useLocation, useParams } from "react-router";
+import { Link, NavLink, useLocation, useNavigate, useParams } from "react-router";
 
 import type { NaturheilpraxisApi } from "../../../shared/application/naturheilpraxis-api.ts";
+import type { NichtAbgerechneteLeistungenErmittelnQueryResult } from "../../../shared/domain/abrechnungsansicht.ts";
 import type { Diagnose, Leistung } from "../../../shared/domain/entities.ts";
 import type { PatientErmittelnQueryResult } from "../../../shared/domain/patientenansicht.ts";
 import { formatDatum, formatEuro } from "../../../shared/domain/value-objects.ts";
 import { ConfirmDialog } from "../components/confirm-dialog.tsx";
 import { sende } from "../components/sende.ts";
-import { Toast, type ToastAction } from "../components/toast.tsx";
+import { meldungAus, Toast, type Meldung } from "../components/toast.tsx";
 import { DiagnoseDialog } from "./diagnose-dialog.tsx";
 import { LeistungDialog } from "./leistung-dialog.tsx";
 import { PatientBehandlung } from "./patient-behandlung.tsx";
+import { PatientRechnungen } from "./patient-rechnungen.tsx";
 import { PatientStammdaten } from "./patient-stammdaten.tsx";
+import { RechnungDialog } from "./rechnung-dialog.tsx";
 
 type DialogZustand =
   | Readonly<{ art: "diagnose-stellen" }>
@@ -22,14 +25,22 @@ type DialogZustand =
   | Readonly<{ art: "leistung-erfassen" }>
   | Readonly<{ art: "leistung-bearbeiten"; leistung: Leistung }>
   | Readonly<{ art: "leistung-loeschen"; leistung: Leistung }>
+  | Readonly<{ art: "rechnung-erstellen" }>
   | undefined;
 
-type Meldung = Readonly<{ message: string; action?: ToastAction }>;
-
-// The Karteikarte of a Patient with the tabs Behandlung and Stammdaten.
-export function PatientPage({ api, reiter }: { api: NaturheilpraxisApi; reiter: "behandlung" | "stammdaten" }) {
+// The Karteikarte of a Patient with the tabs Behandlung, Rechnungen and
+// Stammdaten.
+export function PatientPage({
+  api,
+  reiter,
+}: {
+  api: NaturheilpraxisApi;
+  reiter: "behandlung" | "rechnungen" | "stammdaten";
+}) {
   const patientennummer = Number(useParams()["patientennummer"]);
   const location = useLocation();
+  const navigate = useNavigate();
+  const [nichtAbgerechnet, setNichtAbgerechnet] = useState<NichtAbgerechneteLeistungenErmittelnQueryResult>([]);
   const [patient, setPatient] = useState<PatientErmittelnQueryResult | null>(null);
   const [fehler, setFehler] = useState<string>();
   const [meldung, setMeldung] = useState<Meldung | undefined>(() => meldungAus(location.state));
@@ -57,6 +68,28 @@ export function PatientPage({ api, reiter }: { api: NaturheilpraxisApi; reiter: 
       aktuell = false;
     };
   }, [api, patientennummer, stand]);
+
+  // The Leistungen change with the Behandlung.
+  useEffect(() => {
+    let aktuell = true;
+    api
+      .nichtAbgerechneteLeistungenErmitteln({
+        type: "nicht-abgerechnete-leistungen-ermitteln",
+        parameters: { patientennummer },
+      })
+      .then(
+        (leistungen) => {
+          if (aktuell) {
+            setNichtAbgerechnet(leistungen);
+          }
+        },
+        // Without them only the hint is missing.
+        () => undefined,
+      );
+    return () => {
+      aktuell = false;
+    };
+  }, [api, patientennummer, behandlungStand]);
 
   const schliesseMeldung = useCallback(() => setMeldung(undefined), []);
 
@@ -184,12 +217,42 @@ export function PatientPage({ api, reiter }: { api: NaturheilpraxisApi; reiter: 
             </button>
           </div>
         </div>
+        {nichtAbgerechnet.length > 0 && (
+          <div className="card-footer bg-warning-subtle d-flex flex-wrap align-items-center gap-2">
+            <span>
+              <strong>{nichtAbgerechnet.length}</strong> noch nicht abgerechnete{" "}
+              {nichtAbgerechnet.length === 1 ? "Leistung" : "Leistungen"} über{" "}
+              <strong>
+                {formatEuro({
+                  cents: nichtAbgerechnet.reduce(
+                    (summe, leistung) => summe + leistung.anzahl * leistung.einzelbetrag.cents,
+                    0,
+                  ),
+                })}
+              </strong>
+            </span>
+            <button
+              type="button"
+              className="btn btn-sm btn-outline-dark ms-auto"
+              onClick={() => setDialog({ art: "rechnung-erstellen" })}
+            >
+              <i className="fa-solid fa-file-invoice me-1" aria-hidden="true"></i>
+              Rechnung erstellen
+            </button>
+          </div>
+        )}
       </div>
       <ul className="nav nav-tabs mb-3">
         <li className="nav-item">
           <NavLink className="nav-link" to={`/patienten/${patient.patientennummer}`} end>
             <i className="fa-solid fa-notes-medical me-1" aria-hidden="true"></i>
             Behandlung
+          </NavLink>
+        </li>
+        <li className="nav-item">
+          <NavLink className="nav-link" to={`/patienten/${patient.patientennummer}/rechnungen`}>
+            <i className="fa-solid fa-file-invoice me-1" aria-hidden="true"></i>
+            Rechnungen
           </NavLink>
         </li>
         <li className="nav-item">
@@ -211,6 +274,8 @@ export function PatientPage({ api, reiter }: { api: NaturheilpraxisApi; reiter: 
             onLeistungLoeschen: (leistung) => setDialog({ art: "leistung-loeschen", leistung }),
           }}
         />
+      ) : reiter === "rechnungen" ? (
+        <PatientRechnungen api={api} patientennummer={patient.patientennummer} />
       ) : (
         <PatientStammdaten
           // A new key resets the form when the saved Patient is loaded.
@@ -277,14 +342,18 @@ export function PatientPage({ api, reiter }: { api: NaturheilpraxisApi; reiter: 
           </p>
         </ConfirmDialog>
       )}
+      {dialog?.art === "rechnung-erstellen" && (
+        <RechnungDialog
+          api={api}
+          patient={{ patientennummer: patient.patientennummer, praxiskuerzel: patient.praxiskuerzel, name }}
+          onClose={() => setDialog(undefined)}
+          onSaved={(rechnungId, message) => {
+            setDialog(undefined);
+            void navigate(`/rechnungen/${rechnungId}`, { state: { meldung: message } });
+          }}
+        />
+      )}
       {meldung !== undefined && <Toast message={meldung.message} action={meldung.action} onClose={schliesseMeldung} />}
     </>
   );
-}
-
-function meldungAus(state: unknown): Meldung | undefined {
-  if (typeof state === "object" && state !== null && "meldung" in state && typeof state.meldung === "string") {
-    return { message: state.meldung };
-  }
-  return undefined;
 }

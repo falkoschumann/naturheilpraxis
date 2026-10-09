@@ -7,6 +7,7 @@ import type {
   Kontakt,
   Patientennummer,
   Personenname,
+  Rechnungsnummer,
 } from "./value-objects.ts";
 
 export type Praxis = Readonly<{
@@ -61,3 +62,36 @@ export type Leistung = Readonly<{
   anzahl: number;
   einzelbetrag: Euro;
 }>;
+
+export type Rechnungsstatus = "entwurf" | "versendet" | "bezahlt";
+
+// Rechnungsnummer and Datum are given from the dispatch on.
+export type Rechnung = Readonly<{
+  rechnungId: string;
+  praxiskuerzel: string;
+  patientennummer: Patientennummer;
+  diagnosetext: string;
+  rechnungsnummer?: Rechnungsnummer;
+  datum?: string;
+  rechnungstext: string;
+  status: Rechnungsstatus;
+}>;
+
+// A Rechnung without Rechnungsnummer and Datum, as before the dispatch.
+export function alsEntwurf(rechnung: Rechnung): Rechnung {
+  const {
+    rechnungId,
+    praxiskuerzel,
+    patientennummer,
+    diagnosetext,
+    rechnungstext,
+  } = rechnung;
+  return {
+    rechnungId,
+    praxiskuerzel,
+    patientennummer,
+    diagnosetext,
+    rechnungstext,
+    status: "entwurf",
+  };
+}

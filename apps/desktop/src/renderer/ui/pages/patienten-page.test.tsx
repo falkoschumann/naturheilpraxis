@@ -94,6 +94,54 @@ describe("Patienten", () => {
     expect(within(dialog).getByLabelText("Ort").getAttribute("aria-invalid")).toBe("false");
     expect(api.commands).toEqual([]);
   });
+
+  it("sollte mit / die Suche fokussieren", async () => {
+    const api = new FakeNaturheilpraxisApi({ events: [praxisAngelegt(), maxAufgenommen()] });
+    zeigePatienten(api);
+    await screen.findByRole("row", { name: /Mustermann, Max/ });
+
+    fireEvent.keyDown(document.body, { key: "/" });
+
+    expect(document.activeElement).toBe(screen.getByLabelText("Patienten durchsuchen"));
+  });
+
+  it("sollte einen Hinweis zeigen, wenn die Suche nichts findet", async () => {
+    const api = new FakeNaturheilpraxisApi({ events: [praxisAngelegt(), maxAufgenommen()] });
+    zeigePatienten(api);
+    await screen.findByRole("row", { name: /Mustermann, Max/ });
+
+    fireEvent.change(screen.getByLabelText("Patienten durchsuchen"), { target: { value: "Unbekannt" } });
+
+    expect(await screen.findByText(/Kein Patient gefunden/)).toBeDefined();
+  });
+
+  it("sollte einen Fehler zeigen, wenn die Patienten nicht geladen werden können", async () => {
+    const api = new FakeNaturheilpraxisApi();
+    api.patientenErmitteln = () => Promise.reject(new Error("IPC nicht erreichbar"));
+
+    zeigePatienten(api);
+
+    expect((await screen.findByRole("alert")).textContent).toContain("Die Patienten konnten nicht geladen werden.");
+  });
+
+  it("sollte die Ablehnung der Aufnahme zeigen und die Eingaben behalten", async () => {
+    const api = new FakeNaturheilpraxisApi({ events: [praxisAngelegt()] });
+    api.patientAufnehmen = () => Promise.reject(new Error("IPC nicht erreichbar"));
+    zeigePatienten(api);
+    fireEvent.click(await screen.findByRole("button", { name: "Patient aufnehmen" }));
+    const dialog = screen.getByRole("dialog", { name: "Patient aufnehmen" });
+    await within(dialog).findByRole("option", { name: "Naturheilpraxis am Markt (NHP)" });
+    eingeben(dialog, "Vorname", "Max");
+    eingeben(dialog, "Nachname", "Mustermann");
+    eingeben(dialog, "Geburtsdatum", "1980-09-20");
+
+    fireEvent.click(within(dialog).getByRole("button", { name: "Aufnehmen" }));
+
+    expect((await within(dialog).findByRole("alert")).textContent).toContain(
+      "Der Patient konnte nicht aufgenommen werden. Bitte versuchen Sie es erneut.",
+    );
+    expect(within(dialog).getByLabelText("Vorname")).toHaveProperty("value", "Max");
+  });
 });
 
 function zeigePatienten(api: NaturheilpraxisApi) {

@@ -433,6 +433,162 @@ describe("Naturheilpraxis Service", () => {
       ).toEqual([]);
     });
   });
+
+  describe("Abrechnung", () => {
+    const leistung = (leistungId: string) => ({
+      leistungId,
+      praxiskuerzel: "NHP",
+      patientennummer: 1,
+      datum: "2026-09-14",
+      ziffer: "1",
+      bezeichnung: "Eingehende Untersuchung",
+      anzahl: 1,
+      einzelbetrag: { cents: 2050 },
+    });
+    const ersteLeistung = "22222222-2222-4222-8222-222222222222";
+    const zweiteLeistung = "23232323-2323-4323-8323-232323232323";
+    const rechnungId = "33333333-3333-4333-8333-333333333333";
+
+    function createService() {
+      const eventStore = SqliteEventStore.createInMemory();
+      eventStore.append([
+        {
+          type: "praxis-angelegt",
+          data: createPraxis({ rechnungstext: "Zahlbar in 14 Tagen." }),
+        },
+        {
+          type: "patient-aufgenommen",
+          data: {
+            patientennummer: 1,
+            praxiskuerzel: "NHP",
+            aufnahmejahr: 2026,
+            geburtsdatum: "1980-09-20",
+            name: { vorname: "Max", nachname: "Mustermann" },
+          },
+        },
+        { type: "leistung-erbracht", data: leistung(ersteLeistung) },
+        { type: "leistung-erbracht", data: leistung(zweiteLeistung) },
+      ]);
+      return new NaturheilpraxisService(eventStore);
+    }
+
+    it("sollte eine Rechnung erstellen und die abgerechneten Leistungen nicht mehr anbieten", async () => {
+      const service = createService();
+
+      const status = await service.rechnungErstellen({
+        type: "rechnung-erstellen",
+        data: {
+          rechnungId,
+          praxiskuerzel: "NHP",
+          patientennummer: 1,
+          diagnosetext: "Rückenschmerzen",
+          rechnungstext: "Zahlbar in 14 Tagen.",
+          leistungen: [ersteLeistung],
+        },
+      });
+
+      expect(status).toEqual({ success: true });
+      expect(
+        await service.nichtAbgerechneteLeistungenErmitteln({
+          type: "nicht-abgerechnete-leistungen-ermitteln",
+          parameters: { patientennummer: 1 },
+        }),
+      ).toEqual([leistung(zweiteLeistung)]);
+      expect(
+        await service.rechnungenErmitteln({
+          type: "rechnungen-ermitteln",
+          parameters: {},
+        }),
+      ).toEqual([
+        {
+          rechnungId,
+          praxiskuerzel: "NHP",
+          patientennummer: 1,
+          patientenname: "Mustermann, Max (Nr. 1), geboren am 20.09.1980",
+          diagnosetext: "Rückenschmerzen",
+          rechnungstext: "Zahlbar in 14 Tagen.",
+          status: "entwurf",
+        },
+      ]);
+      expect(
+        await service.rechnungErmitteln({
+          type: "rechnung-ermitteln",
+          parameters: { rechnungId },
+        }),
+      ).toMatchObject({ status: "entwurf", gesamtbetrag: { cents: 2050 } });
+    });
+
+    it("sollte eine aus dem Entwurf entfernte Leistung wieder löschen lassen", async () => {
+      const service = createService();
+      await service.rechnungErstellen({
+        type: "rechnung-erstellen",
+        data: {
+          rechnungId,
+          praxiskuerzel: "NHP",
+          patientennummer: 1,
+          diagnosetext: "Rückenschmerzen",
+          rechnungstext: "Zahlbar in 14 Tagen.",
+          leistungen: [ersteLeistung, zweiteLeistung],
+        },
+      });
+      const imEntwurf = await service.leistungLoeschen({
+        type: "leistung-loeschen",
+        data: { leistungId: ersteLeistung },
+      });
+
+      await service.rechnungAendern({
+        type: "rechnung-aendern",
+        data: {
+          rechnungId,
+          praxiskuerzel: "NHP",
+          diagnosetext: "Rückenschmerzen",
+          rechnungstext: "Zahlbar in 14 Tagen.",
+          leistungen: [zweiteLeistung],
+        },
+      });
+      const entfernt = await service.leistungLoeschen({
+        type: "leistung-loeschen",
+        data: { leistungId: ersteLeistung },
+      });
+
+      expect(imEntwurf.success).toBe(false);
+      expect(entfernt).toEqual({ success: true });
+    });
+
+    it("sollte einen gelöschten Entwurf nicht mehr zeigen", async () => {
+      const service = createService();
+      await service.rechnungErstellen({
+        type: "rechnung-erstellen",
+        data: {
+          rechnungId,
+          praxiskuerzel: "NHP",
+          patientennummer: 1,
+          diagnosetext: "Rückenschmerzen",
+          rechnungstext: "Zahlbar in 14 Tagen.",
+          leistungen: [ersteLeistung],
+        },
+      });
+
+      const status = await service.entwurfLoeschen({
+        type: "entwurf-loeschen",
+        data: { rechnungId },
+      });
+
+      expect(status).toEqual({ success: true });
+      expect(
+        await service.rechnungenErmitteln({
+          type: "rechnungen-ermitteln",
+          parameters: {},
+        }),
+      ).toEqual([]);
+      expect(
+        await service.leistungLoeschen({
+          type: "leistung-loeschen",
+          data: { leistungId: ersteLeistung },
+        }),
+      ).toEqual({ success: true });
+    });
+  });
 });
 
 function createPraxis(praxis: Partial<Praxis> = {}): Praxis {

@@ -28,6 +28,13 @@ const api: NaturheilpraxisApi = {
   leistungErbringen: (command) => ipcRenderer.invoke(command.type, command),
   leistungAendern: (command) => ipcRenderer.invoke(command.type, command),
   leistungLoeschen: (command) => ipcRenderer.invoke(command.type, command),
+  rechnungErstellen: (command) => ipcRenderer.invoke(command.type, command),
+  rechnungAendern: (command) => ipcRenderer.invoke(command.type, command),
+  entwurfLoeschen: (command) => ipcRenderer.invoke(command.type, command),
+  nichtAbgerechneteLeistungenErmitteln: (query) =>
+    ipcRenderer.invoke(query.type, query),
+  rechnungenErmitteln: (query) => ipcRenderer.invoke(query.type, query),
+  rechnungErmitteln: (query) => ipcRenderer.invoke(query.type, query),
 };
 
 contextBridge.exposeInMainWorld("naturheilpraxis", api);

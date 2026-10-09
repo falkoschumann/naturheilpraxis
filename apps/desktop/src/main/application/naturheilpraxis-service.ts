@@ -7,6 +7,8 @@ import type {
 } from "../../shared/application/naturheilpraxis-api.ts";
 import type { ConsistencyBoundary } from "../../shared/domain/consistency-boundary.ts";
 import type { DomainEvent } from "../../shared/domain/events.ts";
+import * as abrechnung from "../../shared/domain/abrechnung.ts";
+import * as abrechnungsansicht from "../../shared/domain/abrechnungsansicht.ts";
 import * as behandlungsansicht from "../../shared/domain/behandlungsansicht.ts";
 import * as diagnosestellung from "../../shared/domain/diagnosestellung.ts";
 import * as gebuehrenansicht from "../../shared/domain/gebuehrenansicht.ts";
@@ -17,6 +19,7 @@ import * as patientenaufnahme from "../../shared/domain/patientenaufnahme.ts";
 import * as patientenkartei from "../../shared/domain/patientenkartei.ts";
 import * as praxenansicht from "../../shared/domain/praxenansicht.ts";
 import * as praxisverwaltung from "../../shared/domain/praxisverwaltung.ts";
+import * as rechnungsansicht from "../../shared/domain/rechnungsansicht.ts";
 import type { Rejection, Result } from "../../shared/domain/result.ts";
 import type { EventStore } from "../infrastructure/event-store.ts";
 
@@ -28,6 +31,8 @@ export class NaturheilpraxisService implements NaturheilpraxisApi {
   #gebuehrenansicht = gebuehrenansicht.initialReadModel;
   #patientenansicht = patientenansicht.initialReadModel;
   #behandlungsansicht = behandlungsansicht.initialReadModel;
+  #abrechnungsansicht = abrechnungsansicht.initialReadModel;
+  #rechnungsansicht = rechnungsansicht.initialReadModel;
 
   constructor(eventStore: EventStore) {
     this.#eventStore = eventStore;
@@ -173,6 +178,48 @@ export class NaturheilpraxisService implements NaturheilpraxisApi {
     return statusOf(this.#execute(leistungserbringung, command));
   }
 
+  async rechnungErstellen(
+    command: abrechnung.RechnungErstellenCommand,
+  ): Promise<CommandStatus> {
+    return statusOf(this.#execute(abrechnung, command));
+  }
+
+  async rechnungAendern(
+    command: abrechnung.RechnungAendernCommand,
+  ): Promise<CommandStatus> {
+    return statusOf(this.#execute(abrechnung, command));
+  }
+
+  async entwurfLoeschen(
+    command: abrechnung.EntwurfLoeschenCommand,
+  ): Promise<CommandStatus> {
+    return statusOf(this.#execute(abrechnung, command));
+  }
+
+  async nichtAbgerechneteLeistungenErmitteln(
+    query: abrechnungsansicht.NichtAbgerechneteLeistungenErmittelnQuery,
+  ): Promise<abrechnungsansicht.NichtAbgerechneteLeistungenErmittelnQueryResult> {
+    return abrechnungsansicht.nichtAbgerechneteLeistungenErmitteln(
+      this.#abrechnungsansicht,
+      query,
+    );
+  }
+
+  async rechnungenErmitteln(
+    query: abrechnungsansicht.RechnungenErmittelnQuery,
+  ): Promise<abrechnungsansicht.RechnungenErmittelnQueryResult> {
+    return abrechnungsansicht.rechnungenErmitteln(
+      this.#abrechnungsansicht,
+      query,
+    );
+  }
+
+  async rechnungErmitteln(
+    query: rechnungsansicht.RechnungErmittelnQuery,
+  ): Promise<rechnungsansicht.RechnungErmittelnQueryResult> {
+    return rechnungsansicht.rechnungErmitteln(this.#rechnungsansicht, query);
+  }
+
   #execute<State, Command, Event extends DomainEvent>(
     boundary: ConsistencyBoundary<State, Command, Event>,
     command: Command,
@@ -185,7 +232,10 @@ export class NaturheilpraxisService implements NaturheilpraxisApi {
     const state = boundary.evolveAll(boundary.initialState, events);
     const result = boundary.decide(state, command);
     if (result.ok && result.value.length > 0) {
-      this.#eventStore.append(result.value);
+      this.#eventStore.append(
+        result.value,
+        (event) => boundary.tags?.(state, event as Event) ?? [],
+      );
       this.#project(result.value);
     }
     return result;
@@ -203,6 +253,14 @@ export class NaturheilpraxisService implements NaturheilpraxisApi {
     );
     this.#behandlungsansicht = behandlungsansicht.projectAll(
       this.#behandlungsansicht,
+      events,
+    );
+    this.#abrechnungsansicht = abrechnungsansicht.projectAll(
+      this.#abrechnungsansicht,
+      events,
+    );
+    this.#rechnungsansicht = rechnungsansicht.projectAll(
+      this.#rechnungsansicht,
       events,
     );
   }

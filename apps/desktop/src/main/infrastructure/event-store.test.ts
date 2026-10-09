@@ -93,6 +93,17 @@ describe("Event Store", () => {
     expect(events).toEqual([]);
   });
 
+  it("sollte Events mit zusätzlichen Tags finden", () => {
+    const store = SqliteEventStore.createInMemory();
+    store.append([createPraxisAngelegt("NHP")], () => ["zusatz:1"]);
+
+    const events = store.query([
+      { types: ["praxis-angelegt"], tags: ["zusatz:1"] },
+    ]);
+
+    expect(events).toEqual([createPraxisAngelegt("NHP")]);
+  });
+
   it("sollte Events dauerhaft in einer Datei speichern", async () => {
     const directory = await fs.mkdtemp(
       path.join(os.tmpdir(), "naturheilpraxis-test-"),

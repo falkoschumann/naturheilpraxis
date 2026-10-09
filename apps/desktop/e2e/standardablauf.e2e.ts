@@ -110,8 +110,32 @@ async function erbringeLeistung(window: Page) {
   await expect(tag.getByText("Summe 20,50 €")).toBeVisible();
 }
 
-async function erstelleRechnung(_window: Page) {
-  // TODO Implement the test for creating an invoice based on a service and diagnosis.
+async function erstelleRechnung(window: Page) {
+  await window.getByRole("button", { name: "Rechnung erstellen" }).click();
+  const dialog = window.getByRole("dialog", {
+    name: "Rechnung erstellen für Max Mustermann",
+  });
+  await expect(dialog.getByLabel("Diagnosetext auf der Rechnung")).toHaveValue(
+    "Chronische Rückenschmerzen",
+  );
+  await expect(dialog.getByLabel("Rechnungstext")).toHaveValue(
+    "Bitte überweisen Sie den Betrag innerhalb von 14 Tagen.",
+  );
+  await expect(
+    dialog.getByRole("checkbox", {
+      name: "Eingehende Untersuchung vom 14.09.2026",
+    }),
+  ).toBeChecked();
+  await dialog.getByRole("button", { name: "Entwurf erstellen" }).click();
+
+  await expect(
+    window.getByRole("heading", { level: 1, name: "Rechnungsentwurf" }),
+  ).toBeVisible();
+  const rechnung = window.getByRole("article", { name: "Rechnung" });
+  await expect(
+    rechnung.getByRole("row", { name: /Eingehende Untersuchung/ }),
+  ).toBeVisible();
+  await expect(rechnung.getByText("Chronische Rückenschmerzen")).toBeVisible();
 }
 
 async function versendeRechnung(_window: Page) {

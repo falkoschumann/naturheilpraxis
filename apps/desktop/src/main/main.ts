@@ -98,6 +98,24 @@ function handleMessages(service: NaturheilpraxisService): void {
   ipcMain.handle("leistung-loeschen", (_event, command) =>
     service.leistungLoeschen(command),
   );
+  ipcMain.handle("rechnung-erstellen", (_event, command) =>
+    service.rechnungErstellen(command),
+  );
+  ipcMain.handle("rechnung-aendern", (_event, command) =>
+    service.rechnungAendern(command),
+  );
+  ipcMain.handle("entwurf-loeschen", (_event, command) =>
+    service.entwurfLoeschen(command),
+  );
+  ipcMain.handle("nicht-abgerechnete-leistungen-ermitteln", (_event, query) =>
+    service.nichtAbgerechneteLeistungenErmitteln(query),
+  );
+  ipcMain.handle("rechnungen-ermitteln", (_event, query) =>
+    service.rechnungenErmitteln(query),
+  );
+  ipcMain.handle("rechnung-ermitteln", (_event, query) =>
+    service.rechnungErmitteln(query),
+  );
 }
 
 app.on("window-all-closed", () => {

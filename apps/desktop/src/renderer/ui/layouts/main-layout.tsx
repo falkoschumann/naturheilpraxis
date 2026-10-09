@@ -65,6 +65,12 @@ export function MainLayout({ api }: { api: NaturheilpraxisApi }) {
                 Patienten
               </NavLink>
             </li>
+            <li className="nav-item">
+              <NavLink className="nav-link" to="/abrechnung">
+                <i className="fa-solid fa-file-invoice-dollar me-1" aria-hidden="true"></i>
+                Abrechnung
+              </NavLink>
+            </li>
             <li className="nav-item dropdown">
               <a
                 className={`nav-link dropdown-toggle${stammdatenAktiv ? " active" : ""}`}
