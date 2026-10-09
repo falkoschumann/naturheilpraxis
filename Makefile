@@ -4,7 +4,7 @@ PM := bun
 RUN := bunx
 
 # PlantUML configuration
-PLANTUML_FILES=$(wildcard doc/images/*.puml)
+PLANTUML_FILES=$(wildcard docs/images/*.puml)
 DIAGRAM_FILES=$(subst .puml,.png,$(PLANTUML_FILES))
 
 # Make configuration
