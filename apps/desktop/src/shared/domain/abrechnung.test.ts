@@ -571,6 +571,82 @@ describe("Abrechnung", () => {
     });
   });
 
+  describe("Zahlung erfassen", () => {
+    it("sollte die Zahlung einer versendeten Rechnung erfassen", () => {
+      const state = evolveAll(initialState, [
+        rechnungErstellt(),
+        rechnungVersendet(),
+      ]);
+
+      const result = decide(state, {
+        type: "zahlung-erfassen",
+        data: { rechnungId },
+      });
+
+      expect(result).toEqual({
+        ok: true,
+        value: [{ type: "rechnung-bezahlt", data: { rechnungId } }],
+      });
+    });
+
+    it("sollte keine Zahlung für einen Entwurf erfassen", () => {
+      const state = evolveAll(initialState, [rechnungErstellt()]);
+
+      const result = decide(state, {
+        type: "zahlung-erfassen",
+        data: { rechnungId },
+      });
+
+      expect(result).toEqual({
+        ok: false,
+        error: {
+          invariant: "nur-versendete-bezahlen",
+          message:
+            "Nur eine versendete Rechnung kann bezahlt werden. Bitte versenden Sie die Rechnung zuerst.",
+        },
+      });
+    });
+
+    it("sollte keine Zahlung für eine nicht vorhandene Rechnung erfassen", () => {
+      const state = evolveAll(initialState, []);
+
+      const result = decide(state, {
+        type: "zahlung-erfassen",
+        data: { rechnungId },
+      });
+
+      expect(result).toEqual({
+        ok: false,
+        error: {
+          message:
+            "Die Rechnung ist nicht vorhanden. Möglicherweise wurde sie inzwischen gelöscht.",
+        },
+      });
+    });
+
+    it("sollte nur die Rechnung konsultieren", () => {
+      const query = consults({
+        type: "zahlung-erfassen",
+        data: { rechnungId },
+      });
+
+      expect(query).toEqual([
+        {
+          types: [
+            "rechnung-erstellt",
+            "rechnung-geaendert",
+            "entwurf-geloescht",
+            "rechnung-versendet",
+            "rechnung-bezahlt",
+            "rechnungszahlung-zurueckgenommen",
+            "rechnungsversand-zurueckgenommen",
+          ],
+          tags: [`rechnung:${rechnungId}`],
+        },
+      ]);
+    });
+  });
+
   describe("Rechnung zurückstufen", () => {
     it("sollte den Versand zurücknehmen", () => {
       const state = evolveAll(initialState, [

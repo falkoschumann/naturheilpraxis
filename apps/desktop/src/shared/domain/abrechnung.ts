@@ -60,6 +60,11 @@ export type RechnungVersendenCommand = Readonly<{
   }>;
 }>;
 
+export type ZahlungErfassenCommand = Readonly<{
+  type: "zahlung-erfassen";
+  data: Readonly<{ rechnungId: string }>;
+}>;
+
 // Takes back the payment of a paid Rechnung or the dispatch of a sent one.
 export type RechnungZurueckstufenCommand = Readonly<{
   type: "rechnung-zurueckstufen";
@@ -71,6 +76,7 @@ export type AbrechnungCommand =
   | RechnungAendernCommand
   | EntwurfLoeschenCommand
   | RechnungVersendenCommand
+  | ZahlungErfassenCommand
   | RechnungZurueckstufenCommand;
 
 export type RechnungErstelltEvent = Readonly<{
@@ -202,6 +208,7 @@ export function consults(command: AbrechnungCommand): EventQuery {
   };
   switch (command.type) {
     case "entwurf-loeschen":
+    case "zahlung-erfassen":
     case "rechnung-zurueckstufen":
       return [rechnung];
     case "rechnung-versenden": {
@@ -353,6 +360,27 @@ export function decide(
             ),
             datum,
           },
+        },
+      ]);
+    }
+    case "zahlung-erfassen": {
+      if (rechnung === undefined) {
+        return fail({
+          message:
+            "Die Rechnung ist nicht vorhanden. Möglicherweise wurde sie inzwischen gelöscht.",
+        });
+      }
+      if (rechnung.status !== "versendet") {
+        return fail({
+          invariant: "nur-versendete-bezahlen",
+          message:
+            "Nur eine versendete Rechnung kann bezahlt werden. Bitte versenden Sie die Rechnung zuerst.",
+        });
+      }
+      return ok([
+        {
+          type: "rechnung-bezahlt",
+          data: { rechnungId: command.data.rechnungId },
         },
       ]);
     }

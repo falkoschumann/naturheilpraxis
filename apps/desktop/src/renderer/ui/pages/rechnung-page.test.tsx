@@ -234,6 +234,55 @@ describe("Rechnungen", () => {
     });
   });
 
+  describe("Zahlung", () => {
+    it("sollte die Zahlung erfassen und rückgängig machen", async () => {
+      const api = new FakeNaturheilpraxisApi({
+        events: [...grunddaten(), anschriftErgaenzt(), rechnungErstellt([ersteLeistung]), rechnungVersendet()],
+      });
+      zeige(api, `/rechnungen/${rechnungId}`);
+
+      fireEvent.click(await screen.findByRole("button", { name: "Zahlung erfassen" }));
+
+      expect(await screen.findByText("Der Zahlungseingang für Rechnung 1/260920 wurde erfasst.")).toBeDefined();
+      const fortschritt = screen.getByRole("list", { name: "Fortschritt der Rechnung" });
+      await expect
+        .poll(() => within(fortschritt).getByText("Bezahlt").closest("li")?.getAttribute("aria-current"))
+        .toBe("step");
+
+      fireEvent.click(screen.getByRole("button", { name: "Rückgängig" }));
+
+      expect(await screen.findByText("Die Zahlung wurde zurückgenommen.")).toBeDefined();
+      expect(api.commands).toEqual([
+        { type: "zahlung-erfassen", data: { rechnungId } },
+        { type: "rechnung-zurueckstufen", data: { rechnungId } },
+      ]);
+    });
+
+    it("sollte die Zahlung nach Rückfrage zurücknehmen", async () => {
+      const api = new FakeNaturheilpraxisApi({
+        events: [
+          ...grunddaten(),
+          anschriftErgaenzt(),
+          rechnungErstellt([ersteLeistung]),
+          rechnungVersendet(),
+          { type: "rechnung-bezahlt", data: { rechnungId } },
+        ],
+      });
+      zeige(api, `/rechnungen/${rechnungId}`);
+      fireEvent.click(await screen.findByRole("button", { name: "Zahlung zurücknehmen" }));
+
+      fireEvent.click(
+        within(screen.getByRole("dialog", { name: "Zahlung zurücknehmen?" })).getByRole("button", {
+          name: "Zahlung zurücknehmen",
+        }),
+      );
+
+      expect(await screen.findByText("Die Zahlung wurde zurückgenommen.")).toBeDefined();
+      expect(await screen.findByRole("button", { name: "Zahlung erfassen" })).toBeDefined();
+      expect(api.commands).toEqual([{ type: "rechnung-zurueckstufen", data: { rechnungId } }]);
+    });
+  });
+
   describe("Abrechnung", () => {
     it("sollte die Rechnungen nach Status filtern", async () => {
       const api = new FakeNaturheilpraxisApi({ events: [...grunddaten(), rechnungErstellt([ersteLeistung])] });

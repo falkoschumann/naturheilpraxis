@@ -37,7 +37,18 @@ Jeder Eintrag beginnt mit einer Kategorie:
       „Heilpraktiker erstellt Rechnung aus Leistung wegen Diagnose“.
 - [x] **Rechnung** Rechnung versenden und Versand zurücknehmen (`abrechnung`)
       mit E2E-Schritt „Heilpraktiker versendet Rechnung an Patient“.
-- [ ] **Rechnung** Zahlung erfassen (`abrechnung`) mit E2E-Schritt „Patient
+- [x] **Rechnung** Zahlung erfassen (`abrechnung`) mit E2E-Schritt „Patient
       bezahlt Rechnung“.
 - [ ] **Funktionalität** Daten der bisherigen RDBMS-Anwendung übernehmen (Schema
       im Abschnitt „Migration“ von `docs/README.md`). Nicht Teil des MVP.
+- [ ] **Leistung** Im Behandlungsverlauf den Rechnungsstatus jeder Leistung
+      anzeigen und „Bearbeiten“ sowie „Löschen“ sperren, wenn die Rechnung es
+      nicht erlaubt, wie im Prototyp. Erfordert, dass `behandlungen-ermitteln`
+      den Rechnungsstatus je Leistung liefert.
+- [ ] **Rechnung** Auf der Abrechnungsseite Kennzahlen-Kacheln, die Liste
+      „Patienten mit nicht abgerechneten Leistungen“ und eine Betragsspalte in
+      der Rechnungsliste ergänzen, wie im Prototyp. Erfordert neue Queries im
+      Modell.
+- [ ] **Patient** In der Patientenliste die Spalte „Offene Leistungen“ mit
+      Anzahl und Summe ergänzen, wie im Prototyp. Erfordert, dass
+      `patienten-ermitteln` die nicht abgerechneten Leistungen liefert.

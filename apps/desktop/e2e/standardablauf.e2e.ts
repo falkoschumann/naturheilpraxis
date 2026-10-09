@@ -155,6 +155,18 @@ async function versendeRechnung(window: Page) {
   await expect(window.getByRole("button", { name: "Drucken" })).toBeVisible();
 }
 
-async function erfasseZahlung(_window: Page) {
-  // TODO Implement the test for recording a payment for an invoice.
+async function erfasseZahlung(window: Page) {
+  await window.getByRole("button", { name: "Zahlung erfassen" }).click();
+
+  await expect(
+    window.getByText(
+      /^Der Zahlungseingang für Rechnung 1\/\d{6} wurde erfasst\.$/,
+    ),
+  ).toBeVisible();
+  const fortschritt = window.getByRole("list", {
+    name: "Fortschritt der Rechnung",
+  });
+  await expect(
+    fortschritt.getByRole("listitem").filter({ hasText: "Bezahlt" }),
+  ).toHaveAttribute("aria-current", "step");
 }

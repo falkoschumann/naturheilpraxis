@@ -22,7 +22,9 @@ export function RechnungPage({ api }: { api: NaturheilpraxisApi }) {
   const navigate = useNavigate();
   const [rechnung, setRechnung] = useState<RechnungErmittelnQueryResult | null>(null);
   const [fehler, setFehler] = useState<string>();
-  const [dialog, setDialog] = useState<"bearbeiten" | "loeschen" | "versenden" | "versand-zuruecknehmen">();
+  const [dialog, setDialog] = useState<
+    "bearbeiten" | "loeschen" | "versenden" | "versand-zuruecknehmen" | "zahlung-zuruecknehmen"
+  >();
   const [meldung, setMeldung] = useState<Meldung | undefined>(() => meldungAus(location.state));
   // Each increment loads the Rechnung again.
   const [stand, setStand] = useState(0);
@@ -128,6 +130,36 @@ export function RechnungPage({ api }: { api: NaturheilpraxisApi }) {
     setStand((stand) => stand + 1);
   }
 
+  async function zahlungErfassen(rechnung: Rechnung) {
+    const status = await sende(
+      () => api.zahlungErfassen({ type: "zahlung-erfassen", data: { rechnungId: rechnung.rechnungId } }),
+      "Die Zahlung konnte nicht erfasst werden. Bitte versuchen Sie es erneut.",
+    );
+    setMeldung(
+      status.success
+        ? {
+            message: `Der Zahlungseingang für Rechnung ${rechnung.rechnungsnummer} wurde erfasst.`,
+            action: { label: "Rückgängig", onAction: () => void zahlungZuruecknehmen(rechnung) },
+          }
+        : { message: status.errorMessage, fehler: true },
+    );
+    setStand((stand) => stand + 1);
+  }
+
+  async function zahlungZuruecknehmen(rechnung: Rechnung) {
+    setDialog(undefined);
+    const status = await sende(
+      () => api.rechnungZurueckstufen({ type: "rechnung-zurueckstufen", data: { rechnungId: rechnung.rechnungId } }),
+      "Die Zahlung konnte nicht zurückgenommen werden. Bitte versuchen Sie es erneut.",
+    );
+    setMeldung(
+      status.success
+        ? { message: "Die Zahlung wurde zurückgenommen." }
+        : { message: status.errorMessage, fehler: true },
+    );
+    setStand((stand) => stand + 1);
+  }
+
   const { patient, praxis } = rechnung;
   const patientenname = [patient.name.titel, patient.name.vorname, patient.name.nachname].filter(Boolean).join(" ");
   const titel = rechnung.rechnungsnummer === undefined ? "Rechnungsentwurf" : `Rechnung ${rechnung.rechnungsnummer}`;
@@ -176,6 +208,26 @@ export function RechnungPage({ api }: { api: NaturheilpraxisApi }) {
             >
               <i className="fa-solid fa-rotate-left me-1" aria-hidden="true"></i>
               Versand zurücknehmen
+            </button>
+            <button type="button" className="btn btn-outline-secondary" onClick={() => window.print()}>
+              <i className="fa-solid fa-print me-1" aria-hidden="true"></i>
+              Drucken
+            </button>
+            <button type="button" className="btn btn-primary" onClick={() => void zahlungErfassen(rechnung)}>
+              <i className="fa-solid fa-euro-sign me-1" aria-hidden="true"></i>
+              Zahlung erfassen
+            </button>
+          </div>
+        )}
+        {rechnung.status === "bezahlt" && (
+          <div className="ms-auto d-flex flex-wrap gap-2">
+            <button
+              type="button"
+              className="btn btn-outline-secondary"
+              onClick={() => setDialog("zahlung-zuruecknehmen")}
+            >
+              <i className="fa-solid fa-rotate-left me-1" aria-hidden="true"></i>
+              Zahlung zurücknehmen
             </button>
             <button type="button" className="btn btn-outline-secondary" onClick={() => window.print()}>
               <i className="fa-solid fa-print me-1" aria-hidden="true"></i>
@@ -357,6 +409,18 @@ export function RechnungPage({ api }: { api: NaturheilpraxisApi }) {
           <p className="mb-0">
             Die Rechnung wird wieder zum Entwurf. Rechnungsnummer {rechnung.rechnungsnummer} und Rechnungsdatum werden
             entfernt und beim erneuten Versand neu vergeben.
+          </p>
+        </ConfirmDialog>
+      )}
+      {dialog === "zahlung-zuruecknehmen" && (
+        <ConfirmDialog
+          title="Zahlung zurücknehmen?"
+          confirmLabel="Zahlung zurücknehmen"
+          onConfirm={() => void zahlungZuruecknehmen(rechnung)}
+          onCancel={() => setDialog(undefined)}
+        >
+          <p className="mb-0">
+            Die Rechnung {rechnung.rechnungsnummer} gilt danach wieder als versendet und unbezahlt.
           </p>
         </ConfirmDialog>
       )}

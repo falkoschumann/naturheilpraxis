@@ -628,6 +628,66 @@ describe("Naturheilpraxis Service", () => {
       ).toMatchObject({ status: "entwurf" });
     });
 
+    it("sollte die Zahlung einer versendeten Rechnung erfassen und zurücknehmen", async () => {
+      const service = createService();
+      await service.patientendatenAendern({
+        type: "patientendaten-aendern",
+        data: {
+          patientennummer: 1,
+          praxiskuerzel: "NHP",
+          aufnahmejahr: 2026,
+          geburtsdatum: "1980-09-20",
+          name: { vorname: "Max", nachname: "Mustermann" },
+          anschrift: {
+            strasse: "Lindenweg 5",
+            postleitzahl: "12345",
+            ort: "Musterstadt",
+          },
+        },
+      });
+      await service.rechnungErstellen({
+        type: "rechnung-erstellen",
+        data: {
+          rechnungId,
+          praxiskuerzel: "NHP",
+          patientennummer: 1,
+          diagnosetext: "Rückenschmerzen",
+          rechnungstext: "Zahlbar in 14 Tagen.",
+          leistungen: [ersteLeistung],
+        },
+      });
+      await service.rechnungVersenden({
+        type: "rechnung-versenden",
+        data: { rechnungId, patientennummer: 1, datum: "2026-09-20" },
+      });
+
+      const bezahlt = await service.zahlungErfassen({
+        type: "zahlung-erfassen",
+        data: { rechnungId },
+      });
+
+      expect(bezahlt).toEqual({ success: true });
+      expect(
+        await service.rechnungErmitteln({
+          type: "rechnung-ermitteln",
+          parameters: { rechnungId },
+        }),
+      ).toMatchObject({ status: "bezahlt", rechnungsnummer: "1/260920" });
+
+      const zurueckgenommen = await service.rechnungZurueckstufen({
+        type: "rechnung-zurueckstufen",
+        data: { rechnungId },
+      });
+
+      expect(zurueckgenommen).toEqual({ success: true });
+      expect(
+        await service.rechnungenErmitteln({
+          type: "rechnungen-ermitteln",
+          parameters: {},
+        }),
+      ).toMatchObject([{ status: "versendet" }]);
+    });
+
     it("sollte einen gelöschten Entwurf nicht mehr zeigen", async () => {
       const service = createService();
       await service.rechnungErstellen({

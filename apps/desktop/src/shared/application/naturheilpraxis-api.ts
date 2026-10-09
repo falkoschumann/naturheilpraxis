@@ -54,6 +54,7 @@ import type {
   RechnungErstellenCommand,
   RechnungVersendenCommand,
   RechnungZurueckstufenCommand,
+  ZahlungErfassenCommand,
 } from "../domain/abrechnung.ts";
 import type {
   NichtAbgerechneteLeistungenErmittelnQuery,
@@ -165,4 +166,6 @@ export interface NaturheilpraxisApi {
   rechnungZurueckstufen(
     command: RechnungZurueckstufenCommand,
   ): Promise<CommandStatus>;
+
+  zahlungErfassen(command: ZahlungErfassenCommand): Promise<CommandStatus>;
 }

@@ -37,6 +37,7 @@ const api: NaturheilpraxisApi = {
   rechnungErmitteln: (query) => ipcRenderer.invoke(query.type, query),
   rechnungVersenden: (command) => ipcRenderer.invoke(command.type, command),
   rechnungZurueckstufen: (command) => ipcRenderer.invoke(command.type, command),
+  zahlungErfassen: (command) => ipcRenderer.invoke(command.type, command),
 };
 
 contextBridge.exposeInMainWorld("naturheilpraxis", api);

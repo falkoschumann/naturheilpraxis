@@ -232,6 +232,12 @@ export class NaturheilpraxisService implements NaturheilpraxisApi {
     return statusOf(this.#execute(abrechnung, command));
   }
 
+  async zahlungErfassen(
+    command: abrechnung.ZahlungErfassenCommand,
+  ): Promise<CommandStatus> {
+    return statusOf(this.#execute(abrechnung, command));
+  }
+
   #execute<State, Command, Event extends DomainEvent>(
     boundary: ConsistencyBoundary<State, Command, Event>,
     command: Command,

@@ -122,6 +122,9 @@ function handleMessages(service: NaturheilpraxisService): void {
   ipcMain.handle("rechnung-zurueckstufen", (_event, command) =>
     service.rechnungZurueckstufen(command),
   );
+  ipcMain.handle("zahlung-erfassen", (_event, command) =>
+    service.zahlungErfassen(command),
+  );
 }
 
 app.on("window-all-closed", () => {
