@@ -17,7 +17,7 @@
     "src/components.ts"
   ],
   "peerDependencies": {
-    "@softarc/sheriff-core": "^0.19"
+    "@softarc/sheriff-core": "^0.20"
   },
   "devDependencies": {
     "@naturheilpraxis/eslint-config": "*",

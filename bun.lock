@@ -78,7 +78,7 @@
         "typescript": "6.0.3",
       },
       "peerDependencies": {
-        "@softarc/sheriff-core": "^0.19",
+        "@softarc/sheriff-core": "^0.20",
       },
     },
     "packages/stylelint-config": {
