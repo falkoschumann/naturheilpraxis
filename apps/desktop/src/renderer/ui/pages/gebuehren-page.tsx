@@ -2,11 +2,12 @@
 
 import { useCallback, useEffect, useState } from "react";
 
-import type { CommandStatus, NaturheilpraxisApi } from "../../../shared/application/naturheilpraxis-api.ts";
+import type { NaturheilpraxisApi } from "../../../shared/application/naturheilpraxis-api.ts";
 import type { Gebuehr } from "../../../shared/domain/entities.ts";
 import type { GebuehrenErmittelnQueryResult } from "../../../shared/domain/gebuehrenansicht.ts";
 import { formatEuro } from "../../../shared/domain/value-objects.ts";
 import { ConfirmDialog } from "../components/confirm-dialog.tsx";
+import { sende } from "../components/sende.ts";
 import { Toast, type ToastAction } from "../components/toast.tsx";
 import { GebuehrDialog } from "./gebuehr-dialog.tsx";
 
@@ -212,14 +213,4 @@ export function GebuehrenPage({ api }: { api: NaturheilpraxisApi }) {
       {meldung !== undefined && <Toast message={meldung.message} action={meldung.action} onClose={schliesseMeldung} />}
     </>
   );
-}
-
-// A failed message to the main process becomes a rejection with the given
-// message.
-async function sende(command: () => Promise<CommandStatus>, errorMessage: string): Promise<CommandStatus> {
-  try {
-    return await command();
-  } catch {
-    return { success: false, errorMessage };
-  }
 }

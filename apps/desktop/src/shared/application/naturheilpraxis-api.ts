@@ -30,6 +30,18 @@ import type { PatientAufnehmenCommand } from "../domain/patientenaufnahme.ts";
 import type { PatientendatenAendernCommand } from "../domain/patientenkartei.ts";
 import type { Patientennummer } from "../domain/value-objects.ts";
 
+import type {
+  BehandlungenErmittelnQuery,
+  BehandlungenErmittelnQueryResult,
+  DiagnosenErmittelnQuery,
+  DiagnosenErmittelnQueryResult,
+} from "../domain/behandlungsansicht.ts";
+import type {
+  DiagnoseAendernCommand,
+  DiagnoseLoeschenCommand,
+  DiagnoseStellenCommand,
+} from "../domain/diagnosestellung.ts";
+
 export type CommandStatus =
   | Readonly<{ success: true; errorMessage?: never }>
   | Readonly<{ success: false; errorMessage: string }>;
@@ -85,4 +97,18 @@ export interface NaturheilpraxisApi {
   patientErmitteln(
     query: PatientErmittelnQuery,
   ): Promise<PatientErmittelnQueryResult>;
+
+  diagnoseStellen(command: DiagnoseStellenCommand): Promise<CommandStatus>;
+
+  diagnoseAendern(command: DiagnoseAendernCommand): Promise<CommandStatus>;
+
+  diagnoseLoeschen(command: DiagnoseLoeschenCommand): Promise<CommandStatus>;
+
+  behandlungenErmitteln(
+    query: BehandlungenErmittelnQuery,
+  ): Promise<BehandlungenErmittelnQueryResult>;
+
+  diagnosenErmitteln(
+    query: DiagnosenErmittelnQuery,
+  ): Promise<DiagnosenErmittelnQueryResult>;
 }

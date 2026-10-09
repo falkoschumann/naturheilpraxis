@@ -295,6 +295,73 @@ describe("Naturheilpraxis Service", () => {
       ).toEqual({ ...max, beruf: "Tischler" });
     });
   });
+
+  describe("Diagnosen", () => {
+    it("sollte gestellte, geänderte und gelöschte Diagnosen in der Behandlung zeigen", async () => {
+      const eventStore = SqliteEventStore.createInMemory();
+      eventStore.append([
+        { type: "praxis-angelegt", data: createPraxis() },
+        {
+          type: "patient-aufgenommen",
+          data: {
+            patientennummer: 1,
+            praxiskuerzel: "NHP",
+            aufnahmejahr: 2026,
+            geburtsdatum: "1980-09-20",
+            name: { vorname: "Max", nachname: "Mustermann" },
+          },
+        },
+      ]);
+      const service = new NaturheilpraxisService(eventStore);
+      const diagnose = {
+        diagnoseId: "11111111-1111-4111-8111-111111111111",
+        praxiskuerzel: "NHP",
+        patientennummer: 1,
+        datum: "2026-09-14",
+        text: "Rückenschmerzen",
+      };
+
+      const gestellt = await service.diagnoseStellen({
+        type: "diagnose-stellen",
+        data: diagnose,
+      });
+      const geaendert = await service.diagnoseAendern({
+        type: "diagnose-aendern",
+        data: {
+          diagnoseId: diagnose.diagnoseId,
+          praxiskuerzel: "NHP",
+          datum: "2026-09-14",
+          text: "Lumbago",
+        },
+      });
+
+      expect([gestellt, geaendert]).toEqual([
+        { success: true },
+        { success: true },
+      ]);
+      expect(
+        await service.behandlungenErmitteln({
+          type: "behandlungen-ermitteln",
+          parameters: { patientennummer: 1 },
+        }),
+      ).toEqual([
+        { art: "diagnose", eintrag: { ...diagnose, text: "Lumbago" } },
+      ]);
+
+      const geloescht = await service.diagnoseLoeschen({
+        type: "diagnose-loeschen",
+        data: { diagnoseId: diagnose.diagnoseId },
+      });
+
+      expect(geloescht).toEqual({ success: true });
+      expect(
+        await service.diagnosenErmitteln({
+          type: "diagnosen-ermitteln",
+          parameters: { patientennummer: 1 },
+        }),
+      ).toEqual([]);
+    });
+  });
 });
 
 function createPraxis(praxis: Partial<Praxis> = {}): Praxis {

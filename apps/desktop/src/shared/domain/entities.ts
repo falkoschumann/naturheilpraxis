@@ -40,3 +40,12 @@ export type Patient = Readonly<{
   kindVon?: Patientennummer;
   schluesselworte?: readonly string[];
 }>;
+
+export type Diagnose = Readonly<{
+  diagnoseId: string;
+  praxiskuerzel: string;
+  patientennummer: Patientennummer;
+  // An ISO date like 2026-09-14.
+  datum: string;
+  text: string;
+}>;

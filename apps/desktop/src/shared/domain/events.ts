@@ -1,5 +1,10 @@
 // Copyright (c) 2026 Falko Schumann. MIT license.
 
+import type {
+  DiagnoseGeaendertEvent,
+  DiagnoseGeloeschtEvent,
+  DiagnoseGestelltEvent,
+} from "./diagnosestellung.ts";
 import type { GebuehrenverzeichnisEvent } from "./gebuehrenverzeichnis.ts";
 import type { PatientAufgenommenEvent } from "./patientenaufnahme.ts";
 import type { PatientendatenGeaendertEvent } from "./patientenkartei.ts";
@@ -9,7 +14,10 @@ export type DomainEvent =
   | PraxisverwaltungEvent
   | GebuehrenverzeichnisEvent
   | PatientAufgenommenEvent
-  | PatientendatenGeaendertEvent;
+  | PatientendatenGeaendertEvent
+  | DiagnoseGestelltEvent
+  | DiagnoseGeaendertEvent
+  | DiagnoseGeloeschtEvent;
 
 export type DomainEventType = DomainEvent["type"];
 
@@ -46,6 +54,10 @@ export function tagsOf(event: DomainEvent): string[] {
     case "patient-aufgenommen":
     case "patientendaten-geaendert":
       return [patientTag(event.data.patientennummer)];
+    case "diagnose-gestellt":
+    case "diagnose-geaendert":
+    case "diagnose-geloescht":
+      return [diagnoseTag(event.data.diagnoseId)];
   }
 }
 
@@ -59,4 +71,8 @@ export function gebuehrTag(ziffer: string): string {
 
 export function patientTag(patientennummer: number): string {
   return `patient:${patientennummer}`;
+}
+
+export function diagnoseTag(diagnoseId: string): string {
+  return `diagnose:${diagnoseId}`;
 }

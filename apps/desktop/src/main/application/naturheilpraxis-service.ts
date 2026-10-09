@@ -7,6 +7,8 @@ import type {
 } from "../../shared/application/naturheilpraxis-api.ts";
 import type { ConsistencyBoundary } from "../../shared/domain/consistency-boundary.ts";
 import type { DomainEvent } from "../../shared/domain/events.ts";
+import * as behandlungsansicht from "../../shared/domain/behandlungsansicht.ts";
+import * as diagnosestellung from "../../shared/domain/diagnosestellung.ts";
 import * as gebuehrenansicht from "../../shared/domain/gebuehrenansicht.ts";
 import * as gebuehrenverzeichnis from "../../shared/domain/gebuehrenverzeichnis.ts";
 import * as patientenansicht from "../../shared/domain/patientenansicht.ts";
@@ -24,6 +26,7 @@ export class NaturheilpraxisService implements NaturheilpraxisApi {
   #praxenansicht = praxenansicht.initialReadModel;
   #gebuehrenansicht = gebuehrenansicht.initialReadModel;
   #patientenansicht = patientenansicht.initialReadModel;
+  #behandlungsansicht = behandlungsansicht.initialReadModel;
 
   constructor(eventStore: EventStore) {
     this.#eventStore = eventStore;
@@ -115,6 +118,42 @@ export class NaturheilpraxisService implements NaturheilpraxisApi {
 
   // Decides the command on the consulted events and publishes the decided
   // events.
+  async diagnoseStellen(
+    command: diagnosestellung.DiagnoseStellenCommand,
+  ): Promise<CommandStatus> {
+    return statusOf(this.#execute(diagnosestellung, command));
+  }
+
+  async diagnoseAendern(
+    command: diagnosestellung.DiagnoseAendernCommand,
+  ): Promise<CommandStatus> {
+    return statusOf(this.#execute(diagnosestellung, command));
+  }
+
+  async diagnoseLoeschen(
+    command: diagnosestellung.DiagnoseLoeschenCommand,
+  ): Promise<CommandStatus> {
+    return statusOf(this.#execute(diagnosestellung, command));
+  }
+
+  async behandlungenErmitteln(
+    query: behandlungsansicht.BehandlungenErmittelnQuery,
+  ): Promise<behandlungsansicht.BehandlungenErmittelnQueryResult> {
+    return behandlungsansicht.behandlungenErmitteln(
+      this.#behandlungsansicht,
+      query,
+    );
+  }
+
+  async diagnosenErmitteln(
+    query: behandlungsansicht.DiagnosenErmittelnQuery,
+  ): Promise<behandlungsansicht.DiagnosenErmittelnQueryResult> {
+    return behandlungsansicht.diagnosenErmitteln(
+      this.#behandlungsansicht,
+      query,
+    );
+  }
+
   #execute<State, Command, Event extends DomainEvent>(
     boundary: ConsistencyBoundary<State, Command, Event>,
     command: Command,
@@ -141,6 +180,10 @@ export class NaturheilpraxisService implements NaturheilpraxisApi {
     );
     this.#patientenansicht = patientenansicht.projectAll(
       this.#patientenansicht,
+      events,
+    );
+    this.#behandlungsansicht = behandlungsansicht.projectAll(
+      this.#behandlungsansicht,
       events,
     );
   }

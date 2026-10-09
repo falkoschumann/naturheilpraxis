@@ -1,31 +1,39 @@
 // Copyright (c) 2026 Falko Schumann. MIT license.
 
-import { useCallback, useEffect, useId, useState, type FormEvent } from "react";
-import { Link, useLocation, useParams } from "react-router";
+import { useCallback, useEffect, useState } from "react";
+import { Link, NavLink, useLocation, useParams } from "react-router";
 
-import type { CommandStatus, NaturheilpraxisApi } from "../../../shared/application/naturheilpraxis-api.ts";
+import type { NaturheilpraxisApi } from "../../../shared/application/naturheilpraxis-api.ts";
+import type { Diagnose } from "../../../shared/domain/entities.ts";
 import type { PatientErmittelnQueryResult } from "../../../shared/domain/patientenansicht.ts";
 import { formatDatum } from "../../../shared/domain/value-objects.ts";
-import { Toast } from "../components/toast.tsx";
-import {
-  PatientFormular,
-  patientAus,
-  patientWerteAus,
-  useAuswahllisten,
-  usePatientWerte,
-} from "./patient-formular.tsx";
+import { ConfirmDialog } from "../components/confirm-dialog.tsx";
+import { sende } from "../components/sende.ts";
+import { Toast, type ToastAction } from "../components/toast.tsx";
+import { DiagnoseDialog } from "./diagnose-dialog.tsx";
+import { PatientBehandlung } from "./patient-behandlung.tsx";
+import { PatientStammdaten } from "./patient-stammdaten.tsx";
 
-type Patient = NonNullable<PatientErmittelnQueryResult>;
+type DialogZustand =
+  | Readonly<{ art: "diagnose-stellen" }>
+  | Readonly<{ art: "diagnose-bearbeiten"; diagnose: Diagnose }>
+  | Readonly<{ art: "diagnose-loeschen"; diagnose: Diagnose }>
+  | undefined;
 
-// The Karteikarte of a Patient.
-export function PatientPage({ api }: { api: NaturheilpraxisApi }) {
+type Meldung = Readonly<{ message: string; action?: ToastAction }>;
+
+// The Karteikarte of a Patient with the tabs Behandlung and Stammdaten.
+export function PatientPage({ api, reiter }: { api: NaturheilpraxisApi; reiter: "behandlung" | "stammdaten" }) {
   const patientennummer = Number(useParams()["patientennummer"]);
   const location = useLocation();
   const [patient, setPatient] = useState<PatientErmittelnQueryResult | null>(null);
   const [fehler, setFehler] = useState<string>();
-  const [meldung, setMeldung] = useState<string | undefined>(() => meldungAus(location.state));
+  const [meldung, setMeldung] = useState<Meldung | undefined>(() => meldungAus(location.state));
+  const [dialog, setDialog] = useState<DialogZustand>();
   // Each increment loads the Patient again.
   const [stand, setStand] = useState(0);
+  // Each increment loads the Behandlung again.
+  const [behandlungStand, setBehandlungStand] = useState(0);
 
   useEffect(() => {
     let aktuell = true;
@@ -47,6 +55,32 @@ export function PatientPage({ api }: { api: NaturheilpraxisApi }) {
   }, [api, patientennummer, stand]);
 
   const schliesseMeldung = useCallback(() => setMeldung(undefined), []);
+
+  async function diagnoseLoeschen(diagnose: Diagnose) {
+    setDialog(undefined);
+    const status = await sende(
+      () => api.diagnoseLoeschen({ type: "diagnose-loeschen", data: { diagnoseId: diagnose.diagnoseId } }),
+      "Die Diagnose konnte nicht gelöscht werden. Bitte versuchen Sie es erneut.",
+    );
+    if (!status.success) {
+      setMeldung({ message: status.errorMessage });
+      return;
+    }
+    setMeldung({
+      message: "Die Diagnose wurde gelöscht.",
+      action: { label: "Rückgängig", onAction: () => void diagnoseWiederherstellen(diagnose) },
+    });
+    setBehandlungStand((stand) => stand + 1);
+  }
+
+  async function diagnoseWiederherstellen(diagnose: Diagnose) {
+    const status = await sende(
+      () => api.diagnoseStellen({ type: "diagnose-stellen", data: diagnose }),
+      "Die Diagnose konnte nicht wiederhergestellt werden. Bitte stellen Sie sie erneut.",
+    );
+    setMeldung({ message: status.success ? "Die Diagnose ist wiederhergestellt." : status.errorMessage });
+    setBehandlungStand((stand) => stand + 1);
+  }
 
   if (fehler !== undefined) {
     return (
@@ -86,134 +120,102 @@ export function PatientPage({ api }: { api: NaturheilpraxisApi }) {
         </ol>
       </nav>
       <div className="card shadow-sm mb-3">
-        <div className="card-body">
-          <h1 className="h4 mb-1">{name}</h1>
-          <div className="text-body-secondary small">
-            Nr. {patient.patientennummer} · geb. {formatDatum(patient.geburtsdatum)} ·{" "}
-            <span className="badge rounded-pill bg-primary-subtle text-primary-emphasis border border-primary-subtle">
-              {patient.praxiskuerzel}
-            </span>{" "}
-            seit {patient.aufnahmejahr} ·{" "}
-            {patient.anschrift === undefined ? (
-              <span className="text-warning-emphasis">
-                <i className="fa-solid fa-triangle-exclamation me-1" aria-hidden="true"></i>
-                keine Anschrift
-              </span>
-            ) : (
-              `${patient.anschrift.strasse}, ${patient.anschrift.postleitzahl} ${patient.anschrift.ort}`
-            )}
+        <div className="card-body d-flex flex-wrap gap-3 align-items-center">
+          <div className="me-auto">
+            <h1 className="h4 mb-1">{name}</h1>
+            <div className="text-body-secondary small">
+              Nr. {patient.patientennummer} · geb. {formatDatum(patient.geburtsdatum)} ·{" "}
+              <span className="badge rounded-pill bg-primary-subtle text-primary-emphasis border border-primary-subtle">
+                {patient.praxiskuerzel}
+              </span>{" "}
+              seit {patient.aufnahmejahr} ·{" "}
+              {patient.anschrift === undefined ? (
+                <span className="text-warning-emphasis">
+                  <i className="fa-solid fa-triangle-exclamation me-1" aria-hidden="true"></i>
+                  keine Anschrift
+                </span>
+              ) : (
+                `${patient.anschrift.strasse}, ${patient.anschrift.postleitzahl} ${patient.anschrift.ort}`
+              )}
+            </div>
           </div>
+          <button
+            type="button"
+            className="btn btn-outline-primary"
+            onClick={() => setDialog({ art: "diagnose-stellen" })}
+          >
+            <i className="fa-solid fa-stethoscope me-1" aria-hidden="true"></i>
+            Diagnose stellen
+          </button>
         </div>
       </div>
-      <Stammdaten
-        // A new key resets the form when the saved Patient is loaded.
-        key={JSON.stringify(patient)}
-        api={api}
-        patient={patient}
-        onSaved={() => {
-          setMeldung("Die Stammdaten wurden gespeichert.");
-          setStand((stand) => stand + 1);
-        }}
-      />
-      {meldung !== undefined && <Toast message={meldung} onClose={schliesseMeldung} />}
+      <ul className="nav nav-tabs mb-3">
+        <li className="nav-item">
+          <NavLink className="nav-link" to={`/patienten/${patient.patientennummer}`} end>
+            <i className="fa-solid fa-notes-medical me-1" aria-hidden="true"></i>
+            Behandlung
+          </NavLink>
+        </li>
+        <li className="nav-item">
+          <NavLink className="nav-link" to={`/patienten/${patient.patientennummer}/stammdaten`}>
+            <i className="fa-solid fa-id-card me-1" aria-hidden="true"></i>
+            Stammdaten
+          </NavLink>
+        </li>
+      </ul>
+      {reiter === "behandlung" ? (
+        <PatientBehandlung
+          api={api}
+          patientennummer={patient.patientennummer}
+          stand={behandlungStand}
+          onDiagnoseBearbeiten={(diagnose) => setDialog({ art: "diagnose-bearbeiten", diagnose })}
+          onDiagnoseLoeschen={(diagnose) => setDialog({ art: "diagnose-loeschen", diagnose })}
+        />
+      ) : (
+        <PatientStammdaten
+          // A new key resets the form when the saved Patient is loaded.
+          key={JSON.stringify(patient)}
+          api={api}
+          patient={patient}
+          onSaved={() => {
+            setMeldung({ message: "Die Stammdaten wurden gespeichert." });
+            setStand((stand) => stand + 1);
+          }}
+        />
+      )}
+      {(dialog?.art === "diagnose-stellen" || dialog?.art === "diagnose-bearbeiten") && (
+        <DiagnoseDialog
+          api={api}
+          patient={{ patientennummer: patient.patientennummer, praxiskuerzel: patient.praxiskuerzel, name }}
+          diagnose={dialog.art === "diagnose-bearbeiten" ? dialog.diagnose : undefined}
+          onClose={() => setDialog(undefined)}
+          onSaved={(message) => {
+            setDialog(undefined);
+            setMeldung({ message });
+            setBehandlungStand((stand) => stand + 1);
+          }}
+        />
+      )}
+      {dialog?.art === "diagnose-loeschen" && (
+        <ConfirmDialog
+          title="Diagnose löschen?"
+          confirmLabel="Löschen"
+          onConfirm={() => void diagnoseLoeschen(dialog.diagnose)}
+          onCancel={() => setDialog(undefined)}
+        >
+          <p className="mb-0">
+            Die Diagnose „{dialog.diagnose.text}“ vom {formatDatum(dialog.diagnose.datum)} wird gelöscht.
+          </p>
+        </ConfirmDialog>
+      )}
+      {meldung !== undefined && <Toast message={meldung.message} action={meldung.action} onClose={schliesseMeldung} />}
     </>
   );
 }
 
-function Stammdaten({ api, patient, onSaved }: { api: NaturheilpraxisApi; patient: Patient; onSaved: () => void }) {
-  const titleId = useId();
-  const formular = usePatientWerte(() => patientWerteAus(patient));
-  const { praxen, patienten } = useAuswahllisten(api);
-  const [fehler, setFehler] = useState<string>();
-  const [speichert, setSpeichert] = useState(false);
-
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    if (!formular.pruefen(event.currentTarget)) {
-      setFehler("Bitte prüfen Sie die markierten Felder.");
-      return;
-    }
-
-    setFehler(undefined);
-    setSpeichert(true);
-    let status: CommandStatus;
-    try {
-      status = await api.patientendatenAendern({
-        type: "patientendaten-aendern",
-        data: { patientennummer: patient.patientennummer, ...patientAus(formular.werte) },
-      });
-    } catch {
-      status = {
-        success: false,
-        errorMessage: "Die Stammdaten konnten nicht gespeichert werden. Bitte versuchen Sie es erneut.",
-      };
-    }
-    setSpeichert(false);
-    if (status.success) {
-      onSaved();
-    } else {
-      setFehler(status.errorMessage);
-    }
-  }
-
-  return (
-    <form
-      className="card shadow-sm"
-      noValidate
-      aria-labelledby={titleId}
-      onSubmit={(event) => void handleSubmit(event)}
-    >
-      <div className="card-header">
-        <h2 id={titleId} className="h5 mb-0">
-          Stammdaten
-        </h2>
-      </div>
-      <div className="card-body">
-        {fehler !== undefined && (
-          <div className="alert alert-danger" role="alert">
-            <i className="fa-solid fa-circle-exclamation me-2" aria-hidden="true"></i>
-            {fehler} Ihre Eingaben bleiben erhalten.
-          </div>
-        )}
-        <PatientFormular
-          werte={formular.werte}
-          ungueltig={formular.ungueltig}
-          onChange={formular.aendern}
-          patientennummer={patient.patientennummer}
-          praxen={praxen}
-          patienten={patienten}
-        />
-      </div>
-      <div className="card-footer d-flex align-items-center justify-content-end gap-2 sticky-bottom bg-body">
-        <span className="me-auto small text-body-secondary">
-          <span className="text-danger">*</span> Pflichtfeld
-        </span>
-        <button
-          type="button"
-          className="btn btn-outline-secondary"
-          onClick={() => {
-            formular.zuruecksetzen(patientWerteAus(patient));
-            setFehler(undefined);
-          }}
-        >
-          Änderungen verwerfen
-        </button>
-        <button type="submit" className="btn btn-primary" disabled={speichert}>
-          {speichert ? (
-            <span className="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
-          ) : (
-            <i className="fa-solid fa-floppy-disk me-1" aria-hidden="true"></i>
-          )}
-          Speichern
-        </button>
-      </div>
-    </form>
-  );
-}
-
-function meldungAus(state: unknown): string | undefined {
+function meldungAus(state: unknown): Meldung | undefined {
   if (typeof state === "object" && state !== null && "meldung" in state && typeof state.meldung === "string") {
-    return state.meldung;
+    return { message: state.meldung };
   }
   return undefined;
 }

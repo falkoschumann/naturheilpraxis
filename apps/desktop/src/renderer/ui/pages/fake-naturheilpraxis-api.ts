@@ -7,6 +7,8 @@ import type {
 } from "../../../shared/application/naturheilpraxis-api.ts";
 import type { ConsistencyBoundary } from "../../../shared/domain/consistency-boundary.ts";
 import { matches, type DomainEvent } from "../../../shared/domain/events.ts";
+import * as behandlungsansicht from "../../../shared/domain/behandlungsansicht.ts";
+import * as diagnosestellung from "../../../shared/domain/diagnosestellung.ts";
 import * as gebuehrenansicht from "../../../shared/domain/gebuehrenansicht.ts";
 import * as gebuehrenverzeichnis from "../../../shared/domain/gebuehrenverzeichnis.ts";
 import * as patientenansicht from "../../../shared/domain/patientenansicht.ts";
@@ -24,7 +26,8 @@ type Command =
   | praxisverwaltung.PraxisverwaltungCommand
   | gebuehrenverzeichnis.GebuehrenverzeichnisCommand
   | patientenaufnahme.PatientAufnehmenCommand
-  | patientenkartei.PatientendatenAendernCommand;
+  | patientenkartei.PatientendatenAendernCommand
+  | diagnosestellung.DiagnosestellungCommand;
 
 // Executes the commands with the domain in memory and records them, so the
 // tests of the user interface need no main process. A given rejection replaces
@@ -143,6 +146,48 @@ export class FakeNaturheilpraxisApi implements NaturheilpraxisApi {
     return patientenansicht.patientErmitteln(
       patientenansicht.projectAll(
         patientenansicht.initialReadModel,
+        this.#events,
+      ),
+      query,
+    );
+  }
+
+  async diagnoseStellen(
+    command: diagnosestellung.DiagnoseStellenCommand,
+  ): Promise<CommandStatus> {
+    return statusOf(this.#execute(diagnosestellung, command));
+  }
+
+  async diagnoseAendern(
+    command: diagnosestellung.DiagnoseAendernCommand,
+  ): Promise<CommandStatus> {
+    return statusOf(this.#execute(diagnosestellung, command));
+  }
+
+  async diagnoseLoeschen(
+    command: diagnosestellung.DiagnoseLoeschenCommand,
+  ): Promise<CommandStatus> {
+    return statusOf(this.#execute(diagnosestellung, command));
+  }
+
+  async behandlungenErmitteln(
+    query: behandlungsansicht.BehandlungenErmittelnQuery,
+  ): Promise<behandlungsansicht.BehandlungenErmittelnQueryResult> {
+    return behandlungsansicht.behandlungenErmitteln(
+      behandlungsansicht.projectAll(
+        behandlungsansicht.initialReadModel,
+        this.#events,
+      ),
+      query,
+    );
+  }
+
+  async diagnosenErmitteln(
+    query: behandlungsansicht.DiagnosenErmittelnQuery,
+  ): Promise<behandlungsansicht.DiagnosenErmittelnQueryResult> {
+    return behandlungsansicht.diagnosenErmitteln(
+      behandlungsansicht.projectAll(
+        behandlungsansicht.initialReadModel,
         this.#events,
       ),
       query,

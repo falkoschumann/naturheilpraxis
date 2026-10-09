@@ -73,8 +73,21 @@ async function nimmPatientAuf(window: Page) {
   ).toBeVisible();
 }
 
-async function stelleDiagnose(_window: Page) {
-  // TODO Implement the test for diagnosing a patient.
+async function stelleDiagnose(window: Page) {
+  await window.getByRole("button", { name: "Diagnose stellen" }).click();
+  const dialog = window.getByRole("dialog", {
+    name: "Diagnose stellen für Max Mustermann",
+  });
+  await expect(dialog.getByLabel("Praxis")).toHaveValue("NHP");
+  await dialog.getByLabel("Datum").fill("2026-09-14");
+  await dialog.getByLabel("Diagnose").fill("Chronische Rückenschmerzen");
+  await dialog.getByRole("button", { name: "Diagnose stellen" }).click();
+
+  await expect(window.getByText("Die Diagnose wurde gestellt.")).toBeVisible();
+  const tag = window.getByRole("region", {
+    name: "Montag, 14. September 2026",
+  });
+  await expect(tag.getByText("Chronische Rückenschmerzen")).toBeVisible();
 }
 
 async function erbringeLeistung(_window: Page) {

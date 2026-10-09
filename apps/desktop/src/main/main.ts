@@ -74,6 +74,21 @@ function handleMessages(service: NaturheilpraxisService): void {
   ipcMain.handle("patient-ermitteln", (_event, query) =>
     service.patientErmitteln(query),
   );
+  ipcMain.handle("diagnose-stellen", (_event, command) =>
+    service.diagnoseStellen(command),
+  );
+  ipcMain.handle("diagnose-aendern", (_event, command) =>
+    service.diagnoseAendern(command),
+  );
+  ipcMain.handle("diagnose-loeschen", (_event, command) =>
+    service.diagnoseLoeschen(command),
+  );
+  ipcMain.handle("behandlungen-ermitteln", (_event, query) =>
+    service.behandlungenErmitteln(query),
+  );
+  ipcMain.handle("diagnosen-ermitteln", (_event, query) =>
+    service.diagnosenErmitteln(query),
+  );
 }
 
 app.on("window-all-closed", () => {

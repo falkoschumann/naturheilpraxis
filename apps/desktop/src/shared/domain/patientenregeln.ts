@@ -3,7 +3,7 @@
 import type { Rejection } from "./result.ts";
 import type { Patientennummer } from "./value-objects.ts";
 
-// The invariants the Patientenaufnahme and the Patientenkartei share.
+// The invariants several consistency boundaries share.
 
 export function praxisExistiert(
   praxiskuerzel: string,
@@ -37,4 +37,17 @@ export function angehoerigeExistieren(
     }
   }
   return undefined;
+}
+
+export function patientExistiert(
+  patientennummer: Patientennummer,
+  patientAufgenommen: boolean,
+): Rejection | undefined {
+  if (patientAufgenommen) {
+    return undefined;
+  }
+  return {
+    invariant: "patient-existiert",
+    message: `Der Patient mit der Nummer ${patientennummer} ist nicht aufgenommen. Bitte wählen Sie einen aufgenommenen Patienten.`,
+  };
 }

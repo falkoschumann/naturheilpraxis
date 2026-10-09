@@ -25,7 +25,7 @@ Jeder Eintrag beginnt mit einer Kategorie:
 - [x] **Patient** Patient aufnehmen (`patientenaufnahme`), Patientendaten ändern
       (`patientenkartei`) und Patienten anzeigen (`patientenansicht`) mit
       E2E-Schritt „Heilpraktiker legt Patientenkarteikarte für Patient an“.
-- [ ] **Diagnose** Diagnose stellen, ändern und löschen (`diagnosestellung`)
+- [x] **Diagnose** Diagnose stellen, ändern und löschen (`diagnosestellung`)
       sowie Diagnosen anzeigen (`behandlungsansicht`) mit E2E-Schritt
       „Heilpraktiker stellt Diagnose für Patient“.
 - [ ] **Leistung** Leistung erbringen, ändern und löschen

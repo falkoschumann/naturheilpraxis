@@ -16,7 +16,8 @@ export function App({ api }: { api: NaturheilpraxisApi }) {
         <Route element={<MainLayout api={api} />}>
           <Route index element={<Navigate to="/patienten" replace />} />
           <Route path="patienten" element={<PatientenPage api={api} />} />
-          <Route path="patienten/:patientennummer" element={<PatientPage api={api} />} />
+          <Route path="patienten/:patientennummer" element={<PatientPage api={api} reiter="behandlung" />} />
+          <Route path="patienten/:patientennummer/stammdaten" element={<PatientPage api={api} reiter="stammdaten" />} />
           <Route path="praxen" element={<PraxenPage api={api} />} />
           <Route path="gebuehren" element={<GebuehrenPage api={api} />} />
         </Route>
