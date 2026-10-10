@@ -53,7 +53,10 @@ watch: prepare
 	$(PM) run --parallel --workspaces --if-present test:watch
 
 e2e: build
-	$(PM) run --workspaces --if-present test:e2e
+	$(PM) run --workspaces --elide-lines=0 --if-present test:e2e
+
+e2e-coverage: build
+	$(PM) run --workspaces --elide-lines=0 --if-present test:e2e:coverage
 
 build: prepare
 	$(PM) run --workspaces --if-present build
@@ -81,5 +84,5 @@ endif
 	all clean distclean dist \
 	dev doc esdm-visualizer \
 	check fix \
-	test coverage watch  e2e \
+	test coverage watch  e2e e2e-coverage \
 	build prepare version

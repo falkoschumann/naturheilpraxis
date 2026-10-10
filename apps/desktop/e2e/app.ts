@@ -12,6 +12,12 @@ import {
   type Page,
 } from "@playwright/test";
 
+import {
+  coverageEnabled,
+  createCoverageReport,
+  mainCoverageDirectory,
+} from "./coverage.ts";
+
 const appDirectory = fileURLToPath(new URL("..", import.meta.url));
 
 export interface AppFixtures {
@@ -43,8 +49,16 @@ export const test = base.extend<AppFixtures>({
   },
   window: async ({ app }, provide) => {
     const window = await app.firstWindow();
+    if (coverageEnabled) {
+      // Reloading measures the start of the renderer, too.
+      await window.coverage.startJSCoverage({ resetOnNavigation: false });
+      await window.reload();
+    }
     await window.getByRole("navigation", { name: "Hauptnavigation" }).waitFor();
     await provide(window);
+    if (coverageEnabled) {
+      await createCoverageReport().add(await window.coverage.stopJSCoverage());
+    }
   },
 });
 
@@ -52,11 +66,15 @@ export { expect } from "@playwright/test";
 
 // The terminals of VS Code set ELECTRON_RUN_AS_NODE. With it Electron runs as
 // plain Node and opens no window.
+// The main process writes its coverage on exit, if requested.
 function createEnvironment(): Record<string, string> {
-  return Object.fromEntries(
+  const environment = Object.fromEntries(
     Object.entries(process.env).filter(
       (entry): entry is [string, string] =>
         entry[0] !== "ELECTRON_RUN_AS_NODE" && entry[1] !== undefined,
     ),
   );
+  return coverageEnabled
+    ? { ...environment, NODE_V8_COVERAGE: mainCoverageDirectory }
+    : environment;
 }

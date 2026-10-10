@@ -7,5 +7,13 @@ export const base = {
   // TODO Can this be simplified?
   //extends: ["stylelint-config-standard"],
   extends: [fileURLToPath(import.meta.resolve("stylelint-config-standard"))],
-  ignoreFiles: ["build/**", "coverage/**", "dist/**", "node_modules/**"],
+  ignoreFiles: [
+    "build/**",
+    "coverage/**",
+    "coverage-e2e/**",
+    "dist/**",
+    "node_modules/**",
+    "playwright-report/**",
+    "test-results/**",
+  ],
 };

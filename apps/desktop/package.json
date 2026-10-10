@@ -16,6 +16,7 @@
     "test:coverage": "vitest run --coverage",
     "test:watch": "vitest --watch",
     "test:e2e": "playwright test",
+    "test:e2e:coverage": "E2E_COVERAGE=1 playwright test",
     "lint": "eslint . && stylelint \"**/*.{css,scss}\"",
     "lint:fix": "eslint . --fix && stylelint \"**/*.{css,scss}\" --fix",
     "check-types": "tsc --build tsconfig.json"
@@ -43,6 +44,7 @@
     "electron-builder": "26.15.3",
     "eslint": "10.12.0",
     "jsdom": "30.1.2",
+    "monocart-coverage-reports": "2.13.2",
     "react": "19.3.0",
     "react-dom": "19.3.0",
     "react-router": "8.4.0",
