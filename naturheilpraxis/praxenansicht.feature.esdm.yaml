@@ -24,7 +24,7 @@ scenarios:
           praxiskuerzel: ABC
           name: Heilpraxis am Bahnhof
           anschrift: { strasse: Bahnhofstraße 7, postleitzahl: "54321", ort: Beispielstadt }
-          kontakt: { telefon: "0543 21", email: bahnhof@example.com }
+          kontakt: { telefon: "0543 21", fax: "0543 22", email: bahnhof@example.com }
       - boundedContext: naturheilpraxis
         event: praxisdaten-geaendert
         data:
@@ -43,6 +43,7 @@ scenarios:
           postleitzahl: "54321"
           ort: Beispielstadt
           telefon: "0543 21"
+          fax: "0543 22"
           email: bahnhof@example.com
         - praxiskuerzel: NHP
           name: Naturheilpraxis am Markt

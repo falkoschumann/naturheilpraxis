@@ -23,6 +23,7 @@ export type PraxenErmittelnQueryResultItem = Readonly<{
   staat?: string;
   telefon?: string;
   mobiltelefon?: string;
+  fax?: string;
   email?: string;
   website?: string;
   rechnungstext?: string;

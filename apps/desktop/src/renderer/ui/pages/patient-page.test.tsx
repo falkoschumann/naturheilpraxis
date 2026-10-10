@@ -39,13 +39,17 @@ describe("Patient", () => {
     const partnerVon = within(stammdaten).getByLabelText("Partner von");
     await within(partnerVon).findByRole("option", { name: "Mustermann, Erika (Nr. 2)" });
 
+    eingeben(stammdaten, "Fax", "0123 456780");
     eingeben(stammdaten, "Beruf", "Tischler");
     fireEvent.change(partnerVon, { target: { value: "2" } });
     fireEvent.click(within(stammdaten).getByRole("button", { name: "Speichern" }));
 
     expect(await screen.findByText("Die Stammdaten wurden gespeichert.")).toBeDefined();
     expect(api.commands).toEqual([
-      { type: "patientendaten-aendern", data: { ...max(), beruf: "Tischler", partnerVon: 2 } },
+      {
+        type: "patientendaten-aendern",
+        data: { ...max(), kontakt: { fax: "0123 456780" }, beruf: "Tischler", partnerVon: 2 },
+      },
     ]);
   });
 

@@ -36,7 +36,11 @@ describe("Praxenansicht", () => {
             postleitzahl: "54321",
             ort: "Beispielstadt",
           },
-          kontakt: { telefon: "0543 21", email: "bahnhof@example.com" },
+          kontakt: {
+            telefon: "0543 21",
+            fax: "0543 22",
+            email: "bahnhof@example.com",
+          },
         },
       },
       {
@@ -68,6 +72,7 @@ describe("Praxenansicht", () => {
         postleitzahl: "54321",
         ort: "Beispielstadt",
         telefon: "0543 21",
+        fax: "0543 22",
         email: "bahnhof@example.com",
       },
       {

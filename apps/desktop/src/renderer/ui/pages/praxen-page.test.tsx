@@ -42,6 +42,7 @@ describe("Praxen", () => {
     eingeben(dialog, "Postleitzahl", "12345");
     eingeben(dialog, "Ort", "Musterstadt");
     eingeben(dialog, "Telefon", "0123 456789");
+    eingeben(dialog, "Fax", "0123 456780");
     fireEvent.click(within(dialog).getByRole("button", { name: "Praxis anlegen" }));
 
     expect(await screen.findByText("Die Praxis wurde angelegt.")).toBeDefined();
@@ -56,7 +57,7 @@ describe("Praxen", () => {
             postleitzahl: "12345",
             ort: "Musterstadt",
           },
-          kontakt: { telefon: "0123 456789" },
+          kontakt: { telefon: "0123 456789", fax: "0123 456780" },
         },
       },
     ]);

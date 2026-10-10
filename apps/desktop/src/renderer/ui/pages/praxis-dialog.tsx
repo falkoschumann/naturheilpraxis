@@ -17,6 +17,7 @@ type Werte = Record<
   | "staat"
   | "telefon"
   | "mobiltelefon"
+  | "fax"
   | "email"
   | "website"
   | "rechnungstext",
@@ -128,8 +129,9 @@ export function PraxisDialog({
             <TextField label="Postleitzahl" className="col-md-3" {...feld("postleitzahl")} />
             <TextField label="Ort" className="col-md-5" {...feld("ort")} />
             <TextField label="Staat" className="col-md-4" {...feld("staat")} />
-            <TextField label="Telefon" type="tel" className="col-md-6" {...feld("telefon")} />
-            <TextField label="Mobiltelefon" type="tel" className="col-md-6" {...feld("mobiltelefon")} />
+            <TextField label="Telefon" type="tel" className="col-md-4" {...feld("telefon")} />
+            <TextField label="Mobiltelefon" type="tel" className="col-md-4" {...feld("mobiltelefon")} />
+            <TextField label="Fax" type="tel" className="col-md-4" {...feld("fax")} />
             <TextField label="E-Mail" type="email" className="col-md-6" {...feld("email")} />
             <TextField label="Website" type="url" className="col-md-6" {...feld("website")} />
             <TextField
@@ -168,6 +170,7 @@ function werteAus(praxis?: Praxis): Werte {
     staat: praxis?.anschrift.staat ?? "",
     telefon: praxis?.kontakt?.telefon ?? "",
     mobiltelefon: praxis?.kontakt?.mobiltelefon ?? "",
+    fax: praxis?.kontakt?.fax ?? "",
     email: praxis?.kontakt?.email ?? "",
     website: praxis?.kontakt?.website ?? "",
     rechnungstext: praxis?.rechnungstext ?? "",
@@ -179,6 +182,7 @@ function praxisAus(werte: Werte): Praxis {
   const kontakt = ohneLeere({
     telefon: werte.telefon,
     mobiltelefon: werte.mobiltelefon,
+    fax: werte.fax,
     email: werte.email,
     website: werte.website,
   });

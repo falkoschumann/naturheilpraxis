@@ -13,6 +13,7 @@ export type Anschrift = Readonly<{
 export type Kontakt = Readonly<{
   telefon?: string;
   mobiltelefon?: string;
+  fax?: string;
   email?: string;
   website?: string;
 }>;

@@ -280,7 +280,11 @@ export function RechnungPage({ api }: { api: NaturheilpraxisApi }) {
                 {praxis.anschrift.strasse}
                 <br />
                 {praxis.anschrift.postleitzahl} {praxis.anschrift.ort}
-                {[praxis.kontakt?.telefon, praxis.kontakt?.email].map(
+                {[
+                  praxis.kontakt?.telefon && `Tel. ${praxis.kontakt.telefon}`,
+                  praxis.kontakt?.fax && `Fax ${praxis.kontakt.fax}`,
+                  praxis.kontakt?.email,
+                ].map(
                   (kontakt) =>
                     kontakt !== undefined && (
                       <span key={kontakt}>

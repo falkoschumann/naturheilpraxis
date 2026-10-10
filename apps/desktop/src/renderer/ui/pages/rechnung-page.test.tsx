@@ -103,6 +103,8 @@ describe("Rechnungen", () => {
       const rechnung = screen.getByRole("article", { name: "Rechnung" });
       expect(within(rechnung).getByRole("row", { name: /Eingehende Untersuchung/ }).textContent).toContain("20,50");
       expect(within(rechnung).getByText("51,10 €", { selector: "th" })).toBeDefined();
+      expect(within(rechnung).getByText("Tel. 0123 456789")).toBeDefined();
+      expect(within(rechnung).getByText("Fax 0123 456780")).toBeDefined();
       expect(screen.getByText(/keine vollständige Anschrift/)).toBeDefined();
     });
 
@@ -346,6 +348,7 @@ function grunddaten(): DomainEvent[] {
         praxiskuerzel: "NHP",
         name: "Naturheilpraxis am Markt",
         anschrift: { strasse: "Marktplatz 1", postleitzahl: "12345", ort: "Musterstadt" },
+        kontakt: { telefon: "0123 456789", fax: "0123 456780" },
         rechnungstext: "Bitte überweisen Sie den Betrag innerhalb von 14 Tagen.",
       },
     },

@@ -25,7 +25,11 @@ describe("Praxisverwaltung", () => {
           postleitzahl: "12345",
           ort: "Musterstadt",
         },
-        kontakt: { telefon: "0123 456789", email: "praxis@example.com" },
+        kontakt: {
+          telefon: "0123 456789",
+          fax: "0123 456780",
+          email: "praxis@example.com",
+        },
         rechnungstext:
           "Bitte überweisen Sie den Betrag innerhalb von 14 Tagen.",
       },
@@ -46,7 +50,11 @@ describe("Praxisverwaltung", () => {
               postleitzahl: "12345",
               ort: "Musterstadt",
             },
-            kontakt: { telefon: "0123 456789", email: "praxis@example.com" },
+            kontakt: {
+              telefon: "0123 456789",
+              fax: "0123 456780",
+              email: "praxis@example.com",
+            },
             rechnungstext:
               "Bitte überweisen Sie den Betrag innerhalb von 14 Tagen.",
           },

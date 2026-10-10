@@ -30,6 +30,7 @@ export type PatientWerte = Record<
   | "staat"
   | "telefon"
   | "mobiltelefon"
+  | "fax"
   | "email"
   | "website"
   | "schluesselworte"
@@ -67,6 +68,7 @@ export function patientWerteAus(patient: Patient | undefined, praxiskuerzel = ""
     staat: patient?.anschrift?.staat ?? "",
     telefon: patient?.kontakt?.telefon ?? "",
     mobiltelefon: patient?.kontakt?.mobiltelefon ?? "",
+    fax: patient?.kontakt?.fax ?? "",
     email: patient?.kontakt?.email ?? "",
     website: patient?.kontakt?.website ?? "",
     schluesselworte: patient?.schluesselworte?.join(", ") ?? "",
@@ -106,6 +108,7 @@ export function patientAus(werte: PatientWerte): Omit<Patient, "patientennummer"
   const kontakt = ohneLeere({
     telefon: text("telefon"),
     mobiltelefon: text("mobiltelefon"),
+    fax: text("fax"),
     email: text("email"),
     website: text("website"),
   });
@@ -310,8 +313,9 @@ export function PatientFormular({
       <fieldset className="mb-4">
         <legend className="fs-6 fw-semibold border-bottom pb-1">Kontakt</legend>
         <div className="row g-3">
-          <TextField label="Telefon" type="tel" className="col-md-6" {...feld("telefon")} />
-          <TextField label="Mobiltelefon" type="tel" className="col-md-6" {...feld("mobiltelefon")} />
+          <TextField label="Telefon" type="tel" className="col-md-4" {...feld("telefon")} />
+          <TextField label="Mobiltelefon" type="tel" className="col-md-4" {...feld("mobiltelefon")} />
+          <TextField label="Fax" type="tel" className="col-md-4" {...feld("fax")} />
           <TextField label="E-Mail" type="email" className="col-md-6" {...feld("email")} />
           <TextField label="Website" type="url" className="col-md-6" {...feld("website")} />
         </div>

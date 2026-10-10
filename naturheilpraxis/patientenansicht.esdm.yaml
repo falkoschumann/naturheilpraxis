@@ -74,6 +74,8 @@ result:
         type: string
       mobiltelefon:
         type: string
+      fax:
+        type: string
       email:
         type: string
         format: email
