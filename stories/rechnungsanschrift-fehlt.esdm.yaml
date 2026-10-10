@@ -1,0 +1,60 @@
+# $schema: ../schemas/domain-storytelling/v1.yaml
+apiVersion: schema.esdm.io/domain-storytelling/v1
+kind: domain-story
+name: rechnungsanschrift-fehlt
+description: >-
+  Fehlerfall zum Standardablauf: Der Heilpraktiker versendet eine Rechnung an einen Patienten, für
+  den keine Anschrift hinterlegt ist. Ausgangspunkt ist ein Rechnungsentwurf für einen Patienten
+  ohne Anschrift.
+scope:
+  domain: naturheilpraxis
+pointInTime: as-is
+granularity: coarse-grained
+domainPurity: pure
+actors:
+  - name: heilpraktiker
+  - name: patient
+    annotation: >-
+      Ist an der Behandlung beteiligt, bedient aber nicht die Anwendung.
+sentences:
+  - sequenceNumber: 1
+    workObjects:
+      - name: rechnung
+        annotation: >-
+          Ohne Anschrift des Patienten lehnt die Anwendung den Versand ab. Die Rechnung bleibt ein
+          Entwurf.
+    edges:
+      - from:
+          actor: heilpraktiker
+        to:
+          workObject: rechnung
+        label: versendet
+      - from:
+          workObject: rechnung
+        to:
+          actor: patient
+        label: an
+  - sequenceNumber: 2
+    edges:
+      - from:
+          actor: heilpraktiker
+        to:
+          workObject: anschrift
+        label: ergänzt
+      - from:
+          workObject: anschrift
+        to:
+          workObject: patientenkarteikarte
+        label: auf
+  - sequenceNumber: 3
+    edges:
+      - from:
+          actor: heilpraktiker
+        to:
+          workObject: rechnung
+        label: versendet erneut
+      - from:
+          workObject: rechnung
+        to:
+          actor: patient
+        label: an

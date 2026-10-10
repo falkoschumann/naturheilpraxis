@@ -1,0 +1,37 @@
+# $schema: ../schemas/domain-storytelling/v1.yaml
+apiVersion: schema.esdm.io/domain-storytelling/v1
+kind: domain-story
+name: praxiskuerzel-vergeben
+description: >-
+  Fehlerfall zum Standardablauf: Der Heilpraktiker legt eine weitere Praxis mit einem Kürzel an, das
+  bereits vergeben ist. Ausgangspunkt ist eine angelegte Praxis.
+scope:
+  domain: naturheilpraxis
+pointInTime: as-is
+granularity: coarse-grained
+domainPurity: pure
+actors:
+  - name: heilpraktiker
+sentences:
+  - sequenceNumber: 1
+    workObjects:
+      - name: praxis
+        annotation: >-
+          Das Kürzel ist bereits vergeben. Die Anwendung lehnt das Anlegen ab und behält die
+          Eingaben.
+    edges:
+      - from:
+          actor: heilpraktiker
+        to:
+          workObject: praxis
+        label: legt an
+  - sequenceNumber: 2
+    workObjects:
+      - name: praxis
+        annotation: Mit einem anderen Kürzel.
+    edges:
+      - from:
+          actor: heilpraktiker
+        to:
+          workObject: praxis
+        label: legt erneut an

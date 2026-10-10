@@ -56,7 +56,7 @@ Jeder Eintrag beginnt mit einer Kategorie:
 - [x] **Patient** In der Patientenliste die Spalte „Offene Leistungen“ mit
       Anzahl und Summe ergänzen, wie im Prototyp. Erfordert, dass
       `patienten-ermitteln` die nicht abgerechneten Leistungen liefert.
-- [ ] **Zuverlässigkeit** Neben dem Standardablauf weitere Domain Stories in
+- [x] **Zuverlässigkeit** Neben dem Standardablauf weitere Domain Stories in
       `stories` für Alternativabläufe und Fehlerfälle erstellen und als
       E2E-Tests umsetzen, etwa Stammdaten korrigieren, Diagnosen und Leistungen
       ändern und löschen, Rechnungsentwurf ändern und verwerfen, Versand und
