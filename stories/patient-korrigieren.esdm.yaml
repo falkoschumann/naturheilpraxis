@@ -1,0 +1,73 @@
+# $schema: ../schemas/domain-storytelling/v1.yaml
+apiVersion: schema.esdm.io/domain-storytelling/v1
+kind: domain-story
+name: patient-korrigieren
+description: >-
+  Ergänzt den Standardablauf: Der Heilpraktiker korrigiert die Patientenkarteikarte sowie die
+  Diagnosen und Leistungen eines Patienten, solange sie nicht abgerechnet sind. Ausgangspunkt ist
+  ein Patient mit einer Diagnose und einer Leistung.
+scope:
+  domain: naturheilpraxis
+pointInTime: as-is
+granularity: coarse-grained
+domainPurity: pure
+actors:
+  - name: heilpraktiker
+  - name: patient
+    annotation: >-
+      Ist an der Behandlung beteiligt, bedient aber nicht die Anwendung.
+sentences:
+  - sequenceNumber: 1
+    edges:
+      - from:
+          actor: heilpraktiker
+        to:
+          workObject: patientenkarteikarte
+        label: korrigiert
+      - from:
+          workObject: patientenkarteikarte
+        to:
+          actor: patient
+        label: von
+  - sequenceNumber: 2
+    edges:
+      - from:
+          actor: heilpraktiker
+        to:
+          workObject: diagnose
+        label: korrigiert
+  - sequenceNumber: 3
+    edges:
+      - from:
+          actor: heilpraktiker
+        to:
+          workObject: leistung
+        label: korrigiert
+  - sequenceNumber: 4
+    edges:
+      - from:
+          actor: heilpraktiker
+        to:
+          workObject: leistung
+        label: löscht
+  - sequenceNumber: 5
+    edges:
+      - from:
+          actor: heilpraktiker
+        to:
+          workObject: leistung
+        label: stellt wieder her
+  - sequenceNumber: 6
+    edges:
+      - from:
+          actor: heilpraktiker
+        to:
+          workObject: diagnose
+        label: löscht
+  - sequenceNumber: 7
+    edges:
+      - from:
+          actor: heilpraktiker
+        to:
+          workObject: diagnose
+        label: stellt wieder her

@@ -26,3 +26,66 @@ export async function legePraxisAn(window: Page) {
     window.getByRole("article", { name: "Naturheilpraxis am Markt" }),
   ).toBeVisible();
 }
+
+export async function nimmPatientAuf(window: Page) {
+  await window
+    .getByRole("navigation", { name: "Hauptnavigation" })
+    .getByRole("link", { name: "Patienten" })
+    .click();
+  await window.getByRole("button", { name: "Patient aufnehmen" }).click();
+  const dialog = window.getByRole("dialog", { name: "Patient aufnehmen" });
+  await expect(dialog.getByLabel("Praxis")).toHaveValue("NHP");
+  await dialog.getByLabel("Vorname").fill("Max");
+  await dialog.getByLabel("Nachname").fill("Mustermann");
+  await dialog.getByLabel("Geburtsdatum").fill("1980-09-20");
+  await dialog.getByLabel("Straße und Hausnummer").fill("Lindenweg 5");
+  await dialog.getByLabel("Postleitzahl").fill("12345");
+  await dialog.getByLabel("Ort", { exact: true }).fill("Musterstadt");
+  await dialog.getByRole("button", { name: "Aufnehmen" }).click();
+
+  await expect(
+    window.getByText(
+      "Max Mustermann wurde mit der Patientennummer 1 aufgenommen.",
+    ),
+  ).toBeVisible();
+  await expect(
+    window.getByRole("heading", { level: 1, name: "Max Mustermann" }),
+  ).toBeVisible();
+}
+
+export async function stelleDiagnose(window: Page) {
+  await window.getByRole("button", { name: "Diagnose stellen" }).click();
+  const dialog = window.getByRole("dialog", {
+    name: "Diagnose stellen für Max Mustermann",
+  });
+  await expect(dialog.getByLabel("Praxis")).toHaveValue("NHP");
+  await dialog.getByLabel("Datum").fill("2026-09-14");
+  await dialog.getByLabel("Diagnose").fill("Chronische Rückenschmerzen");
+  await dialog.getByRole("button", { name: "Diagnose stellen" }).click();
+
+  await expect(window.getByText("Die Diagnose wurde gestellt.")).toBeVisible();
+  const tag = window.getByRole("region", {
+    name: "Montag, 14. September 2026",
+  });
+  await expect(tag.getByText("Chronische Rückenschmerzen")).toBeVisible();
+}
+
+export async function erbringeLeistung(window: Page) {
+  await window.getByRole("button", { name: "Leistung erfassen" }).click();
+  const dialog = window.getByRole("dialog", {
+    name: "Leistung erfassen für Max Mustermann",
+  });
+  await expect(dialog.getByLabel("Praxis")).toHaveValue("NHP");
+  await dialog.getByLabel("Datum").fill("2026-09-14");
+  await dialog.getByLabel("Gebührenziffer").fill("1");
+  await dialog.getByLabel("Bezeichnung").fill("Eingehende Untersuchung");
+  await dialog.getByLabel("Einzelbetrag (€)").fill("20,50");
+  await dialog.getByRole("button", { name: "Leistung erfassen" }).click();
+
+  await expect(window.getByText("Die Leistung 1 wurde erfasst.")).toBeVisible();
+  const tag = window.getByRole("region", {
+    name: "Montag, 14. September 2026",
+  });
+  await expect(tag.getByText("Eingehende Untersuchung")).toBeVisible();
+  await expect(tag.getByText("Summe 20,50 €")).toBeVisible();
+}
