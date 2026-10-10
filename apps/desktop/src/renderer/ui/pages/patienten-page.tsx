@@ -4,13 +4,15 @@ import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router";
 
 import type { NaturheilpraxisApi } from "../../../shared/application/naturheilpraxis-api.ts";
+import type { PatientMitNichtAbgerechnetenLeistungen } from "../../../shared/domain/abrechnungsansicht.ts";
 import type { PatientenErmittelnQueryResult } from "../../../shared/domain/patientenansicht.ts";
-import { formatDatum } from "../../../shared/domain/value-objects.ts";
+import { formatDatum, formatEuro, type Patientennummer } from "../../../shared/domain/value-objects.ts";
 import { PatientAufnehmenDialog } from "./patient-aufnehmen-dialog.tsx";
 
 export function PatientenPage({ api }: { api: NaturheilpraxisApi }) {
   const [suchbegriff, setSuchbegriff] = useState("");
   const [patienten, setPatienten] = useState<PatientenErmittelnQueryResult>();
+  const [offen, setOffen] = useState<ReadonlyMap<Patientennummer, PatientMitNichtAbgerechnetenLeistungen>>(new Map());
   const [fehler, setFehler] = useState<string>();
   const [aufnehmen, setAufnehmen] = useState(false);
   const suche = useRef<HTMLInputElement>(null);
@@ -34,6 +36,32 @@ export function PatientenPage({ api }: { api: NaturheilpraxisApi }) {
       aktuell = false;
     };
   }, [api, suchbegriff]);
+
+  // The open Leistungen come from the Abrechnung and are joined by the
+  // Patientennummer.
+  useEffect(() => {
+    let aktuell = true;
+    api
+      .patientenMitNichtAbgerechnetenLeistungenErmitteln({
+        type: "patienten-mit-nicht-abgerechneten-leistungen-ermitteln",
+        parameters: {},
+      })
+      .then(
+        (patienten) => {
+          if (aktuell) {
+            setOffen(new Map(patienten.map((patient) => [patient.patientennummer, patient])));
+          }
+        },
+        () => {
+          if (aktuell) {
+            setFehler("Die offenen Leistungen konnten nicht geladen werden. Bitte starten Sie die Anwendung neu.");
+          }
+        },
+      );
+    return () => {
+      aktuell = false;
+    };
+  }, [api]);
 
   // "/" focuses the search, like in many list views.
   useEffect(() => {
@@ -99,12 +127,15 @@ export function PatientenPage({ api }: { api: NaturheilpraxisApi }) {
                 <th scope="col">Geburtsdatum</th>
                 <th scope="col">Ort</th>
                 <th scope="col">Praxis</th>
+                <th scope="col" className="text-end">
+                  Offene Leistungen
+                </th>
               </tr>
             </thead>
             <tbody>
               {patienten === undefined && fehler === undefined && (
                 <tr>
-                  <td colSpan={5} className="text-center text-body-secondary py-4" role="status">
+                  <td colSpan={6} className="text-center text-body-secondary py-4" role="status">
                     <span className="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
                     Die Patienten werden geladen …
                   </td>
@@ -112,7 +143,7 @@ export function PatientenPage({ api }: { api: NaturheilpraxisApi }) {
               )}
               {patienten?.length === 0 && (
                 <tr>
-                  <td colSpan={5} className="text-center text-body-secondary py-4">
+                  <td colSpan={6} className="text-center text-body-secondary py-4">
                     {suchbegriff.trim() === ""
                       ? "Es ist noch kein Patient aufgenommen. Nehmen Sie mit „Patient aufnehmen“ den ersten Patienten auf."
                       : "Kein Patient gefunden. Prüfen Sie die Schreibweise oder nehmen Sie einen neuen Patienten auf."}
@@ -139,6 +170,9 @@ export function PatientenPage({ api }: { api: NaturheilpraxisApi }) {
                       {patient.praxiskuerzel}
                     </span>
                   </td>
+                  <td className="text-end text-nowrap">
+                    <OffeneLeistungen offen={offen.get(patient.patientennummer)} />
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -155,6 +189,17 @@ export function PatientenPage({ api }: { api: NaturheilpraxisApi }) {
           }}
         />
       )}
+    </>
+  );
+}
+
+function OffeneLeistungen({ offen }: { offen: PatientMitNichtAbgerechnetenLeistungen | undefined }) {
+  if (offen === undefined) {
+    return <span className="text-body-secondary">–</span>;
+  }
+  return (
+    <>
+      {offen.anzahl} · {formatEuro(offen.betrag)}
     </>
   );
 }

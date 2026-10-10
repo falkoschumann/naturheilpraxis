@@ -53,6 +53,6 @@ Jeder Eintrag beginnt mit einer Kategorie:
       „Patienten mit nicht abgerechneten Leistungen“ und eine Betragsspalte in
       der Rechnungsliste ergänzen, wie im Prototyp. Erfordert neue Queries im
       Modell.
-- [ ] **Patient** In der Patientenliste die Spalte „Offene Leistungen“ mit
+- [x] **Patient** In der Patientenliste die Spalte „Offene Leistungen“ mit
       Anzahl und Summe ergänzen, wie im Prototyp. Erfordert, dass
       `patienten-ermitteln` die nicht abgerechneten Leistungen liefert.

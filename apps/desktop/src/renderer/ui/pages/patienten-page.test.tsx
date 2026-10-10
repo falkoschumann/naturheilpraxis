@@ -24,6 +24,25 @@ describe("Patienten", () => {
     expect(within(zeile).getByRole("link", { name: "Mustermann, Max" }).getAttribute("href")).toBe("/patienten/1");
   });
 
+  it("sollte Anzahl und Summe der offenen Leistungen jedes Patienten anzeigen", async () => {
+    const api = new FakeNaturheilpraxisApi({
+      events: [
+        praxisAngelegt(),
+        maxAufgenommen(),
+        erikaAufgenommen(),
+        leistungErbracht("22222222-2222-4222-8222-222222222222", 1, 1, 2050),
+        leistungErbracht("23232323-2323-4323-8323-232323232323", 1, 2, 1530),
+      ],
+    });
+
+    zeigePatienten(api);
+
+    expect(await screen.findByRole("columnheader", { name: "Offene Leistungen" })).toBeDefined();
+    const max = await screen.findByRole("row", { name: /Mustermann, Max/ });
+    await expect.poll(() => max.lastElementChild?.textContent).toBe("2 · 51,10\u00a0€");
+    expect(screen.getByRole("row", { name: /Mustermann, Erika/ }).lastElementChild?.textContent).toBe("–");
+  });
+
   it("sollte einen Hinweis zeigen, wenn noch kein Patient aufgenommen ist", async () => {
     const api = new FakeNaturheilpraxisApi({ events: [praxisAngelegt()] });
 
@@ -124,6 +143,18 @@ describe("Patienten", () => {
     expect((await screen.findByRole("alert")).textContent).toContain("Die Patienten konnten nicht geladen werden.");
   });
 
+  it("sollte einen Fehler zeigen und die Patienten trotzdem anzeigen, wenn die offenen Leistungen nicht geladen werden können", async () => {
+    const api = new FakeNaturheilpraxisApi({ events: [praxisAngelegt(), maxAufgenommen()] });
+    api.patientenMitNichtAbgerechnetenLeistungenErmitteln = () => Promise.reject(new Error("IPC nicht erreichbar"));
+
+    zeigePatienten(api);
+
+    expect((await screen.findByRole("alert")).textContent).toContain(
+      "Die offenen Leistungen konnten nicht geladen werden.",
+    );
+    expect(await screen.findByRole("row", { name: /Mustermann, Max/ })).toBeDefined();
+  });
+
   it("sollte die Ablehnung der Aufnahme zeigen und die Eingaben behalten", async () => {
     const api = new FakeNaturheilpraxisApi({ events: [praxisAngelegt()] });
     api.patientAufnehmen = () => Promise.reject(new Error("IPC nicht erreichbar"));
@@ -204,6 +235,22 @@ function erikaAufgenommen(): DomainEvent {
       aufnahmejahr: 2026,
       geburtsdatum: "1982-03-14",
       name: { vorname: "Erika", nachname: "Mustermann" },
+    },
+  };
+}
+
+function leistungErbracht(leistungId: string, patientennummer: number, anzahl: number, cents: number): DomainEvent {
+  return {
+    type: "leistung-erbracht",
+    data: {
+      leistungId,
+      praxiskuerzel: "NHP",
+      patientennummer,
+      datum: "2026-09-14",
+      ziffer: "1",
+      bezeichnung: "Eingehende Untersuchung",
+      anzahl,
+      einzelbetrag: { cents },
     },
   };
 }
