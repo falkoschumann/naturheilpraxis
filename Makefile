@@ -10,7 +10,7 @@ DIAGRAM_FILES=$(subst .puml,.png,$(PLANTUML_FILES))
 # Make configuration
 SHELL:=/bin/bash
 
-all: dist check e2e doc
+all: dist check e2e-coverage doc
 
 clean:
 	rm -rf apps/*/build packages/*/build

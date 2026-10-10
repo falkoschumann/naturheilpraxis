@@ -56,3 +56,11 @@ Jeder Eintrag beginnt mit einer Kategorie:
 - [x] **Patient** In der Patientenliste die Spalte „Offene Leistungen“ mit
       Anzahl und Summe ergänzen, wie im Prototyp. Erfordert, dass
       `patienten-ermitteln` die nicht abgerechneten Leistungen liefert.
+- [ ] **Zuverlässigkeit** Neben dem Standardablauf weitere Domain Stories in
+      `stories` für Alternativabläufe und Fehlerfälle erstellen und als
+      E2E-Tests umsetzen, etwa Stammdaten korrigieren, Diagnosen und Leistungen
+      ändern und löschen, Rechnungsentwurf ändern und verwerfen, Versand und
+      Zahlung zurücknehmen sowie abgelehnte Aktionen wie ein vergebenes
+      Praxiskürzel oder der Versand ohne Anschrift. Steigt dadurch die Abdeckung
+      von Main-Prozess und Preload, die Schwelle in
+      `apps/desktop/e2e/coverage.ts` (derzeit 70 %) anheben.

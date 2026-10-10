@@ -7,6 +7,7 @@ import { fileURLToPath } from "node:url";
 import {
   CoverageReport,
   type CoverageReportOptions,
+  type CoverageResults,
 } from "monocart-coverage-reports";
 
 // The coverage of the end-to-end tests is measured only on demand, see the
@@ -23,6 +24,11 @@ export const mainCoverageDirectory = path.join(
   appDirectory,
   "node_modules/.cache/e2e-coverage",
 );
+
+// Only the end-to-end tests run the code of the main process and the preload,
+// which wires the app together. Its line coverage must not fall below this
+// percentage, so that for example a new IPC channel is not left untested.
+const minimumLineCoverageOfMainProcess = 70;
 
 // Only the built code of the app counts, mapped back to its sources.
 const options: CoverageReportOptions = {
@@ -52,5 +58,28 @@ export async function globalTeardown(): Promise<void> {
   }
   const report = createCoverageReport();
   await report.addFromDir(mainCoverageDirectory);
-  await report.generate();
+  const results = await report.generate();
+  checkMainProcessCoverage(results);
+}
+
+function checkMainProcessCoverage(results: CoverageResults | undefined): void {
+  const files = (results?.files ?? []).filter(
+    (file) =>
+      file.sourcePath.startsWith("src/main/") ||
+      file.sourcePath.startsWith("src/preload/"),
+  );
+  const covered = files.reduce(
+    (sum, file) => sum + file.summary.lines.covered,
+    0,
+  );
+  const total = files.reduce((sum, file) => sum + file.summary.lines.total, 0);
+  const percentage = total === 0 ? 0 : (100 * covered) / total;
+  console.log(
+    `Line coverage of main process and preload: ${percentage.toFixed(2)} % (minimum ${minimumLineCoverageOfMainProcess} %)`,
+  );
+  if (percentage < minimumLineCoverageOfMainProcess) {
+    throw new Error(
+      `The line coverage of main process and preload is ${percentage.toFixed(2)} %, below the minimum of ${minimumLineCoverageOfMainProcess} %. Add an end-to-end test that runs the uncovered code, see coverage-e2e/index.html.`,
+    );
+  }
 }
