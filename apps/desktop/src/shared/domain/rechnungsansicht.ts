@@ -87,109 +87,107 @@ export type RechnungErmittelnQueryResult =
     }>
   | undefined;
 
+// Projecting one event is projecting all events of the list.
 export function project(
   readModel: Rechnungsansicht,
   event: DomainEvent,
 ): Rechnungsansicht {
+  return projectAll(readModel, [event]);
+}
+
+// The events are applied to a private copy of the read model, so that the
+// records are copied once and not for each event.
+export function projectAll(
+  readModel: Rechnungsansicht,
+  events: readonly DomainEvent[],
+): Rechnungsansicht {
+  const entwurf: Entwurf = {
+    praxen: { ...readModel.praxen },
+    patienten: { ...readModel.patienten },
+    leistungen: { ...readModel.leistungen },
+    rechnungen: { ...readModel.rechnungen },
+  };
+  for (const event of events) {
+    anwenden(entwurf, event);
+  }
+  return entwurf;
+}
+
+type Entwurf = {
+  praxen: Record<string, Rechnungspraxis>;
+  patienten: Record<Patientennummer, Rechnungspatient>;
+  leistungen: Record<string, Leistung>;
+  rechnungen: Record<string, GespeicherteRechnung>;
+};
+
+function anwenden(entwurf: Entwurf, event: DomainEvent): void {
   switch (event.type) {
     case "praxis-angelegt":
     case "praxisdaten-geaendert":
-      return {
-        ...readModel,
-        praxen: {
-          ...readModel.praxen,
-          [event.data.praxiskuerzel]: rechnungspraxis(event.data),
-        },
-      };
+      entwurf.praxen[event.data.praxiskuerzel] = rechnungspraxis(event.data);
+      break;
     case "patient-aufgenommen":
     case "patientendaten-geaendert": {
       const { patientennummer, name, geburtsdatum, anschrift } = event.data;
-      const patient = {
+      entwurf.patienten[patientennummer] = {
         patientennummer,
         name,
         geburtsdatum,
         ...(anschrift === undefined ? {} : { anschrift }),
       };
-      return {
-        ...readModel,
-        patienten: { ...readModel.patienten, [patientennummer]: patient },
-      };
+      break;
     }
     case "leistung-erbracht":
     case "leistung-geaendert":
-      return {
-        ...readModel,
-        leistungen: {
-          ...readModel.leistungen,
-          [event.data.leistungId]: event.data,
-        },
-      };
+      entwurf.leistungen[event.data.leistungId] = event.data;
+      break;
     case "leistung-geloescht":
-      return {
-        ...readModel,
-        leistungen: ohne(readModel.leistungen, event.data.leistungId),
-      };
+      delete entwurf.leistungen[event.data.leistungId];
+      break;
     case "rechnung-erstellt": {
       const { leistungen, ...rechnung } = event.data;
-      return setzeRechnung(readModel, {
+      entwurf.rechnungen[rechnung.rechnungId] = {
         rechnung: { ...rechnung, status: "entwurf" },
         leistungen,
-      });
+      };
+      break;
     }
     case "rechnung-geaendert": {
       const { leistungen, ...aenderung } = event.data;
-      return aendereRechnung(
-        readModel,
-        event.data.rechnungId,
-        (gespeichert) => ({
-          rechnung: { ...gespeichert.rechnung, ...aenderung },
-          leistungen,
-        }),
-      );
+      aendereRechnung(entwurf, event.data.rechnungId, (gespeichert) => ({
+        rechnung: { ...gespeichert.rechnung, ...aenderung },
+        leistungen,
+      }));
+      break;
     }
     case "entwurf-geloescht":
-      return {
-        ...readModel,
-        rechnungen: ohne(readModel.rechnungen, event.data.rechnungId),
-      };
+      delete entwurf.rechnungen[event.data.rechnungId];
+      break;
     case "rechnung-versendet":
-      return aendereRechnung(
-        readModel,
-        event.data.rechnungId,
-        (gespeichert) => ({
-          ...gespeichert,
-          rechnung: {
-            ...gespeichert.rechnung,
-            rechnungsnummer: event.data.rechnungsnummer,
-            datum: event.data.datum,
-            status: "versendet",
-          },
-          beimVersand: aktuellerStand(readModel, gespeichert),
-        }),
-      );
+      aendereRechnung(entwurf, event.data.rechnungId, (gespeichert) => ({
+        ...gespeichert,
+        rechnung: {
+          ...gespeichert.rechnung,
+          rechnungsnummer: event.data.rechnungsnummer,
+          datum: event.data.datum,
+          status: "versendet",
+        },
+        beimVersand: aktuellerStand(entwurf, gespeichert),
+      }));
+      break;
     case "rechnung-bezahlt":
-      return aendereStatus(readModel, event.data.rechnungId, "bezahlt");
+      aendereStatus(entwurf, event.data.rechnungId, "bezahlt");
+      break;
     case "rechnungszahlung-zurueckgenommen":
-      return aendereStatus(readModel, event.data.rechnungId, "versendet");
+      aendereStatus(entwurf, event.data.rechnungId, "versendet");
+      break;
     case "rechnungsversand-zurueckgenommen":
-      return aendereRechnung(
-        readModel,
-        event.data.rechnungId,
-        (gespeichert) => ({
-          rechnung: alsEntwurf(gespeichert.rechnung),
-          leistungen: gespeichert.leistungen,
-        }),
-      );
-    default:
-      return readModel;
+      aendereRechnung(entwurf, event.data.rechnungId, (gespeichert) => ({
+        rechnung: alsEntwurf(gespeichert.rechnung),
+        leistungen: gespeichert.leistungen,
+      }));
+      break;
   }
-}
-
-export function projectAll(
-  readModel: Rechnungsansicht,
-  events: readonly DomainEvent[],
-): Rechnungsansicht {
-  return events.reduce(project, readModel);
 }
 
 export function rechnungErmitteln(
@@ -269,46 +267,24 @@ function rechnungspraxis({
   };
 }
 
-function setzeRechnung(
-  readModel: Rechnungsansicht,
-  gespeichert: GespeicherteRechnung,
-): Rechnungsansicht {
-  return {
-    ...readModel,
-    rechnungen: {
-      ...readModel.rechnungen,
-      [gespeichert.rechnung.rechnungId]: gespeichert,
-    },
-  };
-}
-
 function aendereRechnung(
-  readModel: Rechnungsansicht,
+  entwurf: Entwurf,
   rechnungId: string,
   aenderung: (gespeichert: GespeicherteRechnung) => GespeicherteRechnung,
-): Rechnungsansicht {
-  const gespeichert = readModel.rechnungen[rechnungId];
-  return gespeichert === undefined
-    ? readModel
-    : setzeRechnung(readModel, aenderung(gespeichert));
+): void {
+  const gespeichert = entwurf.rechnungen[rechnungId];
+  if (gespeichert !== undefined) {
+    entwurf.rechnungen[rechnungId] = aenderung(gespeichert);
+  }
 }
 
 function aendereStatus(
-  readModel: Rechnungsansicht,
+  entwurf: Entwurf,
   rechnungId: string,
   status: Rechnung["status"],
-): Rechnungsansicht {
-  return aendereRechnung(readModel, rechnungId, (gespeichert) => ({
+): void {
+  aendereRechnung(entwurf, rechnungId, (gespeichert) => ({
     ...gespeichert,
     rechnung: { ...gespeichert.rechnung, status },
   }));
-}
-
-function ohne<T>(
-  eintraege: Readonly<Record<string, T>>,
-  id: string,
-): Readonly<Record<string, T>> {
-  return Object.fromEntries(
-    Object.entries(eintraege).filter(([key]) => key !== id),
-  );
 }

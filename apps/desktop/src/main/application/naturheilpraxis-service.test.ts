@@ -3,10 +3,28 @@
 import { describe, expect, it } from "vitest";
 
 import type { Praxis } from "../../shared/domain/entities.ts";
+import type { DomainEvent } from "../../shared/domain/events.ts";
 import { SqliteEventStore } from "../infrastructure/event-store.ts";
 import { NaturheilpraxisService } from "./naturheilpraxis-service.ts";
 
 describe("Naturheilpraxis Service", () => {
+  describe("Start", () => {
+    // The data of a Praxis grows over the years to tens of thousands of
+    // events, which all are projected on start.
+    it("sollte viele Events in kurzer Zeit projizieren", () => {
+      const eventStore = SqliteEventStore.createInMemory();
+      eventStore.append(
+        createVieleEvents({ patienten: 1_000, leistungenJePatient: 10 }),
+      );
+
+      const start = performance.now();
+      new NaturheilpraxisService(eventStore);
+      const dauer = performance.now() - start;
+
+      expect(dauer).toBeLessThan(1_000);
+    });
+  });
+
   describe("Praxis anlegen", () => {
     it("sollte die Praxis speichern und in der Praxenansicht zeigen", async () => {
       const eventStore = SqliteEventStore.createInMemory();
@@ -735,4 +753,86 @@ function createPraxis(praxis: Partial<Praxis> = {}): Praxis {
     },
     ...praxis,
   };
+}
+
+// Each Patient gets a Diagnose, some Leistungen and a paid Rechnung for them.
+function createVieleEvents({
+  patienten,
+  leistungenJePatient,
+}: {
+  patienten: number;
+  leistungenJePatient: number;
+}): DomainEvent[] {
+  const events: DomainEvent[] = [
+    { type: "praxis-angelegt", data: createPraxis() },
+  ];
+  for (
+    let patientennummer = 1;
+    patientennummer <= patienten;
+    patientennummer++
+  ) {
+    events.push({
+      type: "patient-aufgenommen",
+      data: {
+        patientennummer,
+        praxiskuerzel: "NHP",
+        aufnahmejahr: 2020,
+        geburtsdatum: "1980-01-01",
+        name: { vorname: "Max", nachname: "Mustermann" },
+      },
+    });
+    events.push({
+      type: "diagnose-gestellt",
+      data: {
+        diagnoseId: `diagnose-${patientennummer}`,
+        praxiskuerzel: "NHP",
+        patientennummer,
+        datum: "2020-01-01",
+        text: "Rückenschmerzen",
+      },
+    });
+    const leistungen: string[] = [];
+    for (let nummer = 1; nummer <= leistungenJePatient; nummer++) {
+      const leistungId = `leistung-${patientennummer}-${nummer}`;
+      leistungen.push(leistungId);
+      events.push({
+        type: "leistung-erbracht",
+        data: {
+          leistungId,
+          praxiskuerzel: "NHP",
+          patientennummer,
+          datum: "2020-01-01",
+          ziffer: "1",
+          bezeichnung: "Untersuchung",
+          anzahl: 1,
+          einzelbetrag: { cents: 2050 },
+        },
+      });
+    }
+    const rechnungId = `rechnung-${patientennummer}`;
+    events.push(
+      {
+        type: "rechnung-erstellt",
+        data: {
+          rechnungId,
+          praxiskuerzel: "NHP",
+          patientennummer,
+          diagnosetext: "Rückenschmerzen",
+          rechnungstext: "Zahlbar in 14 Tagen.",
+          leistungen,
+        },
+      },
+      {
+        type: "rechnung-versendet",
+        data: {
+          rechnungId,
+          patientennummer,
+          rechnungsnummer: `${patientennummer}/200102`,
+          datum: "2020-01-02",
+        },
+      },
+      { type: "rechnung-bezahlt", data: { rechnungId } },
+    );
+  }
+  return events;
 }

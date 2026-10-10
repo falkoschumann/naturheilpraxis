@@ -33,57 +33,52 @@ export type DiagnosenErmittelnQuery = Readonly<{
 
 export type DiagnosenErmittelnQueryResult = readonly Diagnose[];
 
+// Projecting one event is projecting all events of the list.
 export function project(
   readModel: Behandlungsansicht,
   event: DomainEvent,
 ): Behandlungsansicht {
-  switch (event.type) {
-    case "diagnose-gestellt":
-    case "diagnose-geaendert":
-      return {
-        ...readModel,
-        diagnosen: {
-          ...readModel.diagnosen,
-          [event.data.diagnoseId]: event.data,
-        },
-      };
-    case "diagnose-geloescht":
-      return {
-        ...readModel,
-        diagnosen: Object.fromEntries(
-          Object.entries(readModel.diagnosen).filter(
-            ([diagnoseId]) => diagnoseId !== event.data.diagnoseId,
-          ),
-        ),
-      };
-    case "leistung-erbracht":
-    case "leistung-geaendert":
-      return {
-        ...readModel,
-        leistungen: {
-          ...readModel.leistungen,
-          [event.data.leistungId]: event.data,
-        },
-      };
-    case "leistung-geloescht":
-      return {
-        ...readModel,
-        leistungen: Object.fromEntries(
-          Object.entries(readModel.leistungen).filter(
-            ([leistungId]) => leistungId !== event.data.leistungId,
-          ),
-        ),
-      };
-    default:
-      return readModel;
-  }
+  return projectAll(readModel, [event]);
 }
 
+// The events are applied to a private copy of the read model, so that the
+// records are copied once and not for each event.
 export function projectAll(
   readModel: Behandlungsansicht,
   events: readonly DomainEvent[],
 ): Behandlungsansicht {
-  return events.reduce(project, readModel);
+  const entwurf: Entwurf = {
+    diagnosen: { ...readModel.diagnosen },
+    leistungen: { ...readModel.leistungen },
+  };
+  for (const event of events) {
+    anwenden(entwurf, event);
+  }
+  return entwurf;
+}
+
+type Entwurf = {
+  diagnosen: Record<string, Diagnose>;
+  leistungen: Record<string, Leistung>;
+};
+
+function anwenden(entwurf: Entwurf, event: DomainEvent): void {
+  switch (event.type) {
+    case "diagnose-gestellt":
+    case "diagnose-geaendert":
+      entwurf.diagnosen[event.data.diagnoseId] = event.data;
+      break;
+    case "diagnose-geloescht":
+      delete entwurf.diagnosen[event.data.diagnoseId];
+      break;
+    case "leistung-erbracht":
+    case "leistung-geaendert":
+      entwurf.leistungen[event.data.leistungId] = event.data;
+      break;
+    case "leistung-geloescht":
+      delete entwurf.leistungen[event.data.leistungId];
+      break;
+  }
 }
 
 // The newest first; on the same date the Diagnose comes before the Leistungen.

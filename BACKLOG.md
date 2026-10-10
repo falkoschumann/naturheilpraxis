@@ -41,7 +41,7 @@ Jeder Eintrag beginnt mit einer Kategorie:
       bezahlt Rechnung“.
 - [x] **Funktionalität** Daten der bisherigen RDBMS-Anwendung übernehmen (Schema
       im Abschnitt „Migration“ von `docs/README.md`). Nicht Teil des MVP.
-- [ ] **Effizienz** Die App startet mit den migrierten Daten (ca. 72.000 Events)
+- [x] **Effizienz** Die App startet mit den migrierten Daten (ca. 72.000 Events)
       in wenigen Sekunden. Bisher kopieren `behandlungsansicht`,
       `abrechnungsansicht` und `rechnungsansicht` bei jedem Event ihr ganzes
       Read Model, sodass der Start quadratisch mit der Zahl der Events wächst.

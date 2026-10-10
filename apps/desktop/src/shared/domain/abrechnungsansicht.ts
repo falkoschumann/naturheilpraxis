@@ -49,88 +49,108 @@ export type RechnungenErmittelnQueryResultItem = Rechnung &
 export type RechnungenErmittelnQueryResult =
   readonly RechnungenErmittelnQueryResultItem[];
 
+// Projecting one event is projecting all events of the list.
 export function project(
   readModel: Abrechnungsansicht,
   event: DomainEvent,
 ): Abrechnungsansicht {
-  switch (event.type) {
-    case "rechnung-erstellt": {
-      const { leistungen, ...rechnung } = event.data;
-      return setzeRechnung(readModel, {
-        ...rechnung,
-        leistungen,
-        status: "entwurf",
-      });
-    }
-    case "rechnung-geaendert":
-      return aendereRechnung(readModel, event.data.rechnungId, event.data);
-    case "entwurf-geloescht":
-      return {
-        ...readModel,
-        rechnungen: ohne(readModel.rechnungen, event.data.rechnungId),
-      };
-    case "rechnung-versendet":
-      return aendereRechnung(readModel, event.data.rechnungId, {
-        rechnungsnummer: event.data.rechnungsnummer,
-        datum: event.data.datum,
-        status: "versendet",
-      });
-    case "rechnung-bezahlt":
-      return aendereRechnung(readModel, event.data.rechnungId, {
-        status: "bezahlt",
-      });
-    case "rechnungszahlung-zurueckgenommen":
-      return aendereRechnung(readModel, event.data.rechnungId, {
-        status: "versendet",
-      });
-    case "rechnungsversand-zurueckgenommen": {
-      const rechnung = readModel.rechnungen[event.data.rechnungId];
-      if (rechnung === undefined) {
-        return readModel;
-      }
-      return setzeRechnung(readModel, {
-        ...alsEntwurf(rechnung),
-        leistungen: rechnung.leistungen,
-      });
-    }
-    case "leistung-erbracht":
-    case "leistung-geaendert":
-      return {
-        ...readModel,
-        leistungen: {
-          ...readModel.leistungen,
-          [event.data.leistungId]: event.data,
-        },
-      };
-    case "leistung-geloescht":
-      return {
-        ...readModel,
-        leistungen: ohne(readModel.leistungen, event.data.leistungId),
-      };
-    case "patient-aufgenommen":
-    case "patientendaten-geaendert": {
-      const { patientennummer, name, geburtsdatum } = event.data;
-      return {
-        ...readModel,
-        patienten: {
-          ...readModel.patienten,
-          [patientennummer]: { patientennummer, name, geburtsdatum },
-        },
-      };
-    }
-    default:
-      return readModel;
-  }
+  return projectAll(readModel, [event]);
 }
 
+// The events are applied to a private copy of the read model, so that the
+// records are copied once and not for each event.
 export function projectAll(
   readModel: Abrechnungsansicht,
   events: readonly DomainEvent[],
 ): Abrechnungsansicht {
-  return events.reduce(project, readModel);
+  const entwurf: Entwurf = {
+    rechnungen: { ...readModel.rechnungen },
+    leistungen: { ...readModel.leistungen },
+    patienten: { ...readModel.patienten },
+  };
+  for (const event of events) {
+    anwenden(entwurf, event);
+  }
+  return entwurf;
 }
 
-// The oldest first.
+type Entwurf = {
+  rechnungen: Record<string, AbgerechneteRechnung>;
+  leistungen: Record<string, Leistung>;
+  patienten: Record<Patientennummer, Patient>;
+};
+
+function anwenden(entwurf: Entwurf, event: DomainEvent): void {
+  switch (event.type) {
+    case "rechnung-erstellt": {
+      const { leistungen, ...rechnung } = event.data;
+      entwurf.rechnungen[rechnung.rechnungId] = {
+        ...rechnung,
+        leistungen,
+        status: "entwurf",
+      };
+      break;
+    }
+    case "rechnung-geaendert":
+      aendereRechnung(entwurf, event.data.rechnungId, event.data);
+      break;
+    case "entwurf-geloescht":
+      delete entwurf.rechnungen[event.data.rechnungId];
+      break;
+    case "rechnung-versendet":
+      aendereRechnung(entwurf, event.data.rechnungId, {
+        rechnungsnummer: event.data.rechnungsnummer,
+        datum: event.data.datum,
+        status: "versendet",
+      });
+      break;
+    case "rechnung-bezahlt":
+      aendereRechnung(entwurf, event.data.rechnungId, { status: "bezahlt" });
+      break;
+    case "rechnungszahlung-zurueckgenommen":
+      aendereRechnung(entwurf, event.data.rechnungId, { status: "versendet" });
+      break;
+    case "rechnungsversand-zurueckgenommen": {
+      const rechnung = entwurf.rechnungen[event.data.rechnungId];
+      if (rechnung !== undefined) {
+        entwurf.rechnungen[rechnung.rechnungId] = {
+          ...alsEntwurf(rechnung),
+          leistungen: rechnung.leistungen,
+        };
+      }
+      break;
+    }
+    case "leistung-erbracht":
+    case "leistung-geaendert":
+      entwurf.leistungen[event.data.leistungId] = event.data;
+      break;
+    case "leistung-geloescht":
+      delete entwurf.leistungen[event.data.leistungId];
+      break;
+    case "patient-aufgenommen":
+    case "patientendaten-geaendert": {
+      const { patientennummer, name, geburtsdatum } = event.data;
+      entwurf.patienten[patientennummer] = {
+        patientennummer,
+        name,
+        geburtsdatum,
+      };
+      break;
+    }
+  }
+}
+
+function aendereRechnung(
+  entwurf: Entwurf,
+  rechnungId: string,
+  aenderung: Partial<AbgerechneteRechnung>,
+): void {
+  const rechnung = entwurf.rechnungen[rechnungId];
+  if (rechnung !== undefined) {
+    entwurf.rechnungen[rechnungId] = { ...rechnung, ...aenderung };
+  }
+}
+
 export function nichtAbgerechneteLeistungenErmitteln(
   readModel: Abrechnungsansicht,
   query: NichtAbgerechneteLeistungenErmittelnQuery,
@@ -220,34 +240,4 @@ function vergleiche(a: readonly string[], b: readonly string[]): number {
     }
   }
   return 0;
-}
-
-function setzeRechnung(
-  readModel: Abrechnungsansicht,
-  rechnung: AbgerechneteRechnung,
-): Abrechnungsansicht {
-  return {
-    ...readModel,
-    rechnungen: { ...readModel.rechnungen, [rechnung.rechnungId]: rechnung },
-  };
-}
-
-function aendereRechnung(
-  readModel: Abrechnungsansicht,
-  rechnungId: string,
-  aenderung: Partial<AbgerechneteRechnung>,
-): Abrechnungsansicht {
-  const rechnung = readModel.rechnungen[rechnungId];
-  return rechnung === undefined
-    ? readModel
-    : setzeRechnung(readModel, { ...rechnung, ...aenderung });
-}
-
-function ohne<T>(
-  eintraege: Readonly<Record<string, T>>,
-  id: string,
-): Readonly<Record<string, T>> {
-  return Object.fromEntries(
-    Object.entries(eintraege).filter(([key]) => key !== id),
-  );
 }
