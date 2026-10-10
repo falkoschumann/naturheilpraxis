@@ -1,23 +1,45 @@
 // Copyright (c) 2026 Falko Schumann. MIT license.
 
-import type { Diagnose, Leistung } from "./entities.ts";
+import type { Diagnose, Leistung, Rechnungsstatus } from "./entities.ts";
 import type { DomainEvent } from "./events.ts";
-import type { Patientennummer } from "./value-objects.ts";
+import type { Patientennummer, Rechnungsnummer } from "./value-objects.ts";
 
-// The Diagnosen and Leistungen by their ID.
+type Abrechnung = Readonly<{
+  rechnungsnummer?: Rechnungsnummer;
+  status: Rechnungsstatus;
+  leistungen: readonly string[];
+}>;
+
+// The Diagnosen, Leistungen and Rechnungen by their ID and the Rechnung of each
+// abgerechnete Leistung.
 export type Behandlungsansicht = Readonly<{
   diagnosen: Readonly<Record<string, Diagnose>>;
   leistungen: Readonly<Record<string, Leistung>>;
+  rechnungen: Readonly<Record<string, Abrechnung>>;
+  rechnungDerLeistung: Readonly<Record<string, string>>;
 }>;
 
 export const initialReadModel: Behandlungsansicht = {
   diagnosen: {},
   leistungen: {},
+  rechnungen: {},
+  rechnungDerLeistung: {},
 };
 
+// The Rechnung a Leistung is contained in.
+export type Leistungsrechnung = Readonly<{
+  rechnungId: string;
+  rechnungsnummer?: Rechnungsnummer;
+  status: Rechnungsstatus;
+}>;
+
 export type Behandlung =
-  | Readonly<{ art: "diagnose"; eintrag: Diagnose }>
-  | Readonly<{ art: "leistung"; eintrag: Leistung }>;
+  | Readonly<{ art: "diagnose"; eintrag: Diagnose; rechnung?: never }>
+  | Readonly<{
+      art: "leistung";
+      eintrag: Leistung;
+      rechnung?: Leistungsrechnung;
+    }>;
 
 export type BehandlungenErmittelnQuery = Readonly<{
   type: "behandlungen-ermitteln";
@@ -50,6 +72,8 @@ export function projectAll(
   const entwurf: Entwurf = {
     diagnosen: { ...readModel.diagnosen },
     leistungen: { ...readModel.leistungen },
+    rechnungen: { ...readModel.rechnungen },
+    rechnungDerLeistung: { ...readModel.rechnungDerLeistung },
   };
   for (const event of events) {
     anwenden(entwurf, event);
@@ -60,6 +84,8 @@ export function projectAll(
 type Entwurf = {
   diagnosen: Record<string, Diagnose>;
   leistungen: Record<string, Leistung>;
+  rechnungen: Record<string, Abrechnung>;
+  rechnungDerLeistung: Record<string, string>;
 };
 
 function anwenden(entwurf: Entwurf, event: DomainEvent): void {
@@ -78,6 +104,71 @@ function anwenden(entwurf: Entwurf, event: DomainEvent): void {
     case "leistung-geloescht":
       delete entwurf.leistungen[event.data.leistungId];
       break;
+    case "rechnung-erstellt":
+    case "rechnung-geaendert":
+      setzeLeistungen(entwurf, event.data.rechnungId, event.data.leistungen);
+      break;
+    case "entwurf-geloescht":
+      setzeLeistungen(entwurf, event.data.rechnungId, []);
+      delete entwurf.rechnungen[event.data.rechnungId];
+      break;
+    case "rechnung-versendet":
+      aendereRechnung(entwurf, event.data.rechnungId, (rechnung) => ({
+        ...rechnung,
+        rechnungsnummer: event.data.rechnungsnummer,
+        status: "versendet",
+      }));
+      break;
+    case "rechnungsversand-zurueckgenommen":
+      aendereRechnung(entwurf, event.data.rechnungId, ({ leistungen }) => ({
+        status: "entwurf",
+        leistungen,
+      }));
+      break;
+    case "rechnung-bezahlt":
+      aendereRechnung(entwurf, event.data.rechnungId, (rechnung) => ({
+        ...rechnung,
+        status: "bezahlt",
+      }));
+      break;
+    case "rechnungszahlung-zurueckgenommen":
+      aendereRechnung(entwurf, event.data.rechnungId, (rechnung) => ({
+        ...rechnung,
+        status: "versendet",
+      }));
+      break;
+  }
+}
+
+// Leistungen no longer in the Rechnung are not abgerechnet any more.
+function setzeLeistungen(
+  entwurf: Entwurf,
+  rechnungId: string,
+  leistungen: readonly string[],
+): void {
+  const bisher = entwurf.rechnungen[rechnungId];
+  for (const leistungId of bisher?.leistungen ?? []) {
+    if (entwurf.rechnungDerLeistung[leistungId] === rechnungId) {
+      delete entwurf.rechnungDerLeistung[leistungId];
+    }
+  }
+  for (const leistungId of leistungen) {
+    entwurf.rechnungDerLeistung[leistungId] = rechnungId;
+  }
+  entwurf.rechnungen[rechnungId] = {
+    ...(bisher ?? { status: "entwurf" }),
+    leistungen,
+  };
+}
+
+function aendereRechnung(
+  entwurf: Entwurf,
+  rechnungId: string,
+  aenderung: (rechnung: Abrechnung) => Abrechnung,
+): void {
+  const rechnung = entwurf.rechnungen[rechnungId];
+  if (rechnung !== undefined) {
+    entwurf.rechnungen[rechnungId] = aenderung(rechnung);
   }
 }
 
@@ -94,7 +185,12 @@ export function behandlungenErmitteln(
     })),
     ...Object.values(readModel.leistungen)
       .filter((leistung) => leistung.patientennummer === patientennummer)
-      .map((leistung) => ({ art: "leistung" as const, eintrag: leistung })),
+      .map((leistung) => {
+        const rechnung = leistungsrechnung(readModel, leistung.leistungId);
+        return rechnung === undefined
+          ? { art: "leistung" as const, eintrag: leistung }
+          : { art: "leistung" as const, eintrag: leistung, rechnung };
+      }),
   ];
   return behandlungen.toSorted(
     (a, b) =>
@@ -119,4 +215,20 @@ function diagnosenDes(
   return Object.values(readModel.diagnosen)
     .filter((diagnose) => diagnose.patientennummer === patientennummer)
     .toSorted((a, b) => b.datum.localeCompare(a.datum));
+}
+
+function leistungsrechnung(
+  readModel: Behandlungsansicht,
+  leistungId: string,
+): Leistungsrechnung | undefined {
+  const rechnungId = readModel.rechnungDerLeistung[leistungId];
+  const rechnung =
+    rechnungId === undefined ? undefined : readModel.rechnungen[rechnungId];
+  if (rechnungId === undefined || rechnung === undefined) {
+    return undefined;
+  }
+  const { rechnungsnummer, status } = rechnung;
+  return rechnungsnummer === undefined
+    ? { rechnungId, status }
+    : { rechnungId, rechnungsnummer, status };
 }

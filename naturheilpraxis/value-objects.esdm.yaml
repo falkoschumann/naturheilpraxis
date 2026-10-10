@@ -135,6 +135,24 @@ schema:
 # $schema: ../schemas/core/v1.yaml
 apiVersion: schema.esdm.io/core/v1
 kind: value-object
+name: rechnungsstatus
+description: >-
+  Eine Rechnung ist zuerst ein Entwurf, der geändert werden kann. Mit dem Versand erhält sie eine
+  Rechnungsnummer und ist versendet; mit der Zahlung ist sie bezahlt.
+scope:
+  domain: naturheilpraxis
+  boundedContext: naturheilpraxis
+schema:
+  type: string
+  enum:
+    - entwurf
+    - versendet
+    - bezahlt
+
+---
+# $schema: ../schemas/core/v1.yaml
+apiVersion: schema.esdm.io/core/v1
+kind: value-object
 name: gebuehrenziffer
 description: >-
   Die Gebühr ist durch eine eindeutige Ziffer im Gebührenverzeichnis definiert. Die Ziffer ist über

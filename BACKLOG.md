@@ -45,7 +45,7 @@ Jeder Eintrag beginnt mit einer Kategorie:
       in wenigen Sekunden. Bisher kopieren `behandlungsansicht`,
       `abrechnungsansicht` und `rechnungsansicht` bei jedem Event ihr ganzes
       Read Model, sodass der Start quadratisch mit der Zahl der Events wächst.
-- [ ] **Leistung** Im Behandlungsverlauf den Rechnungsstatus jeder Leistung
+- [x] **Leistung** Im Behandlungsverlauf den Rechnungsstatus jeder Leistung
       anzeigen und „Bearbeiten“ sowie „Löschen“ sperren, wenn die Rechnung es
       nicht erlaubt, wie im Prototyp. Erfordert, dass `behandlungen-ermitteln`
       den Rechnungsstatus je Leistung liefert.

@@ -4,7 +4,8 @@ kind: read-model
 name: behandlungsansicht
 description: >-
   Die Behandlungshistorie aller Patienten in Form von gestellte Diagnosen und erbrachte Leistungen,
-  jeweils in ihrem aktuellen Stand. Gelöschte Diagnosen und Leistungen erscheinen nicht mehr.
+  jeweils in ihrem aktuellen Stand. Gelöschte Diagnosen und Leistungen erscheinen nicht mehr. Zu
+  jeder abgerechneten Leistung ist die Rechnung mit ihrem Status bekannt, in der sie enthalten ist.
 scope:
   domain: naturheilpraxis
   boundedContext: naturheilpraxis
@@ -28,6 +29,29 @@ projections:
   - boundedContext: naturheilpraxis
     event: leistung-geloescht
     rule: Entferne die Leistung.
+  - boundedContext: naturheilpraxis
+    event: rechnung-erstellt
+    rule: Ordne die Leistungen der Rechnung als Entwurf zu.
+  - boundedContext: naturheilpraxis
+    event: rechnung-geaendert
+    rule: >-
+      Ordne die Leistungen der Rechnung zu; Leistungen, die nicht mehr enthalten sind, sind nicht
+      mehr abgerechnet.
+  - boundedContext: naturheilpraxis
+    event: entwurf-geloescht
+    rule: Die Leistungen des Entwurfs sind nicht mehr abgerechnet.
+  - boundedContext: naturheilpraxis
+    event: rechnung-versendet
+    rule: Die Rechnung der Leistungen ist versendet und hat eine Rechnungsnummer.
+  - boundedContext: naturheilpraxis
+    event: rechnungsversand-zurueckgenommen
+    rule: Die Rechnung der Leistungen ist wieder ein Entwurf ohne Rechnungsnummer.
+  - boundedContext: naturheilpraxis
+    event: rechnung-bezahlt
+    rule: Die Rechnung der Leistungen ist bezahlt.
+  - boundedContext: naturheilpraxis
+    event: rechnungszahlung-zurueckgenommen
+    rule: Die Rechnung der Leistungen ist wieder versendet.
 schema:
   type: array
   items:
@@ -43,6 +67,21 @@ schema:
             const: leistung
           eintrag:
             $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/entity=leistung
+          rechnung:
+            description: Die Rechnung, in der die Leistung enthalten ist; fehlt, wenn sie offen ist.
+            type: object
+            properties:
+              rechnungId:
+                type: string
+                format: uuid
+              rechnungsnummer:
+                $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/value-object=rechnungsnummer
+              status:
+                $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/value-object=rechnungsstatus
+            required:
+              - rechnungId
+              - status
+            additionalProperties: false
     required:
       - art
       - eintrag
@@ -83,6 +122,21 @@ result:
             const: leistung
           eintrag:
             $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/entity=leistung
+          rechnung:
+            description: Die Rechnung, in der die Leistung enthalten ist; fehlt, wenn sie offen ist.
+            type: object
+            properties:
+              rechnungId:
+                type: string
+                format: uuid
+              rechnungsnummer:
+                $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/value-object=rechnungsnummer
+              status:
+                $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/value-object=rechnungsstatus
+            required:
+              - rechnungId
+              - status
+            additionalProperties: false
     required:
       - art
       - eintrag

@@ -202,6 +202,61 @@ describe("Patient", () => {
       expect(within(tag).getByText("Summe 51,10 €")).toBeDefined();
     });
 
+    it("sollte den Rechnungsstatus jeder Leistung anzeigen und Änderungen sperren", async () => {
+      const imEntwurf = { ...untersuchung(), leistungId: "33333333-3333-4333-8333-333333333333", datum: "2026-09-15" };
+      const bezahlt = { ...untersuchung(), leistungId: "44444444-4444-4444-8444-444444444444", datum: "2026-09-16" };
+      const api = new FakeNaturheilpraxisApi({
+        events: [
+          praxisAngelegt(),
+          aufgenommen(max()),
+          { type: "leistung-erbracht", data: untersuchung() },
+          { type: "leistung-erbracht", data: imEntwurf },
+          { type: "leistung-erbracht", data: bezahlt },
+          rechnungErstellt("55555555-5555-4555-8555-555555555555", [imEntwurf.leistungId]),
+          rechnungErstellt("66666666-6666-4666-8666-666666666666", [bezahlt.leistungId]),
+          {
+            type: "rechnung-versendet",
+            data: {
+              rechnungId: "66666666-6666-4666-8666-666666666666",
+              patientennummer: 1,
+              rechnungsnummer: "1/260917",
+              datum: "2026-09-17",
+            },
+          },
+          { type: "rechnung-bezahlt", data: { rechnungId: "66666666-6666-4666-8666-666666666666" } },
+        ],
+      });
+
+      zeigePatient(api, 1);
+
+      const offen = within(await screen.findByRole("region", { name: "Montag, 14. September 2026" }));
+      expect(offen.getByText("Offen")).toBeDefined();
+      expect(offen.getByRole("button", { name: "Leistung bearbeiten" })).toHaveProperty("disabled", false);
+      expect(offen.getByRole("button", { name: "Leistung löschen" })).toHaveProperty("disabled", false);
+
+      const entwurf = within(screen.getByRole("region", { name: "Dienstag, 15. September 2026" }));
+      expect(entwurf.getByText("Entwurf")).toBeDefined();
+      expect(entwurf.getByRole("link", { name: "Rechnungsentwurf" }).getAttribute("href")).toBe(
+        "/rechnungen/55555555-5555-4555-8555-555555555555",
+      );
+      expect(entwurf.getByRole("button", { name: "Leistung bearbeiten" })).toHaveProperty("disabled", false);
+      const entwurfLoeschen = entwurf.getByRole("button", { name: "Leistung löschen" });
+      expect(entwurfLoeschen).toHaveProperty("disabled", true);
+      expect(entwurfLoeschen.title).toBe(
+        "Leistungen in einer Rechnung können nicht gelöscht werden. Entfernen Sie die Leistung zuerst aus dem Rechnungsentwurf.",
+      );
+
+      const abgerechnet = within(screen.getByRole("region", { name: "Mittwoch, 16. September 2026" }));
+      expect(abgerechnet.getByText("Bezahlt")).toBeDefined();
+      expect(abgerechnet.getByRole("link", { name: "Rechnung 1/260917" })).toBeDefined();
+      const bearbeiten = abgerechnet.getByRole("button", { name: "Leistung bearbeiten" });
+      expect(bearbeiten).toHaveProperty("disabled", true);
+      expect(bearbeiten.title).toBe(
+        "Leistungen in versendeten oder bezahlten Rechnungen können nicht geändert werden.",
+      );
+      expect(abgerechnet.getByRole("button", { name: "Leistung löschen" })).toHaveProperty("disabled", true);
+    });
+
     it("sollte eine Leistung aus dem Gebührenverzeichnis erfassen", async () => {
       const api = new FakeNaturheilpraxisApi({ events: [praxisAngelegt(), aufgenommen(max()), gebuehrAngelegt()] });
       zeigePatient(api, 1);
@@ -391,5 +446,19 @@ function erika(): Patient {
     aufnahmejahr: 2026,
     geburtsdatum: "1982-03-14",
     name: { vorname: "Erika", nachname: "Mustermann" },
+  };
+}
+
+function rechnungErstellt(rechnungId: string, leistungen: readonly string[]): DomainEvent {
+  return {
+    type: "rechnung-erstellt",
+    data: {
+      rechnungId,
+      praxiskuerzel: "NHP",
+      patientennummer: 1,
+      diagnosetext: "Chronische Rückenschmerzen",
+      rechnungstext: "Bitte überweisen Sie den Betrag innerhalb von 14 Tagen.",
+      leistungen,
+    },
   };
 }

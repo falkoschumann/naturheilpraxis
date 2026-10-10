@@ -215,11 +215,7 @@ schema:
     rechnungstext:
       type: string
     status:
-      type: string
-      enum:
-        - entwurf
-        - versendet
-        - bezahlt
+      $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/value-object=rechnungsstatus
       default: entwurf
   required:
     - rechnungId

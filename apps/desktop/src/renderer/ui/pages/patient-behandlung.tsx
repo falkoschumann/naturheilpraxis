@@ -1,11 +1,17 @@
 // Copyright (c) 2026 Falko Schumann. MIT license.
 
 import { useEffect, useId, useState } from "react";
+import { Link } from "react-router";
 
 import type { NaturheilpraxisApi } from "../../../shared/application/naturheilpraxis-api.ts";
-import type { Behandlung, BehandlungenErmittelnQueryResult } from "../../../shared/domain/behandlungsansicht.ts";
+import type {
+  Behandlung,
+  BehandlungenErmittelnQueryResult,
+  Leistungsrechnung,
+} from "../../../shared/domain/behandlungsansicht.ts";
 import type { Diagnose, Leistung } from "../../../shared/domain/entities.ts";
 import { formatEuro, type Patientennummer } from "../../../shared/domain/value-objects.ts";
+import { RechnungsstatusBadge } from "../components/rechnungen-tabelle.tsx";
 
 // What can be done with the entries of the treatment.
 export type BehandlungAktionen = Readonly<{
@@ -114,7 +120,12 @@ function Tag({
           behandlung.art === "diagnose" ? (
             <DiagnoseEintrag key={behandlung.eintrag.diagnoseId} diagnose={behandlung.eintrag} aktionen={aktionen} />
           ) : (
-            <LeistungEintrag key={behandlung.eintrag.leistungId} leistung={behandlung.eintrag} aktionen={aktionen} />
+            <LeistungEintrag
+              key={behandlung.eintrag.leistungId}
+              leistung={behandlung.eintrag}
+              rechnung={behandlung.rechnung}
+              aktionen={aktionen}
+            />
           ),
         )}
       </ul>
@@ -143,7 +154,17 @@ function DiagnoseEintrag({ diagnose, aktionen }: { diagnose: Diagnose; aktionen:
   );
 }
 
-function LeistungEintrag({ leistung, aktionen }: { leistung: Leistung; aktionen: BehandlungAktionen }) {
+// A Leistung can be changed as long as its Rechnung is a draft and deleted only
+// without a Rechnung.
+function LeistungEintrag({
+  leistung,
+  rechnung,
+  aktionen,
+}: {
+  leistung: Leistung;
+  rechnung?: Leistungsrechnung;
+  aktionen: BehandlungAktionen;
+}) {
   return (
     <li className="list-group-item d-flex gap-3 align-items-start">
       <span className="badge bg-primary-subtle text-primary-emphasis p-2">
@@ -151,7 +172,17 @@ function LeistungEintrag({ leistung, aktionen }: { leistung: Leistung; aktionen:
       </span>
       <div className="me-auto">
         <div className="small text-body-secondary">
-          Leistung · Ziffer {leistung.ziffer} <PraxisBadge praxiskuerzel={leistung.praxiskuerzel} />
+          Leistung · Ziffer {leistung.ziffer} <PraxisBadge praxiskuerzel={leistung.praxiskuerzel} />{" "}
+          {rechnung === undefined ? (
+            <span className="badge text-bg-warning">Offen</span>
+          ) : (
+            <>
+              <RechnungsstatusBadge rechnungsstatus={rechnung.status} />{" "}
+              <Link to={`/rechnungen/${rechnung.rechnungId}`} className="ms-1">
+                {rechnung.rechnungsnummer === undefined ? "Rechnungsentwurf" : `Rechnung ${rechnung.rechnungsnummer}`}
+              </Link>
+            </>
+          )}
         </div>
         <div>{leistung.bezeichnung}</div>
       </div>
@@ -163,6 +194,16 @@ function LeistungEintrag({ leistung, aktionen }: { leistung: Leistung; aktionen:
       </div>
       <Aktionen
         name="Leistung"
+        bearbeitenGesperrt={
+          rechnung !== undefined && rechnung.status !== "entwurf"
+            ? "Leistungen in versendeten oder bezahlten Rechnungen können nicht geändert werden."
+            : undefined
+        }
+        loeschenGesperrt={
+          rechnung === undefined
+            ? undefined
+            : "Leistungen in einer Rechnung können nicht gelöscht werden. Entfernen Sie die Leistung zuerst aus dem Rechnungsentwurf."
+        }
         onBearbeiten={() => aktionen.onLeistungBearbeiten(leistung)}
         onLoeschen={() => aktionen.onLeistungLoeschen(leistung)}
       />
@@ -170,12 +211,17 @@ function LeistungEintrag({ leistung, aktionen }: { leistung: Leistung; aktionen:
   );
 }
 
+// A locked action is disabled and its title says why.
 function Aktionen({
   name,
+  bearbeitenGesperrt,
+  loeschenGesperrt,
   onBearbeiten,
   onLoeschen,
 }: {
   name: string;
+  bearbeitenGesperrt?: string | undefined;
+  loeschenGesperrt?: string | undefined;
   onBearbeiten: () => void;
   onLoeschen: () => void;
 }) {
@@ -185,7 +231,8 @@ function Aktionen({
         type="button"
         className="btn btn-outline-secondary"
         aria-label={`${name} bearbeiten`}
-        title="Bearbeiten"
+        title={bearbeitenGesperrt ?? "Bearbeiten"}
+        disabled={bearbeitenGesperrt !== undefined}
         onClick={onBearbeiten}
       >
         <i className="fa-solid fa-pen" aria-hidden="true"></i>
@@ -194,7 +241,8 @@ function Aktionen({
         type="button"
         className="btn btn-outline-danger"
         aria-label={`${name} löschen`}
-        title="Löschen"
+        title={loeschenGesperrt ?? "Löschen"}
+        disabled={loeschenGesperrt !== undefined}
         onClick={onLoeschen}
       >
         <i className="fa-solid fa-trash" aria-hidden="true"></i>
