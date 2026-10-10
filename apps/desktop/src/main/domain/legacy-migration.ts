@@ -628,6 +628,10 @@ function rechnungEvents(
   praxisDerRechnung: (invoice: LegacyInvoice) => string,
   createId: () => string,
 ): DomainEvent[] {
+  const neuestesDatum = invoices
+    .map((invoice) => invoice.date.trim())
+    .reduce((neuestes, datum) => (datum > neuestes ? datum : neuestes), "");
+  const stichtag = einJahrFrueher(neuestesDatum);
   return sortByDate(invoices).flatMap((invoice) => {
     const rechnungId = createId();
     const leistungen = sortByDate(
@@ -662,14 +666,26 @@ function rechnungEvents(
       },
     });
     // The paid flag was not maintained for long, but a cash payment is noted
-    // in the Rechnungstext.
+    // in the Rechnungstext. A Rechnung a year or more older than the newest
+    // one is taken as paid, only the younger ones remain open.
     const bezahlt =
-      invoice.cleared === 1 || invoice.invoiceNote.includes("dankend erhalten");
+      invoice.cleared === 1 ||
+      invoice.invoiceNote.includes("dankend erhalten") ||
+      (invoice.date.trim() !== "" && invoice.date.trim() <= stichtag);
     if (bezahlt) {
       events.push({ type: "rechnung-bezahlt", data: { rechnungId } });
     }
     return events;
   });
+}
+
+// Like "2021-12-29" for "2022-12-29"; empty without a date.
+function einJahrFrueher(isoDatum: string): string {
+  if (isoDatum === "") {
+    return "";
+  }
+  const jahr = Number(isoDatum.slice(0, 4)) - 1;
+  return `${String(jahr).padStart(4, "0")}${isoDatum.slice(4)}`;
 }
 
 function euroOf(amount: LegacyAmount): Euro {

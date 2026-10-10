@@ -681,6 +681,40 @@ describe("Legacy Migration", () => {
       expect(ofType(events, "rechnung-bezahlt")).toEqual([]);
     });
 
+    it("sollte versendete Rechnungen ab einem Jahr vor der neuesten Rechnung als bezahlt übernehmen", () => {
+      const data = legacyData({
+        patients: [patient({ id: 1 })],
+        activities: [
+          activity({ id: 1, invoiceId: 1 }),
+          activity({ id: 2, invoiceId: 2 }),
+          activity({ id: 3, invoiceId: 3 }),
+          activity({ id: 4, invoiceId: 4 }),
+        ],
+        invoices: [
+          invoice({ id: 1, date: "2022-12-29" }),
+          invoice({ id: 2, date: "2021-12-30" }),
+          invoice({ id: 3, date: "2021-12-29" }),
+          invoice({ id: 4, date: "2005-01-01", creditNote: null, cleared: 0 }),
+        ],
+      });
+
+      const { events } = migrate(data);
+
+      const rechnungIdOf = new Map(
+        ofType(events, "rechnung-versendet").map((event) => [
+          event.data.datum,
+          event.data.rechnungId,
+        ]),
+      );
+      expect(ofType(events, "rechnung-bezahlt")).toEqual([
+        {
+          type: "rechnung-bezahlt",
+          data: { rechnungId: rechnungIdOf.get("2021-12-29") },
+        },
+      ]);
+      expect(ofType(events, "rechnung-versendet")).toHaveLength(3);
+    });
+
     it("sollte als bezahlt markierte oder bar bezahlte Rechnungen als bezahlt übernehmen", () => {
       const data = legacyData({
         patients: [patient({ id: 1 })],
