@@ -34,6 +34,9 @@ const api: NaturheilpraxisApi = {
   nichtAbgerechneteLeistungenErmitteln: (query) =>
     ipcRenderer.invoke(query.type, query),
   rechnungenErmitteln: (query) => ipcRenderer.invoke(query.type, query),
+  kennzahlenErmitteln: (query) => ipcRenderer.invoke(query.type, query),
+  patientenMitNichtAbgerechnetenLeistungenErmitteln: (query) =>
+    ipcRenderer.invoke(query.type, query),
   rechnungErmitteln: (query) => ipcRenderer.invoke(query.type, query),
   rechnungVersenden: (command) => ipcRenderer.invoke(command.type, command),
   rechnungZurueckstufen: (command) => ipcRenderer.invoke(command.type, command),

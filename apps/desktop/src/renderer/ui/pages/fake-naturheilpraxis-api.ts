@@ -267,6 +267,30 @@ export class FakeNaturheilpraxisApi implements NaturheilpraxisApi {
     );
   }
 
+  async kennzahlenErmitteln(
+    query: abrechnungsansicht.KennzahlenErmittelnQuery,
+  ): Promise<abrechnungsansicht.KennzahlenErmittelnQueryResult> {
+    return abrechnungsansicht.kennzahlenErmitteln(
+      abrechnungsansicht.projectAll(
+        abrechnungsansicht.initialReadModel,
+        this.#events,
+      ),
+      query,
+    );
+  }
+
+  async patientenMitNichtAbgerechnetenLeistungenErmitteln(
+    query: abrechnungsansicht.PatientenMitNichtAbgerechnetenLeistungenErmittelnQuery,
+  ): Promise<abrechnungsansicht.PatientenMitNichtAbgerechnetenLeistungenErmittelnQueryResult> {
+    return abrechnungsansicht.patientenMitNichtAbgerechnetenLeistungenErmitteln(
+      abrechnungsansicht.projectAll(
+        abrechnungsansicht.initialReadModel,
+        this.#events,
+      ),
+      query,
+    );
+  }
+
   async rechnungErmitteln(
     query: rechnungsansicht.RechnungErmittelnQuery,
   ): Promise<rechnungsansicht.RechnungErmittelnQueryResult> {

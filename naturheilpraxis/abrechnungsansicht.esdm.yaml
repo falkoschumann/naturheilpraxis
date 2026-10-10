@@ -4,8 +4,9 @@ kind: read-model
 name: abrechnungsansicht
 description: >-
   Die abrechnungsrelevanten Informationen aller Patienten, jeweils in ihrem aktuellen Stand.
-  Gelöschte Rechnungen und Leistungen erscheinen nicht mehr. Von den Patienten werden nur Name und
-  Geburtsdatum geführt, um sie zu den Rechnungen anzeigen zu können.
+  Gelöschte Rechnungen und Leistungen erscheinen nicht mehr. Von den Patienten werden nur Praxis,
+  Name und Geburtsdatum geführt, um sie zu den Rechnungen anzeigen und für sie Rechnungen erstellen
+  zu können.
 scope:
   domain: naturheilpraxis
   boundedContext: naturheilpraxis
@@ -43,10 +44,10 @@ projections:
     rule: Entferne die Leistung.
   - boundedContext: naturheilpraxis
     event: patient-aufgenommen
-    rule: Füge Name und Geburtsdatum des Patienten hinzu.
+    rule: Füge Praxis, Name und Geburtsdatum des Patienten hinzu.
   - boundedContext: naturheilpraxis
     event: patientendaten-geaendert
-    rule: Aktualisiere Name und Geburtsdatum des Patienten.
+    rule: Aktualisiere Praxis, Name und Geburtsdatum des Patienten.
 schema:
   type: object
   properties:
@@ -65,6 +66,8 @@ schema:
         properties:
           patientennummer:
             $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/value-object=patientennummer
+          praxiskuerzel:
+            type: string
           name:
             $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/value-object=personenname
           geburtsdatum:
@@ -72,6 +75,7 @@ schema:
             format: date
         required:
           - patientennummer
+          - praxiskuerzel
           - name
           - geburtsdatum
         additionalProperties: false
@@ -160,12 +164,10 @@ result:
       rechnungstext:
         type: string
       status:
-        type: string
-        enum:
-          - entwurf
-          - versendet
-          - bezahlt
+        $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/value-object=rechnungsstatus
         default: entwurf
+      betrag:
+        $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/value-object=euro
     required:
       - rechnungId
       - praxiskuerzel
@@ -173,6 +175,7 @@ result:
       - diagnosetext
       - rechnungstext
       - status
+      - betrag
     additionalProperties: false
 actors:
   - heilpraktiker
@@ -182,6 +185,10 @@ constraints:
       Der Patientenname hat das Muster `<Nachname>, <Vorname> (Nr. <Patientennummer>), geboren am
       <Geburtsdatum>`, etwa "Mustermann, Max (Nr. 1234), geboren am 20.09.1980". Das Geburtsdatum
       wird im Format `TT.MM.JJJJ` angegeben.
+  - name: betrag-berechnen
+    rule: >-
+      Der Betrag ist die Summe aus Anzahl mal Einzelbetrag der in der Rechnung enthaltenen
+      Leistungen.
   - name: nur-rechnungen-des-patienten
     rule: >-
       Ist eine Patientennummer angegeben, sind nur Rechnungen enthalten, die zu der gegebenen
@@ -191,3 +198,122 @@ constraints:
       Entwürfe stehen zuerst, sortiert nach Nachname, Vorname und Patientennummer des Patienten.
       Danach folgen die versendeten und bezahlten Rechnungen absteigend nach Rechnungsdatum, bei
       gleichem Datum absteigend nach Rechnungsnummer.
+
+---
+# $schema: ../schemas/core/v1.yaml
+apiVersion: schema.esdm.io/core/v1
+kind: query
+name: kennzahlen-ermitteln
+description: >-
+  Ermittelt Anzahl und Betrag der nicht abgerechneten Leistungen sowie der Rechnungen je Status, um
+  den Stand der Abrechnung auf einen Blick zu zeigen.
+scope:
+  domain: naturheilpraxis
+  boundedContext: naturheilpraxis
+readModel: abrechnungsansicht
+paradigm: key-value
+parameters:
+  type: object
+  additionalProperties: false
+result:
+  type: object
+  properties:
+    nichtAbgerechnet:
+      $ref: "#/$defs/kennzahl"
+    entwuerfe:
+      $ref: "#/$defs/kennzahl"
+    versendet:
+      $ref: "#/$defs/kennzahl"
+    bezahlt:
+      $ref: "#/$defs/kennzahl"
+  required:
+    - nichtAbgerechnet
+    - entwuerfe
+    - versendet
+    - bezahlt
+  additionalProperties: false
+  $defs:
+    kennzahl:
+      type: object
+      properties:
+        anzahl:
+          type: integer
+          minimum: 0
+        betrag:
+          $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/value-object=euro
+      required:
+        - anzahl
+        - betrag
+      additionalProperties: false
+actors:
+  - heilpraktiker
+constraints:
+  - name: nicht-abgerechnete-leistungen-zaehlen
+    rule: >-
+      Für die nicht abgerechneten Leistungen ist die Anzahl die der Leistungen, die in keiner
+      Rechnung enthalten sind.
+  - name: rechnungen-je-status-zaehlen
+    rule: >-
+      Für Entwürfe, versendete und bezahlte Rechnungen ist die Anzahl die der Rechnungen mit diesem
+      Status.
+  - name: betrag-berechnen
+    rule: >-
+      Der Betrag ist die Summe aus Anzahl mal Einzelbetrag der gezählten Leistungen bzw. der in den
+      gezählten Rechnungen enthaltenen Leistungen.
+
+---
+# $schema: ../schemas/core/v1.yaml
+apiVersion: schema.esdm.io/core/v1
+kind: query
+name: patienten-mit-nicht-abgerechneten-leistungen-ermitteln
+description: >-
+  Ermittelt die Patienten, für die noch Leistungen abzurechnen sind.
+scope:
+  domain: naturheilpraxis
+  boundedContext: naturheilpraxis
+readModel: abrechnungsansicht
+paradigm: tabular
+parameters:
+  type: object
+  additionalProperties: false
+result:
+  type: array
+  items:
+    type: object
+    properties:
+      patientennummer:
+        $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/value-object=patientennummer
+      praxiskuerzel:
+        type: string
+      name:
+        $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/value-object=personenname
+      anzahl:
+        type: integer
+        minimum: 1
+      betrag:
+        $ref: esdm:domain=naturheilpraxis/bounded-context=naturheilpraxis/value-object=euro
+      seit:
+        type: string
+        format: date
+    required:
+      - patientennummer
+      - praxiskuerzel
+      - name
+      - anzahl
+      - betrag
+      - seit
+    additionalProperties: false
+actors:
+  - heilpraktiker
+constraints:
+  - name: nur-patienten-mit-nicht-abgerechneten-leistungen
+    rule: >-
+      Enthält nur Patienten mit mindestens einer Leistung, die in keiner Rechnung enthalten ist.
+  - name: anzahl-betrag-und-seit-berechnen
+    rule: >-
+      Anzahl und Betrag beziehen sich auf die nicht abgerechneten Leistungen des Patienten; der
+      Betrag ist die Summe aus Anzahl mal Einzelbetrag. Seit ist das Datum der ältesten davon.
+  - name: hoechster-betrag-zuerst
+    rule: >-
+      Die Patienten sind absteigend nach Betrag sortiert, bei gleichem Betrag nach Nachname, Vorname
+      und Patientennummer.

@@ -61,6 +61,10 @@ import type {
   NichtAbgerechneteLeistungenErmittelnQueryResult,
   RechnungenErmittelnQuery,
   RechnungenErmittelnQueryResult,
+  KennzahlenErmittelnQuery,
+  KennzahlenErmittelnQueryResult,
+  PatientenMitNichtAbgerechnetenLeistungenErmittelnQuery,
+  PatientenMitNichtAbgerechnetenLeistungenErmittelnQueryResult,
 } from "../domain/abrechnungsansicht.ts";
 import type {
   RechnungErmittelnQuery,
@@ -156,6 +160,14 @@ export interface NaturheilpraxisApi {
   rechnungenErmitteln(
     query: RechnungenErmittelnQuery,
   ): Promise<RechnungenErmittelnQueryResult>;
+
+  kennzahlenErmitteln(
+    query: KennzahlenErmittelnQuery,
+  ): Promise<KennzahlenErmittelnQueryResult>;
+
+  patientenMitNichtAbgerechnetenLeistungenErmitteln(
+    query: PatientenMitNichtAbgerechnetenLeistungenErmittelnQuery,
+  ): Promise<PatientenMitNichtAbgerechnetenLeistungenErmittelnQueryResult>;
 
   rechnungErmitteln(
     query: RechnungErmittelnQuery,

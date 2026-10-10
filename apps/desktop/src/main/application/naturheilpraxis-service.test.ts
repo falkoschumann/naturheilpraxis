@@ -526,6 +526,33 @@ describe("Naturheilpraxis Service", () => {
           diagnosetext: "Rückenschmerzen",
           rechnungstext: "Zahlbar in 14 Tagen.",
           status: "entwurf",
+          betrag: { cents: 2050 },
+        },
+      ]);
+      expect(
+        await service.kennzahlenErmitteln({
+          type: "kennzahlen-ermitteln",
+          parameters: {},
+        }),
+      ).toEqual({
+        nichtAbgerechnet: { anzahl: 1, betrag: { cents: 2050 } },
+        entwuerfe: { anzahl: 1, betrag: { cents: 2050 } },
+        versendet: { anzahl: 0, betrag: { cents: 0 } },
+        bezahlt: { anzahl: 0, betrag: { cents: 0 } },
+      });
+      expect(
+        await service.patientenMitNichtAbgerechnetenLeistungenErmitteln({
+          type: "patienten-mit-nicht-abgerechneten-leistungen-ermitteln",
+          parameters: {},
+        }),
+      ).toEqual([
+        {
+          patientennummer: 1,
+          praxiskuerzel: "NHP",
+          name: { vorname: "Max", nachname: "Mustermann" },
+          anzahl: 1,
+          betrag: { cents: 2050 },
+          seit: "2026-09-14",
         },
       ]);
       expect(

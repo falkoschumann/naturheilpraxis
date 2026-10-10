@@ -4,7 +4,7 @@ import { Link } from "react-router";
 
 import type { RechnungenErmittelnQueryResult } from "../../../shared/domain/abrechnungsansicht.ts";
 import type { Rechnungsstatus } from "../../../shared/domain/entities.ts";
-import { formatDatum } from "../../../shared/domain/value-objects.ts";
+import { formatDatum, formatEuro } from "../../../shared/domain/value-objects.ts";
 
 const status: Record<Rechnungsstatus, Readonly<{ label: string; className: string }>> = {
   entwurf: { label: "Entwurf", className: "text-bg-secondary" },
@@ -48,6 +48,9 @@ export function RechnungenTabelle({
               <th scope="col">Diagnose</th>
               <th scope="col">Praxis</th>
               <th scope="col">Status</th>
+              <th scope="col" className="text-end">
+                Betrag
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -69,6 +72,7 @@ export function RechnungenTabelle({
                 <td>
                   <RechnungsstatusBadge rechnungsstatus={rechnung.status} />
                 </td>
+                <td className="text-end text-nowrap">{formatEuro(rechnung.betrag)}</td>
               </tr>
             ))}
           </tbody>

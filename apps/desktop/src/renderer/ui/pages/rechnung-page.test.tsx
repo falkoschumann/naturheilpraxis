@@ -296,6 +296,54 @@ describe("Rechnungen", () => {
       expect(screen.queryByRole("row", { name: /Mustermann, Max/ })).toBeNull();
       expect(screen.getByText("Keine Rechnungen vorhanden.")).toBeDefined();
     });
+
+    it("sollte Kennzahlen und den Betrag jeder Rechnung zeigen", async () => {
+      const api = new FakeNaturheilpraxisApi({ events: [...grunddaten(), rechnungErstellt([ersteLeistung])] });
+      zeige(api, "/abrechnung");
+
+      const nichtAbgerechnet = await screen.findByRole("group", { name: "Nicht abgerechnet" });
+      expect(within(nichtAbgerechnet).getByText("30,60 €")).toBeDefined();
+      expect(within(screen.getByRole("group", { name: "Entwürfe" })).getByText("1")).toBeDefined();
+      expect(within(screen.getByRole("group", { name: "Versendet, unbezahlt" })).getByText("0,00 €")).toBeDefined();
+      expect(within(screen.getByRole("group", { name: "Bezahlt" })).getByText("0")).toBeDefined();
+      expect(screen.getByRole("columnheader", { name: "Betrag" })).toBeDefined();
+      expect(screen.getByRole("row", { name: /Mustermann, Max/ }).textContent).toContain("20,50\u00a0€");
+    });
+
+    it("sollte Patienten mit nicht abgerechneten Leistungen zeigen und für sie eine Rechnung erstellen", async () => {
+      const api = new FakeNaturheilpraxisApi({ events: [...grunddaten(), rechnungErstellt([ersteLeistung])] });
+      zeige(api, "/abrechnung");
+
+      const liste = await screen.findByRole("list", { name: "Patienten mit nicht abgerechneten Leistungen" });
+      const patient = within(liste).getByRole("listitem");
+      expect(
+        within(patient)
+          .getByRole("link", { name: /Mustermann, Max/ })
+          .getAttribute("href"),
+      ).toBe("/patienten/1");
+      expect(patient.textContent).toContain("1 Leistung seit 21.09.2026");
+      expect(patient.textContent).toContain("30,60\u00a0€");
+
+      fireEvent.click(within(patient).getByRole("button", { name: "Rechnung erstellen" }));
+      const dialog = screen.getByRole("dialog", { name: "Rechnung erstellen für Max Mustermann" });
+      expect(await within(dialog).findByRole("checkbox", { name: "Akupunktur vom 21.09.2026" })).toHaveProperty(
+        "checked",
+        true,
+      );
+      fireEvent.click(within(dialog).getByRole("button", { name: "Entwurf erstellen" }));
+
+      expect(await screen.findByRole("heading", { level: 1, name: "Rechnungsentwurf" })).toBeDefined();
+      expect(api.commands).toMatchObject([{ type: "rechnung-erstellen", data: { leistungen: [zweiteLeistung] } }]);
+    });
+
+    it("sollte zeigen, wenn alle Leistungen abgerechnet sind", async () => {
+      const api = new FakeNaturheilpraxisApi({
+        events: [...grunddaten(), rechnungErstellt([ersteLeistung, zweiteLeistung])],
+      });
+      zeige(api, "/abrechnung");
+
+      expect(await screen.findByText("Alle Leistungen sind abgerechnet.")).toBeDefined();
+    });
   });
 
   describe("Fehler beim Laden", () => {
@@ -304,7 +352,7 @@ describe("Rechnungen", () => {
 
       expect(await screen.findByRole("alert")).toHaveProperty(
         "textContent",
-        "Die Rechnungen konnten nicht geladen werden. Bitte starten Sie die Anwendung neu.",
+        "Die Abrechnung konnte nicht geladen werden. Bitte starten Sie die Anwendung neu.",
       );
     });
 

@@ -49,7 +49,7 @@ Jeder Eintrag beginnt mit einer Kategorie:
       anzeigen und „Bearbeiten“ sowie „Löschen“ sperren, wenn die Rechnung es
       nicht erlaubt, wie im Prototyp. Erfordert, dass `behandlungen-ermitteln`
       den Rechnungsstatus je Leistung liefert.
-- [ ] **Rechnung** Auf der Abrechnungsseite Kennzahlen-Kacheln, die Liste
+- [x] **Rechnung** Auf der Abrechnungsseite Kennzahlen-Kacheln, die Liste
       „Patienten mit nicht abgerechneten Leistungen“ und eine Betragsspalte in
       der Rechnungsliste ergänzen, wie im Prototyp. Erfordert neue Queries im
       Modell.

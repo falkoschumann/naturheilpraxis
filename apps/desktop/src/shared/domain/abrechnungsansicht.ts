@@ -4,6 +4,7 @@ import { alsEntwurf, type Leistung, type Rechnung } from "./entities.ts";
 import type { DomainEvent } from "./events.ts";
 import {
   formatPatientenname,
+  type Euro,
   type Patientennummer,
   type Personenname,
 } from "./value-objects.ts";
@@ -13,6 +14,7 @@ type AbgerechneteRechnung = Rechnung &
 
 type Patient = Readonly<{
   patientennummer: Patientennummer;
+  praxiskuerzel: string;
   name: Personenname;
   geburtsdatum: string;
 }>;
@@ -44,10 +46,41 @@ export type RechnungenErmittelnQuery = Readonly<{
 }>;
 
 export type RechnungenErmittelnQueryResultItem = Rechnung &
-  Readonly<{ patientenname?: string }>;
+  Readonly<{ patientenname?: string; betrag: Euro }>;
 
 export type RechnungenErmittelnQueryResult =
   readonly RechnungenErmittelnQueryResultItem[];
+
+export type KennzahlenErmittelnQuery = Readonly<{
+  type: "kennzahlen-ermitteln";
+  parameters: Readonly<Record<string, never>>;
+}>;
+
+export type Kennzahl = Readonly<{ anzahl: number; betrag: Euro }>;
+
+export type KennzahlenErmittelnQueryResult = Readonly<{
+  nichtAbgerechnet: Kennzahl;
+  entwuerfe: Kennzahl;
+  versendet: Kennzahl;
+  bezahlt: Kennzahl;
+}>;
+
+export type PatientenMitNichtAbgerechnetenLeistungenErmittelnQuery = Readonly<{
+  type: "patienten-mit-nicht-abgerechneten-leistungen-ermitteln";
+  parameters: Readonly<Record<string, never>>;
+}>;
+
+export type PatientMitNichtAbgerechnetenLeistungen = Readonly<{
+  patientennummer: Patientennummer;
+  praxiskuerzel: string;
+  name: Personenname;
+  anzahl: number;
+  betrag: Euro;
+  seit: string;
+}>;
+
+export type PatientenMitNichtAbgerechnetenLeistungenErmittelnQueryResult =
+  readonly PatientMitNichtAbgerechnetenLeistungen[];
 
 // Projecting one event is projecting all events of the list.
 export function project(
@@ -129,9 +162,10 @@ function anwenden(entwurf: Entwurf, event: DomainEvent): void {
       break;
     case "patient-aufgenommen":
     case "patientendaten-geaendert": {
-      const { patientennummer, name, geburtsdatum } = event.data;
+      const { patientennummer, praxiskuerzel, name, geburtsdatum } = event.data;
       entwurf.patienten[patientennummer] = {
         patientennummer,
+        praxiskuerzel,
         name,
         geburtsdatum,
       };
@@ -155,16 +189,10 @@ export function nichtAbgerechneteLeistungenErmitteln(
   readModel: Abrechnungsansicht,
   query: NichtAbgerechneteLeistungenErmittelnQuery,
 ): NichtAbgerechneteLeistungenErmittelnQueryResult {
-  const abgerechnet = new Set(
-    Object.values(readModel.rechnungen).flatMap(
-      (rechnung) => rechnung.leistungen,
-    ),
-  );
-  return Object.values(readModel.leistungen)
+  return nichtAbgerechneteLeistungen(readModel)
     .filter(
       (leistung) =>
-        leistung.patientennummer === query.parameters.patientennummer &&
-        !abgerechnet.has(leistung.leistungId),
+        leistung.patientennummer === query.parameters.patientennummer,
     )
     .toSorted((a, b) => a.datum.localeCompare(b.datum));
 }
@@ -191,6 +219,7 @@ export function rechnungenErmitteln(
         datum,
         rechnungstext,
         status,
+        leistungen,
       }) => {
         const rechnung = {
           rechnungId,
@@ -201,6 +230,7 @@ export function rechnungenErmitteln(
           ...(datum === undefined ? {} : { datum }),
           rechnungstext,
           status,
+          betrag: betragDer(leistungenDer(readModel, leistungen)),
         };
         const patient = readModel.patienten[patientennummer];
         return patient === undefined
@@ -228,6 +258,115 @@ export function rechnungenErmitteln(
       ),
     );
   return [...entwuerfe, ...uebrige];
+}
+
+export function kennzahlenErmitteln(
+  readModel: Abrechnungsansicht,
+  _query: KennzahlenErmittelnQuery,
+): KennzahlenErmittelnQueryResult {
+  const rechnungen = Object.values(readModel.rechnungen);
+  const kennzahlDer = (status: Rechnung["status"]): Kennzahl => {
+    const mitStatus = rechnungen.filter(
+      (rechnung) => rechnung.status === status,
+    );
+    return {
+      anzahl: mitStatus.length,
+      betrag: betragDer(
+        mitStatus.flatMap((rechnung) =>
+          leistungenDer(readModel, rechnung.leistungen),
+        ),
+      ),
+    };
+  };
+  const nichtAbgerechnet = nichtAbgerechneteLeistungen(readModel);
+  return {
+    nichtAbgerechnet: {
+      anzahl: nichtAbgerechnet.length,
+      betrag: betragDer(nichtAbgerechnet),
+    },
+    entwuerfe: kennzahlDer("entwurf"),
+    versendet: kennzahlDer("versendet"),
+    bezahlt: kennzahlDer("bezahlt"),
+  };
+}
+
+// The highest amount first, on the same amount by name.
+export function patientenMitNichtAbgerechnetenLeistungenErmitteln(
+  readModel: Abrechnungsansicht,
+  _query: PatientenMitNichtAbgerechnetenLeistungenErmittelnQuery,
+): PatientenMitNichtAbgerechnetenLeistungenErmittelnQueryResult {
+  const jePatient = Map.groupBy(
+    nichtAbgerechneteLeistungen(readModel),
+    (leistung) => leistung.patientennummer,
+  );
+  return [...jePatient]
+    .map(([patientennummer, leistungen]) => {
+      const patient = readModel.patienten[patientennummer];
+      return {
+        patient,
+        eintrag: {
+          patientennummer,
+          praxiskuerzel:
+            patient?.praxiskuerzel ?? leistungen[0]?.praxiskuerzel ?? "",
+          name: patient?.name ?? { vorname: "", nachname: "" },
+          anzahl: leistungen.length,
+          betrag: betragDer(leistungen),
+          seit:
+            leistungen.map((leistung) => leistung.datum).toSorted()[0] ?? "",
+        },
+      };
+    })
+    .toSorted(
+      (a, b) =>
+        b.eintrag.betrag.cents - a.eintrag.betrag.cents ||
+        vergleiche(
+          [
+            a.patient?.name.nachname ?? "",
+            a.patient?.name.vorname ?? "",
+            String(a.eintrag.patientennummer).padStart(10, "0"),
+          ],
+          [
+            b.patient?.name.nachname ?? "",
+            b.patient?.name.vorname ?? "",
+            String(b.eintrag.patientennummer).padStart(10, "0"),
+          ],
+        ),
+    )
+    .map(({ eintrag }) => eintrag);
+}
+
+// The Leistungen contained in no Rechnung.
+function nichtAbgerechneteLeistungen(
+  readModel: Abrechnungsansicht,
+): Leistung[] {
+  const abgerechnet = new Set(
+    Object.values(readModel.rechnungen).flatMap(
+      (rechnung) => rechnung.leistungen,
+    ),
+  );
+  return Object.values(readModel.leistungen).filter(
+    (leistung) => !abgerechnet.has(leistung.leistungId),
+  );
+}
+
+function leistungenDer(
+  readModel: Abrechnungsansicht,
+  leistungIds: readonly string[],
+): Leistung[] {
+  return leistungIds.flatMap((leistungId) => {
+    const leistung = readModel.leistungen[leistungId];
+    return leistung === undefined ? [] : [leistung];
+  });
+}
+
+function betragDer(leistungen: readonly Leistung[]): Euro {
+  return {
+    cents: leistungen.reduce(
+      (summe, leistung) =>
+        summe + leistung.anzahl * leistung.einzelbetrag.cents,
+      0,
+    ),
+  };
 }
 
 function vergleiche(a: readonly string[], b: readonly string[]): number {

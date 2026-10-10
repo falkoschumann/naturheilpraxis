@@ -214,6 +214,24 @@ export class NaturheilpraxisService implements NaturheilpraxisApi {
     );
   }
 
+  async kennzahlenErmitteln(
+    query: abrechnungsansicht.KennzahlenErmittelnQuery,
+  ): Promise<abrechnungsansicht.KennzahlenErmittelnQueryResult> {
+    return abrechnungsansicht.kennzahlenErmitteln(
+      this.#abrechnungsansicht,
+      query,
+    );
+  }
+
+  async patientenMitNichtAbgerechnetenLeistungenErmitteln(
+    query: abrechnungsansicht.PatientenMitNichtAbgerechnetenLeistungenErmittelnQuery,
+  ): Promise<abrechnungsansicht.PatientenMitNichtAbgerechnetenLeistungenErmittelnQueryResult> {
+    return abrechnungsansicht.patientenMitNichtAbgerechnetenLeistungenErmitteln(
+      this.#abrechnungsansicht,
+      query,
+    );
+  }
+
   async rechnungErmitteln(
     query: rechnungsansicht.RechnungErmittelnQuery,
   ): Promise<rechnungsansicht.RechnungErmittelnQueryResult> {

@@ -113,6 +113,14 @@ function handleMessages(service: NaturheilpraxisService): void {
   ipcMain.handle("rechnungen-ermitteln", (_event, query) =>
     service.rechnungenErmitteln(query),
   );
+  ipcMain.handle("kennzahlen-ermitteln", (_event, query) =>
+    service.kennzahlenErmitteln(query),
+  );
+  ipcMain.handle(
+    "patienten-mit-nicht-abgerechneten-leistungen-ermitteln",
+    (_event, query) =>
+      service.patientenMitNichtAbgerechnetenLeistungenErmitteln(query),
+  );
   ipcMain.handle("rechnung-ermitteln", (_event, query) =>
     service.rechnungErmitteln(query),
   );

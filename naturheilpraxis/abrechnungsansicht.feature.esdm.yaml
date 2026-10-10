@@ -137,6 +137,50 @@ scenarios:
           geburtsdatum: "1975-01-02"
           name: { vorname: Anna, nachname: Beispiel }
       - boundedContext: naturheilpraxis
+        event: leistung-erbracht
+        data:
+          leistungId: 22222222-2222-4222-8222-222222222222
+          praxiskuerzel: NHP
+          patientennummer: 1
+          datum: "2026-09-14"
+          ziffer: "1"
+          bezeichnung: Eingehende Untersuchung
+          anzahl: 1
+          einzelbetrag: { cents: 2050 }
+      - boundedContext: naturheilpraxis
+        event: leistung-erbracht
+        data:
+          leistungId: 23232323-2323-4323-8323-232323232323
+          praxiskuerzel: NHP
+          patientennummer: 1
+          datum: "2026-09-21"
+          ziffer: "20.1"
+          bezeichnung: Akupunktur
+          anzahl: 2
+          einzelbetrag: { cents: 1530 }
+      - boundedContext: naturheilpraxis
+        event: leistung-erbracht
+        data:
+          leistungId: 25252525-2525-4525-8525-252525252525
+          praxiskuerzel: NHP
+          patientennummer: 2
+          datum: "2026-09-18"
+          ziffer: "25.1"
+          bezeichnung: Injektion
+          anzahl: 1
+          einzelbetrag: { cents: 520 }
+      - boundedContext: naturheilpraxis
+        event: leistung-erbracht
+        data:
+          leistungId: 26262626-2626-4626-8626-262626262626
+          praxiskuerzel: NHP
+          patientennummer: 3
+          datum: "2026-09-27"
+          ziffer: "5"
+          bezeichnung: Beratung
+          anzahl: 1
+          einzelbetrag: { cents: 2050 }
+      - boundedContext: naturheilpraxis
         event: rechnung-erstellt
         data:
           rechnungId: 33333333-3333-4333-8333-333333333333
@@ -220,6 +264,7 @@ scenarios:
           diagnosetext: Schlafstörungen
           rechnungstext: Bitte überweisen Sie den Betrag innerhalb von 14 Tagen.
           status: entwurf
+          betrag: { cents: 2050 }
         - rechnungId: 35353535-3535-4535-8535-353535353535
           praxiskuerzel: NHP
           patientennummer: 1
@@ -227,6 +272,7 @@ scenarios:
           diagnosetext: Chronische Rückenschmerzen
           rechnungstext: Bitte überweisen Sie den Betrag innerhalb von 14 Tagen.
           status: entwurf
+          betrag: { cents: 3060 }
         - rechnungId: 34343434-3434-4434-8434-343434343434
           praxiskuerzel: NHP
           patientennummer: 1
@@ -236,6 +282,7 @@ scenarios:
           datum: "2026-09-25"
           rechnungstext: Bitte überweisen Sie den Betrag innerhalb von 14 Tagen.
           status: versendet
+          betrag: { cents: 2050 }
         - rechnungId: 33333333-3333-4333-8333-333333333333
           praxiskuerzel: NHP
           patientennummer: 2
@@ -245,6 +292,7 @@ scenarios:
           datum: "2026-09-20"
           rechnungstext: Bitte überweisen Sie den Betrag innerhalb von 14 Tagen.
           status: bezahlt
+          betrag: { cents: 520 }
 
   - name: rechnungen-eines-patienten-ermitteln
     given:
@@ -264,6 +312,17 @@ scenarios:
           aufnahmejahr: 2026
           geburtsdatum: "1982-03-14"
           name: { vorname: Erika, nachname: Mustermann }
+      - boundedContext: naturheilpraxis
+        event: leistung-erbracht
+        data:
+          leistungId: 22222222-2222-4222-8222-222222222222
+          praxiskuerzel: NHP
+          patientennummer: 1
+          datum: "2026-09-14"
+          ziffer: "1"
+          bezeichnung: Eingehende Untersuchung
+          anzahl: 1
+          einzelbetrag: { cents: 2050 }
       - boundedContext: naturheilpraxis
         event: rechnung-erstellt
         data:
@@ -297,3 +356,290 @@ scenarios:
           diagnosetext: Chronische Rückenschmerzen
           rechnungstext: Bitte überweisen Sie den Betrag innerhalb von 14 Tagen.
           status: entwurf
+          betrag: { cents: 2050 }
+
+  - name: kennzahlen-ermitteln
+    description: >-
+      Gelöschte Leistungen zählen nicht. Die Beträge sind die Summen aus Anzahl mal Einzelbetrag.
+    given:
+      - boundedContext: naturheilpraxis
+        event: leistung-erbracht
+        data:
+          leistungId: aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa
+          praxiskuerzel: NHP
+          patientennummer: 1
+          datum: "2026-09-14"
+          ziffer: "1"
+          bezeichnung: Eingehende Untersuchung
+          anzahl: 1
+          einzelbetrag: { cents: 2050 }
+      - boundedContext: naturheilpraxis
+        event: leistung-erbracht
+        data:
+          leistungId: bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb
+          praxiskuerzel: NHP
+          patientennummer: 1
+          datum: "2026-09-21"
+          ziffer: "20.1"
+          bezeichnung: Akupunktur
+          anzahl: 2
+          einzelbetrag: { cents: 1530 }
+      - boundedContext: naturheilpraxis
+        event: leistung-erbracht
+        data:
+          leistungId: cccccccc-cccc-4ccc-8ccc-cccccccccccc
+          praxiskuerzel: NHP
+          patientennummer: 1
+          datum: "2026-09-21"
+          ziffer: "4"
+          bezeichnung: Kurze Information
+          anzahl: 1
+          einzelbetrag: { cents: 820 }
+      - boundedContext: naturheilpraxis
+        event: leistung-geloescht
+        data:
+          leistungId: cccccccc-cccc-4ccc-8ccc-cccccccccccc
+      - boundedContext: naturheilpraxis
+        event: leistung-erbracht
+        data:
+          leistungId: dddddddd-dddd-4ddd-8ddd-dddddddddddd
+          praxiskuerzel: NHP
+          patientennummer: 1
+          datum: "2026-09-22"
+          ziffer: "25.1"
+          bezeichnung: Injektion
+          anzahl: 2
+          einzelbetrag: { cents: 500 }
+      - boundedContext: naturheilpraxis
+        event: leistung-erbracht
+        data:
+          leistungId: eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee
+          praxiskuerzel: NHP
+          patientennummer: 1
+          datum: "2026-09-23"
+          ziffer: "5"
+          bezeichnung: Beratung
+          anzahl: 1
+          einzelbetrag: { cents: 4500 }
+      - boundedContext: naturheilpraxis
+        event: leistung-erbracht
+        data:
+          leistungId: ffffffff-ffff-4fff-8fff-ffffffffffff
+          praxiskuerzel: NHP
+          patientennummer: 1
+          datum: "2026-09-24"
+          ziffer: "5"
+          bezeichnung: Beratung
+          anzahl: 1
+          einzelbetrag: { cents: 3000 }
+      - boundedContext: naturheilpraxis
+        event: leistung-erbracht
+        data:
+          leistungId: 00000000-0000-4000-8000-000000000000
+          praxiskuerzel: NHP
+          patientennummer: 1
+          datum: "2026-09-24"
+          ziffer: "4"
+          bezeichnung: Kurze Information
+          anzahl: 1
+          einzelbetrag: { cents: 820 }
+      - boundedContext: naturheilpraxis
+        event: rechnung-erstellt
+        data:
+          rechnungId: 55555555-5555-4555-8555-555555555555
+          praxiskuerzel: NHP
+          patientennummer: 1
+          diagnosetext: Chronische Rückenschmerzen
+          rechnungstext: Bitte überweisen Sie den Betrag innerhalb von 14 Tagen.
+          leistungen: [dddddddd-dddd-4ddd-8ddd-dddddddddddd]
+      - boundedContext: naturheilpraxis
+        event: rechnung-erstellt
+        data:
+          rechnungId: 66666666-6666-4666-8666-666666666666
+          praxiskuerzel: NHP
+          patientennummer: 1
+          diagnosetext: Chronische Rückenschmerzen
+          rechnungstext: Bitte überweisen Sie den Betrag innerhalb von 14 Tagen.
+          leistungen: [eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee]
+      - boundedContext: naturheilpraxis
+        event: rechnung-versendet
+        data:
+          rechnungId: 66666666-6666-4666-8666-666666666666
+          patientennummer: 1
+          rechnungsnummer: 1/260925
+          datum: "2026-09-25"
+      - boundedContext: naturheilpraxis
+        event: rechnung-erstellt
+        data:
+          rechnungId: 77777777-7777-4777-8777-777777777777
+          praxiskuerzel: NHP
+          patientennummer: 1
+          diagnosetext: Chronische Rückenschmerzen
+          rechnungstext: Bitte überweisen Sie den Betrag innerhalb von 14 Tagen.
+          leistungen: [ffffffff-ffff-4fff-8fff-ffffffffffff, 00000000-0000-4000-8000-000000000000]
+      - boundedContext: naturheilpraxis
+        event: rechnung-versendet
+        data:
+          rechnungId: 77777777-7777-4777-8777-777777777777
+          patientennummer: 1
+          rechnungsnummer: 1/260926
+          datum: "2026-09-26"
+      - boundedContext: naturheilpraxis
+        event: rechnung-bezahlt
+        data:
+          rechnungId: 77777777-7777-4777-8777-777777777777
+    when:
+      query: kennzahlen-ermitteln
+      parameters: {}
+    then:
+      result:
+        nichtAbgerechnet: { anzahl: 2, betrag: { cents: 5110 } }
+        entwuerfe: { anzahl: 1, betrag: { cents: 1000 } }
+        versendet: { anzahl: 1, betrag: { cents: 4500 } }
+        bezahlt: { anzahl: 1, betrag: { cents: 3820 } }
+
+  - name: patienten-mit-nicht-abgerechneten-leistungen-ermitteln
+    description: >-
+      Patienten mit dem höchsten Betrag stehen zuerst, bei gleichem Betrag nach Name sortiert.
+      Abgerechnete Leistungen zählen nicht; Patienten ohne nicht abgerechnete Leistungen erscheinen
+      nicht.
+    given:
+      - boundedContext: naturheilpraxis
+        event: patient-aufgenommen
+        data:
+          patientennummer: 1
+          praxiskuerzel: NHP
+          aufnahmejahr: 2026
+          geburtsdatum: "1980-09-20"
+          name: { vorname: Max, nachname: Mustermann }
+      - boundedContext: naturheilpraxis
+        event: patient-aufgenommen
+        data:
+          patientennummer: 2
+          praxiskuerzel: NHP
+          aufnahmejahr: 2026
+          geburtsdatum: "1982-03-14"
+          name: { vorname: Erika, nachname: Mustermann }
+      - boundedContext: naturheilpraxis
+        event: patient-aufgenommen
+        data:
+          patientennummer: 3
+          praxiskuerzel: ABC
+          aufnahmejahr: 2026
+          geburtsdatum: "1975-01-02"
+          name: { vorname: Anna, nachname: Beispiel }
+      - boundedContext: naturheilpraxis
+        event: patient-aufgenommen
+        data:
+          patientennummer: 4
+          praxiskuerzel: NHP
+          aufnahmejahr: 2026
+          geburtsdatum: "1990-05-06"
+          name: { vorname: Paul, nachname: Beispiel }
+      - boundedContext: naturheilpraxis
+        event: leistung-erbracht
+        data:
+          leistungId: aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa
+          praxiskuerzel: NHP
+          patientennummer: 1
+          datum: "2026-09-21"
+          ziffer: "20.1"
+          bezeichnung: Akupunktur
+          anzahl: 2
+          einzelbetrag: { cents: 1530 }
+      - boundedContext: naturheilpraxis
+        event: leistung-erbracht
+        data:
+          leistungId: bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb
+          praxiskuerzel: NHP
+          patientennummer: 1
+          datum: "2026-09-14"
+          ziffer: "1"
+          bezeichnung: Eingehende Untersuchung
+          anzahl: 1
+          einzelbetrag: { cents: 2050 }
+      - boundedContext: naturheilpraxis
+        event: leistung-erbracht
+        data:
+          leistungId: cccccccc-cccc-4ccc-8ccc-cccccccccccc
+          praxiskuerzel: NHP
+          patientennummer: 2
+          datum: "2026-09-20"
+          ziffer: "4"
+          bezeichnung: Kurze Information
+          anzahl: 1
+          einzelbetrag: { cents: 820 }
+      - boundedContext: naturheilpraxis
+        event: leistung-erbracht
+        data:
+          leistungId: dddddddd-dddd-4ddd-8ddd-dddddddddddd
+          praxiskuerzel: NHP
+          patientennummer: 2
+          datum: "2026-09-15"
+          ziffer: "5"
+          bezeichnung: Beratung
+          anzahl: 1
+          einzelbetrag: { cents: 2050 }
+      - boundedContext: naturheilpraxis
+        event: leistung-erbracht
+        data:
+          leistungId: eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee
+          praxiskuerzel: ABC
+          patientennummer: 3
+          datum: "2026-09-22"
+          ziffer: "5"
+          bezeichnung: Beratung
+          anzahl: 1
+          einzelbetrag: { cents: 5110 }
+      - boundedContext: naturheilpraxis
+        event: leistung-erbracht
+        data:
+          leistungId: ffffffff-ffff-4fff-8fff-ffffffffffff
+          praxiskuerzel: NHP
+          patientennummer: 4
+          datum: "2026-09-23"
+          ziffer: "5"
+          bezeichnung: Beratung
+          anzahl: 1
+          einzelbetrag: { cents: 2050 }
+      - boundedContext: naturheilpraxis
+        event: rechnung-erstellt
+        data:
+          rechnungId: 55555555-5555-4555-8555-555555555555
+          praxiskuerzel: NHP
+          patientennummer: 2
+          diagnosetext: Chronische Rückenschmerzen
+          rechnungstext: Bitte überweisen Sie den Betrag innerhalb von 14 Tagen.
+          leistungen: [dddddddd-dddd-4ddd-8ddd-dddddddddddd]
+      - boundedContext: naturheilpraxis
+        event: rechnung-erstellt
+        data:
+          rechnungId: 66666666-6666-4666-8666-666666666666
+          praxiskuerzel: NHP
+          patientennummer: 4
+          diagnosetext: Chronische Rückenschmerzen
+          rechnungstext: Bitte überweisen Sie den Betrag innerhalb von 14 Tagen.
+          leistungen: [ffffffff-ffff-4fff-8fff-ffffffffffff]
+    when:
+      query: patienten-mit-nicht-abgerechneten-leistungen-ermitteln
+      parameters: {}
+    then:
+      result:
+        - patientennummer: 3
+          praxiskuerzel: ABC
+          name: { vorname: Anna, nachname: Beispiel }
+          anzahl: 1
+          betrag: { cents: 5110 }
+          seit: "2026-09-22"
+        - patientennummer: 1
+          praxiskuerzel: NHP
+          name: { vorname: Max, nachname: Mustermann }
+          anzahl: 2
+          betrag: { cents: 5110 }
+          seit: "2026-09-14"
+        - patientennummer: 2
+          praxiskuerzel: NHP
+          name: { vorname: Erika, nachname: Mustermann }
+          anzahl: 1
+          betrag: { cents: 820 }
+          seit: "2026-09-20"
