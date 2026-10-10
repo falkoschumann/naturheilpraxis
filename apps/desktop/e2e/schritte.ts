@@ -89,3 +89,64 @@ export async function erbringeLeistung(window: Page) {
   await expect(tag.getByText("Eingehende Untersuchung")).toBeVisible();
   await expect(tag.getByText("Summe 20,50 €")).toBeVisible();
 }
+
+export async function erstelleRechnung(window: Page) {
+  await window.getByRole("button", { name: "Rechnung erstellen" }).click();
+  const dialog = window.getByRole("dialog", {
+    name: "Rechnung erstellen für Max Mustermann",
+  });
+  await expect(dialog.getByLabel("Diagnosetext auf der Rechnung")).toHaveValue(
+    "Chronische Rückenschmerzen",
+  );
+  await expect(dialog.getByLabel("Rechnungstext")).toHaveValue(
+    "Bitte überweisen Sie den Betrag innerhalb von 14 Tagen.",
+  );
+  await expect(
+    dialog.getByRole("checkbox", {
+      name: "Eingehende Untersuchung vom 14.09.2026",
+    }),
+  ).toBeChecked();
+  await dialog.getByRole("button", { name: "Entwurf erstellen" }).click();
+
+  await expect(
+    window.getByRole("heading", { level: 1, name: "Rechnungsentwurf" }),
+  ).toBeVisible();
+  const rechnung = window.getByRole("article", { name: "Rechnung" });
+  await expect(
+    rechnung.getByRole("row", { name: /Eingehende Untersuchung/ }),
+  ).toBeVisible();
+  await expect(rechnung.getByText("Chronische Rückenschmerzen")).toBeVisible();
+}
+
+export async function versendeRechnung(window: Page) {
+  await window.getByRole("button", { name: "Versenden" }).click();
+  await window
+    .getByRole("dialog", { name: "Rechnung versenden?" })
+    .getByRole("button", { name: "Versenden" })
+    .click();
+
+  // The Rechnungsnummer consists of Patientennummer and today's date.
+  await expect(
+    window.getByRole("heading", { level: 1, name: /^Rechnung 1\/\d{6}$/ }),
+  ).toBeVisible();
+  await expect(
+    window.getByText(/^Die Rechnung 1\/\d{6} wurde als versendet markiert\.$/),
+  ).toBeVisible();
+  await expect(window.getByRole("button", { name: "Drucken" })).toBeVisible();
+}
+
+export async function erfasseZahlung(window: Page) {
+  await window.getByRole("button", { name: "Zahlung erfassen" }).click();
+
+  await expect(
+    window.getByText(
+      /^Der Zahlungseingang für Rechnung 1\/\d{6} wurde erfasst\.$/,
+    ),
+  ).toBeVisible();
+  const fortschritt = window.getByRole("list", {
+    name: "Fortschritt der Rechnung",
+  });
+  await expect(
+    fortschritt.getByRole("listitem").filter({ hasText: "Bezahlt" }),
+  ).toHaveAttribute("aria-current", "step");
+}
