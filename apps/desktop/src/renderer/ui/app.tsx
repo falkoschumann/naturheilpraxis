@@ -1,7 +1,9 @@
 // Copyright (c) 2026 Falko Schumann. MIT license.
 
+import { useEffect, useState } from "react";
 import { HashRouter, Navigate, Route, Routes } from "react-router";
 
+import type { DatabaseApi, DatabaseStatus } from "../../shared/application/database-api.ts";
 import type { NaturheilpraxisApi } from "../../shared/application/naturheilpraxis-api.ts";
 import { MainLayout } from "./layouts/main-layout.tsx";
 import { AbrechnungPage } from "./pages/abrechnung-page.tsx";
@@ -10,8 +12,39 @@ import { PatientPage } from "./pages/patient-page.tsx";
 import { PatientenPage } from "./pages/patienten-page.tsx";
 import { PraxenPage } from "./pages/praxen-page.tsx";
 import { RechnungPage } from "./pages/rechnung-page.tsx";
+import { StartPage } from "./pages/start-page.tsx";
 
-export function App({ api }: { api: NaturheilpraxisApi }) {
+// Without an open database the start page asks for one.
+export function App({ api, database }: { api: NaturheilpraxisApi; database: DatabaseApi }) {
+  const [status, setStatus] = useState<DatabaseStatus>();
+
+  useEffect(() => {
+    let aktuell = true;
+    database.getStatus().then(
+      (status) => {
+        if (aktuell) {
+          setStatus(status);
+        }
+      },
+      () => {
+        if (aktuell) {
+          setStatus({
+            errorMessage: "Die Datenbank konnte nicht ermittelt werden. Bitte starten Sie die Anwendung neu.",
+          });
+        }
+      },
+    );
+    return () => {
+      aktuell = false;
+    };
+  }, [database]);
+
+  if (status === undefined) {
+    return null;
+  }
+  if (status.filename === undefined) {
+    return <StartPage database={database} status={status} onOpened={setStatus} />;
+  }
   return (
     <HashRouter>
       <Routes>

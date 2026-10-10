@@ -3,6 +3,7 @@
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+import { DatabaseSync } from "node:sqlite";
 
 import { describe, expect, it } from "vitest";
 
@@ -114,7 +115,7 @@ describe("Event Store", () => {
       writer.append([createPraxisAngelegt("NHP")]);
       writer.close();
 
-      const reader = SqliteEventStore.create(filename);
+      const reader = SqliteEventStore.open(filename);
       const events = reader.query();
       reader.close();
 
@@ -123,7 +124,63 @@ describe("Event Store", () => {
       await fs.rm(directory, { recursive: true, force: true });
     }
   });
+
+  describe("Öffnen", () => {
+    it("sollte eine fehlende Datei nicht anlegen", async () => {
+      await withTemporaryDirectory(async (directory) => {
+        const filename = path.join(directory, "fehlt.db");
+
+        expect(() => SqliteEventStore.open(filename)).toThrow(/does not exist/);
+
+        await expect(fs.access(filename)).rejects.toThrow();
+      });
+    });
+
+    it("sollte eine Datei ablehnen, die keine Datenbank ist", async () => {
+      await withTemporaryDirectory(async (directory) => {
+        const filename = path.join(directory, "notiz.txt");
+        await fs.writeFile(filename, "Keine Datenbank");
+
+        expect(() => SqliteEventStore.open(filename)).toThrow(
+          /is not an event store/,
+        );
+      });
+    });
+
+    it("sollte eine fremde Datenbank ablehnen und nicht verändern", async () => {
+      await withTemporaryDirectory(async (directory) => {
+        const filename = path.join(directory, "fremd.db");
+        const fremd = new DatabaseSync(filename);
+        fremd.exec("CREATE TABLE kunden (name TEXT)");
+        fremd.close();
+
+        expect(() => SqliteEventStore.open(filename)).toThrow(
+          /is not an event store/,
+        );
+
+        const pruefung = new DatabaseSync(filename);
+        const tabellen = pruefung
+          .prepare("SELECT name FROM sqlite_master WHERE type = 'table'")
+          .all();
+        pruefung.close();
+        expect(tabellen).toEqual([{ name: "kunden" }]);
+      });
+    });
+  });
 });
+
+async function withTemporaryDirectory(
+  action: (directory: string) => Promise<void>,
+): Promise<void> {
+  const directory = await fs.mkdtemp(
+    path.join(os.tmpdir(), "naturheilpraxis-test-"),
+  );
+  try {
+    await action(directory);
+  } finally {
+    await fs.rm(directory, { recursive: true, force: true });
+  }
+}
 
 function createPraxisAngelegt(praxiskuerzel: string): DomainEvent {
   return {

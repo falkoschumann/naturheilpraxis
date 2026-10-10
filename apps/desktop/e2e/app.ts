@@ -33,13 +33,8 @@ export const test = base.extend<AppFixtures>({
   // Playwright requires the fixtures to be destructured, even when none is used.
   // eslint-disable-next-line no-empty-pattern
   app: async ({}, provide) => {
-    const userDataDirectory = await fs.mkdtemp(
-      path.join(os.tmpdir(), "naturheilpraxis-e2e-"),
-    );
-    const app = await electron.launch({
-      args: [appDirectory, `--user-data-dir=${userDataDirectory}`],
-      env: createEnvironment(),
-    });
+    const userDataDirectory = await createUserDataDirectory();
+    const app = await launchApp(userDataDirectory);
     try {
       await provide(app);
     } finally {
@@ -54,6 +49,16 @@ export const test = base.extend<AppFixtures>({
       await window.coverage.startJSCoverage({ resetOnNavigation: false });
       await window.reload();
     }
+    // Each test starts with a new database next to the user data.
+    const userDataDirectory = await app.evaluate(({ app }) =>
+      app.getPath("userData"),
+    );
+    await chooseFiles(app, {
+      newDatabase: path.join(userDataDirectory, "naturheilpraxis.db"),
+    });
+    await window
+      .getByRole("button", { name: "Neue Datenbank anlegen…" })
+      .click();
     await window.getByRole("navigation", { name: "Hauptnavigation" }).waitFor();
     await provide(window);
     if (coverageEnabled) {
@@ -61,6 +66,65 @@ export const test = base.extend<AppFixtures>({
     }
   },
 });
+
+export async function createUserDataDirectory(): Promise<string> {
+  return fs.mkdtemp(path.join(os.tmpdir(), "naturheilpraxis-e2e-"));
+}
+
+// Starts the built app with the given user data directory.
+export async function launchApp(
+  userDataDirectory: string,
+): Promise<ElectronApplication> {
+  return electron.launch({
+    args: [appDirectory, `--user-data-dir=${userDataDirectory}`],
+    env: createEnvironment(),
+  });
+}
+
+// Answers the next file dialogs of the system like a user who chooses the
+// given files. The dialogs cannot be operated by Playwright.
+export async function chooseFiles(
+  app: ElectronApplication,
+  {
+    newDatabase,
+    existingDatabase,
+  }: { newDatabase?: string; existingDatabase?: string },
+): Promise<void> {
+  await app.evaluate(
+    ({ dialog }, { newDatabase, existingDatabase }) => {
+      if (newDatabase !== undefined) {
+        dialog.showSaveDialog = () =>
+          Promise.resolve({ canceled: false, filePath: newDatabase });
+      }
+      if (existingDatabase !== undefined) {
+        dialog.showOpenDialog = () =>
+          Promise.resolve({ canceled: false, filePaths: [existingDatabase] });
+      }
+    },
+    { newDatabase, existingDatabase },
+  );
+}
+
+// Clicks an item of the application menu, like the user does.
+export async function clickMenuItem(
+  app: ElectronApplication,
+  id: string,
+): Promise<void> {
+  await app.evaluate(({ Menu }, id) => {
+    const item = Menu.getApplicationMenu()?.getMenuItemById(id);
+    if (item === null || item === undefined) {
+      throw new Error(`The menu has no item ${id}.`);
+    }
+    item.click();
+  }, id);
+}
+
+// The title of the window names the open database.
+export async function windowTitle(app: ElectronApplication): Promise<string> {
+  return app.evaluate(
+    ({ BrowserWindow }) => BrowserWindow.getAllWindows()[0]?.getTitle() ?? "",
+  );
+}
 
 export { expect } from "@playwright/test";
 

@@ -1,0 +1,98 @@
+# $schema: ../schemas/domain-storytelling/v1.yaml
+apiVersion: schema.esdm.io/domain-storytelling/v1
+kind: domain-story
+name: datenbank-auswaehlen
+description: >-
+  Ergänzt den Standardablauf: Der Heilpraktiker wählt, in welcher Datenbank die Anwendung die Daten
+  speichert, zum Beispiel auf einem Netzlaufwerk.
+scope:
+  domain: naturheilpraxis
+pointInTime: as-is
+granularity: coarse-grained
+domainPurity: digitalized
+actors:
+  - name: heilpraktiker
+  - name: anwendung
+    annotation: >-
+      Die Anwendung Naturheilpraxis merkt sich die zuletzt geöffnete Datenbank.
+sentences:
+  - sequenceNumber: 1
+    workObjects:
+      - name: datenbank
+        annotation: >-
+          Beim ersten Start fragt die Anwendung nach der Datenbank.
+    edges:
+      - from:
+          actor: heilpraktiker
+        to:
+          workObject: datenbank
+        label: legt an
+  - sequenceNumber: 2
+    edges:
+      - from:
+          actor: heilpraktiker
+        to:
+          workObject: praxis
+        label: legt an
+      - from:
+          workObject: praxis
+        to:
+          workObject: datenbank
+        label: in
+  - sequenceNumber: 3
+    workObjects:
+      - name: datenbank
+        annotation: >-
+          Bei jedem weiteren Start.
+    edges:
+      - from:
+          actor: anwendung
+        to:
+          workObject: datenbank
+        label: öffnet zuletzt geöffnete
+  - sequenceNumber: 4
+    workObjects:
+      - name: datenbank
+        annotation: >-
+          Über das Menü „Datei“, unter macOS „Ablage“. Die Anwendung zeigt die leere Datenbank.
+    edges:
+      - from:
+          actor: heilpraktiker
+        to:
+          workObject: datenbank
+        label: legt weitere an
+  - sequenceNumber: 5
+    workObjects:
+      - name: datenbank
+        annotation: >-
+          Über das Menü „Datei“, unter macOS „Ablage“. Die Anwendung zeigt wieder die angelegte
+          Praxis.
+    edges:
+      - from:
+          actor: heilpraktiker
+        to:
+          workObject: datenbank
+        label: öffnet vorhandene
+  - sequenceNumber: 6
+    workObjects:
+      - name: datenbank
+        annotation: >-
+          Beim Start ist das Netzlaufwerk nicht verbunden. Die Anwendung nennt die fehlende
+          Datenbank.
+    edges:
+      - from:
+          actor: anwendung
+        to:
+          workObject: datenbank
+        label: findet nicht
+  - sequenceNumber: 7
+    workObjects:
+      - name: datenbank
+        annotation: >-
+          Nachdem er das Netzlaufwerk verbunden hat.
+    edges:
+      - from:
+          actor: heilpraktiker
+        to:
+          workObject: datenbank
+        label: öffnet erneut

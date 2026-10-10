@@ -64,7 +64,7 @@ Jeder Eintrag beginnt mit einer Kategorie:
       Praxiskürzel oder der Versand ohne Anschrift. Steigt dadurch die Abdeckung
       von Main-Prozess und Preload, die Schwelle in
       `apps/desktop/e2e/coverage.ts` (derzeit 70 %) anheben.
-- [ ] **Funktionalität** Speicherort der Datenbank mit dem Event Store
+- [x] **Funktionalität** Speicherort der Datenbank mit dem Event Store
       auswählen. Beim ersten Öffnen der App fragt sie den Speicherort ab, danach
       öffnet sie den zuletzt verwendeten. Nach dem Start kann der Nutzer einen
       anderen Speicherort auswählen.

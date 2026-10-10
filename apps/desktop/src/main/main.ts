@@ -2,10 +2,20 @@
 
 import path from "node:path";
 
-import { app, BrowserWindow, ipcMain } from "electron";
+import {
+  app,
+  BrowserWindow,
+  dialog,
+  ipcMain,
+  Menu,
+  type MenuItemConstructorOptions,
+} from "electron";
 
-import { NaturheilpraxisService } from "./application/naturheilpraxis-service.ts";
-import { SqliteEventStore } from "./infrastructure/event-store.ts";
+import { DatabaseService } from "./application/database-service.ts";
+import type { NaturheilpraxisService } from "./application/naturheilpraxis-service.ts";
+import type { DatabaseStatus } from "../shared/application/database-api.ts";
+import { ElectronFileDialog } from "./infrastructure/file-dialog.ts";
+import { JsonSettingsStore } from "./infrastructure/settings-store.ts";
 
 // The development runner serves the renderer with HMR and announces its URL.
 // Without it the window loads the files built next to this script.
@@ -14,6 +24,14 @@ const devServerUrl = process.env["VITE_DEV_SERVER_URL"];
 // The app path is the directory with the package.json, in the packaged app the
 // root of the archive.
 const appPath = app.getAppPath();
+
+const database = new DatabaseService({
+  settingsStore: new JsonSettingsStore(
+    path.join(app.getPath("userData"), "settings.json"),
+  ),
+  fileDialog: new ElectronFileDialog(),
+  defaultDatabase: path.join(app.getPath("userData"), "naturheilpraxis.db"),
+});
 
 function createMainWindow(): void {
   const window = new BrowserWindow({
@@ -28,6 +46,10 @@ function createMainWindow(): void {
   // Showing the window only when it is painted avoids a white flash.
   window.once("ready-to-show", () => window.show());
 
+  // The title names the open database instead of the title of the page.
+  window.on("page-title-updated", (event) => event.preventDefault());
+  showDatabase(window);
+
   if (devServerUrl === undefined) {
     void window.loadFile(path.join(appPath, "build", "renderer", "index.html"));
   } else {
@@ -36,103 +58,195 @@ function createMainWindow(): void {
 }
 
 // The renderer sends each command and query on the channel named after its
-// type, see NaturheilpraxisApi.
-function handleMessages(service: NaturheilpraxisService): void {
+// type, see NaturheilpraxisApi. They go to the open database.
+function handleMessages(naturheilpraxis: () => NaturheilpraxisService): void {
   ipcMain.handle("praxis-anlegen", (_event, command) =>
-    service.praxisAnlegen(command),
+    naturheilpraxis().praxisAnlegen(command),
   );
   ipcMain.handle("praxisdaten-aendern", (_event, command) =>
-    service.praxisdatenAendern(command),
+    naturheilpraxis().praxisdatenAendern(command),
   );
   ipcMain.handle("praxen-ermitteln", (_event, query) =>
-    service.praxenErmitteln(query),
+    naturheilpraxis().praxenErmitteln(query),
   );
   ipcMain.handle("praxis-ermitteln", (_event, query) =>
-    service.praxisErmitteln(query),
+    naturheilpraxis().praxisErmitteln(query),
   );
   ipcMain.handle("gebuehr-anlegen", (_event, command) =>
-    service.gebuehrAnlegen(command),
+    naturheilpraxis().gebuehrAnlegen(command),
   );
   ipcMain.handle("gebuehr-aendern", (_event, command) =>
-    service.gebuehrAendern(command),
+    naturheilpraxis().gebuehrAendern(command),
   );
   ipcMain.handle("gebuehr-entfernen", (_event, command) =>
-    service.gebuehrEntfernen(command),
+    naturheilpraxis().gebuehrEntfernen(command),
   );
   ipcMain.handle("gebuehren-ermitteln", (_event, query) =>
-    service.gebuehrenErmitteln(query),
+    naturheilpraxis().gebuehrenErmitteln(query),
   );
   ipcMain.handle("patient-aufnehmen", (_event, command) =>
-    service.patientAufnehmen(command),
+    naturheilpraxis().patientAufnehmen(command),
   );
   ipcMain.handle("patientendaten-aendern", (_event, command) =>
-    service.patientendatenAendern(command),
+    naturheilpraxis().patientendatenAendern(command),
   );
   ipcMain.handle("patienten-ermitteln", (_event, query) =>
-    service.patientenErmitteln(query),
+    naturheilpraxis().patientenErmitteln(query),
   );
   ipcMain.handle("patient-ermitteln", (_event, query) =>
-    service.patientErmitteln(query),
+    naturheilpraxis().patientErmitteln(query),
   );
   ipcMain.handle("diagnose-stellen", (_event, command) =>
-    service.diagnoseStellen(command),
+    naturheilpraxis().diagnoseStellen(command),
   );
   ipcMain.handle("diagnose-aendern", (_event, command) =>
-    service.diagnoseAendern(command),
+    naturheilpraxis().diagnoseAendern(command),
   );
   ipcMain.handle("diagnose-loeschen", (_event, command) =>
-    service.diagnoseLoeschen(command),
+    naturheilpraxis().diagnoseLoeschen(command),
   );
   ipcMain.handle("behandlungen-ermitteln", (_event, query) =>
-    service.behandlungenErmitteln(query),
+    naturheilpraxis().behandlungenErmitteln(query),
   );
   ipcMain.handle("diagnosen-ermitteln", (_event, query) =>
-    service.diagnosenErmitteln(query),
+    naturheilpraxis().diagnosenErmitteln(query),
   );
   ipcMain.handle("leistung-erbringen", (_event, command) =>
-    service.leistungErbringen(command),
+    naturheilpraxis().leistungErbringen(command),
   );
   ipcMain.handle("leistung-aendern", (_event, command) =>
-    service.leistungAendern(command),
+    naturheilpraxis().leistungAendern(command),
   );
   ipcMain.handle("leistung-loeschen", (_event, command) =>
-    service.leistungLoeschen(command),
+    naturheilpraxis().leistungLoeschen(command),
   );
   ipcMain.handle("rechnung-erstellen", (_event, command) =>
-    service.rechnungErstellen(command),
+    naturheilpraxis().rechnungErstellen(command),
   );
   ipcMain.handle("rechnung-aendern", (_event, command) =>
-    service.rechnungAendern(command),
+    naturheilpraxis().rechnungAendern(command),
   );
   ipcMain.handle("entwurf-loeschen", (_event, command) =>
-    service.entwurfLoeschen(command),
+    naturheilpraxis().entwurfLoeschen(command),
   );
   ipcMain.handle("nicht-abgerechnete-leistungen-ermitteln", (_event, query) =>
-    service.nichtAbgerechneteLeistungenErmitteln(query),
+    naturheilpraxis().nichtAbgerechneteLeistungenErmitteln(query),
   );
   ipcMain.handle("rechnungen-ermitteln", (_event, query) =>
-    service.rechnungenErmitteln(query),
+    naturheilpraxis().rechnungenErmitteln(query),
   );
   ipcMain.handle("kennzahlen-ermitteln", (_event, query) =>
-    service.kennzahlenErmitteln(query),
+    naturheilpraxis().kennzahlenErmitteln(query),
   );
   ipcMain.handle(
     "patienten-mit-nicht-abgerechneten-leistungen-ermitteln",
     (_event, query) =>
-      service.patientenMitNichtAbgerechnetenLeistungenErmitteln(query),
+      naturheilpraxis().patientenMitNichtAbgerechnetenLeistungenErmitteln(
+        query,
+      ),
   );
   ipcMain.handle("rechnung-ermitteln", (_event, query) =>
-    service.rechnungErmitteln(query),
+    naturheilpraxis().rechnungErmitteln(query),
   );
   ipcMain.handle("rechnung-versenden", (_event, command) =>
-    service.rechnungVersenden(command),
+    naturheilpraxis().rechnungVersenden(command),
   );
   ipcMain.handle("rechnung-zurueckstufen", (_event, command) =>
-    service.rechnungZurueckstufen(command),
+    naturheilpraxis().rechnungZurueckstufen(command),
   );
   ipcMain.handle("zahlung-erfassen", (_event, command) =>
-    service.zahlungErfassen(command),
+    naturheilpraxis().zahlungErfassen(command),
   );
+}
+
+// The renderer chooses the database on the channels of DatabaseApi.
+function handleDatabaseMessages(): void {
+  ipcMain.handle("get-database-status", () => database.getStatus());
+  ipcMain.handle("create-database", () => database.createDatabase());
+  ipcMain.handle("open-database", () => database.openDatabase());
+  ipcMain.handle("reopen-database", () => database.reopenDatabase());
+}
+
+// A database chosen from the menu replaces the open one, so the windows are
+// reloaded to show its data. A failure keeps the open database.
+async function switchDatabase(
+  choose: () => Promise<DatabaseStatus>,
+): Promise<void> {
+  const before = database.getStatus().filename;
+  const status = await choose();
+  const window = BrowserWindow.getFocusedWindow();
+  if (status.errorMessage !== undefined) {
+    const options: Electron.MessageBoxOptions = {
+      type: "error",
+      message: "Die Datenbank konnte nicht geöffnet werden.",
+      detail: status.errorMessage,
+    };
+    await (window === null
+      ? dialog.showMessageBox(options)
+      : dialog.showMessageBox(window, options));
+    return;
+  }
+  if (status.filename !== before) {
+    BrowserWindow.getAllWindows().forEach((window) => window.reload());
+  }
+}
+
+function createMenu(): void {
+  const isMac = process.platform === "darwin";
+  const recent: MenuItemConstructorOptions[] = database.recentDatabases.map(
+    (filename) => ({
+      label: filename,
+      click: () => void switchDatabase(() => database.openDatabase(filename)),
+    }),
+  );
+  const template: MenuItemConstructorOptions[] = [
+    ...(isMac ? [{ role: "appMenu" } as const] : []),
+    {
+      // The menu is named like the file menu of the system.
+      label: isMac ? "Ablage" : "Datei",
+      submenu: [
+        {
+          id: "create-database",
+          label: "Neue Datenbank…",
+          accelerator: "CmdOrCtrl+Shift+N",
+          click: () => void switchDatabase(() => database.createDatabase()),
+        },
+        {
+          id: "open-database",
+          label: "Datenbank öffnen…",
+          accelerator: "CmdOrCtrl+O",
+          click: () => void switchDatabase(() => database.openDatabase()),
+        },
+        {
+          label: "Zuletzt geöffnet",
+          submenu:
+            recent.length > 0
+              ? recent
+              : [{ label: "Keine Datenbanken", enabled: false }],
+        },
+        { type: "separator" },
+        isMac ? { role: "close" } : { role: "quit" },
+      ],
+    },
+    { role: "editMenu" },
+    { role: "viewMenu" },
+    { role: "windowMenu" },
+  ];
+  Menu.setApplicationMenu(Menu.buildFromTemplate(template));
+}
+
+// Shows the open database in the title of the window and, on macOS, as the
+// document of the window.
+function showDatabase(window: BrowserWindow): void {
+  const { filename } = database.getStatus();
+  window.setTitle(
+    filename === undefined
+      ? "Naturheilpraxis"
+      : `${path.basename(filename)} – Naturheilpraxis`,
+  );
+  if (process.platform === "darwin") {
+    window.setRepresentedFilename(filename ?? "");
+  }
 }
 
 app.on("window-all-closed", () => {
@@ -150,10 +264,14 @@ app.on("activate", () => {
 });
 
 void app.whenReady().then(() => {
-  const eventStore = SqliteEventStore.create(
-    path.join(app.getPath("userData"), "naturheilpraxis.db"),
-  );
-  app.on("will-quit", () => eventStore.close());
-  handleMessages(new NaturheilpraxisService(eventStore));
+  database.onOpened(() => {
+    createMenu();
+    BrowserWindow.getAllWindows().forEach(showDatabase);
+  });
+  database.start();
+  app.on("will-quit", () => database.close());
+  createMenu();
+  handleMessages(() => database.naturheilpraxis);
+  handleDatabaseMessages();
   createMainWindow();
 });

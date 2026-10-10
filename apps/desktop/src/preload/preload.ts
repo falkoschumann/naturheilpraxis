@@ -5,6 +5,7 @@
 
 import { contextBridge, ipcRenderer } from "electron";
 
+import type { DatabaseApi } from "../shared/application/database-api.ts";
 import type { NaturheilpraxisApi } from "../shared/application/naturheilpraxis-api.ts";
 
 const api: NaturheilpraxisApi = {
@@ -43,4 +44,12 @@ const api: NaturheilpraxisApi = {
   zahlungErfassen: (command) => ipcRenderer.invoke(command.type, command),
 };
 
+const database: DatabaseApi = {
+  getStatus: () => ipcRenderer.invoke("get-database-status"),
+  createDatabase: () => ipcRenderer.invoke("create-database"),
+  openDatabase: () => ipcRenderer.invoke("open-database"),
+  reopenDatabase: () => ipcRenderer.invoke("reopen-database"),
+};
+
 contextBridge.exposeInMainWorld("naturheilpraxis", api);
+contextBridge.exposeInMainWorld("database", database);

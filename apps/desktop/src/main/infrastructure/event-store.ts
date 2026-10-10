@@ -1,5 +1,6 @@
 // Copyright (c) 2026 Falko Schumann. MIT license.
 
+import fs from "node:fs";
 import { DatabaseSync, type SQLOutputValue } from "node:sqlite";
 
 import {
@@ -27,6 +28,32 @@ export interface EventStore {
 export class SqliteEventStore implements EventStore {
   static create(filename: string): SqliteEventStore {
     return new SqliteEventStore(new DatabaseSync(filename));
+  }
+
+  // Opens an existing event store. Neither creates a missing file nor changes a
+  // file that is not an event store.
+  static open(filename: string): SqliteEventStore {
+    if (!fs.existsSync(filename)) {
+      throw new Error(`The file ${filename} does not exist.`);
+    }
+
+    const database = new DatabaseSync(filename);
+    let isEventStore: boolean;
+    try {
+      isEventStore =
+        database
+          .prepare(
+            "SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'events'",
+          )
+          .get() !== undefined;
+    } catch {
+      isEventStore = false;
+    }
+    if (!isEventStore) {
+      database.close();
+      throw new Error(`The file ${filename} is not an event store.`);
+    }
+    return new SqliteEventStore(database);
   }
 
   static createInMemory(): SqliteEventStore {
