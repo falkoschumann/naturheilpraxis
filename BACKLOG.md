@@ -64,3 +64,6 @@ Jeder Eintrag beginnt mit einer Kategorie:
       Praxiskürzel oder der Versand ohne Anschrift. Steigt dadurch die Abdeckung
       von Main-Prozess und Preload, die Schwelle in
       `apps/desktop/e2e/coverage.ts` (derzeit 70 %) anheben.
+- [ ] Wähle Speicherort der Datenbankdatei aus.
+- [ ] Bearbeite Template der Rechnung.
+- [ ] Erstelle e-Rechnung.
