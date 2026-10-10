@@ -8,6 +8,7 @@ export const config: SheriffConfig = {
   ...components,
   entryPoints: {
     main: "src/main/main.ts",
+    migrate: "src/main/migrate.ts",
     preload: "src/preload/preload.ts",
     renderer: "src/renderer/main.tsx",
   },
