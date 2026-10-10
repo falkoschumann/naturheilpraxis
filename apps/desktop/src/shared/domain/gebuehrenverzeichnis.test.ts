@@ -90,19 +90,22 @@ describe("Gebührenverzeichnis", () => {
     expect(result).toEqual({ ok: true, value: [] });
   });
 
-  // The model leaves out rules that follow from identity, but the code must
-  // keep the Ziffer unique.
   it("sollte Gebühr nicht anlegen, wenn die Ziffer bereits vergeben ist", () => {
     const state = evolveAll(initialState, [createGebuehrAngelegt()]);
 
     const result = decide(state, {
       type: "gebuehr-anlegen",
-      data: createGebuehrAngelegt().data,
+      data: {
+        ziffer: "1",
+        bezeichnung: "Kurze Untersuchung",
+        betrag: { cents: 1200 },
+      },
     });
 
     expect(result).toEqual({
       ok: false,
       error: {
+        invariant: "ziffer-nicht-vergeben",
         message:
           "Die Ziffer „1“ ist bereits im Gebührenverzeichnis enthalten. Bitte wählen Sie eine andere Ziffer.",
       },
@@ -117,10 +120,26 @@ describe("Gebührenverzeichnis", () => {
 
     const result = decide(state, {
       type: "gebuehr-anlegen",
-      data: createGebuehrAngelegt().data,
+      data: {
+        ziffer: "1",
+        bezeichnung: "Kurze Untersuchung",
+        betrag: { cents: 1200 },
+      },
     });
 
-    expect(result).toEqual({ ok: true, value: [createGebuehrAngelegt()] });
+    expect(result).toEqual({
+      ok: true,
+      value: [
+        {
+          type: "gebuehr-angelegt",
+          data: {
+            ziffer: "1",
+            bezeichnung: "Kurze Untersuchung",
+            betrag: { cents: 1200 },
+          },
+        },
+      ],
+    });
   });
 
   it("sollte Gebühr nicht ändern, wenn sie nicht im Gebührenverzeichnis enthalten ist", () => {
@@ -128,12 +147,17 @@ describe("Gebührenverzeichnis", () => {
 
     const result = decide(state, {
       type: "gebuehr-aendern",
-      data: createGebuehrAngelegt().data,
+      data: {
+        ziffer: "1",
+        bezeichnung: "Eingehende Untersuchung",
+        betrag: { cents: 2300 },
+      },
     });
 
     expect(result).toEqual({
       ok: false,
       error: {
+        invariant: "gebuehr-enthalten",
         message:
           "Die Ziffer „1“ ist nicht im Gebührenverzeichnis enthalten. Bitte legen Sie die Gebühr zuerst an.",
       },

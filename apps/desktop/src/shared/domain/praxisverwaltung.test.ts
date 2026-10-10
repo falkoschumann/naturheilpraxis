@@ -101,13 +101,19 @@ describe("Praxisverwaltung", () => {
     });
   });
 
-  // The model leaves out rules that follow from identity, but the code must
-  // keep the Praxiskürzel unique.
   it("sollte Praxis nicht anlegen, wenn das Kürzel bereits vergeben ist", () => {
     const state = evolveAll(initialState, [createPraxisAngelegt()]);
     const command: PraxisAnlegenCommand = {
       type: "praxis-anlegen",
-      data: createPraxisAngelegt().data,
+      data: {
+        praxiskuerzel: "NHP",
+        name: "Naturheilpraxis am Bahnhof",
+        anschrift: {
+          strasse: "Bahnhofstraße 7",
+          postleitzahl: "12345",
+          ort: "Musterstadt",
+        },
+      },
     };
 
     const result = decide(state, command);
@@ -115,6 +121,7 @@ describe("Praxisverwaltung", () => {
     expect(result).toEqual({
       ok: false,
       error: {
+        invariant: "kuerzel-nicht-vergeben",
         message:
           "Eine Praxis mit dem Kürzel „NHP“ ist bereits angelegt. Bitte wählen Sie ein anderes Kürzel.",
       },
@@ -125,7 +132,15 @@ describe("Praxisverwaltung", () => {
     const state = evolveAll(initialState, []);
     const command: PraxisdatenAendernCommand = {
       type: "praxisdaten-aendern",
-      data: createPraxisAngelegt().data,
+      data: {
+        praxiskuerzel: "NHP",
+        name: "Naturheilpraxis am Markt",
+        anschrift: {
+          strasse: "Bahnhofstraße 7",
+          postleitzahl: "12345",
+          ort: "Musterstadt",
+        },
+      },
     };
 
     const result = decide(state, command);
@@ -133,6 +148,7 @@ describe("Praxisverwaltung", () => {
     expect(result).toEqual({
       ok: false,
       error: {
+        invariant: "praxis-existiert",
         message:
           "Eine Praxis mit dem Kürzel „NHP“ ist nicht angelegt. Bitte legen Sie die Praxis zuerst an.",
       },

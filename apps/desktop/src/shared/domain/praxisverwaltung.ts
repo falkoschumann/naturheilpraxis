@@ -56,6 +56,7 @@ export function decide(
     case "praxis-anlegen":
       if (state.praxisAngelegt) {
         return fail({
+          invariant: "kuerzel-nicht-vergeben",
           message: `Eine Praxis mit dem Kürzel „${praxiskuerzel}“ ist bereits angelegt. Bitte wählen Sie ein anderes Kürzel.`,
         });
       }
@@ -63,6 +64,7 @@ export function decide(
     case "praxisdaten-aendern":
       if (!state.praxisAngelegt) {
         return fail({
+          invariant: "praxis-existiert",
           message: `Eine Praxis mit dem Kürzel „${praxiskuerzel}“ ist nicht angelegt. Bitte legen Sie die Praxis zuerst an.`,
         });
       }

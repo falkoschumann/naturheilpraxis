@@ -69,6 +69,7 @@ export function decide(
     case "gebuehr-anlegen": {
       if (state.gebuehrEnthalten) {
         return fail({
+          invariant: "ziffer-nicht-vergeben",
           message: `Die Ziffer „${ziffer}“ ist bereits im Gebührenverzeichnis enthalten. Bitte wählen Sie eine andere Ziffer.`,
         });
       }
@@ -81,6 +82,7 @@ export function decide(
     case "gebuehr-aendern": {
       if (!state.gebuehrEnthalten) {
         return fail({
+          invariant: "gebuehr-enthalten",
           message: `Die Ziffer „${ziffer}“ ist nicht im Gebührenverzeichnis enthalten. Bitte legen Sie die Gebühr zuerst an.`,
         });
       }
