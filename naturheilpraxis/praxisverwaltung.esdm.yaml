@@ -19,6 +19,14 @@ consults:
   - boundedContext: naturheilpraxis
     event: praxisdaten-geaendert
     criteria: Das Kürzel ist das gleiche wie im auslösenden Befehl.
+invariants:
+  - name: kuerzel-nicht-vergeben
+    rule: >-
+      Eine Praxis kann nur mit einem Kürzel angelegt werden, unter dem noch keine Praxis angelegt
+      ist.
+  - name: praxis-existiert
+    rule: >-
+      Die Praxisdaten können nur für eine angelegte Praxis geändert werden.
 
 ---
 # $schema: ../schemas/core/v1.yaml

@@ -22,6 +22,14 @@ consults:
   - boundedContext: naturheilpraxis
     event: gebuehr-entfernt
     criteria: Die Ziffer ist die gleiche wie im auslösenden Befehl.
+invariants:
+  - name: ziffer-nicht-vergeben
+    rule: >-
+      Eine Gebühr kann nur mit einer Ziffer angelegt werden, die nicht im Gebührenverzeichnis
+      enthalten ist. Die Ziffer einer entfernten Gebühr kann erneut vergeben werden.
+  - name: gebuehr-enthalten
+    rule: >-
+      Eine Gebühr kann nur geändert werden, wenn sie im Gebührenverzeichnis enthalten ist.
 
 ---
 # $schema: ../schemas/core/v1.yaml

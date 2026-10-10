@@ -73,3 +73,60 @@ scenarios:
         ziffer: "1"
     then:
       events: []
+
+  - name: gebuehr-mit-vergebener-ziffer-anlegen
+    given:
+      - boundedContext: naturheilpraxis
+        event: gebuehr-angelegt
+        data:
+          ziffer: "1"
+          bezeichnung: Eingehende Untersuchung
+          betrag: { cents: 2050 }
+    when:
+      command: gebuehr-anlegen
+      data:
+        ziffer: "1"
+        bezeichnung: Kurze Untersuchung
+        betrag: { cents: 1200 }
+    then:
+      rejection:
+        invariant: ziffer-nicht-vergeben
+
+  - name: entfernte-gebuehr-wieder-anlegen
+    description: Die Ziffer einer entfernten Gebühr kann erneut vergeben werden.
+    given:
+      - boundedContext: naturheilpraxis
+        event: gebuehr-angelegt
+        data:
+          ziffer: "1"
+          bezeichnung: Eingehende Untersuchung
+          betrag: { cents: 2050 }
+      - boundedContext: naturheilpraxis
+        event: gebuehr-entfernt
+        data:
+          ziffer: "1"
+    when:
+      command: gebuehr-anlegen
+      data:
+        ziffer: "1"
+        bezeichnung: Kurze Untersuchung
+        betrag: { cents: 1200 }
+    then:
+      events:
+        - event: gebuehr-angelegt
+          data:
+            ziffer: "1"
+            bezeichnung: Kurze Untersuchung
+            betrag: { cents: 1200 }
+
+  - name: nicht-vorhandene-gebuehr-aendern
+    given: []
+    when:
+      command: gebuehr-aendern
+      data:
+        ziffer: "1"
+        bezeichnung: Eingehende Untersuchung
+        betrag: { cents: 2300 }
+    then:
+      rejection:
+        invariant: gebuehr-enthalten

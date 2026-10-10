@@ -51,3 +51,33 @@ scenarios:
             name: Naturheilpraxis am Markt
             anschrift: { strasse: Bahnhofstraße 7, postleitzahl: "12345", ort: Musterstadt }
             kontakt: { telefon: "0123 987654" }
+
+  - name: praxis-mit-vergebenem-kuerzel-anlegen
+    given:
+      - boundedContext: naturheilpraxis
+        event: praxis-angelegt
+        data:
+          praxiskuerzel: NHP
+          name: Naturheilpraxis am Markt
+          anschrift: { strasse: Marktplatz 1, postleitzahl: "12345", ort: Musterstadt }
+    when:
+      command: praxis-anlegen
+      data:
+        praxiskuerzel: NHP
+        name: Naturheilpraxis am Bahnhof
+        anschrift: { strasse: Bahnhofstraße 7, postleitzahl: "12345", ort: Musterstadt }
+    then:
+      rejection:
+        invariant: kuerzel-nicht-vergeben
+
+  - name: daten-einer-nicht-angelegten-praxis-aendern
+    given: []
+    when:
+      command: praxisdaten-aendern
+      data:
+        praxiskuerzel: NHP
+        name: Naturheilpraxis am Markt
+        anschrift: { strasse: Bahnhofstraße 7, postleitzahl: "12345", ort: Musterstadt }
+    then:
+      rejection:
+        invariant: praxis-existiert
