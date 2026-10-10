@@ -28,7 +28,7 @@ export const mainCoverageDirectory = path.join(
 // Only the end-to-end tests run the code of the main process and the preload,
 // which wires the app together. Its line coverage must not fall below this
 // percentage, so that for example a new IPC channel is not left untested.
-const minimumLineCoverageOfMainProcess = 70;
+const minimumLineCoverageOfMainProcess = 85;
 
 // Only the built code of the app counts, mapped back to its sources.
 const options: CoverageReportOptions = {
