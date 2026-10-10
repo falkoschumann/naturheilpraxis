@@ -68,5 +68,11 @@ Jeder Eintrag beginnt mit einer Kategorie:
       auswählen. Beim ersten Öffnen der App fragt sie den Speicherort ab, danach
       öffnet sie den zuletzt verwendeten. Nach dem Start kann der Nutzer einen
       anderen Speicherort auswählen.
+- [ ] **Sicherheit** Das Fenster der App härten: Content Security Policy in
+      `index.html`, Navigation und neue Fenster sperren und in den IPC-Handlern
+      nur Nachrichten aus dem Hauptframe des eigenen Fensters annehmen.
 - [ ] **Rechnung** Das Aussehen der Rechnung für den Druck ist hart codiert. Der
-      Nutzer soll es selbst anpassen können.
+      Nutzer soll es selbst anpassen können. Umsetzung als HTML/CSS-Vorlage mit
+      Mustache-Platzhaltern: eine mitgelieferte Standardvorlage für alle Praxen,
+      pro Praxis eine eigene Vorlage. Vorschau in einem `iframe` mit `sandbox`,
+      Druck in einem eigenen Fenster ohne JavaScript, Preload und Netzzugriff.
