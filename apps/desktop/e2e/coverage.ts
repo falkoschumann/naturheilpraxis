@@ -30,13 +30,30 @@ export const mainCoverageDirectory = path.join(
 // percentage, so that for example a new IPC channel is not left untested.
 const minimumLineCoverageOfMainProcess = 85;
 
-// Only the built code of the app counts, mapped back to its sources.
+// Only the built code of the app counts, mapped back to its sources. The main
+// process runs it from the directory build, the renderer from the protocol of
+// the app.
 const options: CoverageReportOptions = {
   name: "Coverage of the end-to-end tests",
   outputDir: outputDirectory,
   reports: ["console-summary", "html", "lcovonly"],
-  entryFilter: (entry) => entry.url.includes("/build/"),
+  entryFilter: (entry) =>
+    entry.url.includes("/build/") || entry.url.startsWith("app://"),
   sourceFilter: (sourcePath) => sourcePath.includes("src/"),
+  // The source maps of the renderer lie next to its built files.
+  sourceMapResolver: async (url, defaultResolver) => {
+    const prefix = "app://naturheilpraxis/";
+    if (!url.startsWith(prefix)) {
+      return (defaultResolver as (url: string) => Promise<unknown>)(url);
+    }
+    const file = path.join(
+      appDirectory,
+      "build",
+      "renderer",
+      url.slice(prefix.length),
+    );
+    return JSON.parse(await fs.readFile(file, "utf-8")) as unknown;
+  },
 };
 
 export function createCoverageReport(): CoverageReport {

@@ -9,6 +9,8 @@ import {
   dialog,
   ipcMain,
   Menu,
+  net,
+  protocol,
   session,
   type MenuItemConstructorOptions,
   type Session,
@@ -17,6 +19,11 @@ import {
 import { DatabaseService } from "./application/database-service.ts";
 import type { NaturheilpraxisService } from "./application/naturheilpraxis-service.ts";
 import type { DatabaseStatus } from "../shared/application/database-api.ts";
+import {
+  appHost,
+  appScheme,
+  resolveAppFile,
+} from "./infrastructure/app-protocol.ts";
 import { ElectronFileDialog } from "./infrastructure/file-dialog.ts";
 import { isTrustedSender } from "./infrastructure/ipc-sender.ts";
 import { JsonSettingsStore } from "./infrastructure/settings-store.ts";
@@ -29,10 +36,46 @@ const devServerUrl = process.env["VITE_DEV_SERVER_URL"];
 // root of the archive.
 const appPath = app.getAppPath();
 
-const rendererIndex = path.join(appPath, "build", "renderer", "index.html");
+const rendererDirectory = path.join(appPath, "build", "renderer");
 
 // The page the main window shows, the only one allowed to send messages.
-const rendererUrl = devServerUrl ?? pathToFileURL(rendererIndex).href;
+const rendererUrl = devServerUrl ?? `${appScheme}://${appHost}/index.html`;
+
+// The renderer runs only its own scripts and styles and sends nothing to other
+// servers. Bootstrap embeds its icons for form controls as data URLs. The
+// development server sets its own policy, see vite.config.ts.
+const contentSecurityPolicy = [
+  "default-src 'none'",
+  "script-src 'self'",
+  "style-src 'self'",
+  "img-src 'self' data:",
+  "font-src 'self'",
+  "connect-src 'none'",
+  "base-uri 'none'",
+  "form-action 'none'",
+  "object-src 'none'",
+  "frame-ancestors 'none'",
+].join("; ");
+
+// A standard and secure scheme behaves like https, for example for relative
+// URLs and module scripts. It must be registered before the app is ready.
+protocol.registerSchemesAsPrivileged([
+  { scheme: appScheme, privileges: { standard: true, secure: true } },
+]);
+
+// Serves the built renderer, nothing else, with the Content Security Policy.
+function handleAppProtocol(): void {
+  protocol.handle(appScheme, async (request) => {
+    const file = resolveAppFile(request.url, rendererDirectory);
+    if (file === undefined) {
+      return new Response(null, { status: 404 });
+    }
+    const response = await net.fetch(pathToFileURL(file).href);
+    const headers = new Headers(response.headers);
+    headers.set("Content-Security-Policy", contentSecurityPolicy);
+    return new Response(response.body, { status: response.status, headers });
+  });
+}
 
 const database = new DatabaseService({
   settingsStore: new JsonSettingsStore(
@@ -60,7 +103,7 @@ function createMainWindow(): void {
   showDatabase(window);
 
   if (devServerUrl === undefined) {
-    void window.loadFile(rendererIndex);
+    void window.loadURL(rendererUrl);
   } else {
     void window.loadURL(devServerUrl);
   }
@@ -313,6 +356,7 @@ app.on("activate", () => {
 
 void app.whenReady().then(() => {
   denyPermissions(session.defaultSession);
+  handleAppProtocol();
   database.onOpened(() => {
     createMenu();
     BrowserWindow.getAllWindows().forEach(showDatabase);

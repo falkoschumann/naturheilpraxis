@@ -11,6 +11,24 @@ files:
   - build/**
   - package.json
 
+# The packaged app can neither be run as plain Node.js nor be inspected, and it
+# loads only its own, unaltered archive. Pages from file:// get no extra
+# privileges, since the app is loaded over its own protocol. The end-to-end
+# tests run the unpackaged app with Playwright, which needs the inspector, so
+# the fuses are only checked by a trial start of the package.
+electronFuses:
+  runAsNode: false
+  enableCookieEncryption: true
+  enableNodeOptionsEnvironmentVariable: false
+  enableNodeCliInspectArguments: false
+  enableEmbeddedAsarIntegrityValidation: true
+  onlyLoadAppFromAsar: true
+  grantFileProtocolExtraPrivileges: false
+  # Flipping the fuses invalidates the signature, and macOS kills an unsigned
+  # app on Apple Silicon. Without an identity electron-builder does not sign,
+  # so the app is signed ad hoc again.
+  resetAdHocDarwinSignature: true
+
 # There are no native modules yet, so electron-builder must not invoke a package
 # manager to rebuild them.
 npmRebuild: false

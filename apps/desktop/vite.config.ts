@@ -34,38 +34,29 @@ function electronProcess(name: string, entry: string): EnvironmentOptions {
   };
 }
 
-// The renderer runs only its own scripts and styles and sends nothing to other
-// servers. Bootstrap embeds its icons for form controls as data URLs. During
-// development Vite injects the styles as style elements and reloads the page
-// over a web socket.
+// The development server sets the Content Security Policy of the main process,
+// see contentSecurityPolicy in src/main/main.ts, with the exceptions Vite needs:
+// it injects the styles as style elements and reloads the page over a web
+// socket.
 function contentSecurityPolicy(): Plugin {
-  const policy = (development: boolean) =>
-    [
-      "default-src 'none'",
-      "script-src 'self'",
-      development ? "style-src 'self' 'unsafe-inline'" : "style-src 'self'",
-      "img-src 'self' data:",
-      "font-src 'self'",
-      development
-        ? "connect-src 'self' ws://localhost:*"
-        : "connect-src 'none'",
-      "base-uri 'none'",
-      "form-action 'none'",
-      "object-src 'none'",
-    ].join("; ");
-  let development = false;
+  const policy = [
+    "default-src 'none'",
+    "script-src 'self'",
+    "style-src 'self' 'unsafe-inline'",
+    "img-src 'self' data:",
+    "font-src 'self'",
+    "connect-src 'self' ws://localhost:*",
+    "base-uri 'none'",
+    "form-action 'none'",
+    "object-src 'none'",
+  ].join("; ");
   return {
     name: "content-security-policy",
-    configResolved(config) {
-      development = config.command === "serve";
-    },
+    apply: "serve",
     transformIndexHtml: () => [
       {
         tag: "meta",
-        attrs: {
-          "http-equiv": "Content-Security-Policy",
-          content: policy(development),
-        },
+        attrs: { "http-equiv": "Content-Security-Policy", content: policy },
         injectTo: "head-prepend",
       },
     ],

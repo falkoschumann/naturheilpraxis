@@ -71,7 +71,7 @@ Jeder Eintrag beginnt mit einer Kategorie:
 - [x] **Sicherheit** Das Fenster der App härten: Content Security Policy in
       `index.html`, Navigation und neue Fenster sperren und in den IPC-Handlern
       nur Nachrichten aus dem Hauptframe des eigenen Fensters annehmen.
-- [ ] **Sicherheit** Die App über ein eigenes Protokoll wie
+- [x] **Sicherheit** Die App über ein eigenes Protokoll wie
       `app://naturheilpraxis/` statt über `file://` laden und die Content
       Security Policy als Header setzen. Danach im paketierten Programm die
       Electron-Fuses setzen (u. a. `runAsNode`,
