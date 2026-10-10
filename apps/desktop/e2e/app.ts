@@ -7,6 +7,7 @@ import { fileURLToPath } from "node:url";
 
 import {
   _electron as electron,
+  expect,
   test as base,
   type ElectronApplication,
   type Page,
@@ -25,6 +26,9 @@ export interface AppFixtures {
   readonly app: ElectronApplication;
   // The main window of the app.
   readonly window: Page;
+  // The violations of the Content Security Policy in the window. A test that
+  // provokes one checks and removes it, every other one fails the test.
+  readonly cspViolations: string[];
 }
 
 // The fixtures hand over their value with a function that Playwright calls
@@ -42,7 +46,14 @@ export const test = base.extend<AppFixtures>({
       await fs.rm(userDataDirectory, { recursive: true, force: true });
     }
   },
-  window: async ({ app }, provide) => {
+  // Playwright requires the fixtures to be destructured, even when none is used.
+  // eslint-disable-next-line no-empty-pattern
+  cspViolations: async ({}, provide) => {
+    const violations: string[] = [];
+    await provide(violations);
+    expect(violations).toEqual([]);
+  },
+  window: async ({ app, cspViolations }, provide) => {
     const window = await app.firstWindow();
     if (coverageEnabled) {
       // Reloading measures the start of the renderer, too.
@@ -60,6 +71,12 @@ export const test = base.extend<AppFixtures>({
       .getByRole("button", { name: "Neue Datenbank anlegen…" })
       .click();
     await window.getByRole("navigation", { name: "Hauptnavigation" }).waitFor();
+    // The Content Security Policy must not block anything the app needs.
+    window.on("console", (message) => {
+      if (message.text().includes("Content Security Policy")) {
+        cspViolations.push(message.text());
+      }
+    });
     await provide(window);
     if (coverageEnabled) {
       await createCoverageReport().add(await window.coverage.stopJSCoverage());

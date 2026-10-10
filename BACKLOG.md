@@ -68,9 +68,16 @@ Jeder Eintrag beginnt mit einer Kategorie:
       auswählen. Beim ersten Öffnen der App fragt sie den Speicherort ab, danach
       öffnet sie den zuletzt verwendeten. Nach dem Start kann der Nutzer einen
       anderen Speicherort auswählen.
-- [ ] **Sicherheit** Das Fenster der App härten: Content Security Policy in
+- [x] **Sicherheit** Das Fenster der App härten: Content Security Policy in
       `index.html`, Navigation und neue Fenster sperren und in den IPC-Handlern
       nur Nachrichten aus dem Hauptframe des eigenen Fensters annehmen.
+- [ ] **Sicherheit** Die App über ein eigenes Protokoll wie
+      `app://naturheilpraxis/` statt über `file://` laden und die Content
+      Security Policy als Header setzen. Danach im paketierten Programm die
+      Electron-Fuses setzen (u. a. `runAsNode`,
+      `enableNodeOptionsEnvironmentVariable`, `enableNodeCliInspectArguments`,
+      ASAR-Integrität, `grantFileProtocolExtraPrivileges`) und mit einem
+      Probestart prüfen.
 - [ ] **Rechnung** Das Aussehen der Rechnung für den Druck ist hart codiert. Der
       Nutzer soll es selbst anpassen können. Umsetzung als HTML/CSS-Vorlage mit
       Mustache-Platzhaltern: eine mitgelieferte Standardvorlage für alle Praxen,

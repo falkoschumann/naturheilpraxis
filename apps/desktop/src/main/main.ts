@@ -1,6 +1,7 @@
 // Copyright (c) 2026 Falko Schumann. MIT license.
 
 import path from "node:path";
+import { pathToFileURL } from "node:url";
 
 import {
   app,
@@ -8,13 +9,16 @@ import {
   dialog,
   ipcMain,
   Menu,
+  session,
   type MenuItemConstructorOptions,
+  type Session,
 } from "electron";
 
 import { DatabaseService } from "./application/database-service.ts";
 import type { NaturheilpraxisService } from "./application/naturheilpraxis-service.ts";
 import type { DatabaseStatus } from "../shared/application/database-api.ts";
 import { ElectronFileDialog } from "./infrastructure/file-dialog.ts";
+import { isTrustedSender } from "./infrastructure/ipc-sender.ts";
 import { JsonSettingsStore } from "./infrastructure/settings-store.ts";
 
 // The development runner serves the renderer with HMR and announces its URL.
@@ -24,6 +28,11 @@ const devServerUrl = process.env["VITE_DEV_SERVER_URL"];
 // The app path is the directory with the package.json, in the packaged app the
 // root of the archive.
 const appPath = app.getAppPath();
+
+const rendererIndex = path.join(appPath, "build", "renderer", "index.html");
+
+// The page the main window shows, the only one allowed to send messages.
+const rendererUrl = devServerUrl ?? pathToFileURL(rendererIndex).href;
 
 const database = new DatabaseService({
   settingsStore: new JsonSettingsStore(
@@ -51,120 +60,159 @@ function createMainWindow(): void {
   showDatabase(window);
 
   if (devServerUrl === undefined) {
-    void window.loadFile(path.join(appPath, "build", "renderer", "index.html"));
+    void window.loadFile(rendererIndex);
   } else {
     void window.loadURL(devServerUrl);
   }
 }
 
+// Handles a message only from the main frame of the app. A frame embedded in
+// it or a foreign page must not use the data of the Praxis.
+function handle(
+  channel: string,
+  listener: Parameters<typeof ipcMain.handle>[1],
+): void {
+  ipcMain.handle(channel, (event, ...args) => {
+    const frame = event.senderFrame;
+    const sender =
+      frame === null
+        ? null
+        : { url: frame.url, isMainFrame: frame.parent === null };
+    if (!isTrustedSender(sender, rendererUrl)) {
+      throw new Error(`The message ${channel} is not from the app.`);
+    }
+    return listener(event, ...args);
+  });
+}
+
+// The windows show only the app. Links and scripts must neither lead to
+// another page nor open a window.
+app.on("web-contents-created", (_event, contents) => {
+  contents.on("will-navigate", (event) => event.preventDefault());
+  contents.setWindowOpenHandler(() => ({ action: "deny" }));
+  contents.on("will-attach-webview", (event) => event.preventDefault());
+});
+
+// The app needs no permission like camera, microphone, location or
+// notifications. The dictation of macOS is an input method of the system and
+// needs none either.
+function denyPermissions(session: Session): void {
+  session.setPermissionRequestHandler((_contents, _permission, callback) =>
+    callback(false),
+  );
+  session.setPermissionCheckHandler(() => false);
+}
+
+app.on("session-created", denyPermissions);
+
 // The renderer sends each command and query on the channel named after its
 // type, see NaturheilpraxisApi. They go to the open database.
 function handleMessages(naturheilpraxis: () => NaturheilpraxisService): void {
-  ipcMain.handle("praxis-anlegen", (_event, command) =>
+  handle("praxis-anlegen", (_event, command) =>
     naturheilpraxis().praxisAnlegen(command),
   );
-  ipcMain.handle("praxisdaten-aendern", (_event, command) =>
+  handle("praxisdaten-aendern", (_event, command) =>
     naturheilpraxis().praxisdatenAendern(command),
   );
-  ipcMain.handle("praxen-ermitteln", (_event, query) =>
+  handle("praxen-ermitteln", (_event, query) =>
     naturheilpraxis().praxenErmitteln(query),
   );
-  ipcMain.handle("praxis-ermitteln", (_event, query) =>
+  handle("praxis-ermitteln", (_event, query) =>
     naturheilpraxis().praxisErmitteln(query),
   );
-  ipcMain.handle("gebuehr-anlegen", (_event, command) =>
+  handle("gebuehr-anlegen", (_event, command) =>
     naturheilpraxis().gebuehrAnlegen(command),
   );
-  ipcMain.handle("gebuehr-aendern", (_event, command) =>
+  handle("gebuehr-aendern", (_event, command) =>
     naturheilpraxis().gebuehrAendern(command),
   );
-  ipcMain.handle("gebuehr-entfernen", (_event, command) =>
+  handle("gebuehr-entfernen", (_event, command) =>
     naturheilpraxis().gebuehrEntfernen(command),
   );
-  ipcMain.handle("gebuehren-ermitteln", (_event, query) =>
+  handle("gebuehren-ermitteln", (_event, query) =>
     naturheilpraxis().gebuehrenErmitteln(query),
   );
-  ipcMain.handle("patient-aufnehmen", (_event, command) =>
+  handle("patient-aufnehmen", (_event, command) =>
     naturheilpraxis().patientAufnehmen(command),
   );
-  ipcMain.handle("patientendaten-aendern", (_event, command) =>
+  handle("patientendaten-aendern", (_event, command) =>
     naturheilpraxis().patientendatenAendern(command),
   );
-  ipcMain.handle("patienten-ermitteln", (_event, query) =>
+  handle("patienten-ermitteln", (_event, query) =>
     naturheilpraxis().patientenErmitteln(query),
   );
-  ipcMain.handle("patient-ermitteln", (_event, query) =>
+  handle("patient-ermitteln", (_event, query) =>
     naturheilpraxis().patientErmitteln(query),
   );
-  ipcMain.handle("diagnose-stellen", (_event, command) =>
+  handle("diagnose-stellen", (_event, command) =>
     naturheilpraxis().diagnoseStellen(command),
   );
-  ipcMain.handle("diagnose-aendern", (_event, command) =>
+  handle("diagnose-aendern", (_event, command) =>
     naturheilpraxis().diagnoseAendern(command),
   );
-  ipcMain.handle("diagnose-loeschen", (_event, command) =>
+  handle("diagnose-loeschen", (_event, command) =>
     naturheilpraxis().diagnoseLoeschen(command),
   );
-  ipcMain.handle("behandlungen-ermitteln", (_event, query) =>
+  handle("behandlungen-ermitteln", (_event, query) =>
     naturheilpraxis().behandlungenErmitteln(query),
   );
-  ipcMain.handle("diagnosen-ermitteln", (_event, query) =>
+  handle("diagnosen-ermitteln", (_event, query) =>
     naturheilpraxis().diagnosenErmitteln(query),
   );
-  ipcMain.handle("leistung-erbringen", (_event, command) =>
+  handle("leistung-erbringen", (_event, command) =>
     naturheilpraxis().leistungErbringen(command),
   );
-  ipcMain.handle("leistung-aendern", (_event, command) =>
+  handle("leistung-aendern", (_event, command) =>
     naturheilpraxis().leistungAendern(command),
   );
-  ipcMain.handle("leistung-loeschen", (_event, command) =>
+  handle("leistung-loeschen", (_event, command) =>
     naturheilpraxis().leistungLoeschen(command),
   );
-  ipcMain.handle("rechnung-erstellen", (_event, command) =>
+  handle("rechnung-erstellen", (_event, command) =>
     naturheilpraxis().rechnungErstellen(command),
   );
-  ipcMain.handle("rechnung-aendern", (_event, command) =>
+  handle("rechnung-aendern", (_event, command) =>
     naturheilpraxis().rechnungAendern(command),
   );
-  ipcMain.handle("entwurf-loeschen", (_event, command) =>
+  handle("entwurf-loeschen", (_event, command) =>
     naturheilpraxis().entwurfLoeschen(command),
   );
-  ipcMain.handle("nicht-abgerechnete-leistungen-ermitteln", (_event, query) =>
+  handle("nicht-abgerechnete-leistungen-ermitteln", (_event, query) =>
     naturheilpraxis().nichtAbgerechneteLeistungenErmitteln(query),
   );
-  ipcMain.handle("rechnungen-ermitteln", (_event, query) =>
+  handle("rechnungen-ermitteln", (_event, query) =>
     naturheilpraxis().rechnungenErmitteln(query),
   );
-  ipcMain.handle("kennzahlen-ermitteln", (_event, query) =>
+  handle("kennzahlen-ermitteln", (_event, query) =>
     naturheilpraxis().kennzahlenErmitteln(query),
   );
-  ipcMain.handle(
+  handle(
     "patienten-mit-nicht-abgerechneten-leistungen-ermitteln",
     (_event, query) =>
       naturheilpraxis().patientenMitNichtAbgerechnetenLeistungenErmitteln(
         query,
       ),
   );
-  ipcMain.handle("rechnung-ermitteln", (_event, query) =>
+  handle("rechnung-ermitteln", (_event, query) =>
     naturheilpraxis().rechnungErmitteln(query),
   );
-  ipcMain.handle("rechnung-versenden", (_event, command) =>
+  handle("rechnung-versenden", (_event, command) =>
     naturheilpraxis().rechnungVersenden(command),
   );
-  ipcMain.handle("rechnung-zurueckstufen", (_event, command) =>
+  handle("rechnung-zurueckstufen", (_event, command) =>
     naturheilpraxis().rechnungZurueckstufen(command),
   );
-  ipcMain.handle("zahlung-erfassen", (_event, command) =>
+  handle("zahlung-erfassen", (_event, command) =>
     naturheilpraxis().zahlungErfassen(command),
   );
 }
 
 // The renderer chooses the database on the channels of DatabaseApi.
 function handleDatabaseMessages(): void {
-  ipcMain.handle("get-database-status", () => database.getStatus());
-  ipcMain.handle("create-database", () => database.createDatabase());
-  ipcMain.handle("open-database", () => database.openDatabase());
-  ipcMain.handle("reopen-database", () => database.reopenDatabase());
+  handle("get-database-status", () => database.getStatus());
+  handle("create-database", () => database.createDatabase());
+  handle("open-database", () => database.openDatabase());
+  handle("reopen-database", () => database.reopenDatabase());
 }
 
 // A database chosen from the menu replaces the open one, so the windows are
@@ -264,6 +312,7 @@ app.on("activate", () => {
 });
 
 void app.whenReady().then(() => {
+  denyPermissions(session.defaultSession);
   database.onOpened(() => {
     createMenu();
     BrowserWindow.getAllWindows().forEach(showDatabase);

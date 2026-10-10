@@ -2,7 +2,7 @@
 
 import { builtinModules } from "node:module";
 
-import { defineConfig, type EnvironmentOptions } from "vite";
+import { defineConfig, type EnvironmentOptions, type Plugin } from "vite";
 
 // Electron and Node built-ins are provided by the runtime, never bundled.
 const runtimeProvided = [
@@ -34,8 +34,47 @@ function electronProcess(name: string, entry: string): EnvironmentOptions {
   };
 }
 
+// The renderer runs only its own scripts and styles and sends nothing to other
+// servers. Bootstrap embeds its icons for form controls as data URLs. During
+// development Vite injects the styles as style elements and reloads the page
+// over a web socket.
+function contentSecurityPolicy(): Plugin {
+  const policy = (development: boolean) =>
+    [
+      "default-src 'none'",
+      "script-src 'self'",
+      development ? "style-src 'self' 'unsafe-inline'" : "style-src 'self'",
+      "img-src 'self' data:",
+      "font-src 'self'",
+      development
+        ? "connect-src 'self' ws://localhost:*"
+        : "connect-src 'none'",
+      "base-uri 'none'",
+      "form-action 'none'",
+      "object-src 'none'",
+    ].join("; ");
+  let development = false;
+  return {
+    name: "content-security-policy",
+    configResolved(config) {
+      development = config.command === "serve";
+    },
+    transformIndexHtml: () => [
+      {
+        tag: "meta",
+        attrs: {
+          "http-equiv": "Content-Security-Policy",
+          content: policy(development),
+        },
+        injectTo: "head-prepend",
+      },
+    ],
+  };
+}
+
 export default defineConfig({
   base: "./",
+  plugins: [contentSecurityPolicy()],
   css: {
     preprocessorOptions: {
       // Bootstrap still uses the old Sass API, which warns hundreds of times
