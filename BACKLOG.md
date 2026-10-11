@@ -97,7 +97,7 @@ Jeder Eintrag beginnt mit einer Kategorie:
       seiner Wahl und importiert sie wieder. Die Vorschau zeigt das Ergebnis mit
       Beispieldaten. Eine Vorlage lässt sich auf die Standardvorlage
       zurücksetzen.
-- [ ] **Effizienz** Die Patientensuche liefert bei über 9.000 Patienten das
+- [x] **Effizienz** Die Patientensuche liefert bei über 9.000 Patienten das
       Ergebnis ohne spürbare Verzögerung, während der Eingabe bleibt die
       Anwendung bedienbar. Das verkürzt auch die Wartezeiten in den Tests.
       Bisher startet jeder Tastendruck eine Abfrage und die Liste rendert alle

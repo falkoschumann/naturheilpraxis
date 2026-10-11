@@ -2,7 +2,7 @@
 
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import { MemoryRouter, Route, Routes, useLocation } from "react-router";
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
 
 import type { NaturheilpraxisApi } from "../../../shared/application/naturheilpraxis-api.ts";
 import type { DomainEvent } from "../../../shared/domain/events.ts";
@@ -11,6 +11,10 @@ import { FakeNaturheilpraxisApi } from "./fake-naturheilpraxis-api.ts";
 import { PatientenPage } from "./patienten-page.tsx";
 
 describe("Patienten", () => {
+  afterEach(() => {
+    scrolleNach(0);
+  });
+
   it("sollte die Patienten anzeigen", async () => {
     const api = new FakeNaturheilpraxisApi({ events: [praxisAngelegt(), maxAufgenommen()] });
 
@@ -41,6 +45,29 @@ describe("Patienten", () => {
     const max = await screen.findByRole("row", { name: /Mustermann, Max/ });
     await expect.poll(() => max.lastElementChild?.textContent).toBe("2 · 51,10\u00a0€");
     expect(screen.getByRole("row", { name: /Mustermann, Erika/ }).lastElementChild?.textContent).toBe("–");
+  });
+
+  it("sollte bei vielen Patienten nur die sichtbaren Zeilen anzeigen", async () => {
+    const api = new FakeNaturheilpraxisApi({ events: [praxisAngelegt(), ...vielePatientenAufgenommen(9000)] });
+
+    zeigePatienten(api);
+
+    expect(await screen.findByRole("row", { name: /Patient 9000, Viel/ })).toBeDefined();
+    const zeilen = screen.getAllByRole("row", { name: /Patient \d+, Viel/ });
+    expect(zeilen.length).toBeGreaterThan(0);
+    expect(zeilen.length).toBeLessThan(100);
+    expect(screen.queryByRole("row", { name: /Patient 1, Viel/ })).toBeNull();
+  });
+
+  it("sollte beim Scrollen die sichtbaren Zeilen nachladen", async () => {
+    const api = new FakeNaturheilpraxisApi({ events: [praxisAngelegt(), ...vielePatientenAufgenommen(9000)] });
+    zeigePatienten(api);
+    await screen.findByRole("row", { name: /Patient 9000, Viel/ });
+
+    scrolleNach(1_000_000);
+
+    expect(await screen.findByRole("row", { name: /Patient 1, Viel/ })).toBeDefined();
+    expect(screen.queryByRole("row", { name: /Patient 9000, Viel/ })).toBeNull();
   });
 
   it("sollte einen Hinweis zeigen, wenn noch kein Patient aufgenommen ist", async () => {
@@ -193,6 +220,12 @@ function Karteikarte() {
   return <p>Karteikarte {pathname.split("/").at(-1)}</p>;
 }
 
+// jsdom does not lay out the page, so the scroll position is set by hand.
+function scrolleNach(y: number) {
+  Object.defineProperty(window, "scrollY", { value: y, configurable: true });
+  fireEvent.scroll(window);
+}
+
 async function expectKeineZeile(name: RegExp) {
   await expect.poll(() => screen.queryByRole("row", { name })).toBeNull();
 }
@@ -237,6 +270,19 @@ function erikaAufgenommen(): DomainEvent {
       name: { vorname: "Erika", nachname: "Mustermann" },
     },
   };
+}
+
+function vielePatientenAufgenommen(anzahl: number): DomainEvent[] {
+  return Array.from({ length: anzahl }, (_, index) => ({
+    type: "patient-aufgenommen",
+    data: {
+      patientennummer: index + 1,
+      praxiskuerzel: "NHP",
+      aufnahmejahr: 2026,
+      geburtsdatum: "1980-01-01",
+      name: { vorname: "Viel", nachname: `Patient ${index + 1}` },
+    },
+  }));
 }
 
 function leistungErbracht(leistungId: string, patientennummer: number, anzahl: number, cents: number): DomainEvent {

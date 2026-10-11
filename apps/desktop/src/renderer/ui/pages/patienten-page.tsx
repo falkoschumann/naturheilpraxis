@@ -1,11 +1,16 @@
 // Copyright (c) 2026 Falko Schumann. MIT license.
 
-import { useEffect, useRef, useState } from "react";
+import { createColumnHelper, tableFeatures, useTable } from "@tanstack/react-table";
+import { useWindowVirtualizer } from "@tanstack/react-virtual";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router";
 
 import type { NaturheilpraxisApi } from "../../../shared/application/naturheilpraxis-api.ts";
 import type { PatientMitNichtAbgerechnetenLeistungen } from "../../../shared/domain/abrechnungsansicht.ts";
-import type { PatientenErmittelnQueryResult } from "../../../shared/domain/patientenansicht.ts";
+import type {
+  PatientenErmittelnQueryResult,
+  PatientenErmittelnQueryResultItem,
+} from "../../../shared/domain/patientenansicht.ts";
 import { formatDatum, formatEuro, type Patientennummer } from "../../../shared/domain/value-objects.ts";
 import { PatientAufnehmenDialog } from "./patient-aufnehmen-dialog.tsx";
 
@@ -118,66 +123,16 @@ export function PatientenPage({ api }: { api: NaturheilpraxisApi }) {
             Alle Wörter müssen vorkommen. Setzen Sie Wörter mit Leerzeichen in Anführungszeichen, z. B. "Lindenweg 5".
           </div>
         </div>
-        <div className="table-responsive">
-          <table className="table table-hover align-middle mb-0">
-            <thead>
-              <tr>
-                <th scope="col">Nr.</th>
-                <th scope="col">Name</th>
-                <th scope="col">Geburtsdatum</th>
-                <th scope="col">Ort</th>
-                <th scope="col">Praxis</th>
-                <th scope="col" className="text-end">
-                  Offene Leistungen
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {patienten === undefined && fehler === undefined && (
-                <tr>
-                  <td colSpan={6} className="text-center text-body-secondary py-4" role="status">
-                    <span className="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
-                    Die Patienten werden geladen …
-                  </td>
-                </tr>
-              )}
-              {patienten?.length === 0 && (
-                <tr>
-                  <td colSpan={6} className="text-center text-body-secondary py-4">
-                    {suchbegriff.trim() === ""
-                      ? "Es ist noch kein Patient aufgenommen. Nehmen Sie mit „Patient aufnehmen“ den ersten Patienten auf."
-                      : "Kein Patient gefunden. Prüfen Sie die Schreibweise oder nehmen Sie einen neuen Patienten auf."}
-                  </td>
-                </tr>
-              )}
-              {patienten?.map((patient) => (
-                <tr key={patient.patientennummer}>
-                  <td className="text-body-secondary">{patient.patientennummer}</td>
-                  <td>
-                    <Link to={`/patienten/${patient.patientennummer}`} className="fw-semibold text-decoration-none">
-                      {patient.nachname}, {patient.vorname}
-                    </Link>
-                    {patient.schluesselworte?.map((wort) => (
-                      <span key={wort} className="badge text-bg-light border ms-1">
-                        {wort}
-                      </span>
-                    ))}
-                  </td>
-                  <td>{formatDatum(patient.geburtsdatum)}</td>
-                  <td>{patient.ort ?? <span className="text-body-secondary">–</span>}</td>
-                  <td>
-                    <span className="badge rounded-pill bg-primary-subtle text-primary-emphasis border border-primary-subtle">
-                      {patient.praxiskuerzel}
-                    </span>
-                  </td>
-                  <td className="text-end text-nowrap">
-                    <OffeneLeistungen offen={offen.get(patient.patientennummer)} />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <PatientenTabelle
+          patienten={patienten}
+          offen={offen}
+          laedt={patienten === undefined && fehler === undefined}
+          leerHinweis={
+            suchbegriff.trim() === ""
+              ? "Es ist noch kein Patient aufgenommen. Nehmen Sie mit „Patient aufnehmen“ den ersten Patienten auf."
+              : "Kein Patient gefunden. Prüfen Sie die Schreibweise oder nehmen Sie einen neuen Patienten auf."
+          }
+        />
       </div>
       {aufnehmen && (
         <PatientAufnehmenDialog
@@ -189,6 +144,174 @@ export function PatientenPage({ api }: { api: NaturheilpraxisApi }) {
           }}
         />
       )}
+    </>
+  );
+}
+
+type Patient = PatientenErmittelnQueryResultItem;
+
+const features = tableFeatures({});
+const spalten = createColumnHelper<typeof features, Patient>();
+
+// The column widths stay the same while other rows become visible.
+const spaltenlayout: Readonly<Record<string, Readonly<{ breite: string; className?: string }>>> = {
+  patientennummer: { breite: "8%" },
+  name: { breite: "37%" },
+  geburtsdatum: { breite: "13%" },
+  ort: { breite: "18%" },
+  praxiskuerzel: { breite: "8%" },
+  offeneLeistungen: { breite: "16%", className: "text-end" },
+};
+
+// Every row has the same height, so the rows are not measured. The cells do
+// not wrap to keep the height.
+const zeilenhoehe = 41;
+
+function PatientenTabelle({
+  patienten,
+  offen,
+  laedt,
+  leerHinweis,
+}: {
+  patienten: PatientenErmittelnQueryResult | undefined;
+  offen: ReadonlyMap<Patientennummer, PatientMitNichtAbgerechnetenLeistungen>;
+  laedt: boolean;
+  leerHinweis: string;
+}) {
+  const columns = useMemo(
+    () =>
+      spalten.columns([
+        spalten.accessor("patientennummer", {
+          header: "Nr.",
+          cell: ({ getValue }) => <span className="text-body-secondary">{getValue()}</span>,
+        }),
+        spalten.display({
+          id: "name",
+          header: "Name",
+          cell: ({ row }) => <Name patient={row.original} />,
+        }),
+        spalten.accessor("geburtsdatum", {
+          header: "Geburtsdatum",
+          cell: ({ getValue }) => formatDatum(getValue()),
+        }),
+        spalten.accessor("ort", {
+          header: "Ort",
+          cell: ({ getValue }) => getValue() ?? <span className="text-body-secondary">–</span>,
+        }),
+        spalten.accessor("praxiskuerzel", {
+          header: "Praxis",
+          cell: ({ getValue }) => (
+            <span className="badge rounded-pill bg-primary-subtle text-primary-emphasis border border-primary-subtle">
+              {getValue()}
+            </span>
+          ),
+        }),
+        spalten.display({
+          id: "offeneLeistungen",
+          header: "Offene Leistungen",
+          cell: ({ row }) => <OffeneLeistungen offen={offen.get(row.original.patientennummer)} />,
+        }),
+      ]),
+    [offen],
+  );
+  const data = useMemo(() => patienten ?? [], [patienten]);
+  const table = useTable({ features, columns, data });
+  const rows = table.getRowModel().rows;
+
+  // The page scrolls, so the rows start below everything above the table.
+  const tabellenkoerper = useRef<HTMLTableSectionElement>(null);
+  const [abstandOben, setAbstandOben] = useState(0);
+  useLayoutEffect(() => {
+    const top = tabellenkoerper.current?.getBoundingClientRect().top ?? 0;
+    setAbstandOben(top + window.scrollY);
+  }, [laedt]);
+  const virtualizer = useWindowVirtualizer({
+    count: rows.length,
+    estimateSize: () => zeilenhoehe,
+    getItemKey: (index) => rows[index]?.id ?? index,
+    overscan: 10,
+    scrollMargin: abstandOben,
+  });
+  const sichtbar = virtualizer.getVirtualItems();
+  const fuellungOben = (sichtbar[0]?.start ?? abstandOben) - abstandOben;
+  const fuellungUnten = virtualizer.getTotalSize() - ((sichtbar.at(-1)?.end ?? abstandOben) - abstandOben);
+  const spaltenanzahl = columns.length;
+
+  return (
+    <table className="table table-hover align-middle mb-0 patienten-tabelle">
+      <colgroup>
+        {table.getAllLeafColumns().map((column) => (
+          <col key={column.id} style={{ width: spaltenlayout[column.id]?.breite }} />
+        ))}
+      </colgroup>
+      <thead>
+        {table.getHeaderGroups().map((gruppe) => (
+          <tr key={gruppe.id}>
+            {gruppe.headers.map((header) => (
+              <th key={header.id} scope="col" className={spaltenlayout[header.column.id]?.className}>
+                <table.FlexRender header={header} />
+              </th>
+            ))}
+          </tr>
+        ))}
+      </thead>
+      <tbody ref={tabellenkoerper}>
+        {laedt && (
+          <tr>
+            <td colSpan={spaltenanzahl} className="text-center text-body-secondary py-4" role="status">
+              <span className="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+              Die Patienten werden geladen …
+            </td>
+          </tr>
+        )}
+        {patienten?.length === 0 && (
+          <tr>
+            <td colSpan={spaltenanzahl} className="text-center text-body-secondary py-4">
+              {leerHinweis}
+            </td>
+          </tr>
+        )}
+        {fuellungOben > 0 && (
+          <tr aria-hidden="true">
+            <td colSpan={spaltenanzahl} className="p-0 border-0" style={{ height: fuellungOben }}></td>
+          </tr>
+        )}
+        {sichtbar.map((item) => {
+          const row = rows[item.index];
+          if (row === undefined) {
+            return null;
+          }
+          return (
+            <tr key={row.id} style={{ height: zeilenhoehe }}>
+              {row.getAllCells().map((cell) => (
+                <td key={cell.id} className={spaltenlayout[cell.column.id]?.className}>
+                  <table.FlexRender cell={cell} />
+                </td>
+              ))}
+            </tr>
+          );
+        })}
+        {fuellungUnten > 0 && (
+          <tr aria-hidden="true">
+            <td colSpan={spaltenanzahl} className="p-0 border-0" style={{ height: fuellungUnten }}></td>
+          </tr>
+        )}
+      </tbody>
+    </table>
+  );
+}
+
+function Name({ patient }: { patient: Patient }) {
+  return (
+    <>
+      <Link to={`/patienten/${patient.patientennummer}`} className="fw-semibold text-decoration-none">
+        {patient.nachname}, {patient.vorname}
+      </Link>
+      {patient.schluesselworte?.map((wort) => (
+        <span key={wort} className="badge text-bg-light border ms-1">
+          {wort}
+        </span>
+      ))}
     </>
   );
 }
