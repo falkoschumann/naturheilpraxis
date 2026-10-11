@@ -24,11 +24,16 @@ import {
   appScheme,
   resolveAppFile,
   resolveRechnungId,
+  resolveVorlagengeltung,
 } from "./infrastructure/app-protocol.ts";
 import { ElectronFileDialog } from "./infrastructure/file-dialog.ts";
 import { isTrustedSender } from "./infrastructure/ipc-sender.ts";
 import { ElectronPrinter } from "./infrastructure/printer.ts";
-import { rechnungsdokument } from "./ui/rechnungsvorlage.ts";
+import {
+  rechnungsdokument,
+  standardvorlage,
+  vorschaudokument,
+} from "./ui/rechnungsvorlage.ts";
 import { JsonSettingsStore } from "./infrastructure/settings-store.ts";
 
 // The development runner serves the renderer with HMR and announces its URL.
@@ -62,7 +67,8 @@ const contentSecurityPolicy = [
   "frame-ancestors 'none'",
 ].join("; ");
 
-// A Rechnung created from a Rechnungsvorlage brings everything it needs: its
+// A Rechnung created from a Rechnungsvorlage, also its preview with
+// Beispieldaten, brings everything it needs: its
 // styles inline, its images as SVG or data URL. It runs no script, loads
 // nothing and is shown only as preview in the app or printed.
 const rechnungContentSecurityPolicy = [
@@ -82,13 +88,17 @@ protocol.registerSchemesAsPrivileged([
   { scheme: appScheme, privileges: { standard: true, secure: true } },
 ]);
 
-// Serves the built renderer and the Rechnungen, nothing else, with the
-// Content Security Policy.
+// Serves the built renderer, the Rechnungen and the previews of the
+// Rechnungsvorlagen, nothing else, with the Content Security Policy.
 function handleAppProtocol(): void {
   protocol.handle(appScheme, async (request) => {
     const rechnungId = resolveRechnungId(request.url);
     if (rechnungId !== undefined) {
       return rechnungResponse(rechnungId);
+    }
+    const geltung = resolveVorlagengeltung(request.url);
+    if (geltung !== undefined) {
+      return vorschauResponse(geltung);
     }
 
     const file = resolveAppFile(request.url, rendererDirectory);
@@ -103,9 +113,30 @@ function handleAppProtocol(): void {
 }
 
 async function rechnungResponse(rechnungId: string): Promise<Response> {
-  const { status, html } = rechnungsdokument(
-    await database.rechnungsdruck.rechnungMitVorlageErmitteln(rechnungId),
+  return dokumentResponse(
+    rechnungsdokument(
+      await database.rechnungsdruck.rechnungMitVorlageErmitteln(rechnungId),
+    ),
   );
+}
+
+async function vorschauResponse(geltung: {
+  praxiskuerzel?: string;
+}): Promise<Response> {
+  return dokumentResponse(
+    vorschaudokument(
+      await database.rechnungsvorlagen.vorschauErmitteln(geltung),
+    ),
+  );
+}
+
+function dokumentResponse({
+  status,
+  html,
+}: {
+  status: number;
+  html: string;
+}): Response {
   return new Response(html, {
     status,
     headers: {
@@ -122,6 +153,7 @@ const database = new DatabaseService({
   ),
   fileDialog: new ElectronFileDialog(),
   printer: new ElectronPrinter(),
+  standardvorlage,
   defaultDatabase: path.join(app.getPath("userData"), "naturheilpraxis.db"),
 });
 
@@ -298,6 +330,23 @@ function handleDatabaseMessages(): void {
   handle("reopen-database", () => database.reopenDatabase());
 }
 
+// The renderer manages the Rechnungsvorlagen on the channels of
+// RechnungsvorlagenApi.
+function handleRechnungsvorlagenMessages(): void {
+  handle("rechnungsvorlagen-ermitteln", () =>
+    database.rechnungsvorlagen.rechnungsvorlagenErmitteln(),
+  );
+  handle("rechnungsvorlage-exportieren", (_event, geltung) =>
+    database.rechnungsvorlagen.rechnungsvorlageExportieren(geltung),
+  );
+  handle("rechnungsvorlage-importieren", (_event, geltung) =>
+    database.rechnungsvorlagen.rechnungsvorlageImportieren(geltung),
+  );
+  handle("rechnungsvorlage-zuruecksetzen", (_event, geltung) =>
+    database.rechnungsvorlagen.rechnungsvorlageZuruecksetzen(geltung),
+  );
+}
+
 // The renderer prints on the channels of PrintApi.
 function handlePrintMessages(): void {
   handle("print-rechnung", (_event, rechnungId: string) =>
@@ -414,5 +463,6 @@ void app.whenReady().then(() => {
   handleMessages(() => database.naturheilpraxis);
   handleDatabaseMessages();
   handlePrintMessages();
+  handleRechnungsvorlagenMessages();
   createMainWindow();
 });

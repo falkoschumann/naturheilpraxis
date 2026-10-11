@@ -105,20 +105,30 @@ export async function chooseFiles(
   {
     newDatabase,
     existingDatabase,
-  }: { newDatabase?: string; existingDatabase?: string },
+    exportFile,
+    importFile,
+  }: {
+    newDatabase?: string;
+    existingDatabase?: string;
+    exportFile?: string;
+    importFile?: string;
+  },
 ): Promise<void> {
+  // Saving and opening use the same dialogs for databases and templates.
+  const fileToSave = newDatabase ?? exportFile;
+  const fileToOpen = existingDatabase ?? importFile;
   await app.evaluate(
-    ({ dialog }, { newDatabase, existingDatabase }) => {
-      if (newDatabase !== undefined) {
+    ({ dialog }, { fileToSave, fileToOpen }) => {
+      if (fileToSave !== undefined) {
         dialog.showSaveDialog = () =>
-          Promise.resolve({ canceled: false, filePath: newDatabase });
+          Promise.resolve({ canceled: false, filePath: fileToSave });
       }
-      if (existingDatabase !== undefined) {
+      if (fileToOpen !== undefined) {
         dialog.showOpenDialog = () =>
-          Promise.resolve({ canceled: false, filePaths: [existingDatabase] });
+          Promise.resolve({ canceled: false, filePaths: [fileToOpen] });
       }
     },
-    { newDatabase, existingDatabase },
+    { fileToSave, fileToOpen },
   );
 }
 

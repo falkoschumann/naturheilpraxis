@@ -4,9 +4,26 @@
 
 ## Rechnungsvorlage
 
-Die App erzeugt eine Rechnung aus einer Rechnungsvorlage. Ohne eigene Vorlage
-nutzt sie die mitgelieferte Standardvorlage
+Die App erzeugt eine Rechnung aus der Rechnungsvorlage ihrer Praxis. Eine Praxis
+ohne eigene Vorlage nutzt die allgemeine Vorlage. Die allgemeine Vorlage ist zu
+Beginn die mitgelieferte Standardvorlage
 `apps/desktop/src/main/ui/rechnungsvorlage.html`.
+
+Die Vorlagen verwaltet der Heilpraktiker unter „Stammdaten“ →
+„Rechnungsvorlagen“:
+
+- „Exportieren …“ sichert die Vorlage, die gerade gilt, als HTML-Datei.
+- Die Datei ändert er mit einem Editor seiner Wahl.
+- „Importieren …“ übernimmt die Datei als eigene Vorlage der allgemeinen Vorlage
+  oder der Praxis. Eine Datei mit fehlerhaften Platzhaltern lehnt die App ab.
+- „Zurücksetzen“ entfernt die eigene Vorlage. Die allgemeine Vorlage ist dann
+  wieder die Standardvorlage, eine Praxis nutzt wieder die allgemeine Vorlage.
+- Die Vorschau zeigt die Vorlage mit den Daten der Praxis und einem erfundenen
+  Patienten.
+
+Gesichert wird nur die aktuelle Vorlage, in der Datenbankdatei neben den Events.
+Eine geänderte Vorlage gilt auch für den Nachdruck bereits versendeter
+Rechnungen.
 
 Eine Rechnungsvorlage ist eine einzelne HTML-Datei. Sie bringt alles mit, was
 sie braucht:

@@ -90,7 +90,7 @@ Jeder Eintrag beginnt mit einer Kategorie:
       in einem eigenen Fenster ohne JavaScript, Preload und Netzzugriff. Ein PDF
       entsteht über einen PDF-Drucker. E-Rechnungen und die Ablage versendeter
       Rechnungen gehören nicht dazu.
-- [ ] **Rechnung** Eine allgemeine Rechnungsvorlage und optional eine eigene
+- [x] **Rechnung** Eine allgemeine Rechnungsvorlage und optional eine eigene
       Rechnungsvorlage je Praxis hinterlegen. Eine Praxis ohne eigene Vorlage
       nutzt die allgemeine, die zu Beginn die mitgelieferte Standardvorlage ist.
       Der Nutzer exportiert eine Vorlage als Datei, ändert sie mit einem Editor

@@ -9,6 +9,7 @@ import type { Printer, PrintResult } from "../infrastructure/printer.ts";
 import { SqliteTemplateStore } from "../infrastructure/template-store.ts";
 import { NaturheilpraxisService } from "./naturheilpraxis-service.ts";
 import { RechnungsdruckService } from "./rechnungsdruck-service.ts";
+import { RechnungsvorlagenService } from "./rechnungsvorlagen-service.ts";
 
 const rechnungId = "33333333-3333-4333-8333-333333333333";
 const andereRechnungId = "44444444-4444-4444-8444-444444444444";
@@ -16,23 +17,24 @@ const leistungId = "22222222-2222-4222-8222-222222222222";
 
 describe("Rechnungsdruck Service", () => {
   describe("Rechnung mit Vorlage ermitteln", () => {
-    it("sollte keine Vorlage liefern, solange keine gesichert ist", async () => {
+    it("sollte die Standardvorlage liefern, solange keine Vorlage gesichert ist", async () => {
       const { service } = createService();
 
       const ergebnis = await service.rechnungMitVorlageErmitteln(rechnungId);
 
       expect(ergebnis?.rechnung.positionen).toHaveLength(1);
-      expect(ergebnis).not.toHaveProperty("vorlage");
+      expect(ergebnis?.vorlage).toBe("<p>Standard</p>");
     });
 
-    it("sollte die gesicherte Vorlage liefern", async () => {
+    it("sollte die Vorlage der Praxis der Rechnung liefern", async () => {
       const templateStore = SqliteTemplateStore.createInMemory();
-      templateStore.save("rechnung", "<p>{{patient.name}}</p>");
+      templateStore.save("rechnung", "<p>allgemein</p>");
+      templateStore.save("rechnung", "<p>NHP</p>", { praxiskuerzel: "NHP" });
       const { service } = createService({ templateStore });
 
       const ergebnis = await service.rechnungMitVorlageErmitteln(rechnungId);
 
-      expect(ergebnis?.vorlage).toBe("<p>{{patient.name}}</p>");
+      expect(ergebnis?.vorlage).toBe("<p>NHP</p>");
     });
 
     it("sollte nichts liefern, wenn es die Rechnung nicht gibt", async () => {
@@ -123,9 +125,18 @@ function createService({
   const eventStore = SqliteEventStore.createInMemory();
   eventStore.append(createEvents());
   const printer = new FakePrinter(result);
+  const naturheilpraxis = new NaturheilpraxisService(eventStore);
   const service = new RechnungsdruckService(
-    new NaturheilpraxisService(eventStore),
-    templateStore,
+    naturheilpraxis,
+    new RechnungsvorlagenService({
+      naturheilpraxis,
+      templateStore,
+      fileDialog: {
+        chooseTemplateToExport: () => Promise.resolve(undefined),
+        chooseTemplateToImport: () => Promise.resolve(undefined),
+      },
+      standardvorlage: "<p>Standard</p>",
+    }),
     printer,
   );
   return { service, printer };

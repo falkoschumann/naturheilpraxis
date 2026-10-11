@@ -3,6 +3,7 @@
 import Mustache from "mustache";
 
 import type { RechnungMitVorlage } from "../application/rechnungsdruck-service.ts";
+import type { Vorlagenvorschau } from "../application/rechnungsvorlagen-service.ts";
 import type { RechnungErmittelnQueryResult } from "../../shared/domain/rechnungsansicht.ts";
 import {
   formatDatum,
@@ -10,6 +11,7 @@ import {
   type Anschrift,
   type Kontakt,
 } from "../../shared/domain/value-objects.ts";
+import { beispielrechnung } from "./beispielrechnung.ts";
 import standardvorlage from "./rechnungsvorlage.html?raw";
 
 export { standardvorlage };
@@ -103,8 +105,8 @@ export function rechnungErzeugen(vorlage: string, rechnung: Rechnung): string {
 // The page the app serves for a Rechnung, with the HTTP status.
 export type Rechnungsdokument = Readonly<{ status: number; html: string }>;
 
-// Creates the Rechnung from its Vorlage, from the Standardvorlage if none is
-// saved. Explains on the page why the Rechnung could not be created.
+// Creates the Rechnung from the Vorlage of its Praxis. Explains on the page
+// why the Rechnung could not be created.
 export function rechnungsdokument(
   rechnungMitVorlage: RechnungMitVorlage | undefined,
 ): Rechnungsdokument {
@@ -115,7 +117,32 @@ export function rechnungsdokument(
     };
   }
 
-  const { rechnung, vorlage = standardvorlage } = rechnungMitVorlage;
+  return erzeugeDokument(
+    rechnungMitVorlage.vorlage,
+    rechnungMitVorlage.rechnung,
+  );
+}
+
+// Shows a Rechnungsvorlage with Beispieldaten and the data of the Praxis.
+export function vorschaudokument(
+  vorschau: Vorlagenvorschau | undefined,
+): Rechnungsdokument {
+  if (vorschau === undefined) {
+    return {
+      status: 404,
+      html: fehlerseite(
+        "Diese Praxis gibt es nicht (mehr). Bitte laden Sie die Seite neu.",
+      ),
+    };
+  }
+
+  return erzeugeDokument(vorschau.vorlage, beispielrechnung(vorschau.praxis));
+}
+
+function erzeugeDokument(
+  vorlage: string,
+  rechnung: Rechnung,
+): Rechnungsdokument {
   try {
     return { status: 200, html: rechnungErzeugen(vorlage, rechnung) };
   } catch {

@@ -1,0 +1,85 @@
+# $schema: ../schemas/domain-storytelling/v1.yaml
+apiVersion: schema.esdm.io/domain-storytelling/v1
+kind: domain-story
+name: rechnungsvorlage-anpassen
+description: >-
+  Ergänzt den Standardablauf: Der Heilpraktiker passt die Rechnung einer Praxis an, zum Beispiel mit
+  Logo oder einer anderen Überschrift. Er bearbeitet die Rechnungsvorlage außerhalb der Anwendung
+  mit einem Editor seiner Wahl.
+scope:
+  domain: naturheilpraxis
+pointInTime: as-is
+granularity: coarse-grained
+domainPurity: digitalized
+actors:
+  - name: heilpraktiker
+sentences:
+  - sequenceNumber: 1
+    edges:
+      - from:
+          actor: heilpraktiker
+        to:
+          workObject: praxis
+        label: legt an
+  - sequenceNumber: 2
+    workObjects:
+      - name: rechnungsvorlage
+        annotation: >-
+          Die Praxis hat noch keine eigene Vorlage und nutzt die allgemeine, zu Beginn die
+          mitgelieferte Standardvorlage. Die Vorschau zeigt sie mit Beispieldaten.
+    edges:
+      - from:
+          actor: heilpraktiker
+        to:
+          workObject: rechnungsvorlage
+        label: exportiert
+  - sequenceNumber: 3
+    workObjects:
+      - name: rechnungsvorlage
+        annotation: >-
+          Mit einem Editor seiner Wahl ändert er die Überschrift in „Honorarrechnung“.
+    edges:
+      - from:
+          actor: heilpraktiker
+        to:
+          workObject: rechnungsvorlage
+        label: ändert
+  - sequenceNumber: 4
+    workObjects:
+      - name: rechnungsvorlage
+        annotation: >-
+          Die Vorschau zeigt die geänderte Vorlage.
+    edges:
+      - from:
+          actor: heilpraktiker
+        to:
+          workObject: rechnungsvorlage
+        label: importiert
+      - from:
+          workObject: rechnungsvorlage
+        to:
+          workObject: praxis
+        label: für
+  - sequenceNumber: 5
+    workObjects:
+      - name: rechnung
+        annotation: >-
+          Wie im Standardablauf für Patient, Diagnose und Leistung. Die Rechnung hat die Überschrift
+          „Honorarrechnung“.
+    edges:
+      - from:
+          actor: heilpraktiker
+        to:
+          workObject: rechnung
+        label: erstellt
+  - sequenceNumber: 6
+    workObjects:
+      - name: rechnungsvorlage
+        annotation: >-
+          Die Praxis nutzt wieder die allgemeine Vorlage.
+    edges:
+      - from:
+          actor: heilpraktiker
+        to:
+          workObject: rechnungsvorlage
+        label: setzt zurück

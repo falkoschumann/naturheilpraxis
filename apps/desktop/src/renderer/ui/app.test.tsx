@@ -8,6 +8,7 @@ import { App } from "./app.tsx";
 import { FakeDatabaseApi } from "./pages/fake-database-api.ts";
 import { FakeNaturheilpraxisApi } from "./pages/fake-naturheilpraxis-api.ts";
 import { FakePrintApi } from "./pages/fake-print-api.ts";
+import { FakeRechnungsvorlagenApi } from "./pages/fake-rechnungsvorlagen-api.ts";
 
 describe("App", () => {
   beforeEach(() => {
@@ -16,7 +17,14 @@ describe("App", () => {
   });
 
   it("sollte die Hauptnavigation anzeigen", async () => {
-    render(<App api={new FakeNaturheilpraxisApi()} database={new FakeDatabaseApi()} printer={new FakePrintApi()} />);
+    render(
+      <App
+        api={new FakeNaturheilpraxisApi()}
+        database={new FakeDatabaseApi()}
+        printer={new FakePrintApi()}
+        rechnungsvorlagen={new FakeRechnungsvorlagenApi()}
+      />,
+    );
 
     const navigation = await screen.findByRole("navigation", { name: "Hauptnavigation" });
 
@@ -29,6 +37,7 @@ describe("App", () => {
         api={new FakeNaturheilpraxisApi()}
         database={new FakeDatabaseApi({ status: {} })}
         printer={new FakePrintApi()}
+        rechnungsvorlagen={new FakeRechnungsvorlagenApi()}
       />,
     );
 
@@ -40,7 +49,14 @@ describe("App", () => {
 
   it("sollte nach dem Anlegen der Datenbank mit den Patienten starten", async () => {
     const database = new FakeDatabaseApi({ status: {}, answers: [{ filename: "/daten/neu.db" }] });
-    render(<App api={new FakeNaturheilpraxisApi()} database={database} printer={new FakePrintApi()} />);
+    render(
+      <App
+        api={new FakeNaturheilpraxisApi()}
+        database={database}
+        printer={new FakePrintApi()}
+        rechnungsvorlagen={new FakeRechnungsvorlagenApi()}
+      />,
+    );
 
     fireEvent.click(await screen.findByRole("button", { name: "Neue Datenbank anlegen…" }));
 
@@ -48,7 +64,14 @@ describe("App", () => {
   });
 
   it("sollte mit den Patienten starten", async () => {
-    render(<App api={new FakeNaturheilpraxisApi()} database={new FakeDatabaseApi()} printer={new FakePrintApi()} />);
+    render(
+      <App
+        api={new FakeNaturheilpraxisApi()}
+        database={new FakeDatabaseApi()}
+        printer={new FakePrintApi()}
+        rechnungsvorlagen={new FakeRechnungsvorlagenApi()}
+      />,
+    );
 
     const heading = await screen.findByRole("heading", { name: "Patienten" });
 
@@ -61,6 +84,7 @@ describe("App", () => {
         api={new FakeNaturheilpraxisApi({ events: [praxisAngelegt("ABC"), praxisAngelegt("NHP")] })}
         database={new FakeDatabaseApi()}
         printer={new FakePrintApi()}
+        rechnungsvorlagen={new FakeRechnungsvorlagenApi()}
       />,
     );
 
@@ -71,14 +95,28 @@ describe("App", () => {
 
   it("sollte die aktuelle Praxis wechseln und merken", async () => {
     const api = new FakeNaturheilpraxisApi({ events: [praxisAngelegt("ABC"), praxisAngelegt("NHP")] });
-    const { unmount } = render(<App api={api} database={new FakeDatabaseApi()} printer={new FakePrintApi()} />);
+    const { unmount } = render(
+      <App
+        api={api}
+        database={new FakeDatabaseApi()}
+        printer={new FakePrintApi()}
+        rechnungsvorlagen={new FakeRechnungsvorlagenApi()}
+      />,
+    );
     await screen.findByRole("option", { name: "Praxis NHP" });
 
     fireEvent.change(screen.getByLabelText("Aktuelle Praxis"), { target: { value: "NHP" } });
 
     expect(screen.getByText("Neue Einträge werden jetzt in der Praxis „Praxis NHP“ erfasst.")).toBeDefined();
     unmount();
-    render(<App api={api} database={new FakeDatabaseApi()} printer={new FakePrintApi()} />);
+    render(
+      <App
+        api={api}
+        database={new FakeDatabaseApi()}
+        printer={new FakePrintApi()}
+        rechnungsvorlagen={new FakeRechnungsvorlagenApi()}
+      />,
+    );
     await screen.findByRole("option", { name: "Praxis NHP" });
     expect(screen.getByLabelText("Aktuelle Praxis")).toHaveProperty("value", "NHP");
   });

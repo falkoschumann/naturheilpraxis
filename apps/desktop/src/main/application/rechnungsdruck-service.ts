@@ -7,29 +7,31 @@ import {
 } from "../../shared/application/print-api.ts";
 import type { RechnungErmittelnQueryResult } from "../../shared/domain/rechnungsansicht.ts";
 import type { Printer } from "../infrastructure/printer.ts";
-import type { TemplateStore } from "../infrastructure/template-store.ts";
+import type { RechnungsvorlagenService } from "./rechnungsvorlagen-service.ts";
 
-// A Rechnung with the Rechnungsvorlage saved in the database, none if the
-// Standardvorlage the app ships with applies.
+// A Rechnung with the Rechnungsvorlage of its Praxis.
 export type RechnungMitVorlage = Readonly<{
   rechnung: NonNullable<RechnungErmittelnQueryResult>;
-  vorlage?: string;
+  vorlage: string;
 }>;
 
 // Provides what the UI needs to create a Rechnung from its Vorlage and prints
 // the created Rechnung.
 export class RechnungsdruckService {
   readonly #naturheilpraxis: Pick<NaturheilpraxisApi, "rechnungErmitteln">;
-  readonly #templateStore: TemplateStore;
+  readonly #rechnungsvorlagen: Pick<
+    RechnungsvorlagenService,
+    "geltendeVorlage"
+  >;
   readonly #printer: Printer;
 
   constructor(
     naturheilpraxis: Pick<NaturheilpraxisApi, "rechnungErmitteln">,
-    templateStore: TemplateStore,
+    rechnungsvorlagen: Pick<RechnungsvorlagenService, "geltendeVorlage">,
     printer: Printer,
   ) {
     this.#naturheilpraxis = naturheilpraxis;
-    this.#templateStore = templateStore;
+    this.#rechnungsvorlagen = rechnungsvorlagen;
     this.#printer = printer;
   }
 
@@ -45,8 +47,10 @@ export class RechnungsdruckService {
       return undefined;
     }
 
-    const vorlage = this.#templateStore.find("rechnung");
-    return { rechnung, ...(vorlage === undefined ? {} : { vorlage }) };
+    const vorlage = this.#rechnungsvorlagen.geltendeVorlage({
+      praxiskuerzel: rechnung.praxis.praxiskuerzel,
+    });
+    return { rechnung, vorlage };
   }
 
   // Prints the Rechnung as the app serves it at rechnungUrl().

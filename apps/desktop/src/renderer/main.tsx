@@ -11,6 +11,7 @@ import { createRoot } from "react-dom/client";
 import type { DatabaseApi } from "../shared/application/database-api.ts";
 import type { NaturheilpraxisApi } from "../shared/application/naturheilpraxis-api.ts";
 import type { PrintApi } from "../shared/application/print-api.ts";
+import type { RechnungsvorlagenApi } from "../shared/application/rechnungsvorlagen-api.ts";
 import { App } from "./ui/app.tsx";
 
 declare global {
@@ -19,6 +20,7 @@ declare global {
     readonly naturheilpraxis: NaturheilpraxisApi;
     readonly database: DatabaseApi;
     readonly printer: PrintApi;
+    readonly rechnungsvorlagen: RechnungsvorlagenApi;
   }
 }
 
@@ -29,6 +31,11 @@ if (container === null) {
 
 createRoot(container).render(
   <StrictMode>
-    <App api={window.naturheilpraxis} database={window.database} printer={window.printer} />
+    <App
+      api={window.naturheilpraxis}
+      database={window.database}
+      printer={window.printer}
+      rechnungsvorlagen={window.rechnungsvorlagen}
+    />
   </StrictMode>,
 );

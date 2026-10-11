@@ -2,6 +2,8 @@
 
 import path from "node:path";
 
+import type { TemplateScope } from "./template-store.ts";
+
 // The scheme and host the app is loaded from instead of file://, so a page of
 // the app can refer only to the files of the app. The renderer refers to a
 // Rechnung with rechnungUrl() of the PrintApi.
@@ -18,6 +20,31 @@ export function resolveRechnungId(url: string): string | undefined {
 
   const match = /^\/rechnungen\/([0-9a-f-]+)\.html$/i.exec(parsed.pathname);
   return match?.[1];
+}
+
+// Returns for which Praxis a URL like rechnungsvorlageUrl() of the
+// RechnungsvorlagenApi refers to the preview of the Rechnungsvorlage, undefined
+// for any other URL.
+export function resolveVorlagengeltung(url: string): TemplateScope | undefined {
+  const parsed = new URL(url);
+  if (parsed.protocol !== `${appScheme}:` || parsed.host !== appHost) {
+    return undefined;
+  }
+
+  if (parsed.pathname === "/rechnungsvorlagen/allgemein.html") {
+    return {};
+  }
+  const match = /^\/rechnungsvorlagen\/praxen\/([^/]+)\.html$/.exec(
+    parsed.pathname,
+  );
+  if (match?.[1] === undefined) {
+    return undefined;
+  }
+  try {
+    return { praxiskuerzel: decodeURIComponent(match[1]) };
+  } catch {
+    return undefined;
+  }
 }
 
 // Maps a URL of the app to a file below the root, undefined for any other URL.

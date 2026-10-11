@@ -6,6 +6,7 @@ import { HashRouter, Navigate, Route, Routes } from "react-router";
 import type { DatabaseApi, DatabaseStatus } from "../../shared/application/database-api.ts";
 import type { NaturheilpraxisApi } from "../../shared/application/naturheilpraxis-api.ts";
 import type { PrintApi } from "../../shared/application/print-api.ts";
+import type { RechnungsvorlagenApi } from "../../shared/application/rechnungsvorlagen-api.ts";
 import { MainLayout } from "./layouts/main-layout.tsx";
 import { AbrechnungPage } from "./pages/abrechnung-page.tsx";
 import { GebuehrenPage } from "./pages/gebuehren-page.tsx";
@@ -13,10 +14,21 @@ import { PatientPage } from "./pages/patient-page.tsx";
 import { PatientenPage } from "./pages/patienten-page.tsx";
 import { PraxenPage } from "./pages/praxen-page.tsx";
 import { RechnungPage } from "./pages/rechnung-page.tsx";
+import { RechnungsvorlagenPage } from "./pages/rechnungsvorlagen-page.tsx";
 import { StartPage } from "./pages/start-page.tsx";
 
 // Without an open database the start page asks for one.
-export function App({ api, database, printer }: { api: NaturheilpraxisApi; database: DatabaseApi; printer: PrintApi }) {
+export function App({
+  api,
+  database,
+  printer,
+  rechnungsvorlagen,
+}: {
+  api: NaturheilpraxisApi;
+  database: DatabaseApi;
+  printer: PrintApi;
+  rechnungsvorlagen: RechnungsvorlagenApi;
+}) {
   const [status, setStatus] = useState<DatabaseStatus>();
 
   useEffect(() => {
@@ -59,6 +71,7 @@ export function App({ api, database, printer }: { api: NaturheilpraxisApi; datab
           <Route path="rechnungen/:rechnungId" element={<RechnungPage api={api} printer={printer} />} />
           <Route path="praxen" element={<PraxenPage api={api} />} />
           <Route path="gebuehren" element={<GebuehrenPage api={api} />} />
+          <Route path="rechnungsvorlagen" element={<RechnungsvorlagenPage rechnungsvorlagen={rechnungsvorlagen} />} />
         </Route>
       </Routes>
     </HashRouter>

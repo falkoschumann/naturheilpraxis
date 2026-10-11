@@ -8,6 +8,7 @@ import { contextBridge, ipcRenderer } from "electron";
 import type { DatabaseApi } from "../shared/application/database-api.ts";
 import type { NaturheilpraxisApi } from "../shared/application/naturheilpraxis-api.ts";
 import type { PrintApi } from "../shared/application/print-api.ts";
+import type { RechnungsvorlagenApi } from "../shared/application/rechnungsvorlagen-api.ts";
 
 const api: NaturheilpraxisApi = {
   praxisAnlegen: (command) => ipcRenderer.invoke(command.type, command),
@@ -57,6 +58,18 @@ const printer: PrintApi = {
     ipcRenderer.invoke("print-rechnung", rechnungId),
 };
 
+const rechnungsvorlagen: RechnungsvorlagenApi = {
+  rechnungsvorlagenErmitteln: () =>
+    ipcRenderer.invoke("rechnungsvorlagen-ermitteln"),
+  rechnungsvorlageExportieren: (geltung) =>
+    ipcRenderer.invoke("rechnungsvorlage-exportieren", geltung),
+  rechnungsvorlageImportieren: (geltung) =>
+    ipcRenderer.invoke("rechnungsvorlage-importieren", geltung),
+  rechnungsvorlageZuruecksetzen: (geltung) =>
+    ipcRenderer.invoke("rechnungsvorlage-zuruecksetzen", geltung),
+};
+
 contextBridge.exposeInMainWorld("naturheilpraxis", api);
 contextBridge.exposeInMainWorld("database", database);
 contextBridge.exposeInMainWorld("printer", printer);
+contextBridge.exposeInMainWorld("rechnungsvorlagen", rechnungsvorlagen);

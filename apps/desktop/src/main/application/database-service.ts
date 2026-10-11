@@ -4,12 +4,16 @@ import fs from "node:fs";
 
 import type { DatabaseStatus } from "../../shared/application/database-api.ts";
 import { SqliteEventStore } from "../infrastructure/event-store.ts";
-import type { FileDialog } from "../infrastructure/file-dialog.ts";
+import type {
+  FileDialog,
+  TemplateFileDialog,
+} from "../infrastructure/file-dialog.ts";
 import type { Printer } from "../infrastructure/printer.ts";
 import type { SettingsStore } from "../infrastructure/settings-store.ts";
 import { SqliteTemplateStore } from "../infrastructure/template-store.ts";
 import { NaturheilpraxisService } from "./naturheilpraxis-service.ts";
 import { RechnungsdruckService } from "./rechnungsdruck-service.ts";
+import { RechnungsvorlagenService } from "./rechnungsvorlagen-service.ts";
 
 // The app remembers this many databases for the menu "Zuletzt geöffnet".
 const maximumRecentDatabases = 5;
@@ -21,6 +25,7 @@ type Database = Readonly<{
   eventStore: SqliteEventStore;
   templateStore: SqliteTemplateStore;
   naturheilpraxis: NaturheilpraxisService;
+  rechnungsvorlagen: RechnungsvorlagenService;
   rechnungsdruck: RechnungsdruckService;
 }>;
 
@@ -28,7 +33,8 @@ type Database = Readonly<{
 // attempt keeps the database opened before.
 export class DatabaseService {
   readonly #settingsStore: SettingsStore;
-  readonly #fileDialog: FileDialog;
+  readonly #fileDialog: FileDialog & TemplateFileDialog;
+  readonly #standardvorlage: string;
   readonly #printer: Printer;
   readonly #defaultDatabase: string;
   readonly #listeners: ((filename: string) => void)[] = [];
@@ -41,17 +47,21 @@ export class DatabaseService {
     settingsStore,
     fileDialog,
     printer,
+    standardvorlage,
     defaultDatabase,
   }: {
     settingsStore: SettingsStore;
-    fileDialog: FileDialog;
+    fileDialog: FileDialog & TemplateFileDialog;
     printer: Printer;
+    // The Rechnungsvorlage the app ships with.
+    standardvorlage: string;
     // Where the app kept its database before the user could choose one.
     defaultDatabase: string;
   }) {
     this.#settingsStore = settingsStore;
     this.#fileDialog = fileDialog;
     this.#printer = printer;
+    this.#standardvorlage = standardvorlage;
     this.#defaultDatabase = defaultDatabase;
   }
 
@@ -60,6 +70,13 @@ export class DatabaseService {
       throw new Error("Es ist keine Datenbank geöffnet.");
     }
     return this.#database.naturheilpraxis;
+  }
+
+  get rechnungsvorlagen(): RechnungsvorlagenService {
+    if (this.#database === undefined) {
+      throw new Error("Es ist keine Datenbank geöffnet.");
+    }
+    return this.#database.rechnungsvorlagen;
   }
 
   get rechnungsdruck(): RechnungsdruckService {
@@ -177,14 +194,21 @@ export class DatabaseService {
     this.#startFailure = undefined;
     const templateStore = SqliteTemplateStore.open(filename);
     const naturheilpraxis = new NaturheilpraxisService(eventStore);
+    const rechnungsvorlagen = new RechnungsvorlagenService({
+      naturheilpraxis,
+      templateStore,
+      fileDialog: this.#fileDialog,
+      standardvorlage: this.#standardvorlage,
+    });
     this.#database = {
       filename,
       eventStore,
       templateStore,
       naturheilpraxis,
+      rechnungsvorlagen,
       rechnungsdruck: new RechnungsdruckService(
         naturheilpraxis,
-        templateStore,
+        rechnungsvorlagen,
         this.#printer,
       ),
     };

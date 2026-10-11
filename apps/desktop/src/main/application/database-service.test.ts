@@ -7,7 +7,10 @@ import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 import { SqliteEventStore } from "../infrastructure/event-store.ts";
-import type { FileDialog } from "../infrastructure/file-dialog.ts";
+import type {
+  FileDialog,
+  TemplateFileDialog,
+} from "../infrastructure/file-dialog.ts";
 import type {
   Settings,
   SettingsStore,
@@ -36,13 +39,14 @@ describe("Database Service", () => {
     fileDialog = new FakeFileDialog(),
   }: {
     recentDatabases?: readonly string[];
-    fileDialog?: FileDialog;
+    fileDialog?: FileDialog & TemplateFileDialog;
   } = {}) {
     const settingsStore = new MemorySettingsStore({ recentDatabases });
     const service = new DatabaseService({
       settingsStore,
       fileDialog,
       printer: { print: () => Promise.resolve("printed") },
+      standardvorlage: "<p>Standard</p>",
       defaultDatabase: datei("naturheilpraxis.db"),
     });
     return { service, settingsStore };
@@ -301,7 +305,7 @@ class MemorySettingsStore implements SettingsStore {
 
 // Answers the file dialogs like a user who chooses the given files, or cancels
 // without them.
-class FakeFileDialog implements FileDialog {
+class FakeFileDialog implements FileDialog, TemplateFileDialog {
   readonly #newDatabase: string | undefined;
   readonly #existingDatabase: string | undefined;
 
@@ -319,5 +323,13 @@ class FakeFileDialog implements FileDialog {
 
   chooseExistingDatabase(): Promise<string | undefined> {
     return Promise.resolve(this.#existingDatabase);
+  }
+
+  chooseTemplateToExport(): Promise<string | undefined> {
+    return Promise.resolve(undefined);
+  }
+
+  chooseTemplateToImport(): Promise<string | undefined> {
+    return Promise.resolve(undefined);
   }
 }

@@ -8,6 +8,7 @@ import {
   rechnungsdaten,
   rechnungsdokument,
   standardvorlage,
+  vorschaudokument,
 } from "./rechnungsvorlage.ts";
 
 describe("Rechnungsvorlage", () => {
@@ -152,15 +153,6 @@ describe("Rechnungsdokument", () => {
     });
   });
 
-  it("sollte die Rechnung mit der Standardvorlage erzeugen, solange keine Vorlage gesichert ist", () => {
-    const dokument = rechnungsdokument({ rechnung: versendeteRechnung() });
-
-    expect(dokument).toEqual({
-      status: 200,
-      html: rechnungErzeugen(standardvorlage, versendeteRechnung()),
-    });
-  });
-
   it("sollte erklären, dass es die Rechnung nicht gibt", () => {
     const dokument = rechnungsdokument(undefined);
 
@@ -178,6 +170,57 @@ describe("Rechnungsdokument", () => {
     expect(dokument.html).toContain(
       "Bitte prüfen Sie die Platzhalter der Rechnungsvorlage.",
     );
+  });
+});
+
+describe("Vorschaudokument", () => {
+  it("sollte die Vorlage mit Beispieldaten und den Daten der Praxis zeigen", () => {
+    const dokument = vorschaudokument({
+      vorlage:
+        "<p>{{praxis.name}}, {{patient.name}}, {{rechnungstext}}</p>{{#positionen}}<p>{{bezeichnung}}</p>{{/positionen}}",
+      praxis: {
+        praxiskuerzel: "NHP",
+        name: "Naturheilpraxis am Markt",
+        anschrift: {
+          strasse: "Marktplatz 1",
+          postleitzahl: "12345",
+          ort: "Musterstadt",
+        },
+        rechnungstext: "Zahlbar in 14 Tagen.",
+      },
+    });
+
+    expect(dokument).toEqual({
+      status: 200,
+      html: "<p>Naturheilpraxis am Markt, Dr. Erika Mustermann, Zahlbar in 14 Tagen.</p><p>Eingehende Untersuchung</p><p>Akupunktur</p><p>Beratung, auch telefonisch</p>",
+    });
+  });
+
+  it("sollte ohne Praxis eine Beispielpraxis zeigen", () => {
+    const dokument = vorschaudokument({ vorlage: "<p>{{praxis.name}}</p>" });
+
+    expect(dokument.html).toBe("<p>Naturheilpraxis Beispiel</p>");
+  });
+
+  it("sollte mit der Standardvorlage alle Beispieldaten zeigen", () => {
+    const dokument = vorschaudokument({ vorlage: standardvorlage });
+
+    expect(dokument.status).toBe(200);
+    expect(dokument.html).toContain("Hinterhaus");
+    expect(dokument.html).toContain("61,30\u00a0€");
+  });
+
+  it("sollte erklären, dass die Vorlage fehlerhaft ist", () => {
+    const dokument = vorschaudokument({ vorlage: "{{#positionen}}" });
+
+    expect(dokument.status).toBe(500);
+  });
+
+  it("sollte erklären, dass es die Praxis nicht gibt", () => {
+    const dokument = vorschaudokument(undefined);
+
+    expect(dokument.status).toBe(404);
+    expect(dokument.html).toContain("Diese Praxis gibt es nicht (mehr).");
   });
 });
 

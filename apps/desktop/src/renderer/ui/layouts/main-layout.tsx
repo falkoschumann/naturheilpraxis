@@ -8,7 +8,7 @@ import type { PraxenErmittelnQueryResult } from "../../../shared/domain/praxenan
 import { Toast } from "../components/toast.tsx";
 import { AktuellePraxisContext } from "./aktuelle-praxis.ts";
 
-const stammdaten = ["/praxen", "/gebuehren"];
+const stammdaten = ["/praxen", "/gebuehren", "/rechnungsvorlagen"];
 
 // The choice of the current Praxis is a preference of this computer.
 const aktuellePraxisSchluessel = "naturheilpraxis.aktuellePraxis";
@@ -91,6 +91,11 @@ export function MainLayout({ api }: { api: NaturheilpraxisApi }) {
                 <li>
                   <NavLink className="dropdown-item" to="/gebuehren">
                     Gebührenverzeichnis
+                  </NavLink>
+                </li>
+                <li>
+                  <NavLink className="dropdown-item" to="/rechnungsvorlagen">
+                    Rechnungsvorlagen
                   </NavLink>
                 </li>
               </ul>

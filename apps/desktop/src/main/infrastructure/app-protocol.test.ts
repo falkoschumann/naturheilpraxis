@@ -4,7 +4,11 @@ import path from "node:path";
 
 import { describe, expect, it } from "vitest";
 
-import { resolveAppFile, resolveRechnungId } from "./app-protocol.ts";
+import {
+  resolveAppFile,
+  resolveRechnungId,
+  resolveVorlagengeltung,
+} from "./app-protocol.ts";
 
 const root = path.join(path.sep, "Programme", "Naturheilpraxis", "renderer");
 
@@ -92,6 +96,38 @@ describe("App-Protokoll", () => {
       ).toBeUndefined();
       expect(
         resolveRechnungId("app://naturheilpraxis/rechnungen/..%2findex.html"),
+      ).toBeUndefined();
+    });
+  });
+
+  describe("Rechnungsvorlage", () => {
+    it("sollte die Vorschau der allgemeinen Vorlage erkennen", () => {
+      const geltung = resolveVorlagengeltung(
+        "app://naturheilpraxis/rechnungsvorlagen/allgemein.html",
+      );
+
+      expect(geltung).toEqual({});
+    });
+
+    it("sollte das kodierte Kürzel der Praxis lesen", () => {
+      const geltung = resolveVorlagengeltung(
+        "app://naturheilpraxis/rechnungsvorlagen/praxen/N%C3%9CP%201.html?stand=2",
+      );
+
+      expect(geltung).toEqual({ praxiskuerzel: "NÜP 1" });
+    });
+
+    it("sollte nur Vorlagen der App annehmen", () => {
+      expect(
+        resolveVorlagengeltung("app://naturheilpraxis/index.html"),
+      ).toBeUndefined();
+      expect(
+        resolveVorlagengeltung("app://fremd/rechnungsvorlagen/allgemein.html"),
+      ).toBeUndefined();
+      expect(
+        resolveVorlagengeltung(
+          "app://naturheilpraxis/rechnungsvorlagen/praxen/%E0.html",
+        ),
       ).toBeUndefined();
     });
   });
