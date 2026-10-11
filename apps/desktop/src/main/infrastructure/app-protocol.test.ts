@@ -4,7 +4,7 @@ import path from "node:path";
 
 import { describe, expect, it } from "vitest";
 
-import { resolveAppFile } from "./app-protocol.ts";
+import { resolveAppFile, resolveRechnungId } from "./app-protocol.ts";
 
 const root = path.join(path.sep, "Programme", "Naturheilpraxis", "renderer");
 
@@ -62,5 +62,37 @@ describe("App-Protokoll", () => {
     const file = resolveAppFile("app://fremd/index.html", root);
 
     expect(file).toBeUndefined();
+  });
+
+  describe("Rechnung", () => {
+    const rechnungId = "33333333-3333-4333-8333-333333333333";
+
+    it("sollte die ID der Rechnung aus der URL lesen", () => {
+      const id = resolveRechnungId(
+        `app://naturheilpraxis/rechnungen/${rechnungId}.html`,
+      );
+
+      expect(id).toBe(rechnungId);
+    });
+
+    it("sollte Parameter der URL ignorieren", () => {
+      const id = resolveRechnungId(
+        `app://naturheilpraxis/rechnungen/${rechnungId}.html?stand=2`,
+      );
+
+      expect(id).toBe(rechnungId);
+    });
+
+    it("sollte nur Rechnungen der App annehmen", () => {
+      expect(resolveRechnungId("app://naturheilpraxis/index.html")).toBe(
+        undefined,
+      );
+      expect(
+        resolveRechnungId(`app://fremd/rechnungen/${rechnungId}.html`),
+      ).toBeUndefined();
+      expect(
+        resolveRechnungId("app://naturheilpraxis/rechnungen/..%2findex.html"),
+      ).toBeUndefined();
+    });
   });
 });

@@ -42,6 +42,7 @@ describe("Database Service", () => {
     const service = new DatabaseService({
       settingsStore,
       fileDialog,
+      printer: { print: () => Promise.resolve("printed") },
       defaultDatabase: datei("naturheilpraxis.db"),
     });
     return { service, settingsStore };

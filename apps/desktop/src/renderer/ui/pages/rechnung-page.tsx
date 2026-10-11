@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router";
 
 import type { NaturheilpraxisApi } from "../../../shared/application/naturheilpraxis-api.ts";
+import { rechnungUrl, type PrintApi } from "../../../shared/application/print-api.ts";
 import type { RechnungErmittelnQueryResult } from "../../../shared/domain/rechnungsansicht.ts";
 import { formatDatum, formatEuro } from "../../../shared/domain/value-objects.ts";
 import { ConfirmDialog } from "../components/confirm-dialog.tsx";
@@ -16,7 +17,7 @@ import { RechnungDialog } from "./rechnung-dialog.tsx";
 type Rechnung = NonNullable<RechnungErmittelnQueryResult>;
 
 // A Rechnung as it is printed, with the actions its status allows.
-export function RechnungPage({ api }: { api: NaturheilpraxisApi }) {
+export function RechnungPage({ api, printer }: { api: NaturheilpraxisApi; printer: PrintApi }) {
   const rechnungId = useParams()["rechnungId"] ?? "";
   const location = useLocation();
   const navigate = useNavigate();
@@ -26,8 +27,9 @@ export function RechnungPage({ api }: { api: NaturheilpraxisApi }) {
     "bearbeiten" | "loeschen" | "versenden" | "versand-zuruecknehmen" | "zahlung-zuruecknehmen"
   >();
   const [meldung, setMeldung] = useState<Meldung | undefined>(() => meldungAus(location.state));
-  // Each increment loads the Rechnung again.
+  // Each increment loads the Rechnung and its preview again.
   const [stand, setStand] = useState(0);
+  const [druckt, setDruckt] = useState(false);
 
   useEffect(() => {
     let aktuell = true;
@@ -108,6 +110,7 @@ export function RechnungPage({ api }: { api: NaturheilpraxisApi }) {
       .rechnungErmitteln({ type: "rechnung-ermitteln", parameters: { rechnungId: rechnung.rechnungId } })
       .catch(() => undefined);
     setRechnung(versendet);
+    setStand((stand) => stand + 1);
     setMeldung({
       message:
         versendet?.rechnungsnummer === undefined
@@ -128,6 +131,20 @@ export function RechnungPage({ api }: { api: NaturheilpraxisApi }) {
         : { message: status.errorMessage, fehler: true },
     );
     setStand((stand) => stand + 1);
+  }
+
+  async function drucken(rechnung: Rechnung) {
+    setDruckt(true);
+    const status = await printer.printRechnung(rechnung.rechnungId).catch(() => ({
+      printed: false,
+      errorMessage: "Die Rechnung konnte nicht gedruckt werden. Bitte versuchen Sie es erneut.",
+    }));
+    setDruckt(false);
+    if (status.printed) {
+      setMeldung({ message: `Die Rechnung ${rechnung.rechnungsnummer} wurde zum Drucken übergeben.` });
+    } else if (status.errorMessage !== undefined) {
+      setMeldung({ message: status.errorMessage, fehler: true });
+    }
   }
 
   async function zahlungErfassen(rechnung: Rechnung) {
@@ -209,10 +226,7 @@ export function RechnungPage({ api }: { api: NaturheilpraxisApi }) {
               <i className="fa-solid fa-rotate-left me-1" aria-hidden="true"></i>
               Versand zurücknehmen
             </button>
-            <button type="button" className="btn btn-outline-secondary" onClick={() => window.print()}>
-              <i className="fa-solid fa-print me-1" aria-hidden="true"></i>
-              Drucken
-            </button>
+            <DruckenButton druckt={druckt} onClick={() => void drucken(rechnung)} />
             <button type="button" className="btn btn-primary" onClick={() => void zahlungErfassen(rechnung)}>
               <i className="fa-solid fa-euro-sign me-1" aria-hidden="true"></i>
               Zahlung erfassen
@@ -229,10 +243,7 @@ export function RechnungPage({ api }: { api: NaturheilpraxisApi }) {
               <i className="fa-solid fa-rotate-left me-1" aria-hidden="true"></i>
               Zahlung zurücknehmen
             </button>
-            <button type="button" className="btn btn-outline-secondary" onClick={() => window.print()}>
-              <i className="fa-solid fa-print me-1" aria-hidden="true"></i>
-              Drucken
-            </button>
+            <DruckenButton druckt={druckt} onClick={() => void drucken(rechnung)} />
           </div>
         )}
       </div>
@@ -249,110 +260,15 @@ export function RechnungPage({ api }: { api: NaturheilpraxisApi }) {
           </div>
         </div>
       )}
-      <article className="card shadow-sm mx-auto rechnung" aria-label="Rechnung">
-        <div className="card-body p-4 p-md-5">
-          <header className="d-flex justify-content-between flex-wrap gap-3 mb-5">
-            <div className="small">
-              <div className="text-body-secondary mb-3 rechnung-absender">
-                {praxis.name} · {praxis.anschrift.strasse} · {praxis.anschrift.postleitzahl} {praxis.anschrift.ort}
-              </div>
-              {patient.name.anrede !== undefined && <div>{patient.name.anrede}</div>}
-              <div>{patientenname}</div>
-              {patient.anschrift === undefined ? (
-                <div className="text-danger">Anschrift fehlt</div>
-              ) : (
-                <>
-                  <div>{patient.anschrift.strasse}</div>
-                  {patient.anschrift.zusatz !== undefined && <div>{patient.anschrift.zusatz}</div>}
-                  <div>
-                    {patient.anschrift.postleitzahl} {patient.anschrift.ort}
-                  </div>
-                  {patient.anschrift.staat !== undefined && <div>{patient.anschrift.staat}</div>}
-                </>
-              )}
-            </div>
-            <div className="text-end">
-              <div className="fs-5 text-primary">
-                <i className="fa-solid fa-leaf me-1" aria-hidden="true"></i>
-                {praxis.name}
-              </div>
-              <div className="small text-body-secondary">
-                {praxis.anschrift.strasse}
-                <br />
-                {praxis.anschrift.postleitzahl} {praxis.anschrift.ort}
-                {[
-                  praxis.kontakt?.telefon && `Tel. ${praxis.kontakt.telefon}`,
-                  praxis.kontakt?.fax && `Fax ${praxis.kontakt.fax}`,
-                  praxis.kontakt?.email,
-                ].map(
-                  (kontakt) =>
-                    kontakt !== undefined && (
-                      <span key={kontakt}>
-                        <br />
-                        {kontakt}
-                      </span>
-                    ),
-                )}
-              </div>
-            </div>
-          </header>
-          <div className="d-flex justify-content-between align-items-end mb-3">
-            <h2 className="h4 mb-0">Rechnung</h2>
-            <dl className="row small mb-0 text-end">
-              <dt className="col-7 fw-normal text-body-secondary">Rechnungsnr.</dt>
-              <dd className="col-5 mb-0">{rechnung.rechnungsnummer ?? <em>beim Versand</em>}</dd>
-              <dt className="col-7 fw-normal text-body-secondary">Rechnungsdatum</dt>
-              <dd className="col-5 mb-0">
-                {rechnung.datum === undefined ? <em>beim Versand</em> : formatDatum(rechnung.datum)}
-              </dd>
-              <dt className="col-7 fw-normal text-body-secondary">Patientennr.</dt>
-              <dd className="col-5 mb-0">{patient.patientennummer}</dd>
-            </dl>
-          </div>
-          <p className="mb-3">
-            <span className="text-body-secondary">Diagnose:</span> {rechnung.diagnosetext}
-          </p>
-          <table className="table table-sm">
-            <thead>
-              <tr>
-                <th scope="col">Datum</th>
-                <th scope="col">Ziffer</th>
-                <th scope="col">Leistung</th>
-                <th scope="col" className="text-end">
-                  Anzahl
-                </th>
-                <th scope="col" className="text-end">
-                  Einzelbetrag
-                </th>
-                <th scope="col" className="text-end">
-                  Betrag
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {rechnung.positionen.map((position) => (
-                <tr key={position.leistungId}>
-                  <td>{formatDatum(position.datum)}</td>
-                  <td>{position.ziffer}</td>
-                  <td>{position.bezeichnung}</td>
-                  <td className="text-end">{position.anzahl}</td>
-                  <td className="text-end text-nowrap">{formatEuro(position.einzelbetrag)}</td>
-                  <td className="text-end text-nowrap">{formatEuro(position.betrag)}</td>
-                </tr>
-              ))}
-            </tbody>
-            <tfoot>
-              <tr>
-                <th colSpan={5} className="text-end">
-                  Rechnungsbetrag
-                </th>
-                <th className="text-end text-nowrap">{formatEuro(rechnung.gesamtbetrag)}</th>
-              </tr>
-            </tfoot>
-          </table>
-          <p className="mt-4 mb-0">{rechnung.rechnungstext}</p>
-        </div>
-      </article>
+      {/* The Rechnung is created from the Rechnungsvorlage, which may run
+          neither a script nor reach the app. */}
+      <iframe
+        key={stand}
+        className="card shadow-sm mx-auto d-block rechnung"
+        title="Rechnung"
+        sandbox=""
+        src={rechnungUrl(rechnung.rechnungId)}
+      ></iframe>
       {dialog === "bearbeiten" && (
         <RechnungDialog
           api={api}
@@ -430,6 +346,19 @@ export function RechnungPage({ api }: { api: NaturheilpraxisApi }) {
       )}
       {meldung !== undefined && <Toast {...meldung} onClose={schliesseMeldung} />}
     </>
+  );
+}
+
+function DruckenButton({ druckt, onClick }: { druckt: boolean; onClick: () => void }) {
+  return (
+    <button type="button" className="btn btn-outline-secondary" disabled={druckt} onClick={onClick}>
+      {druckt ? (
+        <span className="spinner-border spinner-border-sm me-1" aria-hidden="true"></span>
+      ) : (
+        <i className="fa-solid fa-print me-1" aria-hidden="true"></i>
+      )}
+      Drucken
+    </button>
   );
 }
 

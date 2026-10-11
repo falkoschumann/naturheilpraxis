@@ -59,7 +59,8 @@ async function korrigiereRechnung(window: Page) {
   ).toBeVisible();
   await expect(
     window
-      .getByRole("article", { name: "Rechnung" })
+      .getByTitle("Rechnung")
+      .contentFrame()
       .getByText("Chronische Lumbalgie"),
   ).toBeVisible();
 }

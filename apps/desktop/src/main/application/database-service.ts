@@ -5,8 +5,11 @@ import fs from "node:fs";
 import type { DatabaseStatus } from "../../shared/application/database-api.ts";
 import { SqliteEventStore } from "../infrastructure/event-store.ts";
 import type { FileDialog } from "../infrastructure/file-dialog.ts";
+import type { Printer } from "../infrastructure/printer.ts";
 import type { SettingsStore } from "../infrastructure/settings-store.ts";
+import { SqliteTemplateStore } from "../infrastructure/template-store.ts";
 import { NaturheilpraxisService } from "./naturheilpraxis-service.ts";
+import { RechnungsdruckService } from "./rechnungsdruck-service.ts";
 
 // The app remembers this many databases for the menu "Zuletzt geöffnet".
 const maximumRecentDatabases = 5;
@@ -16,7 +19,9 @@ type Failure = Readonly<{ errorMessage: string; retryFilename?: string }>;
 type Database = Readonly<{
   filename: string;
   eventStore: SqliteEventStore;
+  templateStore: SqliteTemplateStore;
   naturheilpraxis: NaturheilpraxisService;
+  rechnungsdruck: RechnungsdruckService;
 }>;
 
 // Opens the database with the event store the user has chosen. A failed
@@ -24,6 +29,7 @@ type Database = Readonly<{
 export class DatabaseService {
   readonly #settingsStore: SettingsStore;
   readonly #fileDialog: FileDialog;
+  readonly #printer: Printer;
   readonly #defaultDatabase: string;
   readonly #listeners: ((filename: string) => void)[] = [];
   #database: Database | undefined;
@@ -34,15 +40,18 @@ export class DatabaseService {
   constructor({
     settingsStore,
     fileDialog,
+    printer,
     defaultDatabase,
   }: {
     settingsStore: SettingsStore;
     fileDialog: FileDialog;
+    printer: Printer;
     // Where the app kept its database before the user could choose one.
     defaultDatabase: string;
   }) {
     this.#settingsStore = settingsStore;
     this.#fileDialog = fileDialog;
+    this.#printer = printer;
     this.#defaultDatabase = defaultDatabase;
   }
 
@@ -51,6 +60,13 @@ export class DatabaseService {
       throw new Error("Es ist keine Datenbank geöffnet.");
     }
     return this.#database.naturheilpraxis;
+  }
+
+  get rechnungsdruck(): RechnungsdruckService {
+    if (this.#database === undefined) {
+      throw new Error("Es ist keine Datenbank geöffnet.");
+    }
+    return this.#database.rechnungsdruck;
   }
 
   get recentDatabases(): readonly string[] {
@@ -133,6 +149,7 @@ export class DatabaseService {
 
   close(): void {
     this.#database?.eventStore.close();
+    this.#database?.templateStore.close();
     this.#database = undefined;
   }
 
@@ -158,10 +175,18 @@ export class DatabaseService {
   #use(filename: string, eventStore: SqliteEventStore): DatabaseStatus {
     this.close();
     this.#startFailure = undefined;
+    const templateStore = SqliteTemplateStore.open(filename);
+    const naturheilpraxis = new NaturheilpraxisService(eventStore);
     this.#database = {
       filename,
       eventStore,
-      naturheilpraxis: new NaturheilpraxisService(eventStore),
+      templateStore,
+      naturheilpraxis,
+      rechnungsdruck: new RechnungsdruckService(
+        naturheilpraxis,
+        templateStore,
+        this.#printer,
+      ),
     };
     this.#settingsStore.save({
       recentDatabases: [

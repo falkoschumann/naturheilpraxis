@@ -111,7 +111,8 @@ export async function erstelleRechnung(window: Page) {
   await expect(
     window.getByRole("heading", { level: 1, name: "Rechnungsentwurf" }),
   ).toBeVisible();
-  const rechnung = window.getByRole("article", { name: "Rechnung" });
+  // The Rechnung is created from the Rechnungsvorlage and shown in a frame.
+  const rechnung = window.getByTitle("Rechnung").contentFrame();
   await expect(
     rechnung.getByRole("row", { name: /Eingehende Untersuchung/ }),
   ).toBeVisible();
@@ -131,6 +132,12 @@ export async function versendeRechnung(window: Page) {
   ).toBeVisible();
   await expect(
     window.getByText(/^Die Rechnung 1\/\d{6} wurde als versendet markiert\.$/),
+  ).toBeVisible();
+  await expect(
+    window
+      .getByTitle("Rechnung")
+      .contentFrame()
+      .getByText(/1\/\d{6}/),
   ).toBeVisible();
   await expect(window.getByRole("button", { name: "Drucken" })).toBeVisible();
 }

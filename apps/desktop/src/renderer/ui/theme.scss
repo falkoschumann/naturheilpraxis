@@ -65,24 +65,10 @@
   }
 }
 
-// The sender line above the address fits in the window of an envelope.
-.rechnung-absender {
-  font-size: 0.7rem;
-}
-
+// The preview of a Rechnung shows a page of A4 paper.
 .rechnung {
+  width: 100%;
   max-width: 60rem;
-}
-
-// Only the Rechnung itself is printed, without the frame of the card.
-@media print {
-  .rechnung {
-    max-width: none;
-    border: 0;
-    box-shadow: none !important;
-  }
-
-  .rechnung .card-body {
-    padding: 0 !important;
-  }
+  aspect-ratio: 210 / 297;
+  background-color: #fff;
 }

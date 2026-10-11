@@ -2,12 +2,14 @@
 
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import { MemoryRouter, Route, Routes, useLocation } from "react-router";
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 
 import type { NaturheilpraxisApi } from "../../../shared/application/naturheilpraxis-api.ts";
+import type { PrintApi } from "../../../shared/application/print-api.ts";
 import type { DomainEvent } from "../../../shared/domain/events.ts";
 import { AbrechnungPage } from "./abrechnung-page.tsx";
 import { FakeNaturheilpraxisApi } from "./fake-naturheilpraxis-api.ts";
+import { FakePrintApi } from "./fake-print-api.ts";
 import { heute } from "./heute.ts";
 import { PatientPage } from "./patient-page.tsx";
 import { RechnungPage } from "./rechnung-page.tsx";
@@ -92,7 +94,7 @@ describe("Rechnungen", () => {
   });
 
   describe("Rechnung", () => {
-    it("sollte den Rechnungsentwurf mit Positionen und Gesamtbetrag anzeigen", async () => {
+    it("sollte den Rechnungsentwurf in einer abgeschotteten Vorschau anzeigen", async () => {
       const api = new FakeNaturheilpraxisApi({
         events: [...grunddaten(), rechnungErstellt([ersteLeistung, zweiteLeistung])],
       });
@@ -100,11 +102,9 @@ describe("Rechnungen", () => {
       zeige(api, `/rechnungen/${rechnungId}`);
 
       expect(await screen.findByRole("heading", { level: 1, name: "Rechnungsentwurf" })).toBeDefined();
-      const rechnung = screen.getByRole("article", { name: "Rechnung" });
-      expect(within(rechnung).getByRole("row", { name: /Eingehende Untersuchung/ }).textContent).toContain("20,50");
-      expect(within(rechnung).getByText("51,10 €", { selector: "th" })).toBeDefined();
-      expect(within(rechnung).getByText("Tel. 0123 456789")).toBeDefined();
-      expect(within(rechnung).getByText("Fax 0123 456780")).toBeDefined();
+      const vorschau = screen.getByTitle("Rechnung");
+      expect(vorschau.getAttribute("src")).toBe(`app://naturheilpraxis/rechnungen/${rechnungId}.html`);
+      expect(vorschau.getAttribute("sandbox")).toBe("");
       expect(screen.getByText(/keine vollständige Anschrift/)).toBeDefined();
     });
 
@@ -215,13 +215,41 @@ describe("Rechnungen", () => {
       const api = new FakeNaturheilpraxisApi({
         events: [...grunddaten(), anschriftErgaenzt(), rechnungErstellt([ersteLeistung]), rechnungVersendet()],
       });
-      const print = vi.spyOn(window, "print").mockImplementation(() => undefined);
-      zeige(api, `/rechnungen/${rechnungId}`);
+      const printer = new FakePrintApi();
+      zeige(api, `/rechnungen/${rechnungId}`, printer);
 
       fireEvent.click(await screen.findByRole("button", { name: "Drucken" }));
 
-      expect(print).toHaveBeenCalledOnce();
-      print.mockRestore();
+      expect(await screen.findByText("Die Rechnung 1/260920 wurde zum Drucken übergeben.")).toBeDefined();
+      expect(printer.printed).toEqual([rechnungId]);
+    });
+
+    it("sollte erklären, warum die Rechnung nicht gedruckt wurde", async () => {
+      const api = new FakeNaturheilpraxisApi({
+        events: [...grunddaten(), anschriftErgaenzt(), rechnungErstellt([ersteLeistung]), rechnungVersendet()],
+      });
+      const printer = new FakePrintApi({
+        status: { printed: false, errorMessage: "Die Rechnung konnte nicht gedruckt werden." },
+      });
+      zeige(api, `/rechnungen/${rechnungId}`, printer);
+
+      fireEvent.click(await screen.findByRole("button", { name: "Drucken" }));
+
+      expect(await screen.findByText("Die Rechnung konnte nicht gedruckt werden.")).toBeDefined();
+    });
+
+    it("sollte nichts melden, wenn der Druck abgebrochen wurde", async () => {
+      const api = new FakeNaturheilpraxisApi({
+        events: [...grunddaten(), anschriftErgaenzt(), rechnungErstellt([ersteLeistung]), rechnungVersendet()],
+      });
+      const printer = new FakePrintApi({ status: { printed: false } });
+      zeige(api, `/rechnungen/${rechnungId}`, printer);
+
+      fireEvent.click(await screen.findByRole("button", { name: "Drucken" }));
+
+      await expect.poll(() => screen.getByRole("button", { name: "Drucken" })).toHaveProperty("disabled", false);
+      expect(printer.printed).toEqual([rechnungId]);
+      expect(screen.queryByRole("status")).toBeNull();
     });
 
     it("sollte den Fortschritt der Rechnung zeigen", async () => {
@@ -370,13 +398,13 @@ describe("Rechnungen", () => {
   });
 });
 
-function zeige(api: NaturheilpraxisApi, pfad: string) {
+function zeige(api: NaturheilpraxisApi, pfad: string, printer: PrintApi = new FakePrintApi()) {
   render(
     <MemoryRouter initialEntries={[pfad]}>
       <Routes>
         <Route path="/patienten/:patientennummer" element={<PatientPage api={api} reiter="behandlung" />} />
         <Route path="/patienten/:patientennummer/rechnungen" element={<PatientPage api={api} reiter="rechnungen" />} />
-        <Route path="/rechnungen/:rechnungId" element={<RechnungPage api={api} />} />
+        <Route path="/rechnungen/:rechnungId" element={<RechnungPage api={api} printer={printer} />} />
         <Route path="/abrechnung" element={<AbrechnungPage api={api} />} />
       </Routes>
       <Pfad />

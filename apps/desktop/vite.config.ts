@@ -37,7 +37,7 @@ function electronProcess(name: string, entry: string): EnvironmentOptions {
 // The development server sets the Content Security Policy of the main process,
 // see contentSecurityPolicy in src/main/main.ts, with the exceptions Vite needs:
 // it injects the styles as style elements and reloads the page over a web
-// socket.
+// socket. The preview of a Rechnung comes from the app protocol.
 function contentSecurityPolicy(): Plugin {
   const policy = [
     "default-src 'none'",
@@ -46,6 +46,7 @@ function contentSecurityPolicy(): Plugin {
     "img-src 'self' data:",
     "font-src 'self'",
     "connect-src 'self' ws://localhost:*",
+    "frame-src app://naturheilpraxis",
     "base-uri 'none'",
     "form-action 'none'",
     "object-src 'none'",

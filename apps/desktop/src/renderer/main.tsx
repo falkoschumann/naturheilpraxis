@@ -10,6 +10,7 @@ import { createRoot } from "react-dom/client";
 
 import type { DatabaseApi } from "../shared/application/database-api.ts";
 import type { NaturheilpraxisApi } from "../shared/application/naturheilpraxis-api.ts";
+import type { PrintApi } from "../shared/application/print-api.ts";
 import { App } from "./ui/app.tsx";
 
 declare global {
@@ -17,6 +18,7 @@ declare global {
     // Provided by the preload script.
     readonly naturheilpraxis: NaturheilpraxisApi;
     readonly database: DatabaseApi;
+    readonly printer: PrintApi;
   }
 }
 
@@ -27,6 +29,6 @@ if (container === null) {
 
 createRoot(container).render(
   <StrictMode>
-    <App api={window.naturheilpraxis} database={window.database} />
+    <App api={window.naturheilpraxis} database={window.database} printer={window.printer} />
   </StrictMode>,
 );

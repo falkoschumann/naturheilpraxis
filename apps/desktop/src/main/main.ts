@@ -23,9 +23,12 @@ import {
   appHost,
   appScheme,
   resolveAppFile,
+  resolveRechnungId,
 } from "./infrastructure/app-protocol.ts";
 import { ElectronFileDialog } from "./infrastructure/file-dialog.ts";
 import { isTrustedSender } from "./infrastructure/ipc-sender.ts";
+import { ElectronPrinter } from "./infrastructure/printer.ts";
+import { rechnungsdokument } from "./ui/rechnungsvorlage.ts";
 import { JsonSettingsStore } from "./infrastructure/settings-store.ts";
 
 // The development runner serves the renderer with HMR and announces its URL.
@@ -43,7 +46,8 @@ const rendererUrl = devServerUrl ?? `${appScheme}://${appHost}/index.html`;
 
 // The renderer runs only its own scripts and styles and sends nothing to other
 // servers. Bootstrap embeds its icons for form controls as data URLs. The
-// development server sets its own policy, see vite.config.ts.
+// preview of a Rechnung is a frame of the app. The development server sets its
+// own policy, see vite.config.ts.
 const contentSecurityPolicy = [
   "default-src 'none'",
   "script-src 'self'",
@@ -51,10 +55,25 @@ const contentSecurityPolicy = [
   "img-src 'self' data:",
   "font-src 'self'",
   "connect-src 'none'",
+  "frame-src 'self'",
   "base-uri 'none'",
   "form-action 'none'",
   "object-src 'none'",
   "frame-ancestors 'none'",
+].join("; ");
+
+// A Rechnung created from a Rechnungsvorlage brings everything it needs: its
+// styles inline, its images as SVG or data URL. It runs no script, loads
+// nothing and is shown only as preview in the app or printed.
+const rechnungContentSecurityPolicy = [
+  "default-src 'none'",
+  "style-src 'unsafe-inline'",
+  "img-src data:",
+  "font-src data:",
+  "base-uri 'none'",
+  "form-action 'none'",
+  `frame-ancestors ${devServerUrl === undefined ? "'self'" : new URL(devServerUrl).origin}`,
+  "sandbox",
 ].join("; ");
 
 // A standard and secure scheme behaves like https, for example for relative
@@ -63,9 +82,15 @@ protocol.registerSchemesAsPrivileged([
   { scheme: appScheme, privileges: { standard: true, secure: true } },
 ]);
 
-// Serves the built renderer, nothing else, with the Content Security Policy.
+// Serves the built renderer and the Rechnungen, nothing else, with the
+// Content Security Policy.
 function handleAppProtocol(): void {
   protocol.handle(appScheme, async (request) => {
+    const rechnungId = resolveRechnungId(request.url);
+    if (rechnungId !== undefined) {
+      return rechnungResponse(rechnungId);
+    }
+
     const file = resolveAppFile(request.url, rendererDirectory);
     if (file === undefined) {
       return new Response(null, { status: 404 });
@@ -77,11 +102,26 @@ function handleAppProtocol(): void {
   });
 }
 
+async function rechnungResponse(rechnungId: string): Promise<Response> {
+  const { status, html } = rechnungsdokument(
+    await database.rechnungsdruck.rechnungMitVorlageErmitteln(rechnungId),
+  );
+  return new Response(html, {
+    status,
+    headers: {
+      "Content-Type": "text/html; charset=utf-8",
+      "Content-Security-Policy": rechnungContentSecurityPolicy,
+      "Cache-Control": "no-store",
+    },
+  });
+}
+
 const database = new DatabaseService({
   settingsStore: new JsonSettingsStore(
     path.join(app.getPath("userData"), "settings.json"),
   ),
   fileDialog: new ElectronFileDialog(),
+  printer: new ElectronPrinter(),
   defaultDatabase: path.join(app.getPath("userData"), "naturheilpraxis.db"),
 });
 
@@ -258,6 +298,13 @@ function handleDatabaseMessages(): void {
   handle("reopen-database", () => database.reopenDatabase());
 }
 
+// The renderer prints on the channels of PrintApi.
+function handlePrintMessages(): void {
+  handle("print-rechnung", (_event, rechnungId: string) =>
+    database.rechnungsdruck.rechnungDrucken(rechnungId),
+  );
+}
+
 // A database chosen from the menu replaces the open one, so the windows are
 // reloaded to show its data. A failure keeps the open database.
 async function switchDatabase(
@@ -366,5 +413,6 @@ void app.whenReady().then(() => {
   createMenu();
   handleMessages(() => database.naturheilpraxis);
   handleDatabaseMessages();
+  handlePrintMessages();
   createMainWindow();
 });

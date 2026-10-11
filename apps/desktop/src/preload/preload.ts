@@ -7,6 +7,7 @@ import { contextBridge, ipcRenderer } from "electron";
 
 import type { DatabaseApi } from "../shared/application/database-api.ts";
 import type { NaturheilpraxisApi } from "../shared/application/naturheilpraxis-api.ts";
+import type { PrintApi } from "../shared/application/print-api.ts";
 
 const api: NaturheilpraxisApi = {
   praxisAnlegen: (command) => ipcRenderer.invoke(command.type, command),
@@ -51,5 +52,11 @@ const database: DatabaseApi = {
   reopenDatabase: () => ipcRenderer.invoke("reopen-database"),
 };
 
+const printer: PrintApi = {
+  printRechnung: (rechnungId) =>
+    ipcRenderer.invoke("print-rechnung", rechnungId),
+};
+
 contextBridge.exposeInMainWorld("naturheilpraxis", api);
 contextBridge.exposeInMainWorld("database", database);
+contextBridge.exposeInMainWorld("printer", printer);

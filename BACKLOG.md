@@ -78,7 +78,7 @@ Jeder Eintrag beginnt mit einer Kategorie:
       `enableNodeOptionsEnvironmentVariable`, `enableNodeCliInspectArguments`,
       ASAR-Integrität, `grantFileProtocolExtraPrivileges`) und mit einem
       Probestart prüfen.
-- [ ] **Rechnung** Die Rechnung aus einer Vorlage erzeugen statt hart codiert.
+- [x] **Rechnung** Die Rechnung aus einer Vorlage erzeugen statt hart codiert.
       Eine Rechnungsvorlage ist eine einzelne HTML-Datei mit eingebettetem CSS,
       Bildern als eingebettetes SVG oder Data-URI und Mustache-Platzhaltern für
       die dokumentierten Daten der Rechnung. Die Vorlagen liegen in einer
