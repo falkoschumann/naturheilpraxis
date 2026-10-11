@@ -2,16 +2,16 @@
 
 import { useContext, useEffect, useState, type FormEvent } from "react";
 
-import type { NaturheilpraxisApi } from "../../../shared/application/naturheilpraxis-api.ts";
-import type { Diagnose } from "../../../shared/domain/entities.ts";
-import type { PraxenErmittelnQueryResult } from "../../../shared/domain/praxenansicht.ts";
-import type { Patientennummer } from "../../../shared/domain/value-objects.ts";
-import { Dialog } from "../components/dialog.tsx";
-import { SelectField } from "../components/select-field.tsx";
-import { sende } from "../components/sende.ts";
-import { TextField } from "../components/text-field.tsx";
-import { AktuellePraxisContext } from "../layouts/aktuelle-praxis.ts";
-import { heute } from "./heute.ts";
+import type { NaturheilpraxisApi } from "../../../../shared/application/naturheilpraxis-api.ts";
+import type { Diagnose } from "../../../../shared/domain/entities.ts";
+import type { PraxenErmittelnQueryResult } from "../../../../shared/domain/praxenansicht.ts";
+import type { Patientennummer } from "../../../../shared/domain/value-objects.ts";
+import { Dialog } from "../../components/dialog.tsx";
+import { SelectField } from "../../components/select-field.tsx";
+import { sende } from "../../components/sende.ts";
+import { TextField } from "../../components/text-field.tsx";
+import { AktuellePraxisContext } from "../../layouts/aktuelle-praxis.ts";
+import { heute } from "../../components/heute.ts";
 
 type Werte = Record<"datum" | "praxiskuerzel" | "text", string>;
 

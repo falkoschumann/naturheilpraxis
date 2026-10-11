@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-import type { DatabaseApi, DatabaseStatus } from "../../../shared/application/database-api.ts";
+import type { DatabaseApi, DatabaseStatus } from "../../../../shared/application/database-api.ts";
 
 type Aktion = "anlegen" | "oeffnen" | "erneut";
 

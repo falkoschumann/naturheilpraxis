@@ -2,17 +2,17 @@
 
 import { useContext, useState, type FormEvent } from "react";
 
-import type { NaturheilpraxisApi, PatientAufnehmenStatus } from "../../../shared/application/naturheilpraxis-api.ts";
-import type { Patientennummer } from "../../../shared/domain/value-objects.ts";
-import { Dialog } from "../components/dialog.tsx";
-import { AktuellePraxisContext } from "../layouts/aktuelle-praxis.ts";
+import type { NaturheilpraxisApi, PatientAufnehmenStatus } from "../../../../shared/application/naturheilpraxis-api.ts";
+import type { Patientennummer } from "../../../../shared/domain/value-objects.ts";
+import { Dialog } from "../../components/dialog.tsx";
+import { AktuellePraxisContext } from "../../layouts/aktuelle-praxis.ts";
 import {
   PatientFormular,
   patientAus,
   patientWerteAus,
   useAuswahllisten,
   usePatientWerte,
-} from "./patient-formular.tsx";
+} from "../../components/patient-formular.tsx";
 
 // Admits a Patient in the current Praxis unless chosen otherwise. The input is
 // kept when the Patient cannot be admitted.

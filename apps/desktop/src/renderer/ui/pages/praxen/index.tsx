@@ -2,14 +2,14 @@
 
 import { useCallback, useEffect, useId, useState } from "react";
 
-import type { NaturheilpraxisApi } from "../../../shared/application/naturheilpraxis-api.ts";
-import type { Praxis } from "../../../shared/domain/entities.ts";
+import type { NaturheilpraxisApi } from "../../../../shared/application/naturheilpraxis-api.ts";
+import type { Praxis } from "../../../../shared/domain/entities.ts";
 import type {
   PraxenErmittelnQueryResult,
   PraxenErmittelnQueryResultItem,
-} from "../../../shared/domain/praxenansicht.ts";
-import { PageHeader } from "../components/sticky-header.tsx";
-import { Toast } from "../components/toast.tsx";
+} from "../../../../shared/domain/praxenansicht.ts";
+import { PageHeader } from "../../components/sticky-header.tsx";
+import { Toast } from "../../components/toast.tsx";
 import { PraxisDialog } from "./praxis-dialog.tsx";
 
 type DialogZustand = Readonly<{ praxis?: never }> | Readonly<{ praxis: Praxis }> | undefined;

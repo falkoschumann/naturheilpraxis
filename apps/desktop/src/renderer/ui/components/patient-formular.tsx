@@ -7,8 +7,8 @@ import type { Patient } from "../../../shared/domain/entities.ts";
 import type { PatientenErmittelnQueryResult } from "../../../shared/domain/patientenansicht.ts";
 import type { PraxenErmittelnQueryResult } from "../../../shared/domain/praxenansicht.ts";
 import type { Patientennummer } from "../../../shared/domain/value-objects.ts";
-import { SelectField } from "../components/select-field.tsx";
-import { TextField } from "../components/text-field.tsx";
+import { SelectField } from "./select-field.tsx";
+import { TextField } from "./text-field.tsx";
 
 export type PatientWerte = Record<
   | "praxiskuerzel"

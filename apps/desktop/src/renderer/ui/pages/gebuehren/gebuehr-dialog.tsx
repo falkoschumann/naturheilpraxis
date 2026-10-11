@@ -2,11 +2,11 @@
 
 import { useState, type FormEvent } from "react";
 
-import type { CommandStatus, NaturheilpraxisApi } from "../../../shared/application/naturheilpraxis-api.ts";
-import type { Gebuehr } from "../../../shared/domain/entities.ts";
-import { formatEuroEingabe, parseEuro } from "../../../shared/domain/value-objects.ts";
-import { Dialog } from "../components/dialog.tsx";
-import { TextField } from "../components/text-field.tsx";
+import type { CommandStatus, NaturheilpraxisApi } from "../../../../shared/application/naturheilpraxis-api.ts";
+import type { Gebuehr } from "../../../../shared/domain/entities.ts";
+import { formatEuroEingabe, parseEuro } from "../../../../shared/domain/value-objects.ts";
+import { Dialog } from "../../components/dialog.tsx";
+import { TextField } from "../../components/text-field.tsx";
 
 type Werte = Record<"ziffer" | "betrag" | "bezeichnung", string>;
 

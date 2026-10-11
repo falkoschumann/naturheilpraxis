@@ -3,18 +3,18 @@
 import { useEffect, useId, useState } from "react";
 import { Link, useNavigate } from "react-router";
 
-import type { NaturheilpraxisApi } from "../../../shared/application/naturheilpraxis-api.ts";
+import type { NaturheilpraxisApi } from "../../../../shared/application/naturheilpraxis-api.ts";
 import type {
   KennzahlenErmittelnQueryResult,
   PatientenMitNichtAbgerechnetenLeistungenErmittelnQueryResult,
   PatientMitNichtAbgerechnetenLeistungen,
   RechnungenErmittelnQueryResult,
-} from "../../../shared/domain/abrechnungsansicht.ts";
-import type { Rechnungsstatus } from "../../../shared/domain/entities.ts";
-import { formatDatum, formatEuro } from "../../../shared/domain/value-objects.ts";
-import { ListHeader, PageHeader } from "../components/sticky-header.tsx";
-import { RechnungenTabelle, rechnungsstatusLabel } from "../components/rechnungen-tabelle.tsx";
-import { RechnungDialog } from "./rechnung-dialog.tsx";
+} from "../../../../shared/domain/abrechnungsansicht.ts";
+import type { Rechnungsstatus } from "../../../../shared/domain/entities.ts";
+import { formatDatum, formatEuro } from "../../../../shared/domain/value-objects.ts";
+import { ListHeader, PageHeader } from "../../components/sticky-header.tsx";
+import { RechnungenTabelle, rechnungsstatusLabel } from "../../components/rechnungen-tabelle.tsx";
+import { RechnungDialog } from "../../components/rechnung-dialog.tsx";
 
 const filter: readonly (Rechnungsstatus | "alle")[] = ["alle", "entwurf", "versendet", "bezahlt"];
 

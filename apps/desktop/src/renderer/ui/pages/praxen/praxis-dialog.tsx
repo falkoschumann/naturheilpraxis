@@ -2,10 +2,10 @@
 
 import { useState, type FormEvent } from "react";
 
-import type { CommandStatus, NaturheilpraxisApi } from "../../../shared/application/naturheilpraxis-api.ts";
-import type { Praxis } from "../../../shared/domain/entities.ts";
-import { Dialog } from "../components/dialog.tsx";
-import { TextField } from "../components/text-field.tsx";
+import type { CommandStatus, NaturheilpraxisApi } from "../../../../shared/application/naturheilpraxis-api.ts";
+import type { Praxis } from "../../../../shared/domain/entities.ts";
+import { Dialog } from "../../components/dialog.tsx";
+import { TextField } from "../../components/text-field.tsx";
 
 type Werte = Record<
   | "praxiskuerzel"

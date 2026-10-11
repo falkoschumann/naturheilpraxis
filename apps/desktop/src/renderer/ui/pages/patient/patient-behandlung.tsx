@@ -3,15 +3,15 @@
 import { useEffect, useId, useState } from "react";
 import { Link } from "react-router";
 
-import type { NaturheilpraxisApi } from "../../../shared/application/naturheilpraxis-api.ts";
+import type { NaturheilpraxisApi } from "../../../../shared/application/naturheilpraxis-api.ts";
 import type {
   Behandlung,
   BehandlungenErmittelnQueryResult,
   Leistungsrechnung,
-} from "../../../shared/domain/behandlungsansicht.ts";
-import type { Diagnose, Leistung } from "../../../shared/domain/entities.ts";
-import { formatEuro, type Patientennummer } from "../../../shared/domain/value-objects.ts";
-import { RechnungsstatusBadge } from "../components/rechnungen-tabelle.tsx";
+} from "../../../../shared/domain/behandlungsansicht.ts";
+import type { Diagnose, Leistung } from "../../../../shared/domain/entities.ts";
+import { formatEuro, type Patientennummer } from "../../../../shared/domain/value-objects.ts";
+import { RechnungsstatusBadge } from "../../components/rechnungen-tabelle.tsx";
 
 // What can be done with the entries of the treatment.
 export type BehandlungAktionen = Readonly<{

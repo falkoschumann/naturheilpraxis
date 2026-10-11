@@ -4,11 +4,11 @@ import { fireEvent, render, screen, within } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router";
 import { describe, expect, it } from "vitest";
 
-import type { NaturheilpraxisApi } from "../../../shared/application/naturheilpraxis-api.ts";
-import type { Diagnose, Leistung, Patient } from "../../../shared/domain/entities.ts";
-import type { DomainEvent } from "../../../shared/domain/events.ts";
-import { FakeNaturheilpraxisApi } from "./fake-naturheilpraxis-api.ts";
-import { PatientPage } from "./patient-page.tsx";
+import type { NaturheilpraxisApi } from "../../../../shared/application/naturheilpraxis-api.ts";
+import type { Diagnose, Leistung, Patient } from "../../../../shared/domain/entities.ts";
+import type { DomainEvent } from "../../../../shared/domain/events.ts";
+import { FakeNaturheilpraxisApi } from "../../components/fake-naturheilpraxis-api.ts";
+import { PatientPage } from "./index.tsx";
 
 describe("Patient", () => {
   it("sollte die Karteikarte des Patienten anzeigen", async () => {

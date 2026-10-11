@@ -3,9 +3,9 @@
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
-import type { RechnungsvorlagenApi } from "../../../shared/application/rechnungsvorlagen-api.ts";
-import { FakeRechnungsvorlagenApi } from "./fake-rechnungsvorlagen-api.ts";
-import { RechnungsvorlagenPage } from "./rechnungsvorlagen-page.tsx";
+import type { RechnungsvorlagenApi } from "../../../../shared/application/rechnungsvorlagen-api.ts";
+import { FakeRechnungsvorlagenApi } from "../../components/fake-rechnungsvorlagen-api.ts";
+import { RechnungsvorlagenPage } from "./index.tsx";
 
 describe("Rechnungsvorlagen", () => {
   it("sollte die allgemeine Vorlage und die Vorlagen der Praxen mit Herkunft zeigen", async () => {

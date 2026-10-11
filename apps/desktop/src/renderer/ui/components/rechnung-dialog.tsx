@@ -7,10 +7,10 @@ import type { DiagnosenErmittelnQueryResult } from "../../../shared/domain/behan
 import type { PraxenErmittelnQueryResult } from "../../../shared/domain/praxenansicht.ts";
 import type { Rechnungsposition } from "../../../shared/domain/rechnungsansicht.ts";
 import { formatDatum, formatEuro, type Patientennummer } from "../../../shared/domain/value-objects.ts";
-import { Dialog } from "../components/dialog.tsx";
-import { SelectField } from "../components/select-field.tsx";
-import { sende } from "../components/sende.ts";
-import { TextField } from "../components/text-field.tsx";
+import { Dialog } from "./dialog.tsx";
+import { SelectField } from "./select-field.tsx";
+import { sende } from "./sende.ts";
+import { TextField } from "./text-field.tsx";
 
 type Kandidat = Omit<Rechnungsposition, "betrag">;
 

@@ -2,10 +2,10 @@
 
 import { useEffect, useState } from "react";
 
-import type { NaturheilpraxisApi } from "../../../shared/application/naturheilpraxis-api.ts";
-import type { RechnungenErmittelnQueryResult } from "../../../shared/domain/abrechnungsansicht.ts";
-import type { Patientennummer } from "../../../shared/domain/value-objects.ts";
-import { RechnungenTabelle } from "../components/rechnungen-tabelle.tsx";
+import type { NaturheilpraxisApi } from "../../../../shared/application/naturheilpraxis-api.ts";
+import type { RechnungenErmittelnQueryResult } from "../../../../shared/domain/abrechnungsansicht.ts";
+import type { Patientennummer } from "../../../../shared/domain/value-objects.ts";
+import { RechnungenTabelle } from "../../components/rechnungen-tabelle.tsx";
 
 // The tab Rechnungen of the Karteikarte.
 export function PatientRechnungen({

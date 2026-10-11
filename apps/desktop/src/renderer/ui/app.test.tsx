@@ -5,10 +5,10 @@ import { beforeEach, describe, expect, it } from "vitest";
 
 import type { DomainEvent } from "../../shared/domain/events.ts";
 import { App } from "./app.tsx";
-import { FakeDatabaseApi } from "./pages/fake-database-api.ts";
-import { FakeNaturheilpraxisApi } from "./pages/fake-naturheilpraxis-api.ts";
-import { FakePrintApi } from "./pages/fake-print-api.ts";
-import { FakeRechnungsvorlagenApi } from "./pages/fake-rechnungsvorlagen-api.ts";
+import { FakeDatabaseApi } from "./components/fake-database-api.ts";
+import { FakeNaturheilpraxisApi } from "./components/fake-naturheilpraxis-api.ts";
+import { FakePrintApi } from "./components/fake-print-api.ts";
+import { FakeRechnungsvorlagenApi } from "./components/fake-rechnungsvorlagen-api.ts";
 
 describe("App", () => {
   beforeEach(() => {

@@ -8,14 +8,14 @@ import type { NaturheilpraxisApi } from "../../shared/application/naturheilpraxi
 import type { PrintApi } from "../../shared/application/print-api.ts";
 import type { RechnungsvorlagenApi } from "../../shared/application/rechnungsvorlagen-api.ts";
 import { MainLayout } from "./layouts/main-layout.tsx";
-import { AbrechnungPage } from "./pages/abrechnung-page.tsx";
-import { GebuehrenPage } from "./pages/gebuehren-page.tsx";
-import { PatientPage } from "./pages/patient-page.tsx";
-import { PatientenPage } from "./pages/patienten-page.tsx";
-import { PraxenPage } from "./pages/praxen-page.tsx";
-import { RechnungPage } from "./pages/rechnung-page.tsx";
-import { RechnungsvorlagenPage } from "./pages/rechnungsvorlagen-page.tsx";
-import { StartPage } from "./pages/start-page.tsx";
+import { AbrechnungPage } from "./pages/abrechnung/index.tsx";
+import { GebuehrenPage } from "./pages/gebuehren/index.tsx";
+import { PatientPage } from "./pages/patient/index.tsx";
+import { PatientenPage } from "./pages/patienten/index.tsx";
+import { PraxenPage } from "./pages/praxen/index.tsx";
+import { RechnungPage } from "./pages/rechnung/index.tsx";
+import { RechnungsvorlagenPage } from "./pages/rechnungsvorlagen/index.tsx";
+import { StartPage } from "./pages/start/index.tsx";
 
 // Without an open database the start page asks for one.
 export function App({

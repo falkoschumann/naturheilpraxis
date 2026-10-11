@@ -3,8 +3,8 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { FakeDatabaseApi } from "./fake-database-api.ts";
-import { StartPage } from "./start-page.tsx";
+import { FakeDatabaseApi } from "../../components/fake-database-api.ts";
+import { StartPage } from "./index.tsx";
 
 describe("Startseite", () => {
   afterEach(() => {

@@ -4,15 +4,15 @@ import { fireEvent, render, screen, within } from "@testing-library/react";
 import { MemoryRouter, Route, Routes, useLocation } from "react-router";
 import { describe, expect, it } from "vitest";
 
-import type { NaturheilpraxisApi } from "../../../shared/application/naturheilpraxis-api.ts";
-import type { PrintApi } from "../../../shared/application/print-api.ts";
-import type { DomainEvent } from "../../../shared/domain/events.ts";
-import { AbrechnungPage } from "./abrechnung-page.tsx";
-import { FakeNaturheilpraxisApi } from "./fake-naturheilpraxis-api.ts";
-import { FakePrintApi } from "./fake-print-api.ts";
-import { heute } from "./heute.ts";
-import { PatientPage } from "./patient-page.tsx";
-import { RechnungPage } from "./rechnung-page.tsx";
+import type { NaturheilpraxisApi } from "../../../../shared/application/naturheilpraxis-api.ts";
+import type { PrintApi } from "../../../../shared/application/print-api.ts";
+import type { DomainEvent } from "../../../../shared/domain/events.ts";
+import { AbrechnungPage } from "../abrechnung/index.tsx";
+import { FakeNaturheilpraxisApi } from "../../components/fake-naturheilpraxis-api.ts";
+import { FakePrintApi } from "../../components/fake-print-api.ts";
+import { heute } from "../../components/heute.ts";
+import { PatientPage } from "../patient/index.tsx";
+import { RechnungPage } from "./index.tsx";
 
 const ersteLeistung = "22222222-2222-4222-8222-222222222222";
 const zweiteLeistung = "23232323-2323-4323-8323-232323232323";

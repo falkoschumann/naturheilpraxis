@@ -3,9 +3,9 @@
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
-import type { DomainEvent } from "../../../shared/domain/events.ts";
-import { FakeNaturheilpraxisApi } from "./fake-naturheilpraxis-api.ts";
-import { GebuehrenPage } from "./gebuehren-page.tsx";
+import type { DomainEvent } from "../../../../shared/domain/events.ts";
+import { FakeNaturheilpraxisApi } from "../../components/fake-naturheilpraxis-api.ts";
+import { GebuehrenPage } from "./index.tsx";
 
 describe("Gebührenverzeichnis", () => {
   it("sollte die Gebühren anzeigen", async () => {

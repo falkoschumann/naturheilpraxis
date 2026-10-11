@@ -3,9 +3,9 @@
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
-import type { Praxis } from "../../../shared/domain/entities.ts";
-import { FakeNaturheilpraxisApi } from "./fake-naturheilpraxis-api.ts";
-import { PraxenPage } from "./praxen-page.tsx";
+import type { Praxis } from "../../../../shared/domain/entities.ts";
+import { FakeNaturheilpraxisApi } from "../../components/fake-naturheilpraxis-api.ts";
+import { PraxenPage } from "./index.tsx";
 
 describe("Praxen", () => {
   it("sollte die Praxen anzeigen", async () => {

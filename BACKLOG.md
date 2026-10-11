@@ -120,7 +120,7 @@ Jeder Eintrag beginnt mit einer Kategorie:
       Ebenso in der Meldung nach dem Wechsel der Praxis.
 - [x] **Patient** In der Patientenansicht die Schlüsselworte des Patienten im
       Kopf neben dem Namen anzeigen, wie in der Patientenliste.
-- [ ] **Änderbarkeit** Den Ordner `ui/pages` nach Seiten strukturieren: je Seite
+- [x] **Änderbarkeit** Den Ordner `ui/pages` nach Seiten strukturieren: je Seite
       ein Unterordner mit der Seite als `index.tsx` als Einstiegspunkt und allen
       Modulen, die nur diese Seite nutzt. Komponenten, die mehrere Seiten
       nutzen, nach `ui/components` verschieben.

@@ -4,11 +4,11 @@ import { fireEvent, render, screen, within } from "@testing-library/react";
 import { MemoryRouter, Route, Routes, useLocation } from "react-router";
 import { afterEach, describe, expect, it } from "vitest";
 
-import type { NaturheilpraxisApi } from "../../../shared/application/naturheilpraxis-api.ts";
-import type { DomainEvent } from "../../../shared/domain/events.ts";
-import { AktuellePraxisContext } from "../layouts/aktuelle-praxis.ts";
-import { FakeNaturheilpraxisApi } from "./fake-naturheilpraxis-api.ts";
-import { PatientenPage } from "./patienten-page.tsx";
+import type { NaturheilpraxisApi } from "../../../../shared/application/naturheilpraxis-api.ts";
+import type { DomainEvent } from "../../../../shared/domain/events.ts";
+import { AktuellePraxisContext } from "../../layouts/aktuelle-praxis.ts";
+import { FakeNaturheilpraxisApi } from "../../components/fake-naturheilpraxis-api.ts";
+import { PatientenPage } from "./index.tsx";
 
 describe("Patienten", () => {
   afterEach(() => {

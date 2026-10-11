@@ -2,15 +2,15 @@
 
 import { useId, useState, type FormEvent } from "react";
 
-import type { CommandStatus, NaturheilpraxisApi } from "../../../shared/application/naturheilpraxis-api.ts";
-import type { PatientErmittelnQueryResult } from "../../../shared/domain/patientenansicht.ts";
+import type { CommandStatus, NaturheilpraxisApi } from "../../../../shared/application/naturheilpraxis-api.ts";
+import type { PatientErmittelnQueryResult } from "../../../../shared/domain/patientenansicht.ts";
 import {
   PatientFormular,
   patientAus,
   patientWerteAus,
   useAuswahllisten,
   usePatientWerte,
-} from "./patient-formular.tsx";
+} from "../../components/patient-formular.tsx";
 
 type Patient = NonNullable<PatientErmittelnQueryResult>;
 

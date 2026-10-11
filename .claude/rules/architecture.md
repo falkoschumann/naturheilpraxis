@@ -11,5 +11,7 @@
     - The UI root creates and orchestrates the UI layers
     - `components` contains reusable components
     - `layouts` contains reusable layouts built from components
-    - `pages` contains pages, each built from a layout and components
+    - `pages` contains pages, each built from a layout and components. Each page
+      has a folder of its own with the page as `index.tsx` and the modules only
+      this page uses. Modules used by more than one page belong to `components`.
   - `shared` optional layer with domain-independent code shared between layers

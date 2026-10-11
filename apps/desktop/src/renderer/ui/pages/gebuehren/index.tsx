@@ -2,14 +2,14 @@
 
 import { useCallback, useEffect, useState } from "react";
 
-import type { NaturheilpraxisApi } from "../../../shared/application/naturheilpraxis-api.ts";
-import type { Gebuehr } from "../../../shared/domain/entities.ts";
-import type { GebuehrenErmittelnQueryResult } from "../../../shared/domain/gebuehrenansicht.ts";
-import { formatEuro } from "../../../shared/domain/value-objects.ts";
-import { ConfirmDialog } from "../components/confirm-dialog.tsx";
-import { sende } from "../components/sende.ts";
-import { ListHeader, PageHeader } from "../components/sticky-header.tsx";
-import { Toast, type ToastAction } from "../components/toast.tsx";
+import type { NaturheilpraxisApi } from "../../../../shared/application/naturheilpraxis-api.ts";
+import type { Gebuehr } from "../../../../shared/domain/entities.ts";
+import type { GebuehrenErmittelnQueryResult } from "../../../../shared/domain/gebuehrenansicht.ts";
+import { formatEuro } from "../../../../shared/domain/value-objects.ts";
+import { ConfirmDialog } from "../../components/confirm-dialog.tsx";
+import { sende } from "../../components/sende.ts";
+import { ListHeader, PageHeader } from "../../components/sticky-header.tsx";
+import { Toast, type ToastAction } from "../../components/toast.tsx";
 import { GebuehrDialog } from "./gebuehr-dialog.tsx";
 
 type DialogZustand =

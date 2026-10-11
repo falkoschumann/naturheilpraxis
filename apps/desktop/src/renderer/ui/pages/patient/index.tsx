@@ -3,21 +3,21 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link, NavLink, useLocation, useNavigate, useParams } from "react-router";
 
-import type { NaturheilpraxisApi } from "../../../shared/application/naturheilpraxis-api.ts";
-import type { NichtAbgerechneteLeistungenErmittelnQueryResult } from "../../../shared/domain/abrechnungsansicht.ts";
-import type { Diagnose, Leistung } from "../../../shared/domain/entities.ts";
-import type { PatientErmittelnQueryResult } from "../../../shared/domain/patientenansicht.ts";
-import { formatDatum, formatEuro } from "../../../shared/domain/value-objects.ts";
-import { ConfirmDialog } from "../components/confirm-dialog.tsx";
-import { sende } from "../components/sende.ts";
-import { PageHeader } from "../components/sticky-header.tsx";
-import { meldungAus, Toast, type Meldung } from "../components/toast.tsx";
+import type { NaturheilpraxisApi } from "../../../../shared/application/naturheilpraxis-api.ts";
+import type { NichtAbgerechneteLeistungenErmittelnQueryResult } from "../../../../shared/domain/abrechnungsansicht.ts";
+import type { Diagnose, Leistung } from "../../../../shared/domain/entities.ts";
+import type { PatientErmittelnQueryResult } from "../../../../shared/domain/patientenansicht.ts";
+import { formatDatum, formatEuro } from "../../../../shared/domain/value-objects.ts";
+import { ConfirmDialog } from "../../components/confirm-dialog.tsx";
+import { sende } from "../../components/sende.ts";
+import { PageHeader } from "../../components/sticky-header.tsx";
+import { meldungAus, Toast, type Meldung } from "../../components/toast.tsx";
 import { DiagnoseDialog } from "./diagnose-dialog.tsx";
 import { LeistungDialog } from "./leistung-dialog.tsx";
 import { PatientBehandlung } from "./patient-behandlung.tsx";
 import { PatientRechnungen } from "./patient-rechnungen.tsx";
 import { PatientStammdaten } from "./patient-stammdaten.tsx";
-import { RechnungDialog } from "./rechnung-dialog.tsx";
+import { RechnungDialog } from "../../components/rechnung-dialog.tsx";
 
 type DialogZustand =
   | Readonly<{ art: "diagnose-stellen" }>

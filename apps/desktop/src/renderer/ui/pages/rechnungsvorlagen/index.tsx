@@ -8,10 +8,10 @@ import {
   type RechnungsvorlagenErmittelnResult,
   type RechnungsvorlagenErmittelnResultItem,
   type RechnungsvorlageStatus,
-} from "../../../shared/application/rechnungsvorlagen-api.ts";
-import { ConfirmDialog } from "../components/confirm-dialog.tsx";
-import { PageHeader } from "../components/sticky-header.tsx";
-import { Toast, type Meldung } from "../components/toast.tsx";
+} from "../../../../shared/application/rechnungsvorlagen-api.ts";
+import { ConfirmDialog } from "../../components/confirm-dialog.tsx";
+import { PageHeader } from "../../components/sticky-header.tsx";
+import { Toast, type Meldung } from "../../components/toast.tsx";
 
 type Vorlage = RechnungsvorlagenErmittelnResultItem;
 
