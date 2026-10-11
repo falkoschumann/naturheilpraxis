@@ -113,7 +113,7 @@ Jeder Eintrag beginnt mit einer Kategorie:
       „Speichern“ in den Stammdaten des Patienten.
 - [x] **Benutzbarkeit** Während eine Suche läuft, zeigt die Patientenliste einen
       Ladehinweis, z. B. einen Spinner im Suchfeld, und die Anzahl der Treffer.
-- [ ] **Praxis** Die Auswahl „Aktuelle Praxis“ in der Kopfzeile zeigt das
+- [x] **Praxis** Die Auswahl „Aktuelle Praxis“ in der Kopfzeile zeigt das
       Praxiskürzel statt des Praxisnamens, da die Namen nicht eindeutig sind.
       Ebenso in der Meldung nach dem Wechsel der Praxis.
 - [ ] **Patient** In der Patientenansicht die Schlüsselworte des Patienten im

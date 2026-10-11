@@ -88,7 +88,7 @@ describe("App", () => {
       />,
     );
 
-    await screen.findByRole("option", { name: "Praxis NHP" });
+    await screen.findByRole("option", { name: "NHP" });
 
     expect(screen.getByLabelText("Aktuelle Praxis")).toHaveProperty("value", "ABC");
   });
@@ -103,11 +103,11 @@ describe("App", () => {
         rechnungsvorlagen={new FakeRechnungsvorlagenApi()}
       />,
     );
-    await screen.findByRole("option", { name: "Praxis NHP" });
+    await screen.findByRole("option", { name: "NHP" });
 
     fireEvent.change(screen.getByLabelText("Aktuelle Praxis"), { target: { value: "NHP" } });
 
-    expect(screen.getByText("Neue Einträge werden jetzt in der Praxis „Praxis NHP“ erfasst.")).toBeDefined();
+    expect(screen.getByText("Neue Einträge werden jetzt in der Praxis NHP erfasst.")).toBeDefined();
     unmount();
     render(
       <App
@@ -117,7 +117,7 @@ describe("App", () => {
         rechnungsvorlagen={new FakeRechnungsvorlagenApi()}
       />,
     );
-    await screen.findByRole("option", { name: "Praxis NHP" });
+    await screen.findByRole("option", { name: "NHP" });
     expect(screen.getByLabelText("Aktuelle Praxis")).toHaveProperty("value", "NHP");
   });
 });

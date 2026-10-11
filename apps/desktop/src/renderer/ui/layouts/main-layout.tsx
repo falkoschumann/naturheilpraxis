@@ -46,8 +46,7 @@ export function MainLayout({ api }: { api: NaturheilpraxisApi }) {
   function waehlePraxis(praxiskuerzel: string) {
     setGewaehltePraxis(praxiskuerzel);
     speichereAktuellePraxis(praxiskuerzel);
-    const name = praxen.find((praxis) => praxis.praxiskuerzel === praxiskuerzel)?.name ?? praxiskuerzel;
-    setMeldung(`Neue Einträge werden jetzt in der Praxis „${name}“ erfasst.`);
+    setMeldung(`Neue Einträge werden jetzt in der Praxis ${praxiskuerzel} erfasst.`);
   }
 
   const schliesseMeldung = useCallback(() => setMeldung(undefined), []);
@@ -120,9 +119,10 @@ export function MainLayout({ api }: { api: NaturheilpraxisApi }) {
                 value={aktuellePraxis}
                 onChange={(event) => waehlePraxis(event.target.value)}
               >
+                {/* The names of the Praxen are not unique, their Praxiskürzel are. */}
                 {praxen.map((praxis) => (
                   <option key={praxis.praxiskuerzel} value={praxis.praxiskuerzel}>
-                    {praxis.name}
+                    {praxis.praxiskuerzel}
                   </option>
                 ))}
               </select>
