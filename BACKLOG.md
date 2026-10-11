@@ -97,3 +97,24 @@ Jeder Eintrag beginnt mit einer Kategorie:
       seiner Wahl und importiert sie wieder. Die Vorschau zeigt das Ergebnis mit
       Beispieldaten. Eine Vorlage lässt sich auf die Standardvorlage
       zurücksetzen.
+- [ ] **Effizienz** Die Patientensuche liefert bei über 9.000 Patienten das
+      Ergebnis ohne spürbare Verzögerung, während der Eingabe bleibt die
+      Anwendung bedienbar. Das verkürzt auch die Wartezeiten in den Tests.
+      Bisher startet jeder Tastendruck eine Abfrage und die Liste rendert alle
+      Treffer auf einmal. Die Tabelle mit `@tanstack/react-table` und
+      `@tanstack/react-virtual` virtualisiert darstellen, sodass nur die
+      sichtbaren Zeilen gerendert werden. Weitere mögliche Maßnahmen: Abfrage
+      verzögert auslösen (Debounce), Suchtext je Patient im Read Model
+      vorberechnen.
+- [ ] **Benutzbarkeit** Kopfzeile der Anwendung und Bedienelemente der Seite
+      (Seitentitel mit Aktionen wie „Neu“ und „Bearbeiten“, Suche, Tabellenkopf)
+      bleiben beim Scrollen sichtbar, nur der Inhalt darunter scrollt. Gilt für
+      alle Seiten, analog zur festen Fußzeile mit „Änderungen verwerfen“ und
+      „Speichern“ in den Stammdaten des Patienten.
+- [ ] **Benutzbarkeit** Während eine Suche läuft, zeigt die Patientenliste einen
+      Ladehinweis, z. B. einen Spinner im Suchfeld, und die Anzahl der Treffer.
+- [ ] **Praxis** Die Auswahl „Aktuelle Praxis“ in der Kopfzeile zeigt das
+      Praxiskürzel statt des Praxisnamens, da die Namen nicht eindeutig sind.
+      Ebenso in der Meldung nach dem Wechsel der Praxis.
+- [ ] **Patient** In der Patientenansicht die Schlüsselworte des Patienten im
+      Kopf neben dem Namen anzeigen, wie in der Patientenliste.
