@@ -120,8 +120,13 @@ export function PatientenPage({ api }: { api: NaturheilpraxisApi }) {
               <kbd>/</kbd>
             </span>
           </div>
-          <div id="patienten-suche-hilfe" className="form-text">
-            Alle Wörter müssen vorkommen. Setzen Sie Wörter mit Leerzeichen in Anführungszeichen, z. B. "Lindenweg 5".
+          <div className="form-text d-flex justify-content-between gap-3">
+            <span id="patienten-suche-hilfe">
+              Alle Wörter müssen vorkommen. Setzen Sie Wörter mit Leerzeichen in Anführungszeichen, z. B. "Lindenweg 5".
+            </span>
+            <span className="text-nowrap" aria-live="polite">
+              {patienten !== undefined && anzahlPatienten(patienten.length)}
+            </span>
           </div>
         </ListHeader>
         <PatientenTabelle
@@ -147,6 +152,10 @@ export function PatientenPage({ api }: { api: NaturheilpraxisApi }) {
       )}
     </>
   );
+}
+
+function anzahlPatienten(anzahl: number): string {
+  return `${anzahl.toLocaleString("de-DE")} ${anzahl === 1 ? "Patient" : "Patienten"}`;
 }
 
 type Patient = PatientenErmittelnQueryResultItem;

@@ -111,7 +111,7 @@ Jeder Eintrag beginnt mit einer Kategorie:
       bleiben beim Scrollen sichtbar, nur der Inhalt darunter scrollt. Gilt für
       alle Seiten, analog zur festen Fußzeile mit „Änderungen verwerfen“ und
       „Speichern“ in den Stammdaten des Patienten.
-- [ ] **Benutzbarkeit** Während eine Suche läuft, zeigt die Patientenliste einen
+- [x] **Benutzbarkeit** Während eine Suche läuft, zeigt die Patientenliste einen
       Ladehinweis, z. B. einen Spinner im Suchfeld, und die Anzahl der Treffer.
 - [ ] **Praxis** Die Auswahl „Aktuelle Praxis“ in der Kopfzeile zeigt das
       Praxiskürzel statt des Praxisnamens, da die Namen nicht eindeutig sind.

@@ -89,6 +89,16 @@ describe("Patienten", () => {
     expect(screen.getByRole("row", { name: /Mustermann, Erika/ })).toBeDefined();
   });
 
+  it("sollte die Anzahl der Treffer anzeigen", async () => {
+    const api = new FakeNaturheilpraxisApi({ events: [praxisAngelegt(), maxAufgenommen(), erikaAufgenommen()] });
+    zeigePatienten(api);
+    expect(await screen.findByText("2 Patienten")).toBeDefined();
+
+    fireEvent.change(screen.getByLabelText("Patienten durchsuchen"), { target: { value: "erika" } });
+
+    expect(await screen.findByText("1 Patient")).toBeDefined();
+  });
+
   it("sollte einen Patienten aufnehmen und seine Karteikarte öffnen", async () => {
     const api = new FakeNaturheilpraxisApi({ events: [praxisAngelegt()] });
     zeigePatienten(api);
