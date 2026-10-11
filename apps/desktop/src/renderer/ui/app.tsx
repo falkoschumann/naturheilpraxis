@@ -67,7 +67,8 @@ export function App({
           <Route path="patienten/:patientennummer" element={<PatientPage api={api} reiter="behandlung" />} />
           <Route path="patienten/:patientennummer/stammdaten" element={<PatientPage api={api} reiter="stammdaten" />} />
           <Route path="patienten/:patientennummer/rechnungen" element={<PatientPage api={api} reiter="rechnungen" />} />
-          <Route path="abrechnung" element={<AbrechnungPage api={api} />} />
+          <Route path="abrechnung" element={<AbrechnungPage api={api} reiter="offene-leistungen" />} />
+          <Route path="abrechnung/rechnungen" element={<AbrechnungPage api={api} reiter="rechnungen" />} />
           <Route path="rechnungen/:rechnungId" element={<RechnungPage api={api} printer={printer} />} />
           <Route path="praxen" element={<PraxenPage api={api} />} />
           <Route path="gebuehren" element={<GebuehrenPage api={api} />} />

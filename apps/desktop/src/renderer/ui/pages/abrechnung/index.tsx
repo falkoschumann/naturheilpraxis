@@ -1,7 +1,7 @@
 // Copyright (c) 2026 Falko Schumann. MIT license.
 
 import { useEffect, useId, useState } from "react";
-import { Link, useNavigate } from "react-router";
+import { Link, NavLink, useNavigate } from "react-router";
 
 import type { NaturheilpraxisApi } from "../../../../shared/application/naturheilpraxis-api.ts";
 import type {
@@ -12,7 +12,7 @@ import type {
 } from "../../../../shared/domain/abrechnungsansicht.ts";
 import type { Rechnungsstatus } from "../../../../shared/domain/entities.ts";
 import { formatDatum, formatEuro } from "../../../../shared/domain/value-objects.ts";
-import { ListHeader, PageHeader } from "../../components/sticky-header.tsx";
+import { ListHeader, PageHeader, PageSubHeader } from "../../components/sticky-header.tsx";
 import { RechnungenTabelle, rechnungsstatusLabel } from "../../components/rechnungen-tabelle.tsx";
 import { RechnungDialog } from "../../components/rechnung-dialog.tsx";
 
@@ -24,14 +24,19 @@ type Abrechnung = Readonly<{
   rechnungen: RechnungenErmittelnQueryResult;
 }>;
 
-// The state of the billing at a glance, the Patienten to bill and all
-// Rechnungen, the Entwürfe first.
-export function AbrechnungPage({ api }: { api: NaturheilpraxisApi }) {
+// The state of the billing at a glance, with the tabs Offene Leistungen for the
+// Patienten to bill and Rechnungen for all Rechnungen, the Entwürfe first.
+export function AbrechnungPage({
+  api,
+  reiter,
+}: {
+  api: NaturheilpraxisApi;
+  reiter: "offene-leistungen" | "rechnungen";
+}) {
   const navigate = useNavigate();
   const [abrechnung, setAbrechnung] = useState<Abrechnung>();
   const [fehler, setFehler] = useState<string>();
   const [statusFilter, setStatusFilter] = useState<Rechnungsstatus | "alle">("alle");
-  const rechnungenTitelId = useId();
   const [abzurechnen, setAbzurechnen] = useState<PatientMitNichtAbgerechnetenLeistungen>();
 
   useEffect(() => {
@@ -79,38 +84,57 @@ export function AbrechnungPage({ api }: { api: NaturheilpraxisApi }) {
       {abrechnung !== undefined && (
         <>
           <Kennzahlen kennzahlen={abrechnung.kennzahlen} />
-          <PatientenMitNichtAbgerechnetenLeistungen
-            patienten={abrechnung.patienten}
-            onRechnungErstellen={setAbzurechnen}
-          />
-          <section aria-labelledby={rechnungenTitelId}>
-            <ListHeader className="d-flex flex-wrap align-items-center gap-2 pb-2">
-              <h2 id={rechnungenTitelId} className="h5 mb-0 me-auto">
-                Rechnungen
-              </h2>
-              <div className="btn-group btn-group-sm" role="radiogroup" aria-label="Nach Status filtern">
-                {filter.map((status) => (
-                  <label key={status} className={`btn btn-outline-primary${statusFilter === status ? " active" : ""}`}>
-                    <input
-                      type="radio"
-                      className="btn-check"
-                      name="status"
-                      value={status}
-                      checked={statusFilter === status}
-                      onChange={() => setStatusFilter(status)}
-                    />
-                    {status === "alle" ? "Alle" : rechnungsstatusLabel(status)}
-                  </label>
-                ))}
-              </div>
-            </ListHeader>
-            <RechnungenTabelle
-              rechnungen={abrechnung.rechnungen.filter(
-                (rechnung) => statusFilter === "alle" || rechnung.status === statusFilter,
-              )}
-              mitPatient
+          <PageSubHeader>
+            <ul className="nav nav-tabs">
+              <li className="nav-item">
+                <NavLink className="nav-link" to="/abrechnung" end>
+                  <i className="fa-solid fa-hourglass-half me-1" aria-hidden="true"></i>
+                  Offene Leistungen
+                </NavLink>
+              </li>
+              <li className="nav-item">
+                <NavLink className="nav-link" to="/abrechnung/rechnungen">
+                  <i className="fa-solid fa-file-invoice me-1" aria-hidden="true"></i>
+                  Rechnungen
+                </NavLink>
+              </li>
+            </ul>
+          </PageSubHeader>
+          {reiter === "offene-leistungen" ? (
+            <PatientenMitNichtAbgerechnetenLeistungen
+              patienten={abrechnung.patienten}
+              onRechnungErstellen={setAbzurechnen}
             />
-          </section>
+          ) : (
+            <section aria-label="Rechnungen">
+              <ListHeader className="d-flex flex-wrap align-items-center gap-2 pb-2">
+                <div className="btn-group btn-group-sm" role="radiogroup" aria-label="Nach Status filtern">
+                  {filter.map((status) => (
+                    <label
+                      key={status}
+                      className={`btn btn-outline-primary${statusFilter === status ? " active" : ""}`}
+                    >
+                      <input
+                        type="radio"
+                        className="btn-check"
+                        name="status"
+                        value={status}
+                        checked={statusFilter === status}
+                        onChange={() => setStatusFilter(status)}
+                      />
+                      {status === "alle" ? "Alle" : rechnungsstatusLabel(status)}
+                    </label>
+                  ))}
+                </div>
+              </ListHeader>
+              <RechnungenTabelle
+                rechnungen={abrechnung.rechnungen.filter(
+                  (rechnung) => statusFilter === "alle" || rechnung.status === statusFilter,
+                )}
+                mitPatient
+              />
+            </section>
+          )}
         </>
       )}
       {abzurechnen !== undefined && (
@@ -136,7 +160,7 @@ export function AbrechnungPage({ api }: { api: NaturheilpraxisApi }) {
 
 function Kennzahlen({ kennzahlen }: { kennzahlen: KennzahlenErmittelnQueryResult }) {
   return (
-    <div className="row g-3 mb-4">
+    <div className="row g-3 mb-3">
       <Kachel
         label="Nicht abgerechnet"
         wert={formatEuro(kennzahlen.nichtAbgerechnet.betrag)}
@@ -177,19 +201,15 @@ function PatientenMitNichtAbgerechnetenLeistungen({
   patienten: PatientenMitNichtAbgerechnetenLeistungenErmittelnQueryResult;
   onRechnungErstellen: (patient: PatientMitNichtAbgerechnetenLeistungen) => void;
 }) {
-  const titleId = useId();
   return (
-    <section aria-labelledby={titleId}>
-      <ListHeader className="pb-2">
-        <h2 id={titleId} className="h5 mb-0">
-          Patienten mit nicht abgerechneten Leistungen
-        </h2>
-      </ListHeader>
+    <>
       {patienten.length === 0 ? (
-        <p className="text-body-secondary mb-4">Alle Leistungen sind abgerechnet.</p>
+        <div className="text-center text-body-secondary border rounded bg-body p-5">
+          Alle Leistungen sind abgerechnet.
+        </div>
       ) : (
-        <div className="card shadow-sm mb-4">
-          <ul className="list-group list-group-flush" aria-labelledby={titleId}>
+        <div className="card shadow-sm">
+          <ul className="list-group list-group-flush" aria-label="Patienten mit nicht abgerechneten Leistungen">
             {patienten.map((patient) => (
               <li key={patient.patientennummer} className="list-group-item d-flex flex-wrap align-items-center gap-2">
                 <Link to={`/patienten/${patient.patientennummer}`} className="fw-semibold text-decoration-none me-auto">
@@ -214,6 +234,6 @@ function PatientenMitNichtAbgerechnetenLeistungen({
           </ul>
         </div>
       )}
-    </section>
+    </>
   );
 }

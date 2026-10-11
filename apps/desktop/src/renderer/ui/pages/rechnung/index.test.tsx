@@ -314,9 +314,23 @@ describe("Rechnungen", () => {
   });
 
   describe("Abrechnung", () => {
-    it("sollte die Rechnungen nach Status filtern", async () => {
+    it("sollte zwischen den Reitern Offene Leistungen und Rechnungen wechseln", async () => {
       const api = new FakeNaturheilpraxisApi({ events: [...grunddaten(), rechnungErstellt([ersteLeistung])] });
       zeige(api, "/abrechnung");
+      expect(await screen.findByRole("list", { name: "Patienten mit nicht abgerechneten Leistungen" })).toBeDefined();
+      expect(screen.queryByRole("table")).toBeNull();
+
+      fireEvent.click(screen.getByRole("link", { name: "Rechnungen" }));
+
+      expect(await screen.findByRole("row", { name: /Mustermann, Max/ })).toBeDefined();
+      expect(screen.queryByRole("list", { name: "Patienten mit nicht abgerechneten Leistungen" })).toBeNull();
+      expect(screen.getByText("Pfad /abrechnung/rechnungen")).toBeDefined();
+      expect(screen.getByRole("link", { name: "Rechnungen" }).getAttribute("aria-current")).toBe("page");
+    });
+
+    it("sollte die Rechnungen nach Status filtern", async () => {
+      const api = new FakeNaturheilpraxisApi({ events: [...grunddaten(), rechnungErstellt([ersteLeistung])] });
+      zeige(api, "/abrechnung/rechnungen");
       expect(await screen.findByRole("row", { name: /Mustermann, Max/ })).toBeDefined();
 
       fireEvent.click(screen.getByRole("radio", { name: "Bezahlt" }));
@@ -327,7 +341,7 @@ describe("Rechnungen", () => {
 
     it("sollte Kennzahlen und den Betrag jeder Rechnung zeigen", async () => {
       const api = new FakeNaturheilpraxisApi({ events: [...grunddaten(), rechnungErstellt([ersteLeistung])] });
-      zeige(api, "/abrechnung");
+      zeige(api, "/abrechnung/rechnungen");
 
       const nichtAbgerechnet = await screen.findByRole("group", { name: "Nicht abgerechnet" });
       expect(within(nichtAbgerechnet).getByText("30,60 €")).toBeDefined();
@@ -405,7 +419,8 @@ function zeige(api: NaturheilpraxisApi, pfad: string, printer: PrintApi = new Fa
         <Route path="/patienten/:patientennummer" element={<PatientPage api={api} reiter="behandlung" />} />
         <Route path="/patienten/:patientennummer/rechnungen" element={<PatientPage api={api} reiter="rechnungen" />} />
         <Route path="/rechnungen/:rechnungId" element={<RechnungPage api={api} printer={printer} />} />
-        <Route path="/abrechnung" element={<AbrechnungPage api={api} />} />
+        <Route path="/abrechnung" element={<AbrechnungPage api={api} reiter="offene-leistungen" />} />
+        <Route path="/abrechnung/rechnungen" element={<AbrechnungPage api={api} reiter="rechnungen" />} />
       </Routes>
       <Pfad />
     </MemoryRouter>,

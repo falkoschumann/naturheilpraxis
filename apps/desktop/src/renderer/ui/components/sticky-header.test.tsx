@@ -3,7 +3,7 @@
 import { render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { ListHeader, PageHeader } from "./sticky-header.tsx";
+import { ListHeader, PageHeader, PageSubHeader } from "./sticky-header.tsx";
 
 describe("Feststehender Kopf", () => {
   beforeEach(() => {
@@ -31,6 +31,12 @@ describe("Feststehender Kopf", () => {
     unmount();
 
     expect(document.documentElement.style.getPropertyValue("--page-header-height")).toBe("");
+  });
+
+  it("sollte die Höhe des Unterkopfs der Seite für die Elemente darunter bereitstellen", () => {
+    render(<PageSubHeader>Reiter</PageSubHeader>);
+
+    expect(document.documentElement.style.getPropertyValue("--page-subheader-height")).toBe("72.5px");
   });
 
   it("sollte die Höhe des Listenkopfs nur innerhalb der Liste bereitstellen", () => {

@@ -131,7 +131,7 @@ Jeder Eintrag beginnt mit einer Kategorie:
       Leistungen optisch unter, und manchmal braucht man nur eine Liste der
       Diagnosen. Im Behandlungsverlauf auswählen, welche Art von Einträgen
       sichtbar ist.
-- [ ] **Rechnung** Mit den migrierten Daten ist die Abrechnungsseite
+- [x] **Rechnung** Mit den migrierten Daten ist die Abrechnungsseite
       unübersichtlich. Die beiden Tabellen auf Reiter verteilen.
 - [ ] **Rechnung** Die Tabelle der Rechnungen durchsuchbar und sortierbar
       machen.

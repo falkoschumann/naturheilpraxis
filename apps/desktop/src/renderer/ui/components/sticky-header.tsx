@@ -16,6 +16,17 @@ export function PageHeader({ children, className }: { children: ReactNode; class
   );
 }
 
+// A second header of the page, like tabs, sticks below the first one while the
+// content between them scrolls away.
+export function PageSubHeader({ children, className }: { children: ReactNode; className?: string }) {
+  const ref = useHeightAsVariable("--page-subheader-height", "document");
+  return (
+    <div ref={ref} className={`page-subheader${className === undefined ? "" : ` ${className}`}`}>
+      {children}
+    </div>
+  );
+}
+
 // The header of a list sticks only while its parent, the list, is visible.
 export function ListHeader({ children, className }: { children: ReactNode; className?: string }) {
   const ref = useHeightAsVariable("--list-header-height", "parent");

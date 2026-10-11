@@ -97,7 +97,11 @@
 :root {
   --navbar-height: 0px;
   --page-header-height: 0px;
-  --page-headers-height: calc(var(--navbar-height) + var(--page-header-height));
+  --page-subheader-height: 0px;
+  --page-header-top: calc(var(--navbar-height) + var(--page-header-height));
+  --page-headers-height: calc(
+    var(--page-header-top) + var(--page-subheader-height)
+  );
 
   // Keeps an element that gets the focus out from under the headers.
   scroll-padding-top: calc(var(--page-headers-height) + 4rem);
@@ -114,11 +118,28 @@
   background-color: var(--bs-body-bg);
 }
 
+// Like the header of the page, but the content above it scrolls away.
+.page-subheader {
+  position: sticky;
+  z-index: 1005;
+  top: var(--page-header-top);
+  margin: 0 calc(var(--bs-gutter-x) * -0.5);
+  padding: 0 calc(var(--bs-gutter-x) * 0.5) 1rem;
+  background-color: var(--bs-body-bg);
+}
+
 .list-header {
   position: sticky;
   z-index: 3;
   top: var(--page-headers-height);
   background-color: var(--bs-body-bg);
+}
+
+// Outside a card the header covers the shadows of the cards below, like the
+// header of the page.
+.list-header:not(.card > *) {
+  margin-inline: calc(var(--bs-gutter-x) * -0.5);
+  padding-inline: calc(var(--bs-gutter-x) * 0.5);
 }
 
 // The border of a card scrolls away with the card. A header at the top of a
@@ -146,9 +167,13 @@
   }
 
   // Covers the sides of the card outside the rounded corners. The rounded top
-  // above it takes the background of the header.
+  // above it takes the background of the header. The headers stick at
+  // fractions of a pixel, so the cover reaches a little higher to hide the
+  // content scrolling between them.
   &::before {
     z-index: -1;
+    top: calc($outside - 2px);
+    height: calc(var(--bs-card-border-radius) + $border + 2px);
     background-color: var(--bs-body-bg);
   }
 
