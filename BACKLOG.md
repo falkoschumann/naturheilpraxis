@@ -113,8 +113,25 @@ Jeder Eintrag beginnt mit einer Kategorie:
       „Speichern“ in den Stammdaten des Patienten.
 - [x] **Benutzbarkeit** Während eine Suche läuft, zeigt die Patientenliste einen
       Ladehinweis, z. B. einen Spinner im Suchfeld, und die Anzahl der Treffer.
+      Notiz: Der Ladehinweis ist entfallen, weil die Suche schnell genug ist und
+      der kurz aufblitzende Spinner beim Tippen irritierte.
 - [x] **Praxis** Die Auswahl „Aktuelle Praxis“ in der Kopfzeile zeigt das
       Praxiskürzel statt des Praxisnamens, da die Namen nicht eindeutig sind.
       Ebenso in der Meldung nach dem Wechsel der Praxis.
 - [x] **Patient** In der Patientenansicht die Schlüsselworte des Patienten im
       Kopf neben dem Namen anzeigen, wie in der Patientenliste.
+- [ ] **Änderbarkeit** Den Ordner `ui/pages` nach Seiten strukturieren: je Seite
+      ein Unterordner mit der Seite als `index.tsx` als Einstiegspunkt und allen
+      Modulen, die nur diese Seite nutzt. Komponenten, die mehrere Seiten
+      nutzen, nach `ui/components` verschieben.
+- [ ] **Patient** Die Tabelle der Patienten sortierbar machen.
+- [ ] **Benutzbarkeit** Im Behandlungsverlauf bleibt die Überschrift mit dem
+      Datum beim Scrollen sichtbar.
+- [ ] **Diagnose** Die Diagnosen gehen im Behandlungsverlauf zwischen den
+      Leistungen optisch unter, und manchmal braucht man nur eine Liste der
+      Diagnosen. Im Behandlungsverlauf auswählen, welche Art von Einträgen
+      sichtbar ist.
+- [ ] **Rechnung** Mit den migrierten Daten ist die Abrechnungsseite
+      unübersichtlich. Die beiden Tabellen auf Reiter verteilen.
+- [ ] **Rechnung** Die Tabelle der Rechnungen durchsuchbar und sortierbar
+      machen.
