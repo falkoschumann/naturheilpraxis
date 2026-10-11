@@ -70,6 +70,69 @@ describe("Patienten", () => {
     expect(screen.queryByRole("row", { name: /Patient 9000, Viel/ })).toBeNull();
   });
 
+  it("sollte die zuletzt aufgenommenen Patienten zuerst anzeigen", async () => {
+    const api = new FakeNaturheilpraxisApi({ events: [praxisAngelegt(), ...dreiPatientenAufgenommen()] });
+
+    zeigePatienten(api);
+
+    expect(await patientenInReihenfolge()).toEqual(["Zander, Anna", "Mustermann, Erika", "Mustermann, Max"]);
+    expect(screen.getByRole("columnheader", { name: /Nr\./ }).getAttribute("aria-sort")).toBe("descending");
+  });
+
+  it("sollte nach dem Namen sortieren", async () => {
+    const api = new FakeNaturheilpraxisApi({ events: [praxisAngelegt(), ...dreiPatientenAufgenommen()] });
+    zeigePatienten(api);
+    await patientenInReihenfolge();
+
+    fireEvent.click(screen.getByRole("button", { name: /Name/ }));
+
+    expect(await patientenInReihenfolge()).toEqual(["Mustermann, Erika", "Mustermann, Max", "Zander, Anna"]);
+    expect(screen.getByRole("columnheader", { name: /Name/ }).getAttribute("aria-sort")).toBe("ascending");
+    expect(screen.getByRole("columnheader", { name: /Nr\./ }).getAttribute("aria-sort")).toBe("none");
+
+    fireEvent.click(screen.getByRole("button", { name: /Name/ }));
+
+    expect(await patientenInReihenfolge()).toEqual(["Zander, Anna", "Mustermann, Max", "Mustermann, Erika"]);
+    expect(screen.getByRole("columnheader", { name: /Name/ }).getAttribute("aria-sort")).toBe("descending");
+  });
+
+  it("sollte Patienten ohne Ort beim Sortieren nach dem Ort zuletzt anzeigen", async () => {
+    const api = new FakeNaturheilpraxisApi({ events: [praxisAngelegt(), ...dreiPatientenAufgenommen()] });
+    zeigePatienten(api);
+    await patientenInReihenfolge();
+
+    fireEvent.click(screen.getByRole("button", { name: /Ort/ }));
+
+    expect(await patientenInReihenfolge()).toEqual(["Zander, Anna", "Mustermann, Max", "Mustermann, Erika"]);
+
+    fireEvent.click(screen.getByRole("button", { name: /Ort/ }));
+
+    expect(await patientenInReihenfolge()).toEqual(["Mustermann, Max", "Zander, Anna", "Mustermann, Erika"]);
+  });
+
+  it("sollte nach dem Betrag der offenen Leistungen sortieren", async () => {
+    const api = new FakeNaturheilpraxisApi({
+      events: [
+        praxisAngelegt(),
+        ...dreiPatientenAufgenommen(),
+        leistungErbracht("22222222-2222-4222-8222-222222222222", 1, 1, 2050),
+        leistungErbracht("23232323-2323-4323-8323-232323232323", 3, 2, 1530),
+      ],
+    });
+    zeigePatienten(api);
+    await expect
+      .poll(() => screen.getByRole("row", { name: /Zander, Anna/ }).lastElementChild?.textContent)
+      .toBe("1 · 30,60\u00a0€");
+
+    fireEvent.click(screen.getByRole("button", { name: /Offene Leistungen/ }));
+    fireEvent.click(screen.getByRole("button", { name: /Offene Leistungen/ }));
+
+    expect(screen.getByRole("columnheader", { name: /Offene Leistungen/ }).getAttribute("aria-sort")).toBe(
+      "descending",
+    );
+    expect(await patientenInReihenfolge()).toEqual(["Zander, Anna", "Mustermann, Max", "Mustermann, Erika"]);
+  });
+
   it("sollte einen Hinweis zeigen, wenn noch kein Patient aufgenommen ist", async () => {
     const api = new FakeNaturheilpraxisApi({ events: [praxisAngelegt()] });
 
@@ -236,6 +299,14 @@ function scrolleNach(y: number) {
   fireEvent.scroll(window);
 }
 
+async function patientenInReihenfolge(): Promise<(string | null)[]> {
+  const tabelle = await screen.findByRole("table");
+  await within(tabelle).findAllByRole("link");
+  return within(tabelle)
+    .getAllByRole("link")
+    .map((link) => link.textContent);
+}
+
 async function expectKeineZeile(name: RegExp) {
   await expect.poll(() => screen.queryByRole("row", { name })).toBeNull();
 }
@@ -280,6 +351,25 @@ function erikaAufgenommen(): DomainEvent {
       name: { vorname: "Erika", nachname: "Mustermann" },
     },
   };
+}
+
+// Max lives in Musterstadt, Erika has no Anschrift and Anna lives in Berlin.
+function dreiPatientenAufgenommen(): DomainEvent[] {
+  return [
+    maxAufgenommen(),
+    erikaAufgenommen(),
+    {
+      type: "patient-aufgenommen",
+      data: {
+        patientennummer: 3,
+        praxiskuerzel: "NHP",
+        aufnahmejahr: 2026,
+        geburtsdatum: "1975-06-01",
+        name: { vorname: "Anna", nachname: "Zander" },
+        anschrift: { strasse: "Hauptstraße 1", postleitzahl: "10115", ort: "Berlin" },
+      },
+    },
+  ];
 }
 
 function vielePatientenAufgenommen(anzahl: number): DomainEvent[] {

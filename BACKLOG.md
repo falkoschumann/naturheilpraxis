@@ -124,7 +124,7 @@ Jeder Eintrag beginnt mit einer Kategorie:
       ein Unterordner mit der Seite als `index.tsx` als Einstiegspunkt und allen
       Modulen, die nur diese Seite nutzt. Komponenten, die mehrere Seiten
       nutzen, nach `ui/components` verschieben.
-- [ ] **Patient** Die Tabelle der Patienten sortierbar machen.
+- [x] **Patient** Die Tabelle der Patienten sortierbar machen.
 - [ ] **Benutzbarkeit** Im Behandlungsverlauf bleibt die Überschrift mit dem
       Datum beim Scrollen sichtbar.
 - [ ] **Diagnose** Die Diagnosen gehen im Behandlungsverlauf zwischen den

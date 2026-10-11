@@ -1,6 +1,14 @@
 // Copyright (c) 2026 Falko Schumann. MIT license.
 
-import { createColumnHelper, tableFeatures, useTable } from "@tanstack/react-table";
+import {
+  createColumnHelper,
+  createSortedRowModel,
+  rowSortingFeature,
+  sortFn_basic,
+  tableFeatures,
+  useTable,
+  type SortFn,
+} from "@tanstack/react-table";
 import { useWindowVirtualizer } from "@tanstack/react-virtual";
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router";
@@ -160,17 +168,26 @@ function anzahlPatienten(anzahl: number): string {
 
 type Patient = PatientenErmittelnQueryResultItem;
 
-const features = tableFeatures({});
+const features = tableFeatures({
+  rowSortingFeature,
+  sortedRowModel: createSortedRowModel(),
+  sortFns: { basic: sortFn_basic },
+});
 const spalten = createColumnHelper<typeof features, Patient>();
+
+// Texts are sorted like in a German dictionary, umlauts included.
+const sortierung = new Intl.Collator("de-DE");
+const textVergleich: SortFn<typeof features, Patient> = (a, b, spalte) =>
+  sortierung.compare(a.getValue<string>(spalte), b.getValue<string>(spalte));
 
 // The column widths stay the same while other rows become visible.
 const spaltenlayout: Readonly<Record<string, Readonly<{ breite: string; className?: string }>>> = {
   patientennummer: { breite: "8%" },
-  name: { breite: "37%" },
+  name: { breite: "33%" },
   geburtsdatum: { breite: "13%" },
   ort: { breite: "18%" },
   praxiskuerzel: { breite: "8%" },
-  offeneLeistungen: { breite: "16%", className: "text-end" },
+  offeneLeistungen: { breite: "20%", className: "text-end" },
 };
 
 // Every row has the same height, so the rows are not measured. The cells do
@@ -193,39 +210,56 @@ function PatientenTabelle({
       spalten.columns([
         spalten.accessor("patientennummer", {
           header: "Nr.",
+          sortFn: "basic",
           cell: ({ getValue }) => <span className="text-body-secondary">{getValue()}</span>,
         }),
-        spalten.display({
+        spalten.accessor((patient) => `${patient.nachname}, ${patient.vorname}`, {
           id: "name",
           header: "Name",
+          sortFn: textVergleich,
           cell: ({ row }) => <Name patient={row.original} />,
         }),
         spalten.accessor("geburtsdatum", {
           header: "Geburtsdatum",
+          sortFn: textVergleich,
           cell: ({ getValue }) => formatDatum(getValue()),
         }),
         spalten.accessor("ort", {
           header: "Ort",
+          sortFn: textVergleich,
+          sortUndefined: "last",
           cell: ({ getValue }) => getValue() ?? <span className="text-body-secondary">–</span>,
         }),
         spalten.accessor("praxiskuerzel", {
           header: "Praxis",
+          sortFn: textVergleich,
           cell: ({ getValue }) => (
             <span className="badge rounded-pill bg-primary-subtle text-primary-emphasis border border-primary-subtle">
               {getValue()}
             </span>
           ),
         }),
-        spalten.display({
+        // Patienten without open Leistungen count as 0 €.
+        spalten.accessor((patient) => offen.get(patient.patientennummer)?.betrag.cents ?? 0, {
           id: "offeneLeistungen",
           header: "Offene Leistungen",
+          sortFn: "basic",
           cell: ({ row }) => <OffeneLeistungen offen={offen.get(row.original.patientennummer)} />,
         }),
       ]),
     [offen],
   );
   const data = useMemo(() => patienten ?? [], [patienten]);
-  const table = useTable({ features, columns, data });
+  // The newest Patienten come first; one column is always sorted.
+  const table = useTable({
+    features,
+    columns,
+    data,
+    getRowId: (patient) => String(patient.patientennummer),
+    initialState: { sorting: [{ id: "patientennummer", desc: true }] },
+    enableSortingRemoval: false,
+    sortDescFirst: false,
+  });
   const rows = table.getRowModel().rows;
 
   // The page scrolls, so the rows start below everything above the table.
@@ -258,8 +292,20 @@ function PatientenTabelle({
         {table.getHeaderGroups().map((gruppe) => (
           <tr key={gruppe.id}>
             {gruppe.headers.map((header) => (
-              <th key={header.id} scope="col" className={spaltenlayout[header.column.id]?.className}>
-                <table.FlexRender header={header} />
+              <th
+                key={header.id}
+                scope="col"
+                className={spaltenlayout[header.column.id]?.className}
+                aria-sort={ariaSort(header.column.getIsSorted())}
+              >
+                <button
+                  type="button"
+                  className="btn btn-link p-0 fw-bold text-reset text-decoration-none text-nowrap"
+                  onClick={header.column.getToggleSortingHandler()}
+                >
+                  <table.FlexRender header={header} />
+                  <i className={`fa-solid ${sortierIcon(header.column.getIsSorted())} ms-1`} aria-hidden="true"></i>
+                </button>
               </th>
             ))}
           </tr>
@@ -309,6 +355,14 @@ function PatientenTabelle({
       </tbody>
     </table>
   );
+}
+
+function ariaSort(sortiert: false | "asc" | "desc"): "ascending" | "descending" | "none" {
+  return sortiert === "asc" ? "ascending" : sortiert === "desc" ? "descending" : "none";
+}
+
+function sortierIcon(sortiert: false | "asc" | "desc"): string {
+  return sortiert === "asc" ? "fa-sort-up" : sortiert === "desc" ? "fa-sort-down" : "fa-sort text-body-tertiary";
 }
 
 function Name({ patient }: { patient: Patient }) {

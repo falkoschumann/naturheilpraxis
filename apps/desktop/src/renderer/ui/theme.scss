@@ -84,6 +84,11 @@
     text-overflow: ellipsis;
     white-space: nowrap;
   }
+
+  // The focus ring of the button for sorting reaches beyond the cell.
+  th {
+    overflow: visible;
+  }
 }
 
 // The navbar, the header of the page and the header of a list stay visible
