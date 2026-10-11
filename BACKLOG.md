@@ -78,8 +78,22 @@ Jeder Eintrag beginnt mit einer Kategorie:
       `enableNodeOptionsEnvironmentVariable`, `enableNodeCliInspectArguments`,
       ASAR-Integrität, `grantFileProtocolExtraPrivileges`) und mit einem
       Probestart prüfen.
-- [ ] **Rechnung** Das Aussehen der Rechnung für den Druck ist hart codiert. Der
-      Nutzer soll es selbst anpassen können. Umsetzung als HTML/CSS-Vorlage mit
-      Mustache-Platzhaltern: eine mitgelieferte Standardvorlage für alle Praxen,
-      pro Praxis eine eigene Vorlage. Vorschau in einem `iframe` mit `sandbox`,
-      Druck in einem eigenen Fenster ohne JavaScript, Preload und Netzzugriff.
+- [ ] **Rechnung** Die Rechnung aus einer Vorlage erzeugen statt hart codiert.
+      Eine Rechnungsvorlage ist eine einzelne HTML-Datei mit eingebettetem CSS,
+      Bildern als eingebettetes SVG oder Data-URI und Mustache-Platzhaltern für
+      die dokumentierten Daten der Rechnung. Die Vorlagen liegen in einer
+      eigenen Tabelle der Datenbankdatei, nicht im Event Store, mit einer Spalte
+      für den Typ der Vorlage, damit später weitere Typen wie Adressetiketten
+      dazukommen können. Gesichert wird nur die aktuelle Vorlage. Die App
+      liefert eine Standardvorlage mit, die der heutigen Rechnung entspricht.
+      Vorschau in einem `iframe` mit `sandbox`, Druck wie bisher als Web-Inhalt
+      in einem eigenen Fenster ohne JavaScript, Preload und Netzzugriff. Ein PDF
+      entsteht über einen PDF-Drucker. E-Rechnungen und die Ablage versendeter
+      Rechnungen gehören nicht dazu.
+- [ ] **Rechnung** Eine allgemeine Rechnungsvorlage und optional eine eigene
+      Rechnungsvorlage je Praxis hinterlegen. Eine Praxis ohne eigene Vorlage
+      nutzt die allgemeine, die zu Beginn die mitgelieferte Standardvorlage ist.
+      Der Nutzer exportiert eine Vorlage als Datei, ändert sie mit einem Editor
+      seiner Wahl und importiert sie wieder. Die Vorschau zeigt das Ergebnis mit
+      Beispieldaten. Eine Vorlage lässt sich auf die Standardvorlage
+      zurücksetzen.
