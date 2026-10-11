@@ -21,6 +21,18 @@ describe("Patient", () => {
     expect(screen.getByText(/keine Anschrift/)).toBeDefined();
   });
 
+  it("sollte die Schlüsselworte im Kopf der Karteikarte anzeigen", async () => {
+    const api = new FakeNaturheilpraxisApi({
+      events: [praxisAngelegt(), aufgenommen({ ...max(), schluesselworte: ["Allergie", "Rücken"] })],
+    });
+
+    zeigePatient(api, 1);
+
+    await screen.findByRole("heading", { level: 1, name: "Max Mustermann" });
+    expect(screen.getByText("Allergie")).toBeDefined();
+    expect(screen.getByText("Rücken")).toBeDefined();
+  });
+
   it("sollte einen Hinweis zeigen, wenn es den Patienten nicht gibt", async () => {
     const api = new FakeNaturheilpraxisApi();
 

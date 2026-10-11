@@ -116,5 +116,5 @@ Jeder Eintrag beginnt mit einer Kategorie:
 - [x] **Praxis** Die Auswahl „Aktuelle Praxis“ in der Kopfzeile zeigt das
       Praxiskürzel statt des Praxisnamens, da die Namen nicht eindeutig sind.
       Ebenso in der Meldung nach dem Wechsel der Praxis.
-- [ ] **Patient** In der Patientenansicht die Schlüsselworte des Patienten im
+- [x] **Patient** In der Patientenansicht die Schlüsselworte des Patienten im
       Kopf neben dem Namen anzeigen, wie in der Patientenliste.

@@ -195,7 +195,14 @@ export function PatientPage({
         <div className="card shadow-sm mb-3">
           <div className="card-body d-flex flex-wrap gap-3 align-items-center">
             <div className="me-auto">
-              <h1 className="h4 mb-1">{name}</h1>
+              <div className="d-flex flex-wrap align-items-center gap-1 mb-1">
+                <h1 className="h4 mb-0 me-1">{name}</h1>
+                {patient.schluesselworte?.map((wort) => (
+                  <span key={wort} className="badge text-bg-light border">
+                    {wort}
+                  </span>
+                ))}
+              </div>
               <div className="text-body-secondary small">
                 Nr. {patient.patientennummer} · geb. {formatDatum(patient.geburtsdatum)} ·{" "}
                 <span className="badge rounded-pill bg-primary-subtle text-primary-emphasis border border-primary-subtle">
