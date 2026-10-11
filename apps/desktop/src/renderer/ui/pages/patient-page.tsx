@@ -10,6 +10,7 @@ import type { PatientErmittelnQueryResult } from "../../../shared/domain/patient
 import { formatDatum, formatEuro } from "../../../shared/domain/value-objects.ts";
 import { ConfirmDialog } from "../components/confirm-dialog.tsx";
 import { sende } from "../components/sende.ts";
+import { PageHeader } from "../components/sticky-header.tsx";
 import { meldungAus, Toast, type Meldung } from "../components/toast.tsx";
 import { DiagnoseDialog } from "./diagnose-dialog.tsx";
 import { LeistungDialog } from "./leistung-dialog.tsx";
@@ -180,96 +181,98 @@ export function PatientPage({
   const name = [patient.name.titel, patient.name.vorname, patient.name.nachname].filter(Boolean).join(" ");
   return (
     <>
-      <nav aria-label="Brotkrümel">
-        <ol className="breadcrumb mb-2">
-          <li className="breadcrumb-item">
-            <Link to="/patienten">Patienten</Link>
-          </li>
-          <li className="breadcrumb-item active" aria-current="page">
-            {patient.name.nachname}, {patient.name.vorname}
-          </li>
-        </ol>
-      </nav>
-      <div className="card shadow-sm mb-3">
-        <div className="card-body d-flex flex-wrap gap-3 align-items-center">
-          <div className="me-auto">
-            <h1 className="h4 mb-1">{name}</h1>
-            <div className="text-body-secondary small">
-              Nr. {patient.patientennummer} · geb. {formatDatum(patient.geburtsdatum)} ·{" "}
-              <span className="badge rounded-pill bg-primary-subtle text-primary-emphasis border border-primary-subtle">
-                {patient.praxiskuerzel}
-              </span>{" "}
-              seit {patient.aufnahmejahr} ·{" "}
-              {patient.anschrift === undefined ? (
-                <span className="text-warning-emphasis">
-                  <i className="fa-solid fa-triangle-exclamation me-1" aria-hidden="true"></i>
-                  keine Anschrift
-                </span>
-              ) : (
-                `${patient.anschrift.strasse}, ${patient.anschrift.postleitzahl} ${patient.anschrift.ort}`
-              )}
+      <PageHeader>
+        <nav aria-label="Brotkrümel">
+          <ol className="breadcrumb mb-2">
+            <li className="breadcrumb-item">
+              <Link to="/patienten">Patienten</Link>
+            </li>
+            <li className="breadcrumb-item active" aria-current="page">
+              {patient.name.nachname}, {patient.name.vorname}
+            </li>
+          </ol>
+        </nav>
+        <div className="card shadow-sm mb-3">
+          <div className="card-body d-flex flex-wrap gap-3 align-items-center">
+            <div className="me-auto">
+              <h1 className="h4 mb-1">{name}</h1>
+              <div className="text-body-secondary small">
+                Nr. {patient.patientennummer} · geb. {formatDatum(patient.geburtsdatum)} ·{" "}
+                <span className="badge rounded-pill bg-primary-subtle text-primary-emphasis border border-primary-subtle">
+                  {patient.praxiskuerzel}
+                </span>{" "}
+                seit {patient.aufnahmejahr} ·{" "}
+                {patient.anschrift === undefined ? (
+                  <span className="text-warning-emphasis">
+                    <i className="fa-solid fa-triangle-exclamation me-1" aria-hidden="true"></i>
+                    keine Anschrift
+                  </span>
+                ) : (
+                  `${patient.anschrift.strasse}, ${patient.anschrift.postleitzahl} ${patient.anschrift.ort}`
+                )}
+              </div>
+            </div>
+            <div className="d-flex flex-wrap gap-2">
+              <button
+                type="button"
+                className="btn btn-outline-primary"
+                onClick={() => setDialog({ art: "diagnose-stellen" })}
+              >
+                <i className="fa-solid fa-stethoscope me-1" aria-hidden="true"></i>
+                Diagnose stellen
+              </button>
+              <button type="button" className="btn btn-primary" onClick={() => setDialog({ art: "leistung-erfassen" })}>
+                <i className="fa-solid fa-plus me-1" aria-hidden="true"></i>
+                Leistung erfassen
+              </button>
             </div>
           </div>
-          <div className="d-flex flex-wrap gap-2">
-            <button
-              type="button"
-              className="btn btn-outline-primary"
-              onClick={() => setDialog({ art: "diagnose-stellen" })}
-            >
-              <i className="fa-solid fa-stethoscope me-1" aria-hidden="true"></i>
-              Diagnose stellen
-            </button>
-            <button type="button" className="btn btn-primary" onClick={() => setDialog({ art: "leistung-erfassen" })}>
-              <i className="fa-solid fa-plus me-1" aria-hidden="true"></i>
-              Leistung erfassen
-            </button>
-          </div>
+          {nichtAbgerechnet.length > 0 && (
+            <div className="card-footer bg-warning-subtle d-flex flex-wrap align-items-center gap-2">
+              <span>
+                <strong>{nichtAbgerechnet.length}</strong> noch nicht abgerechnete{" "}
+                {nichtAbgerechnet.length === 1 ? "Leistung" : "Leistungen"} über{" "}
+                <strong>
+                  {formatEuro({
+                    cents: nichtAbgerechnet.reduce(
+                      (summe, leistung) => summe + leistung.anzahl * leistung.einzelbetrag.cents,
+                      0,
+                    ),
+                  })}
+                </strong>
+              </span>
+              <button
+                type="button"
+                className="btn btn-sm btn-outline-dark ms-auto"
+                onClick={() => setDialog({ art: "rechnung-erstellen" })}
+              >
+                <i className="fa-solid fa-file-invoice me-1" aria-hidden="true"></i>
+                Rechnung erstellen
+              </button>
+            </div>
+          )}
         </div>
-        {nichtAbgerechnet.length > 0 && (
-          <div className="card-footer bg-warning-subtle d-flex flex-wrap align-items-center gap-2">
-            <span>
-              <strong>{nichtAbgerechnet.length}</strong> noch nicht abgerechnete{" "}
-              {nichtAbgerechnet.length === 1 ? "Leistung" : "Leistungen"} über{" "}
-              <strong>
-                {formatEuro({
-                  cents: nichtAbgerechnet.reduce(
-                    (summe, leistung) => summe + leistung.anzahl * leistung.einzelbetrag.cents,
-                    0,
-                  ),
-                })}
-              </strong>
-            </span>
-            <button
-              type="button"
-              className="btn btn-sm btn-outline-dark ms-auto"
-              onClick={() => setDialog({ art: "rechnung-erstellen" })}
-            >
+        <ul className="nav nav-tabs">
+          <li className="nav-item">
+            <NavLink className="nav-link" to={`/patienten/${patient.patientennummer}`} end>
+              <i className="fa-solid fa-notes-medical me-1" aria-hidden="true"></i>
+              Behandlung
+            </NavLink>
+          </li>
+          <li className="nav-item">
+            <NavLink className="nav-link" to={`/patienten/${patient.patientennummer}/rechnungen`}>
               <i className="fa-solid fa-file-invoice me-1" aria-hidden="true"></i>
-              Rechnung erstellen
-            </button>
-          </div>
-        )}
-      </div>
-      <ul className="nav nav-tabs mb-3">
-        <li className="nav-item">
-          <NavLink className="nav-link" to={`/patienten/${patient.patientennummer}`} end>
-            <i className="fa-solid fa-notes-medical me-1" aria-hidden="true"></i>
-            Behandlung
-          </NavLink>
-        </li>
-        <li className="nav-item">
-          <NavLink className="nav-link" to={`/patienten/${patient.patientennummer}/rechnungen`}>
-            <i className="fa-solid fa-file-invoice me-1" aria-hidden="true"></i>
-            Rechnungen
-          </NavLink>
-        </li>
-        <li className="nav-item">
-          <NavLink className="nav-link" to={`/patienten/${patient.patientennummer}/stammdaten`}>
-            <i className="fa-solid fa-id-card me-1" aria-hidden="true"></i>
-            Stammdaten
-          </NavLink>
-        </li>
-      </ul>
+              Rechnungen
+            </NavLink>
+          </li>
+          <li className="nav-item">
+            <NavLink className="nav-link" to={`/patienten/${patient.patientennummer}/stammdaten`}>
+              <i className="fa-solid fa-id-card me-1" aria-hidden="true"></i>
+              Stammdaten
+            </NavLink>
+          </li>
+        </ul>
+      </PageHeader>
       {reiter === "behandlung" ? (
         <PatientBehandlung
           api={api}

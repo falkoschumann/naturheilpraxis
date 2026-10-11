@@ -12,6 +12,7 @@ import type {
 } from "../../../shared/domain/abrechnungsansicht.ts";
 import type { Rechnungsstatus } from "../../../shared/domain/entities.ts";
 import { formatDatum, formatEuro } from "../../../shared/domain/value-objects.ts";
+import { ListHeader, PageHeader } from "../components/sticky-header.tsx";
 import { RechnungenTabelle, rechnungsstatusLabel } from "../components/rechnungen-tabelle.tsx";
 import { RechnungDialog } from "./rechnung-dialog.tsx";
 
@@ -30,6 +31,7 @@ export function AbrechnungPage({ api }: { api: NaturheilpraxisApi }) {
   const [abrechnung, setAbrechnung] = useState<Abrechnung>();
   const [fehler, setFehler] = useState<string>();
   const [statusFilter, setStatusFilter] = useState<Rechnungsstatus | "alle">("alle");
+  const rechnungenTitelId = useId();
   const [abzurechnen, setAbzurechnen] = useState<PatientMitNichtAbgerechnetenLeistungen>();
 
   useEffect(() => {
@@ -60,7 +62,9 @@ export function AbrechnungPage({ api }: { api: NaturheilpraxisApi }) {
 
   return (
     <>
-      <h1 className="h3 mb-3">Abrechnung</h1>
+      <PageHeader>
+        <h1 className="h3 mb-0">Abrechnung</h1>
+      </PageHeader>
       {fehler !== undefined && (
         <div className="alert alert-danger" role="alert">
           {fehler}
@@ -79,30 +83,34 @@ export function AbrechnungPage({ api }: { api: NaturheilpraxisApi }) {
             patienten={abrechnung.patienten}
             onRechnungErstellen={setAbzurechnen}
           />
-          <div className="d-flex flex-wrap align-items-center gap-2 mb-2">
-            <h2 className="h5 mb-0 me-auto">Rechnungen</h2>
-            <div className="btn-group btn-group-sm" role="radiogroup" aria-label="Nach Status filtern">
-              {filter.map((status) => (
-                <label key={status} className={`btn btn-outline-primary${statusFilter === status ? " active" : ""}`}>
-                  <input
-                    type="radio"
-                    className="btn-check"
-                    name="status"
-                    value={status}
-                    checked={statusFilter === status}
-                    onChange={() => setStatusFilter(status)}
-                  />
-                  {status === "alle" ? "Alle" : rechnungsstatusLabel(status)}
-                </label>
-              ))}
-            </div>
-          </div>
-          <RechnungenTabelle
-            rechnungen={abrechnung.rechnungen.filter(
-              (rechnung) => statusFilter === "alle" || rechnung.status === statusFilter,
-            )}
-            mitPatient
-          />
+          <section aria-labelledby={rechnungenTitelId}>
+            <ListHeader className="d-flex flex-wrap align-items-center gap-2 pb-2">
+              <h2 id={rechnungenTitelId} className="h5 mb-0 me-auto">
+                Rechnungen
+              </h2>
+              <div className="btn-group btn-group-sm" role="radiogroup" aria-label="Nach Status filtern">
+                {filter.map((status) => (
+                  <label key={status} className={`btn btn-outline-primary${statusFilter === status ? " active" : ""}`}>
+                    <input
+                      type="radio"
+                      className="btn-check"
+                      name="status"
+                      value={status}
+                      checked={statusFilter === status}
+                      onChange={() => setStatusFilter(status)}
+                    />
+                    {status === "alle" ? "Alle" : rechnungsstatusLabel(status)}
+                  </label>
+                ))}
+              </div>
+            </ListHeader>
+            <RechnungenTabelle
+              rechnungen={abrechnung.rechnungen.filter(
+                (rechnung) => statusFilter === "alle" || rechnung.status === statusFilter,
+              )}
+              mitPatient
+            />
+          </section>
         </>
       )}
       {abzurechnen !== undefined && (
@@ -171,10 +179,12 @@ function PatientenMitNichtAbgerechnetenLeistungen({
 }) {
   const titleId = useId();
   return (
-    <>
-      <h2 id={titleId} className="h5">
-        Patienten mit nicht abgerechneten Leistungen
-      </h2>
+    <section aria-labelledby={titleId}>
+      <ListHeader className="pb-2">
+        <h2 id={titleId} className="h5 mb-0">
+          Patienten mit nicht abgerechneten Leistungen
+        </h2>
+      </ListHeader>
       {patienten.length === 0 ? (
         <p className="text-body-secondary mb-4">Alle Leistungen sind abgerechnet.</p>
       ) : (
@@ -204,6 +214,6 @@ function PatientenMitNichtAbgerechnetenLeistungen({
           </ul>
         </div>
       )}
-    </>
+    </section>
   );
 }

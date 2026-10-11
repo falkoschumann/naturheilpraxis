@@ -106,7 +106,7 @@ Jeder Eintrag beginnt mit einer Kategorie:
       sichtbaren Zeilen gerendert werden. Weitere mögliche Maßnahmen: Abfrage
       verzögert auslösen (Debounce), Suchtext je Patient im Read Model
       vorberechnen.
-- [ ] **Benutzbarkeit** Kopfzeile der Anwendung und Bedienelemente der Seite
+- [x] **Benutzbarkeit** Kopfzeile der Anwendung und Bedienelemente der Seite
       (Seitentitel mit Aktionen wie „Neu“ und „Bearbeiten“, Suche, Tabellenkopf)
       bleiben beim Scrollen sichtbar, nur der Inhalt darunter scrollt. Gilt für
       alle Seiten, analog zur festen Fußzeile mit „Änderungen verwerfen“ und

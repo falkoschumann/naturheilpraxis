@@ -8,6 +8,7 @@ import type { GebuehrenErmittelnQueryResult } from "../../../shared/domain/gebue
 import { formatEuro } from "../../../shared/domain/value-objects.ts";
 import { ConfirmDialog } from "../components/confirm-dialog.tsx";
 import { sende } from "../components/sende.ts";
+import { ListHeader, PageHeader } from "../components/sticky-header.tsx";
 import { Toast, type ToastAction } from "../components/toast.tsx";
 import { GebuehrDialog } from "./gebuehr-dialog.tsx";
 
@@ -91,13 +92,13 @@ export function GebuehrenPage({ api }: { api: NaturheilpraxisApi }) {
 
   return (
     <>
-      <div className="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+      <PageHeader className="d-flex flex-wrap align-items-center justify-content-between gap-2">
         <h1 className="h3 mb-0">Gebührenverzeichnis</h1>
         <button type="button" className="btn btn-primary" onClick={() => setDialog({ art: "anlegen" })}>
           <i className="fa-solid fa-plus me-1" aria-hidden="true"></i>
           Gebühr anlegen
         </button>
-      </div>
+      </PageHeader>
       {fehler !== undefined && (
         <div className="alert alert-danger" role="alert">
           {fehler}
@@ -116,7 +117,7 @@ export function GebuehrenPage({ api }: { api: NaturheilpraxisApi }) {
       )}
       {gefunden !== undefined && gebuehren !== undefined && gebuehren.length > 0 && (
         <div className="card shadow-sm">
-          <div className="card-body border-bottom">
+          <ListHeader className="card-body border-bottom rounded-top">
             <label htmlFor="gebuehr-suche" className="visually-hidden">
               Gebühren durchsuchen
             </label>
@@ -128,61 +129,59 @@ export function GebuehrenPage({ api }: { api: NaturheilpraxisApi }) {
               value={suche}
               onChange={(event) => setSuche(event.target.value)}
             />
-          </div>
-          <div className="table-responsive">
-            <table className="table table-hover align-middle mb-0">
-              <thead>
-                <tr>
-                  <th scope="col">Ziffer</th>
-                  <th scope="col">Bezeichnung</th>
-                  <th scope="col" className="text-end">
-                    Betrag
-                  </th>
-                  <th scope="col" className="text-end">
-                    <span className="visually-hidden">Aktionen</span>
-                  </th>
+          </ListHeader>
+          <table className="table table-hover align-middle mb-0 sticky-table">
+            <thead>
+              <tr>
+                <th scope="col">Ziffer</th>
+                <th scope="col">Bezeichnung</th>
+                <th scope="col" className="text-end">
+                  Betrag
+                </th>
+                <th scope="col" className="text-end">
+                  <span className="visually-hidden">Aktionen</span>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {gefunden.map((gebuehr) => (
+                <tr key={gebuehr.ziffer}>
+                  <td className="fw-semibold">{gebuehr.ziffer}</td>
+                  <td>{gebuehr.bezeichnung}</td>
+                  <td className="text-end text-nowrap">{formatEuro(gebuehr.betrag)}</td>
+                  <td className="text-end text-nowrap">
+                    <div className="btn-group btn-group-sm">
+                      <button
+                        type="button"
+                        className="btn btn-outline-secondary"
+                        aria-label={`Gebühr ${gebuehr.ziffer} bearbeiten`}
+                        title="Bearbeiten"
+                        onClick={() => setDialog({ art: "bearbeiten", gebuehr })}
+                      >
+                        <i className="fa-solid fa-pen" aria-hidden="true"></i>
+                      </button>
+                      <button
+                        type="button"
+                        className="btn btn-outline-danger"
+                        aria-label={`Gebühr ${gebuehr.ziffer} entfernen`}
+                        title="Entfernen"
+                        onClick={() => setDialog({ art: "entfernen", gebuehr })}
+                      >
+                        <i className="fa-solid fa-trash" aria-hidden="true"></i>
+                      </button>
+                    </div>
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                {gefunden.map((gebuehr) => (
-                  <tr key={gebuehr.ziffer}>
-                    <td className="fw-semibold">{gebuehr.ziffer}</td>
-                    <td>{gebuehr.bezeichnung}</td>
-                    <td className="text-end text-nowrap">{formatEuro(gebuehr.betrag)}</td>
-                    <td className="text-end text-nowrap">
-                      <div className="btn-group btn-group-sm">
-                        <button
-                          type="button"
-                          className="btn btn-outline-secondary"
-                          aria-label={`Gebühr ${gebuehr.ziffer} bearbeiten`}
-                          title="Bearbeiten"
-                          onClick={() => setDialog({ art: "bearbeiten", gebuehr })}
-                        >
-                          <i className="fa-solid fa-pen" aria-hidden="true"></i>
-                        </button>
-                        <button
-                          type="button"
-                          className="btn btn-outline-danger"
-                          aria-label={`Gebühr ${gebuehr.ziffer} entfernen`}
-                          title="Entfernen"
-                          onClick={() => setDialog({ art: "entfernen", gebuehr })}
-                        >
-                          <i className="fa-solid fa-trash" aria-hidden="true"></i>
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-                {gefunden.length === 0 && (
-                  <tr>
-                    <td colSpan={4} className="text-center text-body-secondary py-4">
-                      Keine Gebühr gefunden.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
+              ))}
+              {gefunden.length === 0 && (
+                <tr>
+                  <td colSpan={4} className="text-center text-body-secondary py-4">
+                    Keine Gebühr gefunden.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
         </div>
       )}
       {(dialog?.art === "anlegen" || dialog?.art === "bearbeiten") && (

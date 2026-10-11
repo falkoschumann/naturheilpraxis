@@ -5,6 +5,7 @@ import { Link, NavLink, Outlet, useLocation } from "react-router";
 
 import type { NaturheilpraxisApi } from "../../../shared/application/naturheilpraxis-api.ts";
 import type { PraxenErmittelnQueryResult } from "../../../shared/domain/praxenansicht.ts";
+import { useHeightAsVariable } from "../components/sticky-header.tsx";
 import { Toast } from "../components/toast.tsx";
 import { AktuellePraxisContext } from "./aktuelle-praxis.ts";
 
@@ -19,6 +20,7 @@ export function MainLayout({ api }: { api: NaturheilpraxisApi }) {
   const [praxen, setPraxen] = useState<PraxenErmittelnQueryResult>([]);
   const [gewaehltePraxis, setGewaehltePraxis] = useState(leseAktuellePraxis);
   const [meldung, setMeldung] = useState<string>();
+  const navbar = useHeightAsVariable("--navbar-height", "document");
 
   // The Praxen can change on the Praxen page, so they are loaded again on
   // every navigation.
@@ -52,7 +54,12 @@ export function MainLayout({ api }: { api: NaturheilpraxisApi }) {
 
   return (
     <AktuellePraxisContext value={aktuellePraxis}>
-      <nav className="navbar navbar-expand bg-primary d-print-none" data-bs-theme="dark" aria-label="Hauptnavigation">
+      <nav
+        ref={navbar}
+        className="navbar navbar-expand bg-primary sticky-top d-print-none"
+        data-bs-theme="dark"
+        aria-label="Hauptnavigation"
+      >
         <div className="container-fluid">
           <Link className="navbar-brand" to="/patienten">
             <i className="fa-solid fa-leaf me-2" aria-hidden="true"></i>

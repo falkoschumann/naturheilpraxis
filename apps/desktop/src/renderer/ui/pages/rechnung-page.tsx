@@ -9,6 +9,7 @@ import type { RechnungErmittelnQueryResult } from "../../../shared/domain/rechnu
 import { formatDatum, formatEuro } from "../../../shared/domain/value-objects.ts";
 import { ConfirmDialog } from "../components/confirm-dialog.tsx";
 import { RechnungsstatusBadge, rechnungsstatusLabel } from "../components/rechnungen-tabelle.tsx";
+import { PageHeader } from "../components/sticky-header.tsx";
 import { sende } from "../components/sende.ts";
 import { meldungAus, Toast, type Meldung } from "../components/toast.tsx";
 import { heute } from "./heute.ts";
@@ -182,71 +183,73 @@ export function RechnungPage({ api, printer }: { api: NaturheilpraxisApi; printe
   const titel = rechnung.rechnungsnummer === undefined ? "Rechnungsentwurf" : `Rechnung ${rechnung.rechnungsnummer}`;
   return (
     <>
-      <nav aria-label="Brotkrümel" className="d-print-none">
-        <ol className="breadcrumb mb-2">
-          <li className="breadcrumb-item">
-            <Link to="/patienten">Patienten</Link>
-          </li>
-          <li className="breadcrumb-item">
-            <Link to={`/patienten/${patient.patientennummer}/rechnungen`}>
-              {patient.name.nachname}, {patient.name.vorname}
-            </Link>
-          </li>
-          <li className="breadcrumb-item active" aria-current="page">
-            {titel}
-          </li>
-        </ol>
-      </nav>
-      <div className="d-flex flex-wrap align-items-center gap-2 mb-3 d-print-none">
-        <h1 className="h3 mb-0 me-2">{titel}</h1>
-        <RechnungsstatusBadge rechnungsstatus={rechnung.status} />
-        {rechnung.status === "entwurf" && (
-          <div className="ms-auto d-flex flex-wrap gap-2">
-            <button type="button" className="btn btn-outline-danger" onClick={() => setDialog("loeschen")}>
-              <i className="fa-solid fa-trash me-1" aria-hidden="true"></i>
-              Entwurf löschen
-            </button>
-            <button type="button" className="btn btn-outline-primary" onClick={() => setDialog("bearbeiten")}>
-              <i className="fa-solid fa-pen me-1" aria-hidden="true"></i>
-              Bearbeiten
-            </button>
-            <button type="button" className="btn btn-primary" onClick={() => setDialog("versenden")}>
-              <i className="fa-solid fa-paper-plane me-1" aria-hidden="true"></i>
-              Versenden
-            </button>
-          </div>
-        )}
-        {rechnung.status === "versendet" && (
-          <div className="ms-auto d-flex flex-wrap gap-2">
-            <button
-              type="button"
-              className="btn btn-outline-secondary"
-              onClick={() => setDialog("versand-zuruecknehmen")}
-            >
-              <i className="fa-solid fa-rotate-left me-1" aria-hidden="true"></i>
-              Versand zurücknehmen
-            </button>
-            <DruckenButton druckt={druckt} onClick={() => void drucken(rechnung)} />
-            <button type="button" className="btn btn-primary" onClick={() => void zahlungErfassen(rechnung)}>
-              <i className="fa-solid fa-euro-sign me-1" aria-hidden="true"></i>
-              Zahlung erfassen
-            </button>
-          </div>
-        )}
-        {rechnung.status === "bezahlt" && (
-          <div className="ms-auto d-flex flex-wrap gap-2">
-            <button
-              type="button"
-              className="btn btn-outline-secondary"
-              onClick={() => setDialog("zahlung-zuruecknehmen")}
-            >
-              <i className="fa-solid fa-rotate-left me-1" aria-hidden="true"></i>
-              Zahlung zurücknehmen
-            </button>
-            <DruckenButton druckt={druckt} onClick={() => void drucken(rechnung)} />
-          </div>
-        )}
-      </div>
+      <PageHeader className="d-print-none">
+        <nav aria-label="Brotkrümel">
+          <ol className="breadcrumb mb-2">
+            <li className="breadcrumb-item">
+              <Link to="/patienten">Patienten</Link>
+            </li>
+            <li className="breadcrumb-item">
+              <Link to={`/patienten/${patient.patientennummer}/rechnungen`}>
+                {patient.name.nachname}, {patient.name.vorname}
+              </Link>
+            </li>
+            <li className="breadcrumb-item active" aria-current="page">
+              {titel}
+            </li>
+          </ol>
+        </nav>
+        <div className="d-flex flex-wrap align-items-center gap-2">
+          <h1 className="h3 mb-0 me-2">{titel}</h1>
+          <RechnungsstatusBadge rechnungsstatus={rechnung.status} />
+          {rechnung.status === "entwurf" && (
+            <div className="ms-auto d-flex flex-wrap gap-2">
+              <button type="button" className="btn btn-outline-danger" onClick={() => setDialog("loeschen")}>
+                <i className="fa-solid fa-trash me-1" aria-hidden="true"></i>
+                Entwurf löschen
+              </button>
+              <button type="button" className="btn btn-outline-primary" onClick={() => setDialog("bearbeiten")}>
+                <i className="fa-solid fa-pen me-1" aria-hidden="true"></i>
+                Bearbeiten
+              </button>
+              <button type="button" className="btn btn-primary" onClick={() => setDialog("versenden")}>
+                <i className="fa-solid fa-paper-plane me-1" aria-hidden="true"></i>
+                Versenden
+              </button>
+            </div>
+          )}
+          {rechnung.status === "versendet" && (
+            <div className="ms-auto d-flex flex-wrap gap-2">
+              <button
+                type="button"
+                className="btn btn-outline-secondary"
+                onClick={() => setDialog("versand-zuruecknehmen")}
+              >
+                <i className="fa-solid fa-rotate-left me-1" aria-hidden="true"></i>
+                Versand zurücknehmen
+              </button>
+              <DruckenButton druckt={druckt} onClick={() => void drucken(rechnung)} />
+              <button type="button" className="btn btn-primary" onClick={() => void zahlungErfassen(rechnung)}>
+                <i className="fa-solid fa-euro-sign me-1" aria-hidden="true"></i>
+                Zahlung erfassen
+              </button>
+            </div>
+          )}
+          {rechnung.status === "bezahlt" && (
+            <div className="ms-auto d-flex flex-wrap gap-2">
+              <button
+                type="button"
+                className="btn btn-outline-secondary"
+                onClick={() => setDialog("zahlung-zuruecknehmen")}
+              >
+                <i className="fa-solid fa-rotate-left me-1" aria-hidden="true"></i>
+                Zahlung zurücknehmen
+              </button>
+              <DruckenButton druckt={druckt} onClick={() => void drucken(rechnung)} />
+            </div>
+          )}
+        </div>
+      </PageHeader>
       <Fortschritt status={rechnung.status} />
       {rechnung.status === "entwurf" && patient.anschrift === undefined && (
         <div className="alert alert-warning d-flex align-items-center gap-2 d-print-none" role="alert">

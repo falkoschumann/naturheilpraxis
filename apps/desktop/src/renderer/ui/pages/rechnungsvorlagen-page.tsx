@@ -10,6 +10,7 @@ import {
   type RechnungsvorlageStatus,
 } from "../../../shared/application/rechnungsvorlagen-api.ts";
 import { ConfirmDialog } from "../components/confirm-dialog.tsx";
+import { PageHeader } from "../components/sticky-header.tsx";
 import { Toast, type Meldung } from "../components/toast.tsx";
 
 type Vorlage = RechnungsvorlagenErmittelnResultItem;
@@ -104,7 +105,9 @@ export function RechnungsvorlagenPage({ rechnungsvorlagen }: { rechnungsvorlagen
 
   return (
     <>
-      <h1 className="h3 mb-2">Rechnungsvorlagen</h1>
+      <PageHeader>
+        <h1 className="h3 mb-0">Rechnungsvorlagen</h1>
+      </PageHeader>
       <p className="text-body-secondary">
         Eine Praxis ohne eigene Vorlage nutzt die allgemeine Vorlage. Um eine Vorlage zu ändern, exportieren Sie sie,
         bearbeiten die HTML-Datei mit einem Editor Ihrer Wahl und importieren sie wieder.

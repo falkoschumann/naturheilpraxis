@@ -85,3 +85,107 @@
     white-space: nowrap;
   }
 }
+
+// The navbar, the header of the page and the header of a list stay visible
+// while the page scrolls. Each one sticks below the one before; their heights
+// come from the component StickyHeader.
+:root {
+  --navbar-height: 0px;
+  --page-header-height: 0px;
+  --page-headers-height: calc(var(--navbar-height) + var(--page-header-height));
+
+  // Keeps an element that gets the focus out from under the headers.
+  scroll-padding-top: calc(var(--page-headers-height) + 4rem);
+}
+
+// The header takes the padding of the main area, so content scrolling under it
+// is hidden at once, including the shadows of cards.
+.page-header {
+  position: sticky;
+  z-index: 1010;
+  top: var(--navbar-height);
+  margin: -1.5rem calc(var(--bs-gutter-x) * -0.5) 0;
+  padding: 1.5rem calc(var(--bs-gutter-x) * 0.5) 1rem;
+  background-color: var(--bs-body-bg);
+}
+
+.list-header {
+  position: sticky;
+  z-index: 3;
+  top: var(--page-headers-height);
+  background-color: var(--bs-body-bg);
+}
+
+// The border of a card scrolls away with the card. A header at the top of a
+// card sticks one border below and draws the top of the card itself, the
+// rounded corners included. At rest it lies on the top of the card.
+:root {
+  --card-headers-height: calc(
+    var(--page-headers-height) + var(--bs-border-width)
+  );
+}
+
+@mixin card-top($left: true, $right: true) {
+  $border: var(--bs-card-border-width);
+  $outside: calc(var(--bs-card-border-width) * -1);
+
+  &::before,
+  &::after {
+    content: "";
+    position: absolute;
+    top: $outside;
+    right: if($right, $outside, 0);
+    left: if($left, $outside, 0);
+    height: calc(var(--bs-card-border-radius) + $border);
+    pointer-events: none;
+  }
+
+  // Covers the sides of the card outside the rounded corners.
+  &::before {
+    z-index: -1;
+    background-color: var(--bs-body-bg);
+  }
+
+  &::after {
+    border: $border solid var(--bs-card-border-color);
+    border-bottom: 0;
+    border-top-left-radius: if($left, var(--bs-card-border-radius), 0);
+    border-top-right-radius: if($right, var(--bs-card-border-radius), 0);
+
+    @if not $left {
+      border-left: 0;
+    }
+
+    @if not $right {
+      border-right: 0;
+    }
+  }
+}
+
+.card > .list-header {
+  top: var(--card-headers-height);
+
+  @include card-top;
+}
+
+.sticky-table thead th {
+  position: sticky;
+  z-index: 2;
+  top: calc(var(--card-headers-height) + var(--list-header-height, 0px));
+
+  // The border of a collapsed table does not stick with the cell.
+  box-shadow: inset 0 -1px 0 var(--bs-border-color);
+}
+
+// Only the outer cells have a rounded corner.
+.card > .sticky-table:first-child thead th {
+  @include card-top($left: false, $right: false);
+
+  &:first-child {
+    @include card-top($right: false);
+  }
+
+  &:last-child {
+    @include card-top($left: false);
+  }
+}

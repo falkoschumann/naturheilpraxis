@@ -38,46 +38,44 @@ export function RechnungenTabelle({
 
   return (
     <div className="card shadow-sm">
-      <div className="table-responsive">
-        <table className="table table-hover align-middle mb-0">
-          <thead>
-            <tr>
-              <th scope="col">Rechnungsnr.</th>
-              <th scope="col">Datum</th>
-              {mitPatient && <th scope="col">Patient</th>}
-              <th scope="col">Diagnose</th>
-              <th scope="col">Praxis</th>
-              <th scope="col">Status</th>
-              <th scope="col" className="text-end">
-                Betrag
-              </th>
+      <table className="table table-hover align-middle mb-0 sticky-table">
+        <thead>
+          <tr>
+            <th scope="col">Rechnungsnr.</th>
+            <th scope="col">Datum</th>
+            {mitPatient && <th scope="col">Patient</th>}
+            <th scope="col">Diagnose</th>
+            <th scope="col">Praxis</th>
+            <th scope="col">Status</th>
+            <th scope="col" className="text-end">
+              Betrag
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {rechnungen.map((rechnung) => (
+            <tr key={rechnung.rechnungId}>
+              <td>
+                <Link to={`/rechnungen/${rechnung.rechnungId}`} className="text-decoration-none">
+                  {rechnung.rechnungsnummer ?? "Entwurf"}
+                </Link>
+              </td>
+              <td>{rechnung.datum === undefined ? "–" : formatDatum(rechnung.datum)}</td>
+              {mitPatient && <td>{rechnung.patientenname ?? `Nr. ${rechnung.patientennummer}`}</td>}
+              <td>{rechnung.diagnosetext}</td>
+              <td>
+                <span className="badge rounded-pill bg-primary-subtle text-primary-emphasis border border-primary-subtle">
+                  {rechnung.praxiskuerzel}
+                </span>
+              </td>
+              <td>
+                <RechnungsstatusBadge rechnungsstatus={rechnung.status} />
+              </td>
+              <td className="text-end text-nowrap">{formatEuro(rechnung.betrag)}</td>
             </tr>
-          </thead>
-          <tbody>
-            {rechnungen.map((rechnung) => (
-              <tr key={rechnung.rechnungId}>
-                <td>
-                  <Link to={`/rechnungen/${rechnung.rechnungId}`} className="text-decoration-none">
-                    {rechnung.rechnungsnummer ?? "Entwurf"}
-                  </Link>
-                </td>
-                <td>{rechnung.datum === undefined ? "–" : formatDatum(rechnung.datum)}</td>
-                {mitPatient && <td>{rechnung.patientenname ?? `Nr. ${rechnung.patientennummer}`}</td>}
-                <td>{rechnung.diagnosetext}</td>
-                <td>
-                  <span className="badge rounded-pill bg-primary-subtle text-primary-emphasis border border-primary-subtle">
-                    {rechnung.praxiskuerzel}
-                  </span>
-                </td>
-                <td>
-                  <RechnungsstatusBadge rechnungsstatus={rechnung.status} />
-                </td>
-                <td className="text-end text-nowrap">{formatEuro(rechnung.betrag)}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }

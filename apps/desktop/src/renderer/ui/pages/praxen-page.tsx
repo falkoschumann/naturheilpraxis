@@ -8,6 +8,7 @@ import type {
   PraxenErmittelnQueryResult,
   PraxenErmittelnQueryResultItem,
 } from "../../../shared/domain/praxenansicht.ts";
+import { PageHeader } from "../components/sticky-header.tsx";
 import { Toast } from "../components/toast.tsx";
 import { PraxisDialog } from "./praxis-dialog.tsx";
 
@@ -60,13 +61,13 @@ export function PraxenPage({ api }: { api: NaturheilpraxisApi }) {
 
   return (
     <>
-      <div className="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+      <PageHeader className="d-flex flex-wrap align-items-center justify-content-between gap-2">
         <h1 className="h3 mb-0">Praxen</h1>
         <button type="button" className="btn btn-primary" onClick={() => setDialog({})}>
           <i className="fa-solid fa-plus me-1" aria-hidden="true"></i>
           Praxis anlegen
         </button>
-      </div>
+      </PageHeader>
       {ladefehler !== undefined && (
         <div className="alert alert-danger" role="alert">
           {ladefehler}

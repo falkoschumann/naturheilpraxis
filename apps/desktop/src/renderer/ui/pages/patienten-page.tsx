@@ -12,6 +12,7 @@ import type {
   PatientenErmittelnQueryResultItem,
 } from "../../../shared/domain/patientenansicht.ts";
 import { formatDatum, formatEuro, type Patientennummer } from "../../../shared/domain/value-objects.ts";
+import { ListHeader, PageHeader } from "../components/sticky-header.tsx";
 import { PatientAufnehmenDialog } from "./patient-aufnehmen-dialog.tsx";
 
 export function PatientenPage({ api }: { api: NaturheilpraxisApi }) {
@@ -83,20 +84,20 @@ export function PatientenPage({ api }: { api: NaturheilpraxisApi }) {
 
   return (
     <>
-      <div className="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+      <PageHeader className="d-flex flex-wrap align-items-center justify-content-between gap-2">
         <h1 className="h3 mb-0">Patienten</h1>
         <button type="button" className="btn btn-primary" onClick={() => setAufnehmen(true)}>
           <i className="fa-solid fa-user-plus me-1" aria-hidden="true"></i>
           Patient aufnehmen
         </button>
-      </div>
+      </PageHeader>
       {fehler !== undefined && (
         <div className="alert alert-danger" role="alert">
           {fehler}
         </div>
       )}
       <div className="card shadow-sm">
-        <div className="card-body border-bottom">
+        <ListHeader className="card-body border-bottom rounded-top">
           <label htmlFor="patienten-suche" className="visually-hidden">
             Patienten durchsuchen
           </label>
@@ -122,7 +123,7 @@ export function PatientenPage({ api }: { api: NaturheilpraxisApi }) {
           <div id="patienten-suche-hilfe" className="form-text">
             Alle Wörter müssen vorkommen. Setzen Sie Wörter mit Leerzeichen in Anführungszeichen, z. B. "Lindenweg 5".
           </div>
-        </div>
+        </ListHeader>
         <PatientenTabelle
           patienten={patienten}
           offen={offen}
@@ -238,7 +239,7 @@ function PatientenTabelle({
   const spaltenanzahl = columns.length;
 
   return (
-    <table className="table table-hover align-middle mb-0 patienten-tabelle">
+    <table className="table table-hover align-middle mb-0 sticky-table patienten-tabelle">
       <colgroup>
         {table.getAllLeafColumns().map((column) => (
           <col key={column.id} style={{ width: spaltenlayout[column.id]?.breite }} />
