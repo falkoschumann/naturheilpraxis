@@ -10,7 +10,6 @@ import {
   type ColumnDef,
   type RowData,
   type SortFn,
-  type SortingState,
 } from "@tanstack/react-table";
 import { useWindowVirtualizer } from "@tanstack/react-virtual";
 import { useLayoutEffect, useRef, useState, type ReactNode } from "react";
@@ -46,22 +45,19 @@ export type Spaltenlayout = Readonly<Record<string, Readonly<{ breite: string; c
 const zeilenhoehe = 41;
 
 // A table that renders only its visible rows, so that it stays fast with
-// thousands of rows. Each column sorts the rows by its header. Without a
-// sorting the rows keep the order of the data.
+// thousands of rows. Each column sorts the rows by its header, ascending,
+// descending and back to the order of the data.
 export function DataTable<TData extends RowData>({
   columns,
   data,
   layout,
   getRowId,
-  initialSorting = [],
   hinweis,
 }: {
   columns: DataTableColumns<TData>;
   data: readonly TData[];
   layout: Spaltenlayout;
   getRowId: (zeile: TData) => string;
-  // A table with an initial sorting is always sorted by one column.
-  initialSorting?: SortingState;
   // Shown instead of the rows, like a loading or an empty state.
   hinweis?: ReactNode;
 }) {
@@ -70,8 +66,6 @@ export function DataTable<TData extends RowData>({
     columns,
     data: data as TData[],
     getRowId,
-    initialState: { sorting: initialSorting },
-    enableSortingRemoval: initialSorting.length === 0,
     sortDescFirst: false,
   });
   const rows = table.getRowModel().rows;

@@ -135,9 +135,6 @@ const spaltenlayout: Spaltenlayout = {
   offeneLeistungen: { breite: "20%", className: "text-end" },
 };
 
-// The newest Patienten come first.
-const neuesteZuerst = [{ id: "patientennummer", desc: true }];
-
 function PatientenTabelle({
   patienten,
   offen,
@@ -200,7 +197,6 @@ function PatientenTabelle({
       data={patienten ?? []}
       layout={spaltenlayout}
       getRowId={(patient) => String(patient.patientennummer)}
-      initialSorting={neuesteZuerst}
       hinweis={
         laedt ? (
           <span role="status">

@@ -76,7 +76,7 @@ describe("Patienten", () => {
     zeigePatienten(api);
 
     expect(await patientenInReihenfolge()).toEqual(["Zander, Anna", "Mustermann, Erika", "Mustermann, Max"]);
-    expect(screen.getByRole("columnheader", { name: /Nr\./ }).getAttribute("aria-sort")).toBe("descending");
+    expect(screen.getByRole("columnheader", { name: /Nr\./ }).getAttribute("aria-sort")).toBe("none");
   });
 
   it("sollte nach dem Namen sortieren", async () => {
@@ -88,12 +88,16 @@ describe("Patienten", () => {
 
     expect(await patientenInReihenfolge()).toEqual(["Mustermann, Erika", "Mustermann, Max", "Zander, Anna"]);
     expect(screen.getByRole("columnheader", { name: /Name/ }).getAttribute("aria-sort")).toBe("ascending");
-    expect(screen.getByRole("columnheader", { name: /Nr\./ }).getAttribute("aria-sort")).toBe("none");
 
     fireEvent.click(screen.getByRole("button", { name: /Name/ }));
 
     expect(await patientenInReihenfolge()).toEqual(["Zander, Anna", "Mustermann, Max", "Mustermann, Erika"]);
     expect(screen.getByRole("columnheader", { name: /Name/ }).getAttribute("aria-sort")).toBe("descending");
+
+    fireEvent.click(screen.getByRole("button", { name: /Name/ }));
+
+    expect(await patientenInReihenfolge()).toEqual(["Zander, Anna", "Mustermann, Erika", "Mustermann, Max"]);
+    expect(screen.getByRole("columnheader", { name: /Name/ }).getAttribute("aria-sort")).toBe("none");
   });
 
   it("sollte Patienten ohne Ort beim Sortieren nach dem Ort zuletzt anzeigen", async () => {
