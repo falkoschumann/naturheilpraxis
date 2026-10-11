@@ -22,6 +22,15 @@ export type BehandlungAktionen = Readonly<{
   onLeistungLoeschen: (leistung: Leistung) => void;
 }>;
 
+// Which entries of the treatment are shown.
+type Auswahl = "alle" | Behandlung["art"];
+
+const auswahlen: readonly Readonly<{ wert: Auswahl; label: string; keine: string }>[] = [
+  { wert: "alle", label: "Alle", keine: "" },
+  { wert: "diagnose", label: "Diagnosen", keine: "Für diesen Patienten ist keine Diagnose erfasst." },
+  { wert: "leistung", label: "Leistungen", keine: "Für diesen Patienten ist keine Leistung erfasst." },
+];
+
 // The tab Behandlung of the Karteikarte: the course of the treatment, grouped
 // by day, the newest first.
 export function PatientBehandlung({
@@ -38,6 +47,9 @@ export function PatientBehandlung({
 }) {
   const [behandlungen, setBehandlungen] = useState<BehandlungenErmittelnQueryResult>();
   const [fehler, setFehler] = useState<string>();
+  // Each Karteikarte starts with all entries.
+  const [auswahl, setAuswahl] = useState<Auswahl>("alle");
+  const auswahlName = useId();
 
   useEffect(() => {
     let aktuell = true;
@@ -82,10 +94,33 @@ export function PatientBehandlung({
     );
   }
 
-  const tage = Map.groupBy(behandlungen, (behandlung) => behandlung.eintrag.datum);
+  const sichtbar = behandlungen.filter((behandlung) => auswahl === "alle" || behandlung.art === auswahl);
+  const tage = Map.groupBy(sichtbar, (behandlung) => behandlung.eintrag.datum);
   return (
     <>
-      <h2 className="h5 mb-3">Behandlungsverlauf</h2>
+      <div className="d-flex flex-wrap align-items-center gap-2 mb-3">
+        <h2 className="h5 mb-0 me-auto">Behandlungsverlauf</h2>
+        <div className="btn-group btn-group-sm" role="radiogroup" aria-label="Einträge auswählen">
+          {auswahlen.map(({ wert, label }) => (
+            <label key={wert} className={`btn btn-outline-primary${auswahl === wert ? " active" : ""}`}>
+              <input
+                type="radio"
+                className="btn-check"
+                name={auswahlName}
+                value={wert}
+                checked={auswahl === wert}
+                onChange={() => setAuswahl(wert)}
+              />
+              {label}
+            </label>
+          ))}
+        </div>
+      </div>
+      {tage.size === 0 && (
+        <div className="text-center text-body-secondary border rounded bg-body p-5">
+          {auswahlen.find(({ wert }) => wert === auswahl)?.keine}
+        </div>
+      )}
       {[...tage].map(([datum, eintraege]) => (
         <Tag key={datum} datum={datum} eintraege={eintraege} aktionen={aktionen} />
       ))}
@@ -134,10 +169,11 @@ function Tag({
   );
 }
 
+// A Diagnose stands out from the Leistungen of its day.
 function DiagnoseEintrag({ diagnose, aktionen }: { diagnose: Diagnose; aktionen: BehandlungAktionen }) {
   return (
-    <li className="list-group-item d-flex gap-3 align-items-start">
-      <span className="badge bg-info-subtle text-info-emphasis p-2">
+    <li className="list-group-item list-group-item-info d-flex gap-3 align-items-start">
+      <span className="badge text-bg-info p-2">
         <i className="fa-solid fa-stethoscope" aria-hidden="true"></i>
       </span>
       <div className="me-auto">

@@ -127,7 +127,7 @@ Jeder Eintrag beginnt mit einer Kategorie:
 - [x] **Patient** Die Tabelle der Patienten sortierbar machen.
 - [x] **Benutzbarkeit** Im Behandlungsverlauf bleibt die Überschrift mit dem
       Datum beim Scrollen sichtbar.
-- [ ] **Diagnose** Die Diagnosen gehen im Behandlungsverlauf zwischen den
+- [x] **Diagnose** Die Diagnosen gehen im Behandlungsverlauf zwischen den
       Leistungen optisch unter, und manchmal braucht man nur eine Liste der
       Diagnosen. Im Behandlungsverlauf auswählen, welche Art von Einträgen
       sichtbar ist.

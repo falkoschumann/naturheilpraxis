@@ -98,6 +98,45 @@ describe("Patient", () => {
       expect(within(tag).getByText("Chronische Rückenschmerzen")).toBeDefined();
     });
 
+    it("sollte nur die Diagnosen anzeigen", async () => {
+      const api = new FakeNaturheilpraxisApi({ events: behandlungAnZweiTagen() });
+      zeigePatient(api, 1);
+      await screen.findByText("Chronische Rückenschmerzen");
+      expect(screen.getByRole("radio", { name: "Alle" })).toHaveProperty("checked", true);
+
+      fireEvent.click(screen.getByRole("radio", { name: "Diagnosen" }));
+
+      const tag = screen.getByRole("region", { name: "Montag, 14. September 2026" });
+      expect(within(tag).getByText("Chronische Rückenschmerzen")).toBeDefined();
+      expect(within(tag).queryByText(/Summe/)).toBeNull();
+      expect(screen.queryByText("Eingehende Untersuchung")).toBeNull();
+      expect(screen.queryByRole("region", { name: "Dienstag, 15. September 2026" })).toBeNull();
+    });
+
+    it("sollte nur die Leistungen anzeigen", async () => {
+      const api = new FakeNaturheilpraxisApi({ events: behandlungAnZweiTagen() });
+      zeigePatient(api, 1);
+      await screen.findByText("Chronische Rückenschmerzen");
+
+      fireEvent.click(screen.getByRole("radio", { name: "Leistungen" }));
+
+      expect(screen.queryByText("Chronische Rückenschmerzen")).toBeNull();
+      expect(screen.getAllByText("Eingehende Untersuchung")).toHaveLength(2);
+      expect(screen.getByRole("region", { name: "Dienstag, 15. September 2026" })).toBeDefined();
+    });
+
+    it("sollte einen Hinweis zeigen, wenn es keine Einträge der gewählten Art gibt", async () => {
+      const api = new FakeNaturheilpraxisApi({
+        events: [praxisAngelegt(), aufgenommen(max()), { type: "leistung-erbracht", data: untersuchung() }],
+      });
+      zeigePatient(api, 1);
+      await screen.findByText("Eingehende Untersuchung");
+
+      fireEvent.click(screen.getByRole("radio", { name: "Diagnosen" }));
+
+      expect(screen.getByText("Für diesen Patienten ist keine Diagnose erfasst.")).toBeDefined();
+    });
+
     it("sollte einen Hinweis zeigen, wenn noch nichts erfasst ist", async () => {
       const api = new FakeNaturheilpraxisApi({ events: [praxisAngelegt(), aufgenommen(max())] });
 
@@ -442,6 +481,20 @@ function untersuchung(): Leistung {
     anzahl: 1,
     einzelbetrag: { cents: 2050 },
   };
+}
+
+// A Diagnose and a Leistung on Monday and another Leistung on Tuesday.
+function behandlungAnZweiTagen(): DomainEvent[] {
+  return [
+    praxisAngelegt(),
+    aufgenommen(max()),
+    { type: "diagnose-gestellt", data: rueckenschmerzen() },
+    { type: "leistung-erbracht", data: untersuchung() },
+    {
+      type: "leistung-erbracht",
+      data: { ...untersuchung(), leistungId: "33333333-3333-4333-8333-333333333333", datum: "2026-09-15" },
+    },
+  ];
 }
 
 function gebuehrAngelegt(): DomainEvent {
