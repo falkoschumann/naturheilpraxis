@@ -73,9 +73,9 @@
   background-color: #fff;
 }
 
-// The patient list renders only the visible rows. Fixed columns and cells
+// A data table renders only the visible rows. Fixed columns and cells
 // without wrapping keep the widths and the height of the rows the same.
-.patienten-tabelle {
+.data-table {
   table-layout: fixed;
 
   td,

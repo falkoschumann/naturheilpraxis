@@ -339,6 +339,48 @@ describe("Rechnungen", () => {
       expect(screen.getByText("Keine Rechnungen vorhanden.")).toBeDefined();
     });
 
+    it("sollte die Rechnungen durchsuchen", async () => {
+      const api = new FakeNaturheilpraxisApi({ events: zweiRechnungen() });
+      zeige(api, "/abrechnung/rechnungen");
+      await screen.findByRole("row", { name: /Musterfrau, Erika/ });
+      expect(screen.getByText("2 Rechnungen")).toBeDefined();
+
+      fireEvent.change(screen.getByLabelText("Rechnungen durchsuchen"), { target: { value: "erika 2/260921" } });
+
+      expect(screen.queryByRole("row", { name: /Mustermann, Max/ })).toBeNull();
+      expect(screen.getByRole("row", { name: /Musterfrau, Erika/ })).toBeDefined();
+      expect(screen.getByText("1 Rechnung")).toBeDefined();
+    });
+
+    it("sollte einen Hinweis zeigen, wenn die Suche keine Rechnung findet", async () => {
+      const api = new FakeNaturheilpraxisApi({ events: zweiRechnungen() });
+      zeige(api, "/abrechnung/rechnungen");
+      await screen.findByRole("row", { name: /Musterfrau, Erika/ });
+
+      fireEvent.change(screen.getByLabelText("Rechnungen durchsuchen"), { target: { value: "unbekannt" } });
+
+      expect(screen.getByText(/Keine Rechnung gefunden/)).toBeDefined();
+    });
+
+    it("sollte die Rechnungen sortieren und zur Standardreihenfolge zurückkehren", async () => {
+      const api = new FakeNaturheilpraxisApi({ events: zweiRechnungen() });
+      zeige(api, "/abrechnung/rechnungen");
+      await screen.findByRole("row", { name: /Musterfrau, Erika/ });
+      expect(rechnungenInReihenfolge()).toEqual(["Mustermann, Max", "Musterfrau, Erika"]);
+
+      fireEvent.click(screen.getByRole("button", { name: /Betrag/ }));
+      expect(rechnungenInReihenfolge()).toEqual(["Mustermann, Max", "Musterfrau, Erika"]);
+      expect(screen.getByRole("columnheader", { name: /Betrag/ }).getAttribute("aria-sort")).toBe("ascending");
+
+      fireEvent.click(screen.getByRole("button", { name: /Betrag/ }));
+      expect(rechnungenInReihenfolge()).toEqual(["Musterfrau, Erika", "Mustermann, Max"]);
+      expect(screen.getByRole("columnheader", { name: /Betrag/ }).getAttribute("aria-sort")).toBe("descending");
+
+      fireEvent.click(screen.getByRole("button", { name: /Betrag/ }));
+      expect(rechnungenInReihenfolge()).toEqual(["Mustermann, Max", "Musterfrau, Erika"]);
+      expect(screen.getByRole("columnheader", { name: /Betrag/ }).getAttribute("aria-sort")).toBe("none");
+    });
+
     it("sollte Kennzahlen und den Betrag jeder Rechnung zeigen", async () => {
       const api = new FakeNaturheilpraxisApi({ events: [...grunddaten(), rechnungErstellt([ersteLeistung])] });
       zeige(api, "/abrechnung/rechnungen");
@@ -427,6 +469,13 @@ function zeige(api: NaturheilpraxisApi, pfad: string, printer: PrintApi = new Fa
   );
 }
 
+function rechnungenInReihenfolge(): string[] {
+  return screen
+    .getAllByRole("row")
+    .map((zeile) => zeile.textContent.match(/Muster\w+, \w+/)?.[0])
+    .filter((name) => name !== undefined);
+}
+
 function Pfad() {
   return <p>Pfad {useLocation().pathname}</p>;
 }
@@ -487,6 +536,58 @@ function grunddaten(): DomainEvent[] {
         bezeichnung: "Akupunktur",
         anzahl: 2,
         einzelbetrag: { cents: 1530 },
+      },
+    },
+  ];
+}
+
+// A draft for Max over 20,50 € and a sent Rechnung for Erika over 50,00 €.
+function zweiRechnungen(): DomainEvent[] {
+  return [
+    ...grunddaten(),
+    rechnungErstellt([ersteLeistung]),
+    {
+      type: "patient-aufgenommen",
+      data: {
+        patientennummer: 2,
+        praxiskuerzel: "NHP",
+        aufnahmejahr: 2026,
+        geburtsdatum: "1982-03-14",
+        name: { vorname: "Erika", nachname: "Musterfrau" },
+        anschrift: { strasse: "Lindenweg 7", postleitzahl: "12345", ort: "Musterstadt" },
+      },
+    },
+    {
+      type: "leistung-erbracht",
+      data: {
+        leistungId: "44444444-4444-4444-8444-444444444444",
+        praxiskuerzel: "NHP",
+        patientennummer: 2,
+        datum: "2026-09-21",
+        ziffer: "1",
+        bezeichnung: "Eingehende Untersuchung",
+        anzahl: 1,
+        einzelbetrag: { cents: 5000 },
+      },
+    },
+    {
+      type: "rechnung-erstellt",
+      data: {
+        rechnungId: "55555555-5555-4555-8555-555555555555",
+        praxiskuerzel: "NHP",
+        patientennummer: 2,
+        diagnosetext: "Migräne",
+        rechnungstext: "Bitte überweisen Sie den Betrag innerhalb von 14 Tagen.",
+        leistungen: ["44444444-4444-4444-8444-444444444444"],
+      },
+    },
+    {
+      type: "rechnung-versendet",
+      data: {
+        rechnungId: "55555555-5555-4555-8555-555555555555",
+        patientennummer: 2,
+        rechnungsnummer: "2/260921",
+        datum: "2026-09-21",
       },
     },
   ];

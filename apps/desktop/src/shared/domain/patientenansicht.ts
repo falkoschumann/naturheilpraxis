@@ -2,6 +2,7 @@
 
 import type { Patient } from "./entities.ts";
 import type { DomainEvent } from "./events.ts";
+import { suchwoerterAus, trifftAlle } from "./suche.ts";
 import { formatPatientenname, type Patientennummer } from "./value-objects.ts";
 
 // The Patienten by their Patientennummer.
@@ -125,24 +126,13 @@ function angehoerigenname(
   return patient === undefined ? undefined : formatPatientenname(patient);
 }
 
-// The words are separated by spaces, a word with spaces is quoted.
-function suchwoerterAus(suchbegriff: string): string[] {
-  return [...suchbegriff.matchAll(/"([^"]*)"|(\S+)/g)]
-    .map(([, zitiert, wort]) => (zitiert ?? wort ?? "").trim().toLowerCase())
-    .filter((wort) => wort !== "");
-}
-
-// Every word occurs in any of the fields, ignoring case.
+// Every word occurs in any of the fields.
 function trifft(
   patient: PatientenErmittelnQueryResultItem,
   suchwoerter: readonly string[],
 ): boolean {
   const felder = Object.values(patient).flatMap((wert) =>
-    (Array.isArray(wert) ? wert : [wert]).map((feld) =>
-      String(feld).toLowerCase(),
-    ),
+    (Array.isArray(wert) ? wert : [wert]).map((feld) => String(feld)),
   );
-  return suchwoerter.every((wort) =>
-    felder.some((feld) => feld.includes(wort)),
-  );
+  return trifftAlle(felder, suchwoerter);
 }

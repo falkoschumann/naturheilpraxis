@@ -11,9 +11,11 @@ import type {
   RechnungenErmittelnQueryResult,
 } from "../../../../shared/domain/abrechnungsansicht.ts";
 import type { Rechnungsstatus } from "../../../../shared/domain/entities.ts";
+import { suchwoerterAus, trifftAlle } from "../../../../shared/domain/suche.ts";
 import { formatDatum, formatEuro } from "../../../../shared/domain/value-objects.ts";
+import { anzahl, SearchField } from "../../components/search-field.tsx";
 import { ListHeader, PageHeader, PageSubHeader } from "../../components/sticky-header.tsx";
-import { RechnungenTabelle, rechnungsstatusLabel } from "../../components/rechnungen-tabelle.tsx";
+import { patientDer, RechnungenTabelle, rechnungsstatusLabel } from "../../components/rechnungen-tabelle.tsx";
 import { RechnungDialog } from "../../components/rechnung-dialog.tsx";
 
 const filter: readonly (Rechnungsstatus | "alle")[] = ["alle", "entwurf", "versendet", "bezahlt"];
@@ -37,6 +39,7 @@ export function AbrechnungPage({
   const [abrechnung, setAbrechnung] = useState<Abrechnung>();
   const [fehler, setFehler] = useState<string>();
   const [statusFilter, setStatusFilter] = useState<Rechnungsstatus | "alle">("alle");
+  const [suchbegriff, setSuchbegriff] = useState("");
   const [abzurechnen, setAbzurechnen] = useState<PatientMitNichtAbgerechnetenLeistungen>();
 
   useEffect(() => {
@@ -64,6 +67,12 @@ export function AbrechnungPage({
       aktuell = false;
     };
   }, [api]);
+
+  const suchwoerter = suchwoerterAus(suchbegriff);
+  const gefunden = abrechnung?.rechnungen.filter(
+    (rechnung) =>
+      (statusFilter === "alle" || rechnung.status === statusFilter) && trifftAlle(suchfelder(rechnung), suchwoerter),
+  );
 
   return (
     <>
@@ -107,8 +116,17 @@ export function AbrechnungPage({
             />
           ) : (
             <section aria-label="Rechnungen">
-              <ListHeader className="d-flex flex-wrap align-items-center gap-2 pb-2">
-                <div className="btn-group btn-group-sm" role="radiogroup" aria-label="Nach Status filtern">
+              <ListHeader className="d-flex flex-wrap align-items-start gap-3 pb-3">
+                <div className="flex-grow-1">
+                  <SearchField
+                    label="Rechnungen durchsuchen"
+                    placeholder="Suchen nach Rechnungsnummer, Datum, Patient, Diagnose, Praxis, Status oder Betrag …"
+                    value={suchbegriff}
+                    onChange={setSuchbegriff}
+                    treffer={anzahl(gefunden?.length ?? 0, "Rechnung", "Rechnungen")}
+                  />
+                </div>
+                <div className="btn-group" role="radiogroup" aria-label="Nach Status filtern">
                   {filter.map((status) => (
                     <label
                       key={status}
@@ -128,10 +146,13 @@ export function AbrechnungPage({
                 </div>
               </ListHeader>
               <RechnungenTabelle
-                rechnungen={abrechnung.rechnungen.filter(
-                  (rechnung) => statusFilter === "alle" || rechnung.status === statusFilter,
-                )}
+                rechnungen={gefunden ?? []}
                 mitPatient
+                leerHinweis={
+                  suchbegriff.trim() === ""
+                    ? "Keine Rechnungen vorhanden."
+                    : "Keine Rechnung gefunden. Prüfen Sie die Schreibweise oder wählen Sie einen anderen Status."
+                }
               />
             </section>
           )}
@@ -156,6 +177,19 @@ export function AbrechnungPage({
       )}
     </>
   );
+}
+
+// A Rechnung is found by what the table shows of it.
+function suchfelder(rechnung: RechnungenErmittelnQueryResult[number]): string[] {
+  return [
+    rechnung.rechnungsnummer ?? "Entwurf",
+    rechnung.datum === undefined ? "" : formatDatum(rechnung.datum),
+    patientDer(rechnung),
+    rechnung.diagnosetext,
+    rechnung.praxiskuerzel,
+    rechnungsstatusLabel(rechnung.status),
+    formatEuro(rechnung.betrag),
+  ];
 }
 
 function Kennzahlen({ kennzahlen }: { kennzahlen: KennzahlenErmittelnQueryResult }) {
