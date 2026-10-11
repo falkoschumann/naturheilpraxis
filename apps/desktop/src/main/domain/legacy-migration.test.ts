@@ -48,6 +48,30 @@ describe("Legacy Migration", () => {
         { type: "praxis-angelegt", data: praxen[2]?.praxis },
       ]);
     });
+
+    it("sollte den Rechnungstext aus der Liste der Praxen bevorzugen", () => {
+      const data = legacyData({
+        patients: [patient({ id: 1 })],
+        activities: [activity({ id: 1, invoiceId: 1 })],
+        invoices: [invoice({ id: 1, invoiceNote: "Text der Rechnung" })],
+      });
+      const mitRechnungstext = praxen.map(
+        ({ agencyId, praxis }, index): LegacyPraxis => ({
+          agencyId,
+          praxis:
+            index === 0
+              ? { ...praxis, rechnungstext: "Text der Praxis" }
+              : praxis,
+        }),
+      );
+
+      const { events } = migrateLegacyData(data, mitRechnungstext, () => "id");
+
+      expect(ofType(events, "praxis-angelegt")[0]).toEqual({
+        type: "praxis-angelegt",
+        data: { ...praxen[0]?.praxis, rechnungstext: "Text der Praxis" },
+      });
+    });
   });
 
   it("sollte ohne Praxis nicht migrieren", () => {
