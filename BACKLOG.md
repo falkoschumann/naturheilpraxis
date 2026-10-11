@@ -125,7 +125,7 @@ Jeder Eintrag beginnt mit einer Kategorie:
       Modulen, die nur diese Seite nutzt. Komponenten, die mehrere Seiten
       nutzen, nach `ui/components` verschieben.
 - [x] **Patient** Die Tabelle der Patienten sortierbar machen.
-- [ ] **Benutzbarkeit** Im Behandlungsverlauf bleibt die Überschrift mit dem
+- [x] **Benutzbarkeit** Im Behandlungsverlauf bleibt die Überschrift mit dem
       Datum beim Scrollen sichtbar.
 - [ ] **Diagnose** Die Diagnosen gehen im Behandlungsverlauf zwischen den
       Leistungen optisch unter, und manchmal braucht man nur eine Liste der

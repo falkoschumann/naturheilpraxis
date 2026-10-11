@@ -145,13 +145,15 @@
     pointer-events: none;
   }
 
-  // Covers the sides of the card outside the rounded corners.
+  // Covers the sides of the card outside the rounded corners. The rounded top
+  // above it takes the background of the header.
   &::before {
     z-index: -1;
     background-color: var(--bs-body-bg);
   }
 
   &::after {
+    z-index: -1;
     border: $border solid var(--bs-card-border-color);
     border-bottom: 0;
     border-top-left-radius: if($left, var(--bs-card-border-radius), 0);
@@ -171,6 +173,18 @@
   top: var(--card-headers-height);
 
   @include card-top;
+}
+
+// The tinted background of a card header must not let the content through.
+.card > .card-header.list-header {
+  background-image: linear-gradient(
+    var(--bs-card-cap-bg),
+    var(--bs-card-cap-bg)
+  );
+
+  &::after {
+    background-color: var(--bs-card-cap-bg);
+  }
 }
 
 .sticky-table thead th {

@@ -12,6 +12,7 @@ import type {
 import type { Diagnose, Leistung } from "../../../../shared/domain/entities.ts";
 import { formatEuro, type Patientennummer } from "../../../../shared/domain/value-objects.ts";
 import { RechnungsstatusBadge } from "../../components/rechnungen-tabelle.tsx";
+import { ListHeader } from "../../components/sticky-header.tsx";
 
 // What can be done with the entries of the treatment.
 export type BehandlungAktionen = Readonly<{
@@ -105,7 +106,7 @@ function Tag({
   const leistungen = eintraege.flatMap((behandlung) => (behandlung.art === "leistung" ? [behandlung.eintrag] : []));
   return (
     <section className="card shadow-sm mb-3" aria-labelledby={titleId}>
-      <div className="card-header d-flex justify-content-between">
+      <ListHeader className="card-header d-flex justify-content-between">
         <h3 id={titleId} className="h6 mb-0">
           {datumLang(datum)}
         </h3>
@@ -114,7 +115,7 @@ function Tag({
             Summe {formatEuro({ cents: leistungen.reduce((summe, leistung) => summe + betragsSumme(leistung), 0) })}
           </span>
         )}
-      </div>
+      </ListHeader>
       <ul className="list-group list-group-flush">
         {eintraege.map((behandlung) =>
           behandlung.art === "diagnose" ? (
