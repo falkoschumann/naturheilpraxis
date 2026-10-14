@@ -23,8 +23,9 @@ the functional core, imperative shell pattern.
 
 The domain code must be pure functional without I/O.
 
-Commands and Events have a `type` and a `data` property. The `type` is the name
-and `data` is the payload, both from their ESDM definition.
+Commands and Events have a `type` and a `data` property. Queries have a `type`
+and a `parameters` property. The `type` is the name and `data`/`parameters` is
+the payload, from their ESDM definition.
 
 ### Types
 
@@ -42,28 +43,40 @@ type DoSomethingCommand = Readonly<{
   data: DoSomethingCommandData;
 }>;
 
-type GetSomethingQueryResult =
-  | Readonly<{ something: SomethingData; errorMessage?: never }>
-  | Readonly<{ something?: never; errorMessage: string }>;
+type SomethingHappenedEvent = Readonly<{
+  type: "something-happened";
+  data: SomethingHappenedEventData;
+}>;
+
+type GetSomethingQuery = Readonly<{
+  type: "get-something";
+  parameters: GetSomethingQueryParameters;
+}>;
+
+type GetSomethingQueryResult = Readonly<{
+  something: Something;
+}>;
 ```
 
 ### Aggregate and DCB
 
 - `decide(state, command) → Result<Event[], Error>` – verifies the invariants
-  (business rules) and decides which events to publish.
+  (business rules) and decides which events to publish or reject.
 - `evolve(state, event) → state` – applies an event to the state (reducer).
 
 ```typescript
 type Result<T, E> =
   Readonly<{ ok: true; value: T }> | Readonly<{ ok: false; error: E }>;
 
-const ok = <T>(value: T): Result<T, never> => ({ ok: true, value });
-const fail = <E>(error: E): Result<never, E> => ({ ok: false, error });
+function ok<T>(value: T): Result<T, never> {
+  return { ok: true, value };
+}
 
-function decide(
-  state: State,
-  command: Command,
-): Result<EventType[], ErrorType> {
+function fail<E>(error: E): Result<never, E> {
+  return { ok: false, error };
+}
+
+function decide(state: State, command: Command): Result<Event[], Error> {
   switch (command.type) {
     // ...
   }
