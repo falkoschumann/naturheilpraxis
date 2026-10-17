@@ -4,11 +4,11 @@ PM := bun
 RUN := bunx
 
 # PlantUML configuration
-PLANTUML_FILES=$(wildcard docs/images/*.puml)
-DIAGRAM_FILES=$(subst .puml,.png,$(PLANTUML_FILES))
+PLANTUML_FILES := $(wildcard docs/images/*.puml)
+DIAGRAM_FILES := $(subst .puml,.png,$(PLANTUML_FILES))
 
 # Make configuration
-SHELL:=/bin/bash
+SHELL := /bin/bash
 
 all: dist check e2e-coverage doc
 
