@@ -84,5 +84,5 @@ endif
 	all clean distclean dist \
 	dev doc esdm-visualizer \
 	check fix \
-	test coverage watch  e2e e2e-coverage \
+	test coverage watch e2e e2e-coverage \
 	build prepare version
