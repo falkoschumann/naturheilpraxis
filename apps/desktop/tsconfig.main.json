@@ -1,5 +1,5 @@
 {
-  "extends": "@naturheilpraxis/typescript-config/tsconfig.node.json",
+  "extends": "@muspellheim/typescript-config/tsconfig.node.json",
   "compilerOptions": {
     "composite": true,
     "tsBuildInfoFile": "./node_modules/.cache/tsconfig.main.tsbuildinfo"

@@ -1,6 +1,6 @@
 // Copyright (c) 2026 Falko Schumann. MIT license.
 
-import { base } from "@naturheilpraxis/vitest-config";
+import { base } from "@muspellheim/vitest-config";
 import { defineConfig, mergeConfig } from "vitest/config";
 
 // The processes of the app run in different environments, so each one is its

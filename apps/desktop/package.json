@@ -23,11 +23,11 @@
   },
   "devDependencies": {
     "@fortawesome/fontawesome-free": "7.3.1",
-    "@naturheilpraxis/eslint-config": "*",
-    "@naturheilpraxis/sheriff-config": "*",
-    "@naturheilpraxis/stylelint-config": "*",
-    "@naturheilpraxis/typescript-config": "*",
-    "@naturheilpraxis/vitest-config": "*",
+    "@muspellheim/eslint-config": "0.2.3",
+    "@muspellheim/sheriff-config": "0.2.3",
+    "@muspellheim/stylelint-config": "0.2.3",
+    "@muspellheim/typescript-config": "0.2.3",
+    "@muspellheim/vitest-config": "0.2.3",
     "@playwright/test": "1.64.0",
     "@popperjs/core": "2.11.8",
     "@softarc/sheriff-core": "0.20.0",
@@ -40,6 +40,7 @@
     "@types/node": "24.19.2",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
+    "@vitest/coverage-v8": "5.0.5",
     "bootstrap": "5.3.8",
     "electron": "44.7.0",
     "electron-builder": "26.15.3",
@@ -54,7 +55,7 @@
     "stylelint": "17.16.0",
     "typescript": "6.0.3",
     "vite": "8.3.4",
-    "vitest": "5.0.3",
+    "vitest": "5.0.5",
     "yaml": "2.9.1"
   }
 }

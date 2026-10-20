@@ -2,7 +2,7 @@
 
 import { type SheriffConfig } from "@softarc/sheriff-core";
 
-import { components } from "@naturheilpraxis/sheriff-config/components";
+import { components } from "@muspellheim/sheriff-config";
 
 export const config: SheriffConfig = {
   ...components,
