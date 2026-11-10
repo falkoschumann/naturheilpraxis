@@ -41,7 +41,7 @@
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
     "bootstrap": "5.3.8",
-    "electron": "44.9.0",
+    "electron": "45.2.3",
     "electron-builder": "26.18.0",
     "eslint": "10.14.0",
     "monocart-coverage-reports": "2.13.2",
