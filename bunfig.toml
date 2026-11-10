@@ -1,7 +1,6 @@
 [install]
 exact = true
 ignoreScripts = true
-linker = "hoisted"
 
 [serve.static]
 env = "NATURHEILPRAXIS_*"
