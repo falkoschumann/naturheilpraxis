@@ -44,7 +44,7 @@
     "electron": "44.9.0",
     "electron-builder": "26.18.0",
     "eslint": "10.15.0",
-    "monocart-coverage-reports": "2.13.2",
+    "monocart-coverage-reports": "3.2.1",
     "mustache": "4.2.0",
     "react": "19.3.1",
     "react-dom": "19.3.1",
