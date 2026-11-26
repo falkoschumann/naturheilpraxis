@@ -1,6 +1,5 @@
 [install]
 exact = true
-ignoreScripts = true
 
 [serve.static]
 env = "NATURHEILPRAXIS_*"
